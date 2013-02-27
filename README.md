@@ -1,4 +1,4 @@
 ThermalSimulator
 ================
 
-MIT ISG Project
+A MIT ISG Project
