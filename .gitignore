@@ -15,6 +15,10 @@
 *.la
 *.a
 
+# vim swap file
+*.swp
+
 # library, include and executable files
 include/*
 config_test
+thermal_sim
