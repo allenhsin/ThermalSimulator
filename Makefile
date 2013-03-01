@@ -18,7 +18,7 @@ WARN_FLAGS    = -pedantic -Wall -W
 CXXFLAGS      = $(DEBUG_FLAGS) $(OPT_FLAGS) $(WARN_FLAGS) $(INCLUDE_FLAGS)
 
 LD_LIBS  += -lboost_filesystem -lboost_system -lboost_thread -lboost_regex
-LD_FLAGS += -L$(CURDIR)/libs
+LD_FLAGS += -L$(CURDIR)/libs -Wl,-rpath,$(CURDIR)/libs
 
 TARGET      = $(CURDIR)/thermal_sim
 CONFIG_TEST = $(CURDIR)/config_test
