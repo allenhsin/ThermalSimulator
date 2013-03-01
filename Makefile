@@ -21,16 +21,11 @@ LD_LIBS  += -lboost_filesystem -lboost_system
 LD_FLAGS += -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
 
 TARGET      = $(CURDIR)/thermal_sim
-CONFIG_TEST = $(CURDIR)/$(DIRS_TO_CONFIG)/config_test
 
 all: $(TARGET)
-config_test: $(CONFIG_TEST)
 
 $(TARGET): $(OBJS) 
 	$(CXX) $(CXXFLAGS) $(LD_FLAGS) $(OBJS) -o $(TARGET) $(LD_LIBS) 
-
-$(CONFIG_TEST): $(OBJS) $(CURDIR)/$(DIRS_TO_CONFIG)/test/test.oxx 
-	$(CXX) $(CXXFLAGS) $(LD_FLAGS) $(OBJS) $(CURDIR)/$(DIRS_TO_CONFIG)/test/test.oxx -o $(CONFIG_TEST) $(LD_LIBS)
 
 # For general c++ compilation
 %.o: %.cc 

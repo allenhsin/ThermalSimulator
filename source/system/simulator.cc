@@ -1,5 +1,6 @@
 #include "source/system/simulator.h" 
 
+#include <stddef.h>
 #include <cassert>
 
 namespace Thermal
