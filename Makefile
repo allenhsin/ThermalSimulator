@@ -17,11 +17,11 @@ OPT_FLAGS     = -O2 -fPIC
 WARN_FLAGS    = -pedantic -Wall -W
 CXXFLAGS      = $(DEBUG_FLAGS) $(OPT_FLAGS) $(WARN_FLAGS) $(INCLUDE_FLAGS)
 
-LD_LIBS  += -lboost_filesystem -lboost_system -lboost_thread -lboost_regex
-LD_FLAGS += -L$(CURDIR)/libs -Wl,-rpath,$(CURDIR)/libs
+LD_LIBS  +=  -lboost_filesystem -lboost_system
+LD_FLAGS += -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
 
 TARGET      = $(CURDIR)/thermal_sim
-CONFIG_TEST = $(CURDIR)/config_test
+CONFIG_TEST = $(CURDIR)/$(DIRS_TO_CONFIG)/config_test
 
 all: $(TARGET)
 config_test: $(CONFIG_TEST)

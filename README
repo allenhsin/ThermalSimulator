@@ -2,3 +2,19 @@ ThermalSimulator
 ================
 
 A MIT ISG Project
+
+
+
+I. Boost Libraries Installation:
+    The simulator requires the Boost C++ libraries.
+    Here's a quick installation tutorial (revised from the boost website)
+    1. Download Boost C++ libraries from http://www.boost.org/
+    2. Extract files from the tar ball, e.g. tar --bzip2 -xf /path/to/boost_1_53_0.tar.bz2
+    3. Go into the extracted boost folder, e.g. cd /path/to/boost_1_53_0
+    4. Run the configuration script by 
+            ./bootstrap.sh --prefix=path/to/thermal_simulator/root --with-libraries=filesystem,system
+    5. Run installation by
+            ./b2 install
+    6. Done!
+
+

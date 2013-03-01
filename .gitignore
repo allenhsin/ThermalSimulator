@@ -5,10 +5,15 @@
 *.opp
 
 # Compiled Dynamic libraries
-#*.so
+*.so
 *.dylib
 
 # Compiled Static libraries
 *.lai
 *.la
-#*.a
+*.a
+
+# include files and libraries
+./include/*
+./lib/*
+config_test
