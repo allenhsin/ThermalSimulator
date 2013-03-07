@@ -1,6 +1,9 @@
 #ifndef __THERMAL_MODEL_H__
 #define __THERMAL_MODEL_H__
 
+#include "source/data/data.h"
+#include "source/system/event_scheduler.h"
+
 namespace Thermal
 {
     class Model
@@ -10,8 +13,11 @@ namespace Thermal
         ~Model();
 
     protected:
+        Data* _data;
+        EventScheduler* _event_scheduler;
 
     private:
+
 
     }; // class Model
 

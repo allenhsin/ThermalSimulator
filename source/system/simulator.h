@@ -7,29 +7,38 @@
 #include "source/data/data.h"
 #include "source/models/model.h"
 #include "source/system/event_scheduler.h"
+#include "config.hpp"
 
 namespace Thermal
 {
     class Simulator
     {
     public:
+        // create simulator singleton
         static void allocate();
+        // destroy simulator singleton
         static void release();
+        // get simulator singleton pointer
         static Simulator* getSingleton();
-
+        // start to run simulation
         void run(int argc_, char** argv_);
+        // get config pointer
+        config::Config* getConfig() { return _config; }
+
     
     protected:
         Simulator();
         ~Simulator();
 
     private:
-        static Simulator* _simulator_singleton;
-        Data* _data;
-        EventScheduler* _event_scheduler;
-        std::vector<Model*> _models;
+        static Simulator*   _simulator_singleton;
         
-        uint64_t _sim_clock; // in ns
+        config::Config*     _config;
+
+        Data*               _data;
+        EventScheduler*     _event_scheduler;
+        
+        uint64_t            _sim_clock; // in ps
 
     }; // class Simualtor
 
