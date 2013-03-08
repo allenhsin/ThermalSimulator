@@ -31,14 +31,15 @@ namespace Thermal
         ~Simulator();
 
     private:
-        static Simulator*   _simulator_singleton;
+        static Simulator*       _simulator_singleton;
         
-        config::Config*     _config;
+        config::Config*         _config;
 
-        Data*               _data;
-        EventScheduler*     _event_scheduler;
+        Data*                   _data;
+        EventScheduler*         _event_scheduler;
+        std::vector< Model* >   _model_vec;
         
-        uint64_t            _sim_clock; // in ps
+        double                  _sim_clock; // in ps
 
     }; // class Simualtor
 

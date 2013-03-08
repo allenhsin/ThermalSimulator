@@ -19,6 +19,6 @@
 *.swp
 
 # library, include and executable files
-include/*
+include/boost/*
 config_test
 thermal_sim

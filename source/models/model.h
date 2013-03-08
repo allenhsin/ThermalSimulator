@@ -3,6 +3,7 @@
 
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
+#include "source/models/model_type.h"
 
 namespace Thermal
 {
@@ -11,6 +12,8 @@ namespace Thermal
     public:
         Model();
         ~Model();
+
+        Model* createModel(ModelType model_type);
 
     protected:
         Data* _data;
