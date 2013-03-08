@@ -1,6 +1,6 @@
 
-#ifndef __THERMAL_MODEL_TYPE__
-#define __THERMAL_MODEL_TYPE__
+#ifndef __THERMAL_MODEL_TYPE_H__
+#define __THERMAL_MODEL_TYPE_H__
 
 namespace Thermal
 {
@@ -15,4 +15,4 @@ namespace Thermal
 }
 
 
-#endif // __THERMAL_MODEL_TYPE__
+#endif // __THERMAL_MODEL_TYPE_H__

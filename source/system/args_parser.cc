@@ -65,7 +65,7 @@ namespace Thermal
         if(config_path == "")
             usageError("Should have specified config argument.\n");
         else
-            fprintf(stderr, "Config path set to: %s\n", config_path.c_str());
+            fprintf(stderr, "\nConfig path set to: %s\n\n", config_path.c_str());
 
     }
 

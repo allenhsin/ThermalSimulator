@@ -11,9 +11,11 @@ namespace Thermal
     {
     public:
         Model();
-        ~Model();
+        virtual ~Model(){}
 
-        Model* createModel(ModelType model_type);
+        static Model* createModel(int model_type, EventScheduler* event_scheduler, Data* data);
+        void setEventScheduler(EventScheduler* event_scheduler);
+        void setData(Data* data);
 
     protected:
         Data* _data;
