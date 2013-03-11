@@ -15,6 +15,9 @@
 *.la
 *.a
 
+# log file
+*.log
+
 # vim swap file
 *.swp
 

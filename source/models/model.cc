@@ -7,7 +7,9 @@
 
 namespace Thermal
 {
-    Model::Model()
+    Model::Model(EventScheduler* event_scheduler, Data* data)
+        : _event_scheduler  (event_scheduler)
+        , _data             (data)
     {}
 
     Model*

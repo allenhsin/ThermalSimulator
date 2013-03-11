@@ -1,6 +1,7 @@
 
 
 #include "source/system/event_scheduler.h" 
+#include "source/models/model.h"
 
 #include <cassert>
 #include <stddef.h>
@@ -51,34 +52,47 @@ namespace Thermal
         return next_event;
     }
 
-    void EventScheduler::advaceSimClockByInterval(double time_interval)
+    void EventScheduler::advanceSimClockByInterval(double time_interval)
     { (*_sim_clock) += time_interval; }
 
-    void EventScheduler::advaceSimClockToAbsTime(double abs_time)
+    void EventScheduler::advanceSimClockToAbsTime(double abs_time)
     { (*_sim_clock) = abs_time; }
 
-    void startScheduler()
+    void EventScheduler::startScheduler()
     {
+        // Set time to zero
+        assert(_sim_clock!=NULL);
+        advanceSimClockToAbsTime(0);
+
         // Start up all models to prepare for running
         for (int i=0; i<NUM_MODEL_TYPES; ++i)
         {   
-            // TODO: assert(_model[i]!=NULL);
-            // TODO: _model[i]->startup();
+            assert(_model[i]!=NULL);
+            _model[i]->startup();
         }
 
         // Execute events in the event queue until
         // the end of simulation
         // i.e. scheduler is finished
+        EventScheduler::Event next_event;
+        while (!_finished)
+        {
+            next_event = dequeueEvent();
 
+            advanceSimClockToAbsTime(next_event._scheduled_time);
+            _model[next_event._model_type]->execute();
+        }
     }
 
     EventScheduler::EventScheduler()
+        : _finished     (false)
+        , _sim_clock    (NULL)
     {   
-        _finished = false;
-
         _model.resize(NUM_MODEL_TYPES);
         for(int i=0; i<NUM_MODEL_TYPES; ++i)
             _model[i] = NULL;
+
+        assert(_event_queue.empty());
     }
 
     EventScheduler::~EventScheduler()

@@ -69,7 +69,7 @@ namespace Thermal
 
     // Create Log System ------------------------------------------------------
         LibUtil::Log::allocate( getConfig()->getString("general/log_file"),
-                                getConfig()->getBool("general/log_enabled"));
+                                getConfig()->getBool("general/log_enabled") );
     // ------------------------------------------------------------------------
 
 
@@ -92,6 +92,11 @@ namespace Thermal
         }
 
         _event_scheduler->setSimClock(&_sim_clock);
+    // ------------------------------------------------------------------------
+
+
+    // Start Scheduler --------------------------------------------------------
+
     // ------------------------------------------------------------------------
 
 
