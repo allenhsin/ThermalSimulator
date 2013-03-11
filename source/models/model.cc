@@ -24,8 +24,12 @@ namespace Thermal
         case THERMAL_MODEL:
             return NULL;
 
+        case EVALUATION_MODEL:
+            return NULL;
+
         default:
             LibUtil::Log::printLine("Unrecognized Model Type: " + model_type);
+            abort();
             return NULL;
         }
     }

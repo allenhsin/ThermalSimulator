@@ -7,10 +7,6 @@
 
 #include "String.h"
 
-#ifndef LIBUTIL_IS_LOG
-#define LIBUTIL_IS_LOG false
-#endif
-
 namespace LibUtil
 {
     using std::cerr;
@@ -18,7 +14,7 @@ namespace LibUtil
     class Log
     {
         public:
-            static void allocate(const String& log_file_name_);
+            static void allocate(const String& log_file_name_, bool log_enabled);
             static void release();
 
             static void print(const String& str_);
@@ -28,7 +24,7 @@ namespace LibUtil
 
         protected:
             static Log* msSingleton;
-            static const bool msIsLog;
+            static bool msIsLog;
 
         protected:
             Log(const String& log_file_name_);

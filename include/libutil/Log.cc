@@ -8,10 +8,12 @@ namespace LibUtil
     using std::endl;
 
     Log* Log::msSingleton = NULL;
-    const bool Log::msIsLog = LIBUTIL_IS_LOG;
+    bool Log::msIsLog = false;
 
-    void Log::allocate(const String& log_file_name_)
+    void Log::allocate(const String& log_file_name_, bool log_enabled)
     {
+        msIsLog = log_enabled;
+
         if(msIsLog)
         {
             // Allocate static Config instance
