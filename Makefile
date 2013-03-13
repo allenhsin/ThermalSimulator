@@ -5,7 +5,7 @@ DIRS_TO_SOURCE  := source \
                    source/system \
                    source/models \
                    include/libutil
-DIRS_TO_CONFIG  := source/system/config
+DIRS_TO_CONFIG  := source/misc/config
 
 DIRS = $(patsubst %,$(CURDIR)/%,$(DIRS_TO_SOURCE))
 SRCS = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cc)) \

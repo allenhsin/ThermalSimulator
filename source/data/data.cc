@@ -23,7 +23,10 @@ namespace Thermal
     }
     
     Data* Data::getSingleton()
-    { return _data_singleton; }
+    { 
+        assert(_data_singleton);
+        return _data_singleton;
+    }
 
     Data::Data()
     {}

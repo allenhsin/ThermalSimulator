@@ -2,6 +2,7 @@
 
 #include "source/system/event_scheduler.h" 
 #include "source/models/model.h"
+#include "libutil/Log.h"
 
 #include <cassert>
 #include <stddef.h>
@@ -25,8 +26,10 @@ namespace Thermal
     }
     
     EventScheduler* EventScheduler::getSingleton()
-    { return _event_scheduler_singleton; }
-
+    { 
+        assert(_event_scheduler_singleton);
+        return _event_scheduler_singleton;
+    }
 
     void EventScheduler::setModel(int model_type, Model* model)
     { _model[model_type] = model; }
@@ -69,6 +72,8 @@ namespace Thermal
         {   
             assert(_model[i]!=NULL);
             _model[i]->startup();
+
+            LibUtil::Log::printLine("Time: " + getSimClock + " - Startup Model[" + i + "]");
         }
 
         // Execute events in the event queue until
@@ -80,7 +85,9 @@ namespace Thermal
             next_event = dequeueEvent();
 
             advanceSimClockToAbsTime(next_event._scheduled_time);
-            _model[next_event._model_type]->execute();
+            _model[next_event._model_type]->execute(next_event._scheduled_time);
+
+            LibUtil::Log::printLine("Time: " + getSimClock + " - Execute Model[" + i + "]");
         }
     }
 

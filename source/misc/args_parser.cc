@@ -7,7 +7,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
 
-#include "source/system/args_parser.h"
+#include "source/misc/args_parser.h"
 
 namespace Thermal
 {
@@ -33,8 +33,9 @@ namespace Thermal
     }
 
     void ArgsParser::parseArgs(string_vec &args, std::string & config_path, int argc, char **argv)
-    {
-        _prog_name = argv[0];
+    {   
+        if (argc != 0)
+            _prog_name = argv[0];
 
         for(int i = 1; i < argc; i++)
         {

@@ -28,6 +28,8 @@ namespace Thermal
         void setModel(int model_type, Model* model);
         void setSimClock(double* sim_clock);
 
+        double getSimClock(){ return (*_sim_clock); }
+
         void advanceSimClockByInterval(double time_interval);
         void advanceSimClockToAbsTime(double abs_time);
 

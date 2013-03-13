@@ -1,8 +1,7 @@
 
 #include "source/system/simulator.h" 
-#include "source/system/args_parser.h"
+#include "source/misc/misc.h"
 #include "libutil/Log.h"
-#include "config_file.hpp"
 
 #include <stddef.h>
 #include <cassert>
@@ -17,6 +16,7 @@ namespace Thermal
         , _config           (NULL)
         , _data             (NULL)
         , _event_scheduler  (NULL)
+        , _config           (NULL)
     {}
 
     Simulator::~Simulator()
@@ -37,7 +37,10 @@ namespace Thermal
     }
     
     Simulator* Simulator::getSingleton()
-    { return _simulator_singleton; }
+    {
+        assert(_simulator_singleton);
+        return _simulator_singleton; 
+    }
 
     //FIXME: this giant piece of code will be cleaned up later XD
     void Simulator::run(int argc_, char** argv_)
@@ -45,31 +48,18 @@ namespace Thermal
 
     // Configure Simulator ----------------------------------------------------
         
-        // string vector to store parsed command line config arguments
-        string_vec  args;
         // default config file if not overridden by command line arguments
         std::string config_file = "./configs/thermal_sim.cfg";
-
-        // create command line argument parser
-        ArgsParser* args_parser = new ArgsParser();
-        // create config instance 
-        config::ConfigFile* cfg = new config::ConfigFile();
-
-        // parse command line arguments into args and config_file
-        args_parser->parseArgs(args, config_file, argc_, argv_);
-        // load config_file config settings into cfg
-        cfg->load(config_file);
-        // override cfg with command line arguments (if any)
-        args_parser->handleArgs(args, *cfg);
-        // put cfg into simulator
-        _config = cfg;
         
+        // set config
+        Misc::setConfig(config_file, _config, argc_, argv_);
+        assert(_config);
     // ------------------------------------------------------------------------
 
 
     // Create Log System ------------------------------------------------------
-        LibUtil::Log::allocate( getConfig()->getString("general/log_file"),
-                                getConfig()->getBool("general/log_enabled") );
+        LibUtil::Log::allocate( getConfig()->getString("log/log_file"),
+                                getConfig()->getBool("log/log_enabled") );
     // ------------------------------------------------------------------------
 
 
@@ -121,11 +111,8 @@ namespace Thermal
         LibUtil::Log::release();
 
         // release config
-        delete cfg;
+        delete _config;
         _config = NULL;
-
-        // release args_parser
-        delete args_parser;
 
     // ------------------------------------------------------------------------
 

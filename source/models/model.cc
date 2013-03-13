@@ -12,6 +12,14 @@ namespace Thermal
         , _data             (data)
     {}
 
+    Model::~Model()
+    {
+        // there's no need to free the memory because the
+        // simulator will do that in the end.
+        _event_scheduler = NULL;
+        _data = NULL;
+    }
+
     Model*
     Model::createModel(int model_type, EventScheduler* event_scheduler, Data* data)
     {
@@ -30,7 +38,7 @@ namespace Thermal
             return NULL;
 
         default:
-            LibUtil::Log::printLine("Unrecognized Model Type: " + model_type);
+            LibUtil::Log::printLine(stderr, "Unrecognized Model Type: " + model_type);
             abort();
             return NULL;
         }
