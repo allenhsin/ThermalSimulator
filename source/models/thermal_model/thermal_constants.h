@@ -36,14 +36,26 @@
 #define SINK_S      11
 
 // total functional block laters
-#define NL  4
+#define NL          4
 // silicon is always layer 0
 // interface layer
-#define IFACE   1
+#define IFACE       1
 // heat spreader
-#define HSP 2
+#define HSP         2
 // heat sink
-#define HSINK 3
+#define HSINK       3
+
+// model specific constants
+// changed from 1/2 to 1/3 due to the difference from traditional Elmore Delay scenario
+#define C_FACTOR    0.333       // fitting factor to match floworks (due to lumping)
+
+// number time step sizes
+#define N_TIME_STEPS    1
+#define TIME_STEP_1     2.5e-6
+#define TIME_STEP_2     1.0e-6
+#define TIME_STEP_3     250e-9
+#define TIME_STEP_4     100e-9
+
 // ------------------------------------------------------------------------------------------------
 
 

@@ -123,7 +123,6 @@ namespace Thermal
     
         vector< vector<double> > geq_step;
         vector<double> time_steps;
-        int     n_time_steps;
     
         // diagonal capacitance matrix stored as a 1-d vector
         vector<double> a; 
@@ -174,8 +173,18 @@ namespace Thermal
         RCModelHolder* getRCModelHolder(){ return _rc_model_holder; }
 
         void allocateRCModelHolder();
+        void populateR();
+        void populateC();
+        void precomputeStepLupDcmp();
 
     protected:
+        void populatePackageR(double chip_width, double chip_height);
+        void populatePackageC(double chip_width, double chip_height);
+
+        double getR(double conductivity, double thickness, double area);
+        double getCap(double sp_heat, double thickness, double area);
+
+        double lupDcmp(double**a, int n, int *p, int spd);
 
     private:
         RCModelHolder*      _rc_model_holder;

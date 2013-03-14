@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "source/models/thermal_model/floorplan.h"
+#include "source/misc/misc.h"
 #include "libutil/Log.h"
 
 namespace Thermal
@@ -99,22 +100,160 @@ namespace Thermal
     void offsetFloorplanCoordinate(double x, double y)
     {
         int i;
-        double minx = _floorplan_holder->_flp_units[0].leftx;
-        double miny = _floorplan_holder->_flp_units[0].bottomy;
+        double minx = _floorplan_holder->_flp_units[0]._leftx;
+        double miny = _floorplan_holder->_flp_units[0]._bottomy;
 
         for (i=1; i < _floorplan_holder->_n_units; i++) 
         {
-            if (minx > _floorplan_holder->_flp_units[i].leftx)
-                minx = _floorplan_holder->_flp_units[i].leftx;
-            if (miny > _floorplan_holder->_flp_units[i].bottomy)
-                miny = _floorplan_holder->_flp_units[i].bottomy;
+            if (minx > _floorplan_holder->_flp_units[i]._leftx)
+                minx = _floorplan_holder->_flp_units[i]._leftx;
+            if (miny > _floorplan_holder->_flp_units[i]._bottomy)
+                miny = _floorplan_holder->_flp_units[i]._bottomy;
         }
         for (i=0; i < _floorplan_holder->_n_units; i++) 
         {
-            _floorplan_holder->_flp_units[i].leftx += (x - minx);
-            _floorplan_holder->_flp_units[i].bottomy += (y - miny);
+            _floorplan_holder->_flp_units[i]._leftx += (x - minx);
+            _floorplan_holder->_flp_units[i]._bottomy += (y - miny);
         }
-    }
+    } // offsetFloorplanCoordinate
+
+    void Floorplan::calculateChipTotalWidth()
+    {
+        int i;
+        double min_x =  _floorplan_holder->_flp_units[0]._leftx;
+        double max_x =  _floorplan_holder->_flp_units[0]._leftx + 
+                        _floorplan_holder->_flp_units[0]._width;
+    
+        for (i=1; i < _floorplan_holder->_n_units; i++) 
+        {
+            if (_floorplan_holder->_flp_units[i]._leftx < min_x)
+                min_x = _floorplan_holder->_flp_units[i]._leftx;
+            if (_floorplan_holder->_flp_units[i]._leftx + _floorplan_holder->_flp_units[i]._width > max_x)
+                max_x = _floorplan_holder->_flp_units[i]._leftx + 
+                        _floorplan_holder->_flp_units[i]._width;
+        }
+        
+        _floorplan_holder->_total_width = (max_x - min_x);
+    } // calculateChipTotalWidth
+
+    void Floorplan::calculateChipTotalHeight()
+    {
+        int i;
+        double min_y =  _floorplan_holder->_flp_units[0]._bottomy;
+        double max_y =  _floorplan_holder->_flp_units[0]._bottomy + 
+                        _floorplan_holder->_flp_units[0]._height;
+     
+        for (i=1; i < _floorplan_holder->_n_units; i++) 
+        {
+            if (_floorplan_holder->_flp_units[i]._bottomy < min_y)
+                min_y = _floorplan_holder->_flp_units[i]._bottomy;
+            if (_floorplan_holder->_flp_units[i]._bottomy + _floorplan_holder->_flp_units[i]._height > max_y)
+                max_y = _floorplan_holder->_flp_units[i]._bottomy + 
+                        _floorplan_holder->_flp_units[i]._height;
+        }
+
+        _floorplan_holder->_total_height = (max_y - min_y);
+    } // calculateChipTotalHeight
+
+    bool Floorplan::isVertAdj(FloorplanHolder* floorplan_holder, int i, int k)
+    {
+        double x1, x2, x3, x4;
+        double y1, y2, y3, y4;
+    
+        if (i == j)
+            return false;
+    
+        x1 = floorplan_holder->_flp_units[i]._leftx;
+        x2 = x1 + floorplan_holder->_flp_units[i]._width;
+        x3 = floorplan_holder->_flp_units[j]._leftx;
+        x4 = x3 + floorplan_holder->_flp_units[j]._width;
+    
+        y1 = floorplan_holder->_flp_units[i]._bottomy;
+        y2 = y1 + floorplan_holder->_flp_units[i]._height;
+        y3 = floorplan_holder->_flp_units[j]._bottomy;
+        y4 = y3 + floorplan_holder->_flp_units[j]._height;
+    
+        /* diagonally adjacent => not adjacent */
+        if (Misc::eq(x2,x3) && Misc::eq(y2,y3))
+            return false;
+        if (Misc::eq(x1,x4) && Misc::eq(y1,y4))
+            return false;
+        if (Misc::eq(x2,x3) && Misc::eq(y1,y4))
+            return false;
+        if (Misc::eq(x1,x4) && Misc::eq(y2,y3))
+            return false;
+    
+        if (Misc::eq(y1,y4) || Misc::eq(y2,y3))
+            if ((x3 >= x1 && x3 <= x2) || (x4 >= x1 && x4 <= x2) ||
+                (x1 >= x3 && x1 <= x4) || (x2 >= x3 && x2 <= x4))
+                return true;
+    
+        return false;
+    } // isVertAdj
+
+    bool Floorplan::isHorizAdj(FloorplanHolder* floorplan_holder, int i, int k)
+    {
+        double x1, x2, x3, x4;
+        double y1, y2, y3, y4;
+    
+        if (i == j) 
+            return false;
+    
+        x1 = floorplan_holder->_flp_units[i]._leftx;
+        x2 = x1 + floorplan_holder->_flp_units[i]._width;
+        x3 = floorplan_holder->_flp_units[j]._leftx;
+        x4 = x3 + floorplan_holder->_flp_units[j]._width;
+    
+        y1 = floorplan_holder->_flp_units[i]._bottomy;
+        y2 = y1 + floorplan_holder->_flp_units[i]._height;
+        y3 = floorplan_holder->_flp_units[j]._bottomy;
+        y4 = y3 + floorplan_holder->_flp_units[j]._height;
+    
+        /* diagonally adjacent => not adjacent */
+        if (Misc::eq(x2,x3) && Misc::eq(y2,y3))
+            return false;
+        if (Misc::eq(x1,x4) && Misc::eq(y1,y4))
+            return false;
+        if (Misc::eq(x2,x3) && Misc::eq(y1,y4))
+            return false;
+        if (Misc::eq(x1,x4) && Misc::eq(y2,y3))
+            return false;
+    
+        if (Misc::eq(x1,x4) || Misc::eq(x2,x3))
+            if ((y3 >= y1 && y3 <= y2) || (y4 >= y1 && y4 <= y2) ||
+                (y1 >= y3 && y1 <= y4) || (y2 >= y3 && y2 <= y4))
+                return true;
+    
+        return false;
+    } // isHorizAdj
+
+    double Floorplan::getSharedLength(FloorplanHolder* floorplan_holder, int i, int k)
+    {
+        double p11, p12, p21, p22;
+        p11 = p12 = p21 = p22 = 0.0;
+    
+        if (i==j) 
+            return false;
+    
+        if (isHorizAdj(floorplan_holder, i, j)) 
+        {
+            p11 = floorplan_holder->_flp_units[i]._bottomy;
+            p12 = p11 + floorplan_holder->_flp_units[i]._height;
+            p21 = floorplan_holder->_flp_units[j]._bottomy;
+            p22 = p21 + floorplan_holder->_flp_units[j]._height;
+        }
+    
+        if (isVertAdj(floorplan_holder, i, j)) 
+        {
+            p11 = floorplan_holder->_flp_units[i]._leftx;
+            p12 = p11 + floorplan_holder->_flp_units[i]._width;
+            p21 = floorplan_holder->_flp_units[j]._leftx;
+            p22 = p21 + floorplan_holder->_flp_units[j]._width;
+        }
+    
+        return (MIN(p12, p22) - MAX(p11, p21));
+        
+    } // getSharedLength
 
     void Floorplan::readFloorplan(std::string flp_file)
     {
@@ -149,6 +288,10 @@ namespace Thermal
 
         // make sure the origin is (0,0)
         offsetFloorplanCoordinate(0, 0);   
+
+        // calculate total chip dimension
+        calculateChipTotalWidth();
+        calculateChipTotalHeight();
 
     } // readFloorplan
 

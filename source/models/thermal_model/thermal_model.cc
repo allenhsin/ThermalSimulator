@@ -18,9 +18,7 @@ namespace Thermal
         , _thermal_config       (NULL)
         , _package              (new Package())
         , _floorplan            (new Floorplan())
-        , _floorplan_holder     (NULL)
         , _rc_model             (new RCModel())
-        , _rc_model_holder      (NULL)
         , _ready_to_execute     (false)
         , _parameter_ready      (false)
     {}
@@ -109,15 +107,21 @@ namespace Thermal
         }
     // ------------------------------------------------------------------------
 
-    // Initialize Floorplan and Construct RC Model ----------------------------
+    // Construct floorplan and RC models --------------------------------------
         
         // read in floorplan from flp file
         _floorplan->readFloorplan(thermal_params->floorplan_file);
-        _floorplan_holder = _floorplan->getFloorplanHolder();
-        assert(_floorplan_holder);
+        assert(_floorplan->getFloorplanHolder());
 
-        // construct the RC model
-
+        // allocate the RC model
+        _rc_model->setFloorplanHolder(_floorplan->getFloorplanHolder());
+        _rc_model->allocateRCModelHolder();
+        assert(getRCModelHolder());
+        // populate RC equivalent circuit
+        _rc_model->populateR();
+        _rc_model->populateC();
+        // precompute LUP decomposition for different time step sizes
+        _rc_model->precomputeStepLupDcmp();
 
 
     // ------------------------------------------------------------------------

@@ -1,6 +1,13 @@
 
+#include <cassert>
+#include <vector>
+#include <math.h>
+
 #include "source/misc/args_parser.h"
+#include "source/misc/misc.h"
 #include "config_file.hpp"
+
+using namespace std::vector;
 
 namespace Thermal
 {
@@ -26,12 +33,61 @@ namespace Thermal
         delete args_parser;
     }
 
+    void Misc::initDouble1DVector(vector<double>& vec_ref, int dim_1)
+    {
+        assert(dim_1>0);
+        vec_ref.clear();
+        vec_ref.resize(dim_1);
+    }
 
+    void Misc::initDouble2DVector(vecotr< vector<double> >& vec_ref, int dim_1, int dim_2)
+    {
+        assert(dim_1>0 && dim_2>0);
+        vec_ref.clear();
+        vec_ref.resize(dim_1);
+        for(int i=0; i<dim_1; ++i)
+            vec_ref[i].resize(dim_2);
+    }
 
+    void Misc::initDouble3DVector(vecotr< vector< vector<double> > >& vec_ref, int dim_1, int dim_2, int dim_3)
+    {
+        int i, j;
+        assert(dim_1>0 && dim_2>0 && dim_3>0);
+        vec_ref.clear();
+        vec_ref.resize(dim_1);
+        for(i=0; i<dim_1; ++i)
+        {
+            vec_ref[i].resize(dim_2);
+            for(j=0; j<dim_2; ++j)
+                vec_ref[i][j].resize(dim_3);
+        }
+    }
 
+    void Misc::initInt1DVector(vector<int>& vec_ref, int dim_1)
+    {
+        assert(dim_1>0);
+        vec_ref.clear();
+        vec_ref.resize(dim_1);
+    }
 
+    void Misc::initInt2DVector(vecotr< vector<int> >& vec_ref, int dim_1, int dim_2)
+    {
+        assert(dim_1>0 && dim_2>0);
+        vec_ref.clear();
+        vec_ref.resize(dim_1);
+        for(int i=0; i<dim_1; ++i)
+            vec_ref[i].resize(dim_2);
+    }
 
+    bool Misc::eq(double x, double y)
+    { return (fabs(x-y) <  DELTA); }
 
+    void Misc::swapDoubleValue (double *a, double *b)
+    {
+        double t = *a;
+        *a = *b;
+        *b = t;
+    }
 
 } // namespace Thermal
 

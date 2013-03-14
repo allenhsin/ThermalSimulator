@@ -24,14 +24,21 @@ namespace Thermal
         FloorplanUnit*  _flp_units;
         int             _n_units;
 
+        double          _total_width;
+        double          _total_height;
+
         FloorplanHolder()
             : _flp_units    (NULL)
             , _n_units      (0)
+            , _total_width  (0)
+            , _total_height (0)
         {}
 
         FloorplanHolder(int n_units)
             : _flp_units    (new FloorplanUnit [n_units])
             , _n_units      (n_units)
+            , _total_width  (0)
+            , _total_height (0)
         {}
 
         ~FloorplanHolder()
@@ -48,10 +55,17 @@ namespace Thermal
 
         FloorplanHolder* getFloorplanHolder() { return _floorplan_holder; }
 
+        static bool isVertAdj(FloorplanHolder* floorplan_holder, int i, int k);
+        static bool isHorizAdj(FloorplanHolder* floorplan_holder, int i, int k);
+        static double getSharedLength(FloorplanHolder* floorplan_holder, int i, int k);
+
     protected:
         int countFloorplanUnits(FILE* fp);
         void populateFloorplanUnits(FILE* fp);
         void offsetFloorplanCoordinate(double x, double y);
+
+        void calculateChipTotalWidth();
+        void calculateChipTotalHeight();
 
     private:
        FloorplanHolder* _floorplan_holder; 

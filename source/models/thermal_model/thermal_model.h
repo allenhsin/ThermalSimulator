@@ -30,12 +30,8 @@ namespace Thermal
         Package*            _package;
         // construct floorplan data structure
         Floorplan*          _floorplan;
-        // the holder for floorplan data
-        FloorplanHolder*    _floorplan_holder;
         // construct RC model data structure
         RCModel*            _rc_model;
-        // the holder for RC model data
-        RCModelHolder*      _rc_model_holder;
 
         bool                _ready_to_execute;
         bool                _parameter_ready;
