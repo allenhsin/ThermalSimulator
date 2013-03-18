@@ -1,11 +1,14 @@
 
-
 #include "source/system/event_scheduler.h" 
 #include "source/models/model.h"
 #include "libutil/Log.h"
+#include "libutil/String.h"
 
+#include <string>
 #include <cassert>
 #include <stddef.h>
+
+using LibUtil::String;
 
 namespace Thermal
 {
@@ -68,27 +71,31 @@ namespace Thermal
         advanceSimClockToAbsTime(0);
 
         // Start up all models to prepare for running
-        for (int i=0; i<NUM_MODEL_TYPES; ++i)
+        //for (int i=0; i<NUM_MODEL_TYPES; ++i)
+        for(int i=THERMAL_MODEL; i!=THERMAL_MODEL; ++i)
         {   
             assert(_model[i]!=NULL);
             _model[i]->startup();
 
-            LibUtil::Log::printLine("Time: " + getSimClock + " - Startup Model[" + i + "]");
+            LibUtil::Log::printLine("Time: " + (String) getSimClock() + " - Startup Model[" + (String) i + "]");
         }
 
         // Execute events in the event queue until
         // the end of simulation
         // i.e. scheduler is finished
         EventScheduler::Event next_event;
-        while (!_finished)
+        while ( (!_finished) && (_event_queue.size()!=0) )
         {
             next_event = dequeueEvent();
 
             advanceSimClockToAbsTime(next_event._scheduled_time);
             _model[next_event._model_type]->execute(next_event._scheduled_time);
 
-            LibUtil::Log::printLine("Time: " + getSimClock + " - Execute Model[" + i + "]");
+            LibUtil::Log::printLine("Time: " + (String) getSimClock() + " - Execute Model[" + (String) next_event._model_type + "]");
         }
+
+        if(!_finished)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Simulation is not properly terminated\n");
     }
 
     EventScheduler::EventScheduler()

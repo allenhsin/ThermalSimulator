@@ -9,18 +9,21 @@
 #include "source/models/thermal_model/rc_model.h"
 #include "source/models/thermal_model/floorplan.h"
 #include "source/models/thermal_model/thermal_constants.h"
+#include "source/models/thermal_model/thermal_util.h"
+#include "source/models/thermal_model/thermal_constants.h"
 #include "source/misc/misc.h"
 #include "libutil/Log.h"
+#include "libutil/String.h"
 
-using namespace std::vector;
+using std::vector;
 
 namespace Thermal
 {
 
     RCModel::RCModel()
-        : _thermal_params   (NULL)
+        : _rc_model_holder  (NULL)
+        , _thermal_params   (NULL)
         , _floorplan_holder (NULL)
-        , _rc_model_holder  (NULL)
     {}
 
     RCModel::~RCModel()
@@ -40,50 +43,6 @@ namespace Thermal
 
     double RCModel::getCap(double sp_heat, double thickness, double area)
     { return C_FACTOR * sp_heat * thickness * area; }
-
-
-    // LUP decomposition from the pseudocode given in the CLR 
-    // 'Introduction to Algorithms' textbook. The matrix 'a' is
-    // transformed into an in-place lower/upper triangular matrix
-    // and the vector'p' carries the permutation vector such that
-    // Pa = lu, where 'P' is the matrix form of 'p'. The 'spd' flag 
-    // indicates that 'a' is symmetric and positive definite 
-    void RCModel::lupDcmp(vector< vector<double> >& a, int n, vector<int>& p, int spd)
-    {
-        int i, j, k, pivot=0;
-        double max = 0;
-    
-        /* start with identity permutation  */
-        for (i=0; i < n; i++)
-            p[i] = i;
-    
-        for (k=0; k < n-1; k++)  
-        {
-            max = 0;
-            for (i = k; i < n; i++) 
-            {
-                if (fabs(a[i][k]) > max) 
-                {
-                    max = fabs(a[i][k]);
-                    pivot = i;
-                }
-            }   
-            if (eq (max, 0))
-                fatal ("singular matrix in lupdcmp\n");
-    
-            /* bring pivot element to position  */
-            swap_ival (&p[k], &p[pivot]);
-            for (i=0; i < n; i++)
-                Misc::swapDoubleValue(&a[k][i], &a[pivot][i]);
-    
-            for (i=k+1; i < n; i++) 
-            {
-                a[i][k] /= a[k][k];
-                for (j=k+1; j < n; j++)
-                    a[i][j] -= a[i][k] * a[k][j];
-            }
-        }
-    }
 
     void RCModel::allocateRCModelHolder()
     {
@@ -304,7 +263,7 @@ namespace Thermal
         
         // sanity check on floorplan sizes   
         if (w_chip > s_sink || l_chip > s_sink || w_chip > s_spreader || l_chip > s_spreader) 
-                LibUtil::Log::printLine(stderr, "\ninordinate floorplan size!\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: inordinate floorplan size!\n");
     
         // gx's and gy's of blocks   
         for (i = 0; i < n; i++) {
@@ -474,10 +433,10 @@ namespace Thermal
         // copy b to lu
         lu = b;
         // LUP decomp.
-        lupDcmp(lu, NL*n+EXTRA, p, 1);
+        ThermalUtil::lupDecomposition(lu, NL*n+EXTRA, p);
 
         // done  
-        _rc_model_holder->r_ready = TRUE;
+        _rc_model_holder->r_ready = true;
     } // populateR
 
 
@@ -492,9 +451,6 @@ namespace Thermal
         assert(_floorplan_holder);
         assert(_rc_model_holder);
 
-        vector<double>& inva        = _rc_model_holder->inva;
-        vector< vector<double> >& c = _rc_model_holder->c;
-        vector< vector<double> >& b = _rc_model_holder->b;
         vector<double>& a           = _rc_model_holder->a;
         double t_chip               = _thermal_params->t_chip;
         double c_convec             = _thermal_params->c_convec;
@@ -512,7 +468,7 @@ namespace Thermal
         int n = _floorplan_holder->_n_units;
     
         if (!_rc_model_holder->r_ready)
-            fatal("R model not ready\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nR model not ready\n");
             
         double w_chip = _floorplan_holder->_total_width;  // x-axis    
         double l_chip = _floorplan_holder->_total_height; // y-axis    
@@ -522,7 +478,7 @@ namespace Thermal
         
         // functional block C's  
         for (i = 0; i < n; i++) {
-            double area = (_floorplan_holder->_flp_units[i].height * _floorplan_holder->_flp_units[i].width);
+            double area = (_floorplan_holder->_flp_units[i]._height * _floorplan_holder->_flp_units[i]._width);
             // C's from functional units to ground   
             a[i] = getCap(p_chip, t_chip, area);
             // C's from interface portion of the functional units to ground  
@@ -554,7 +510,7 @@ namespace Thermal
                          _rc_model_holder->pack.c_hs_per + _rc_model_holder->pack.c_amb_per;
         
         //  done     
-        _rc_model_holder->c_ready = TRUE;
+        _rc_model_holder->c_ready = true;
     } // populateC
 
 
@@ -580,7 +536,7 @@ namespace Thermal
                 lu_step[i][j][j] += geq_step[i][j];
             }
     
-            lupdcmp(lu_step[i], m, p_step[i], 1);
+            ThermalUtil::lupDecomposition(lu_step[i], m, p_step[i]);
         }
     }
 

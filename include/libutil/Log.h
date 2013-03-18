@@ -21,6 +21,8 @@ namespace LibUtil
             static void print(std::ostream& stream_, const String& str_);
             static void printLine(const String& str_);
             static void printLine(std::ostream& stream_, const String& str_);
+            static void printFatalLine(const String& str_);
+            static void printFatalLine(std::ostream& stream_, const String& str_);
 
         protected:
             static Log* msSingleton;

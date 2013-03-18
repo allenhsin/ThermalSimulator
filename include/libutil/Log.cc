@@ -1,5 +1,7 @@
-#include "Log.h"
 
+#include <stdlib.h>
+
+#include "Log.h"
 #include "Assert.h"
 
 namespace LibUtil
@@ -72,6 +74,29 @@ namespace LibUtil
             msSingleton->ofs << str_ << endl;
         }
         stream_ << str_ << endl;
+        return;
+    }
+
+    void Log::printFatalLine(const String& str_)
+    {
+        if(msIsLog)
+        {
+            ASSERT(msSingleton, "Log singleton is not allocated");
+            msSingleton->ofs << str_ << endl;
+        }
+        abort();
+        return;
+    }
+
+    void Log::printFatalLine(ostream& stream_, const String& str_)
+    {
+        if(msIsLog)
+        {
+            ASSERT(msSingleton, "Log singleton is not allocated");
+            msSingleton->ofs << str_ << endl;
+        }
+        stream_ << str_ << endl;
+        abort();
         return;
     }
 

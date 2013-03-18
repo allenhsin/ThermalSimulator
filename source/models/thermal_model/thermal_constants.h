@@ -45,6 +45,29 @@
 // heat sink
 #define HSINK       3
 
+// typical thermal properties for secondary path layers 
+#define RHO_METAL           0.0025  
+#define RHO_DIELECTRIC      1.0
+#define RHO_C4              0.8
+#define RHO_UNDERFILL       0.03
+#define RHO_SUB             0.5
+#define RHO_SOLDER          0.06
+#define RHO_PCB             0.333
+#define K_METAL             (1.0/RHO_METAL) 
+#define K_DIELECTRIC        (1.0/RHO_DIELECTRIC)
+#define K_C4                (1.0/RHO_C4)
+#define K_UNDERFILL         (1.0/RHO_UNDERFILL)
+#define K_SUB               (1.0/RHO_SUB)   
+#define K_SOLDER            (1.0/RHO_SOLDER)    
+#define K_PCB               (1.0/RHO_PCB)
+#define SPEC_HEAT_METAL         3.55e6  // specfic heat of silicon in J/(m^3K)
+#define SPEC_HEAT_DIELECTRIC    2.2e6  
+#define SPEC_HEAT_C4            1.65e6  
+#define SPEC_HEAT_UNDERFILL     2.65e6  
+#define SPEC_HEAT_SUB           1.6e6   // specific heat of copper in J/(m^3K
+#define SPEC_HEAT_SOLDER        2.1e6       // specific heat of the interface material in J/(m^3K)
+#define SPEC_HEAT_PCB           1.32e6  
+
 // model specific constants
 // changed from 1/2 to 1/3 due to the difference from traditional Elmore Delay scenario
 #define C_FACTOR    0.333       // fitting factor to match floworks (due to lumping)

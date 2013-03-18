@@ -2,10 +2,16 @@
 #include <cassert>
 #include <stddef.h>
 #include <string.h>
+#include <map>
 
 #include "source/models/thermal_model/floorplan.h"
+#include "source/data/data.h"
 #include "source/misc/misc.h"
 #include "libutil/Log.h"
+#include "libutil/String.h"
+
+using LibUtil::String;
+using std::map;
 
 namespace Thermal
 {
@@ -44,10 +50,7 @@ namespace Thermal
             if (sscanf(str2, "%s%lf%lf%lf%lf", name, &leftx, &bottomy, &width, &height) == 5)
                 count++;
             else
-            {
-                LibUtil::Log::printLine(stderr, "\nERROR: wrong floorplan file format around line: %d.\n", count);
-                abort();
-            }
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong floorplan file format around line: " + (String) count + ".\n");
         }
         return count;
     } // countFloorplanUnits
@@ -86,10 +89,7 @@ namespace Thermal
                 i++;
             }
             else
-            {
-                LibUtil::Log::printLine(stderr, "\nERROR: wrong floorplan file format around line: %d.\n", i);
-                abort();
-            }
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong floorplan file format around line: i" + (String) i + ".\n");
                 
         }
 
@@ -97,7 +97,7 @@ namespace Thermal
     } // populateFloorplanUnits
 
 
-    void offsetFloorplanCoordinate(double x, double y)
+    void Floorplan::offsetFloorplanCoordinate(double x, double y)
     {
         int i;
         double minx = _floorplan_holder->_flp_units[0]._leftx;
@@ -155,8 +155,10 @@ namespace Thermal
         _floorplan_holder->_total_height = (max_y - min_y);
     } // calculateChipTotalHeight
 
-    bool Floorplan::isVertAdj(FloorplanHolder* floorplan_holder, int i, int k)
+    bool Floorplan::isVertAdj(FloorplanHolder* floorplan_holder, int i, int j)
     {
+        assert(floorplan_holder);
+
         double x1, x2, x3, x4;
         double y1, y2, y3, y4;
     
@@ -191,8 +193,10 @@ namespace Thermal
         return false;
     } // isVertAdj
 
-    bool Floorplan::isHorizAdj(FloorplanHolder* floorplan_holder, int i, int k)
+    bool Floorplan::isHorizAdj(FloorplanHolder* floorplan_holder, int i, int j)
     {
+        assert(floorplan_holder);
+
         double x1, x2, x3, x4;
         double y1, y2, y3, y4;
     
@@ -227,8 +231,10 @@ namespace Thermal
         return false;
     } // isHorizAdj
 
-    double Floorplan::getSharedLength(FloorplanHolder* floorplan_holder, int i, int k)
+    double Floorplan::getSharedLength(FloorplanHolder* floorplan_holder, int i, int j)
     {
+        assert(floorplan_holder);
+
         double p11, p12, p21, p22;
         p11 = p12 = p21 = p22 = 0.0;
     
@@ -255,29 +261,51 @@ namespace Thermal
         
     } // getSharedLength
 
+    int Floorplan::getUnitIndexFromName(FloorplanHolder* floorplan_holder, char* name)
+    {
+        assert(floorplan_holder);
+
+        int i;
+    
+        for (i = 0; i < floorplan_holder->_n_units; i++) 
+        {
+            if (!strcmp(name, floorplan_holder->_flp_units[i]._name)) 
+                return i;
+        }
+    
+        LibUtil::Log::printFatalLine(std::cerr, "ERROR: block " + (String) name + " not found\n");
+        return -1;
+    } // getUnitIndexFromName
+
+    void Floorplan::setFloorplanUnitNamesInData()
+    {
+        assert(_floorplan_holder);
+        
+        map<char*, double>& temperature = Data::getSingleton()->getTemperature();
+        map<char*, double>& power       = Data::getSingleton()->getPower();
+
+        for (int i=0; i<_floorplan_holder->_n_units; ++i)
+        {
+            temperature[ _floorplan_holder->_flp_units[i]._name ] = 0;
+            power[ _floorplan_holder->_flp_units[i]._name ] = 0;
+        }
+    }
+
     void Floorplan::readFloorplan(std::string flp_file)
     {
         
-        char    str[STR_SIZE];
         FILE    *fp;
-        int     i, j;
         int     n_units = 0;
     
         fp = fopen (flp_file.c_str(), "r");
 
         if (!fp) 
-        {
-            LibUtil::Log::printLine(stderr, "\nERROR: cannot open floorplan file.\n");
-            abort();
-        }
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open floorplan file.\n");
     
         // 1st pass - find n_units
         n_units = countFloorplanUnits(fp);
         if(n_units<=0)
-        {
-            LibUtil::Log::printLine(stderr, "\nERROR: no units in floorplan file.\n");
-            abort();
-        }
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: no units in floorplan file.\n");
         // allocate floorplan holder
         _floorplan_holder = new FloorplanHolder(n_units);
     

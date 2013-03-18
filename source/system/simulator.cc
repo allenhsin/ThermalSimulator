@@ -12,12 +12,13 @@ namespace Thermal
     Simulator* Simulator::_simulator_singleton = NULL;
 
     Simulator::Simulator()
-        : _sim_clock        (0)
-        , _config           (NULL)
+        : _config           (NULL)
         , _data             (NULL)
         , _event_scheduler  (NULL)
-        , _config           (NULL)
-    {}
+        , _sim_clock        (0)
+    {
+        _model.resize(NUM_MODEL_TYPES);
+    }
 
     Simulator::~Simulator()
     {}
@@ -74,7 +75,6 @@ namespace Thermal
         _data = Data::getSingleton();
 
         // Models
-        _model.resize(NUM_MODEL_TYPES);
         for (int i=0; i<NUM_MODEL_TYPES; ++i)
         {
             _model[i] = Model::createModel(i, _event_scheduler, _data);

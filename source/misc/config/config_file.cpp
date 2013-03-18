@@ -85,8 +85,8 @@ namespace config
         if(info.full)
         {
             // Uncomment the following lines for more verbose output
-//            showParseTree(info.trees.begin());
-            evalTree(m_root, info.trees.begin());
+            // showParseTree(info.trees.begin());
+            evalTree(current, info.trees.begin());
         }
         else
         {

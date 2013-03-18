@@ -29,7 +29,10 @@ namespace Thermal
     }
 
     Data::Data()
-    {}
+    {
+        _temperature.clear();
+        _power.clear();
+    }
 
     Data::~Data()
     {}

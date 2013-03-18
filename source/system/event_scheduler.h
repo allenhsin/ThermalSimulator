@@ -37,7 +37,7 @@ namespace Thermal
 
         void startScheduler();
 
-        void finished(){ _finished = true; }
+        void finish(){ _finished = true; }
 
     protected:
         EventScheduler();

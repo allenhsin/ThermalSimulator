@@ -7,7 +7,6 @@
 #include "source/models/thermal_model/thermal_parameters.h"
 #include "source/models/thermal_model/floorplan.h"
 
-using namespace std::vector;
 
 namespace Thermal
 {   
@@ -114,40 +113,40 @@ namespace Thermal
     {
         // main matrices
         // conductance matrix
-        vector< vector<double> > b;
+        std::vector< std::vector<double> > b;
         // LUP decomposition of b
-        vector< vector<double> > lu; 
-        vector< vector< vector<double> > > lu_step;
-        vector<int> p;
-        vector< vector<int> > p_step;
+        std::vector< std::vector<double> > lu; 
+        std::vector< std::vector< std::vector<double> > > lu_step;
+        std::vector<int> p;
+        std::vector< std::vector<int> > p_step;
     
-        vector< vector<double> > geq_step;
-        vector<double> time_steps;
+        std::vector< std::vector<double> > geq_step;
+        std::vector<double> time_steps;
     
-        // diagonal capacitance matrix stored as a 1-d vector
-        vector<double> a; 
+        // diagonal capacitance matrix stored as a 1-d std::vector
+        std::vector<double> a; 
         // inverse of the above
-        vector<double> inva;
+        std::vector<double> inva;
         // c = inva * b
-        vector< vector<double> > c;
+        std::vector< std::vector<double> > c;
     
         // package parameters
         PackageRCModelHolder pack;
     
-        // intermediate vectors and matrices
-        vector<double> gx; 
-        vector<double> gy;
-        vector<double> gx_int; 
-        vector<double> gy_int;
-        vector<double> gx_sp;
-        vector<double> gy_sp;
-        vector<double> gx_hs; 
-        vector<double> gy_hs;
-        vector<double> g_amb;
-        vector<double> t_vector;
-        vector< vector<double> > len;
-        vector< vector<double> > g;
-        vector< vector<int> > border;
+        // intermediate std::vectors and matrices
+        std::vector<double> gx; 
+        std::vector<double> gy;
+        std::vector<double> gx_int; 
+        std::vector<double> gy_int;
+        std::vector<double> gx_sp;
+        std::vector<double> gy_sp;
+        std::vector<double> gx_hs; 
+        std::vector<double> gy_hs;
+        std::vector<double> g_amb;
+        std::vector<double> t_vector;
+        std::vector< std::vector<double> > len;
+        std::vector< std::vector<double> > g;
+        std::vector< std::vector<int> > border;
     
         // total no. of nodes
         int n_nodes;
@@ -183,8 +182,6 @@ namespace Thermal
 
         double getR(double conductivity, double thickness, double area);
         double getCap(double sp_heat, double thickness, double area);
-
-        double lupDcmp(double**a, int n, int *p, int spd);
 
     private:
         RCModelHolder*      _rc_model_holder;

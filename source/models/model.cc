@@ -1,15 +1,19 @@
 
 #include "source/models/model.h"
+#include "source/models/thermal_model/thermal_model.h"
 #include "libutil/Log.h"
+#include "libutil/String.h"
 
 #include <stddef.h>
 #include <stdio.h>
 
+using LibUtil::String;
+
 namespace Thermal
 {
     Model::Model(EventScheduler* event_scheduler, Data* data)
-        : _event_scheduler  (event_scheduler)
-        , _data             (data)
+        : _data             (data)
+        , _event_scheduler  (event_scheduler)
     {}
 
     Model::~Model()
@@ -32,14 +36,13 @@ namespace Thermal
             return NULL;
 
         case THERMAL_MODEL:
-            return NULL;
+            return new ThermalModel(event_scheduler, data);
 
         case EVALUATION_MODEL:
             return NULL;
 
         default:
-            LibUtil::Log::printLine(stderr, "Unrecognized Model Type: " + model_type);
-            abort();
+            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Unrecognized Model Type: " + (String) model_type);
             return NULL;
         }
     }

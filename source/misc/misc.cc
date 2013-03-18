@@ -7,11 +7,12 @@
 #include "source/misc/misc.h"
 #include "config_file.hpp"
 
-using namespace std::vector;
+using std::vector;
+using std::string;
 
 namespace Thermal
 {
-    void Misc::setConfig(std::string config_file, config::Config*& cfg_ref, int argc, char** argv)
+    void Misc::setConfig(string config_file, config::Config*& cfg_ref, int argc, char** argv)
     {
         // string vector to store parsed command line config arguments
         string_vec  args;
@@ -40,7 +41,7 @@ namespace Thermal
         vec_ref.resize(dim_1);
     }
 
-    void Misc::initDouble2DVector(vecotr< vector<double> >& vec_ref, int dim_1, int dim_2)
+    void Misc::initDouble2DVector(vector< vector<double> >& vec_ref, int dim_1, int dim_2)
     {
         assert(dim_1>0 && dim_2>0);
         vec_ref.clear();
@@ -49,7 +50,7 @@ namespace Thermal
             vec_ref[i].resize(dim_2);
     }
 
-    void Misc::initDouble3DVector(vecotr< vector< vector<double> > >& vec_ref, int dim_1, int dim_2, int dim_3)
+    void Misc::initDouble3DVector(vector< vector< vector<double> > >& vec_ref, int dim_1, int dim_2, int dim_3)
     {
         int i, j;
         assert(dim_1>0 && dim_2>0 && dim_3>0);
@@ -70,7 +71,7 @@ namespace Thermal
         vec_ref.resize(dim_1);
     }
 
-    void Misc::initInt2DVector(vecotr< vector<int> >& vec_ref, int dim_1, int dim_2)
+    void Misc::initInt2DVector(vector< vector<int> >& vec_ref, int dim_1, int dim_2)
     {
         assert(dim_1>0 && dim_2>0);
         vec_ref.clear();
@@ -85,6 +86,13 @@ namespace Thermal
     void Misc::swapDoubleValue (double *a, double *b)
     {
         double t = *a;
+        *a = *b;
+        *b = t;
+    }
+
+    void Misc::swapIntValue (int *a, int *b)
+    {
+        int t = *a;
         *a = *b;
         *b = t;
     }

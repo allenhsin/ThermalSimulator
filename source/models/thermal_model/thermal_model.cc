@@ -4,12 +4,17 @@
 #include <stdio.h>
 #include <string>
 
+#include "source/system/event_scheduler.h"
+#include "source/models/model_type.h"
 #include "source/models/thermal_model/thermal_model.h"
 #include "source/models/thermal_model/thermal_parameters.h"
 #include "source/models/thermal_model/thermal_constants.h"
 #include "source/misc/misc.h"
 #include "source/system/simulator.h"
+#include "source/system/event_scheduler.h"
+#include "source/data/data.h"
 #include "libutil/Log.h"
+#include "libutil/String.h"
 
 namespace Thermal
 {
@@ -19,6 +24,7 @@ namespace Thermal
         , _package              (new Package())
         , _floorplan            (new Floorplan())
         , _rc_model             (new RCModel())
+        , _temperature          (new Temperature())
         , _ready_to_execute     (false)
         , _parameter_ready      (false)
     {}
@@ -29,8 +35,13 @@ namespace Thermal
             delete _package;
 
         if(_floorplan)
-            // this will also delete _floorplan_holder
             delete _floorplan;
+
+        if(_rc_model)
+            delete _rc_model;
+
+        if(_temperature)
+            delete _temperature;
 
         if(_parameter_ready)
             ThermalParameters::release();
@@ -41,41 +52,35 @@ namespace Thermal
 
     void ThermalModel::checkVadilityOfThermalParameters()
     {
-        ThermalParameters* thermal_params = ThermalParameters::getSingleton;
-        assert(thermal_params);
+        ThermalParameters* thermal_params = ThermalParameters::getSingleton();
 
         // check if block model is chosen
         if(thermal_params->model_type.compare(BLOCK)!=0)
-        {
-            LibUtil::Log::printLine(stderr, "\nThermal model type not supported\n
-                                               (Only \"block\" is supported)\n");
-            abort();
-        }
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Thermal model type not supported\n \
+                                                    (Only \"block\" is supported)\n");
         // check if secondary path is false
         if(thermal_params->model_secondary)
-        {
-            LibUtil::Log::printLine(stderr, "\nSecondary path not supported\n
-                                               (set model_secondary to false)\n");
-            abort();
-        }
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Secondary path not supported\n \
+                                                    (set model_secondary to false)\n");
         // check if leakage model is false
         if(thermal_params->leakage_used)
         {
-            LibUtil::Log::printLine(stderr, "\nLeakage model not supported\n
-                                               (set leakage_used to false)\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Leakage model not supported\n \
+                                                    (set leakage_used to false)\n");
             abort();
         }
     }
 
     void ThermalModel::startup()
     {
+        LibUtil::Log::printLine("Startup Thermal Model\n");
 
     // Configure Thermal Model ------------------------------------------------
         ThermalParameters* thermal_params;
         
         // get thermal cfg file name
-        std::string thermal_config_file =   Simulator::getSingleton->getConfig()->
-                                            getString("models/thermal_model/thermal_config_file");
+        std::string thermal_config_file =   Simulator::getSingleton()->getConfig()
+                                            ->getString("models/thermal_model/thermal_config_file");
 
         // parse thermal cfg file into config class
         Misc::setConfig(thermal_config_file, _thermal_config, 0, NULL);
@@ -83,16 +88,17 @@ namespace Thermal
         
         // read in all config parameters
         ThermalParameters::allocate(_thermal_config);
-        assert(ThermalParameters::getSingleton);
+        thermal_params = ThermalParameters::getSingleton();
+        assert(thermal_params);
         _parameter_ready = true;
         
         // check vadility of thermal parameters
         checkVadilityOfThermalParameters();
         
         // pass thermal parameter by pointer
-        thermal_params = ThermalParameters::getSingleton;
         _package->setThermalParameters(thermal_params);
         _rc_model->setThermalParameters(thermal_params);
+        _temperature->setThermalParameters(thermal_params);
     // ------------------------------------------------------------------------
 
     // Run Package Model if used ----------------------------------------------
@@ -102,7 +108,7 @@ namespace Thermal
             _package->updateRConvection( thermal_params->ambient + SMALL_FOR_CONVEC );
             // check r_convec value validity
             if (thermal_params->r_convec<R_CONVEC_LOW || thermal_params->r_convec>R_CONVEC_HIGH)
-                LibUtil::Log::printLine(stderr, "\nWARNING: Heatsink convection resistance is not realistic, 
+                LibUtil::Log::printLine(std::cerr, "\nWARNING: Heatsink convection resistance is not realistic, \
                                                    double-check your package settings...\n");
         }
     // ------------------------------------------------------------------------
@@ -113,22 +119,35 @@ namespace Thermal
         _floorplan->readFloorplan(thermal_params->floorplan_file);
         assert(_floorplan->getFloorplanHolder());
 
+        // setup power and temperature floorplan unit names in data
+        _floorplan->setFloorplanUnitNamesInData();
+
         // allocate the RC model
         _rc_model->setFloorplanHolder(_floorplan->getFloorplanHolder());
         _rc_model->allocateRCModelHolder();
-        assert(getRCModelHolder());
+        assert(_rc_model->getRCModelHolder());
         // populate RC equivalent circuit
         _rc_model->populateR();
         _rc_model->populateC();
         // precompute LUP decomposition for different time step sizes
         _rc_model->precomputeStepLupDcmp();
 
-
     // ------------------------------------------------------------------------
     
-    
-    
-    
+    // Setup initial temperature ----------------------------------------------
+        
+        // set related data holders
+        _temperature->setFloorplanHolder(_floorplan->getFloorplanHolder());
+        _temperature->setRCModelHolder(_rc_model->getRCModelHolder());
+
+        // set initial temp based on init temp value or init temp file (in config)
+        _temperature->setInitialTemperature();
+
+    // ------------------------------------------------------------------------
+
+    // Schedule the first temperature calculation event -----------------------
+        EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, THERMAL_MODEL);
+    // ------------------------------------------------------------------------
 
         _ready_to_execute = true;
     }
@@ -136,11 +155,35 @@ namespace Thermal
     void ThermalModel::execute(double scheduled_time)
     {
         assert(_ready_to_execute);
+        LibUtil::Log::printLine("Execute Thermal Model\n");
+
+        ThermalParameters* thermal_params = ThermalParameters::getSingleton();
+        
+    // Update RC Model if using Natural Convection ----------------------------
+        if( thermal_params->package_model_used && thermal_params->natural_convec )
+        {   
+            double avg_sink_temp;
+            // calculate average sink temp
+            avg_sink_temp = _temperature->getAvgSinkTemperature();
+            // update r_convec based on avg sink temp
+            _package->updateRConvection( avg_sink_temp );
+            // update RC model
+            _rc_model->populateR();
+        }
+    // ------------------------------------------------------------------------
+
+    // Compute Transient Temperature ------------------------------------------
+        _temperature->updateTransientTemperature();
+    // ------------------------------------------------------------------------
+
+    // Schedule next transient temperature calculation event ------------------
+        if(scheduled_time < 10*thermal_params->sampling_intvl)
+        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL);
+        else
+            EventScheduler::getSingleton()->finish();
+    // ------------------------------------------------------------------------
     }
 
 
-
-
-
-
 } // namespace Thermal
+

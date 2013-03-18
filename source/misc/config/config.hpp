@@ -47,7 +47,7 @@ namespace config
              * Note: In the case of a write-through situation (as is the case
              * with the windows registry), this function is unnecessary.
              */
-            virtual void saveAs(const std::string & path){}
+            virtual void saveAs(const std::string & path) = 0;
 
             /*! \brief A function to convert from external representation to in-memory representation
              * This function sets the member variable m_path and then calls the loadConfig() function which

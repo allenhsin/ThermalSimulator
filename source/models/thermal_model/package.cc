@@ -51,7 +51,7 @@ namespace Thermal
         assert(_thermal_params);
 
         // local variables
-        double dh, a_fan, dr, r_approx, vol_v, rey_star 
+        double dh, a_fan, dr, r_approx, vol_v, rey_star;
         double m, eta, f, c1, c2, a_hs;
         double t1, t2;
 
@@ -215,10 +215,10 @@ namespace Thermal
         _r_th = 1.0/(_h_coeff*sur_area);
         
         // thermal radiation
-        _r_th_rad = (sink_temp-ambient)/(EMISSIVITY*STEFAN*(pow(sink_temp,4.0)-pow(ambient,4.0))*sur_area);
+        r_th_rad = (sink_temp-ambient)/(EMISSIVITY*STEFAN*(pow(sink_temp,4.0)-pow(ambient,4.0))*sur_area);
 
         // overall thermal resistance = natural convection in parallel with thermal radiation
-        _r_th = r_th*r_th_rad/(r_th+r_th_rad);
+        _r_th = _r_th*r_th_rad/(_r_th+r_th_rad);
         
     } // calculateRNaturalConvection
 
