@@ -72,12 +72,13 @@ namespace Thermal
 
         // Start up all models to prepare for running
         //for (int i=0; i<NUM_MODEL_TYPES; ++i)
-        for(int i=THERMAL_MODEL; i!=THERMAL_MODEL; ++i)
+        for(int i=THERMAL_MODEL; i==THERMAL_MODEL; ++i)
         {   
             assert(_model[i]!=NULL);
-            _model[i]->startup();
 
             LibUtil::Log::printLine("Time: " + (String) getSimClock() + " - Startup Model[" + (String) i + "]");
+            _model[i]->startup();
+
         }
 
         // Execute events in the event queue until
@@ -89,9 +90,10 @@ namespace Thermal
             next_event = dequeueEvent();
 
             advanceSimClockToAbsTime(next_event._scheduled_time);
-            _model[next_event._model_type]->execute(next_event._scheduled_time);
 
             LibUtil::Log::printLine("Time: " + (String) getSimClock() + " - Execute Model[" + (String) next_event._model_type + "]");
+            _model[next_event._model_type]->execute(next_event._scheduled_time);
+
         }
 
         if(!_finished)
@@ -116,8 +118,6 @@ namespace Thermal
         // itself holds the model instances.
         _model.clear();
     }
-
-
 
 } // namespace Thermal
 
