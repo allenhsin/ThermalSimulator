@@ -2,6 +2,7 @@
 #include <map>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstring>
 #include <cassert>
 
 #include "source/data/data.h"

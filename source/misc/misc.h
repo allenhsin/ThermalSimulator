@@ -3,6 +3,7 @@
 #define __THERMAL_MISC_H__
 
 #include <string>
+#include <stdio.h>
 
 #include "config.hpp"
 

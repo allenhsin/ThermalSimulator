@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cassert>
+#include <cstring>
 #include <ctype.h>
 #include <string>
 
