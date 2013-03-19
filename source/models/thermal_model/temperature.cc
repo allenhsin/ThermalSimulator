@@ -14,6 +14,7 @@
 
 using std::vector;
 using std::map;
+using std::string;
 
 namespace Thermal
 {
@@ -40,14 +41,14 @@ namespace Thermal
 
     void Temperature::updateDataTemperature()
     {
-        map<char*, double>& data_temperature = Data::getSingleton()->getTemperature();
+        map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
 
         assert(data_temperature.size() == (unsigned int) _floorplan_holder->_n_units);
         
         // put temperature back to the data structure
         // (only the silicon layer units)
         for(int i=0; i<_floorplan_holder->_n_units; ++i)
-            data_temperature[ _floorplan_holder->_flp_units[i]._name ] = _temperature[i];
+            data_temperature[ (string) _floorplan_holder->_flp_units[i]._name ] = _temperature[i];
         // check that it doesn't add any new block into the data structure
         assert(data_temperature.size() == (unsigned int) _floorplan_holder->_n_units);
     }
@@ -257,12 +258,12 @@ namespace Thermal
         assert(_rc_model_holder);
         assert(_temperature.size() == (unsigned int) _rc_model_holder->n_nodes);
 
-        map<char*, double>& data_power = Data::getSingleton()->getPower();
+        map<string, double>& data_power = Data::getSingleton()->getPower();
         assert(data_power.size() == (unsigned int) _floorplan_holder->_n_units);
         
         // put main power data information into local _power vector
-        for(map<char*, double>::iterator it = data_power.begin(); it != data_power.end(); ++it)
-            _power[ Floorplan::getUnitIndexFromName(_floorplan_holder, it->first) ] = it->second;
+        for(map<string, double>::iterator it = data_power.begin(); it != data_power.end(); ++it)
+            _power[ Floorplan::getUnitIndexFromName(_floorplan_holder, it->first.c_str()) ] = it->second;
         
         // compute temp from power
         computeTransientTemperatureFromPower();

@@ -9,10 +9,10 @@ namespace Thermal
     // executed at the same time.
     enum ModelType
     {   
-        PERFORMANCE_MODEL,
+        //PERFORMANCE_MODEL = 0,
         PHYSICAL_MODEL,
         THERMAL_MODEL,
-        EVALUATION_MODEL,
+        //EVALUATION_MODEL,
         NUM_MODEL_TYPES
     };
 

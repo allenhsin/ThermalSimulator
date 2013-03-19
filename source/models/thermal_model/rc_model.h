@@ -3,6 +3,7 @@
 #define __THERMAL_RC_MODEL_H__
 
 #include <vector>
+#include <stdio.h>
 
 #include "source/models/thermal_model/thermal_parameters.h"
 #include "source/models/thermal_model/floorplan.h"
@@ -176,13 +177,16 @@ namespace Thermal
         void populateC();
         void precomputeStepLupDcmp();
 
+        void printRCModelToFile();
+
     protected:
         void populatePackageR(double chip_width, double chip_height);
         void populatePackageC(double chip_width, double chip_height);
 
         double getR(double conductivity, double thickness, double area);
         double getCap(double sp_heat, double thickness, double area);
-
+        
+        void printPackageRCModelToFile(FILE* fp);
     private:
         RCModelHolder*      _rc_model_holder;
 

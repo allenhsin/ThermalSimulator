@@ -25,6 +25,8 @@ namespace Thermal
         static bool eq(double x, double y);
         static void swapDoubleValue(double *a, double *b);
         static void swapIntValue(int *a, int *b);
+        static void printDouble1DVector(std::vector<double>& v, int n, FILE* fp);
+        static void printDouble2DVector(std::vector< std::vector<double> >& m, int nr, int nc, FILE* fp);
 
     }; // class Misc
 

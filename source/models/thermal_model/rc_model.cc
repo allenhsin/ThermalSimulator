@@ -96,9 +96,6 @@ namespace Thermal
 
     void RCModel::populatePackageR(double chip_width, double chip_height)
     {
-        assert(_thermal_params);
-        assert(_rc_model_holder);
-
         double s_spreader   = _thermal_params->s_spreader;
         double t_spreader   = _thermal_params->t_spreader;
         double s_sink       = _thermal_params->s_sink;
@@ -167,9 +164,6 @@ namespace Thermal
 
     void RCModel::populatePackageC(double chip_width, double chip_height)
     {
-        assert(_thermal_params);
-        assert(_rc_model_holder);
-
         double s_spreader   = _thermal_params->s_spreader;
         double t_spreader   = _thermal_params->t_spreader;
         double s_sink       = _thermal_params->s_sink;
@@ -215,7 +209,70 @@ namespace Thermal
 
     } // populatePackageC
 
+    void RCModel::printPackageRCModelToFile(FILE* fp)
+    {
+        fprintf(fp, "printing package RC information...\n");
+        fprintf(fp, "r_sp1_x: %f\tr_sp1_y: %f\n", _rc_model_holder->pack.r_sp1_x, _rc_model_holder->pack.r_sp1_y);
+        fprintf(fp, "r_sp_per_x: %f\tr_sp_per_y: %f\n", _rc_model_holder->pack.r_sp_per_x, _rc_model_holder->pack.r_sp_per_y);
+        fprintf(fp, "c_sp_per_x: %f\tc_sp_per_y: %f\n", _rc_model_holder->pack.c_sp_per_x, _rc_model_holder->pack.c_sp_per_y);
+        fprintf(fp, "r_hs1_x: %f\tr_hs1_y: %f\n", _rc_model_holder->pack.r_hs1_x, _rc_model_holder->pack.r_hs1_y);
+        fprintf(fp, "r_hs2_x: %f\tr_hs2_y: %f\n", _rc_model_holder->pack.r_hs2_x, _rc_model_holder->pack.r_hs2_y);
+        fprintf(fp, "r_hs_c_per_x: %f\tr_hs_c_per_y: %f\n", _rc_model_holder->pack.r_hs_c_per_x, _rc_model_holder->pack.r_hs_c_per_y);
+        fprintf(fp, "c_hs_c_per_x: %f\tc_hs_c_per_y: %f\n", _rc_model_holder->pack.c_hs_c_per_x, _rc_model_holder->pack.c_hs_c_per_y);
+        fprintf(fp, "r_hs: %f\tr_hs_per: %f\n", _rc_model_holder->pack.r_hs, _rc_model_holder->pack.r_hs_per);
+        fprintf(fp, "c_hs_per: %f\n", _rc_model_holder->pack.c_hs_per);
+        fprintf(fp, "r_amb_c_per_x: %f\tr_amb_c_per_y: %f\n", _rc_model_holder->pack.r_amb_c_per_x, _rc_model_holder->pack.r_amb_c_per_y);
+        fprintf(fp, "c_amb_c_per_x: %f\tc_amb_c_per_y: %f\n", _rc_model_holder->pack.c_amb_c_per_x, _rc_model_holder->pack.c_amb_c_per_y);
+        fprintf(fp, "r_amb_per: %f\n", _rc_model_holder->pack.r_amb_per);
+        fprintf(fp, "c_amb_per: %f\n", _rc_model_holder->pack.c_amb_per);
+        fprintf(fp, "r_sub1_x: %f\tr_sub1_y: %f\n", _rc_model_holder->pack.r_sub1_x, _rc_model_holder->pack.r_sub1_y);
+        fprintf(fp, "r_sub_per_x: %f\tr_sub_per_y: %f\n", _rc_model_holder->pack.r_sub_per_x, _rc_model_holder->pack.r_sub_per_y);
+        fprintf(fp, "c_sub_per_x: %f\tc_sub_per_y: %f\n", _rc_model_holder->pack.c_sub_per_x, _rc_model_holder->pack.c_sub_per_y);
+        fprintf(fp, "r_solder1_x: %f\tr_solder1_y: %f\n", _rc_model_holder->pack.r_solder1_x, _rc_model_holder->pack.r_solder1_y);
+        fprintf(fp, "r_solder_per_x: %f\tr_solder_per_y: %f\n", _rc_model_holder->pack.r_solder_per_x, _rc_model_holder->pack.r_solder_per_y);
+        fprintf(fp, "c_solder_per_x: %f\tc_solder_per_y: %f\n", _rc_model_holder->pack.c_solder_per_x, _rc_model_holder->pack.c_solder_per_y);
+        fprintf(fp, "r_pcb1_x: %f\tr_pcb1_y: %f\n", _rc_model_holder->pack.r_pcb1_x, _rc_model_holder->pack.r_pcb1_y);
+        fprintf(fp, "r_pcb2_x: %f\tr_pcb2_y: %f\n", _rc_model_holder->pack.r_pcb2_x, _rc_model_holder->pack.r_pcb2_y);
+        fprintf(fp, "r_pcb_c_per_x: %f\tr_pcb_c_per_y: %f\n", _rc_model_holder->pack.r_pcb_c_per_x, _rc_model_holder->pack.r_pcb_c_per_y);
+        fprintf(fp, "c_pcb_c_per_x: %f\tc_pcb_c_per_y: %f\n", _rc_model_holder->pack.c_pcb_c_per_x, _rc_model_holder->pack.c_pcb_c_per_y);
+        fprintf(fp, "r_pcb: %f\tr_pcb_per: %f\n", _rc_model_holder->pack.r_pcb, _rc_model_holder->pack.r_pcb_per);
+        fprintf(fp, "c_pcb_per: %f\n", _rc_model_holder->pack.c_pcb_per);
+        fprintf(fp, "r_amb_sec_c_per_x: %f\tr_amb_sec_c_per_y: %f\n", _rc_model_holder->pack.r_amb_sec_c_per_x, _rc_model_holder->pack.r_amb_sec_c_per_y);
+        fprintf(fp, "c_amb_sec_c_per_x: %f\tc_amb_sec_c_per_y: %f\n", _rc_model_holder->pack.c_amb_sec_c_per_x, _rc_model_holder->pack.c_amb_sec_c_per_y);
+        fprintf(fp, "r_amb_sec_per: %f\n", _rc_model_holder->pack.r_amb_sec_per);
+        fprintf(fp, "c_amb_sec_per: %f\n", _rc_model_holder->pack.c_amb_sec_per);
+    } // printPackageRCModelToFile
 
+    void RCModel::printRCModelToFile()
+    {
+        assert(_thermal_params);
+        assert(_rc_model_holder);
+
+        FILE* fp = fopen(_thermal_params->debug_model_file.c_str(), "w");
+
+        fprintf(fp, "printing block model information...\n");
+        fprintf(fp, "n_nodes: %d\n", _rc_model_holder->n_nodes);
+        fprintf(fp, "n_units: %d\n", _rc_model_holder->n_units);
+        fprintf(fp, "base_n_units: %d\n", _rc_model_holder->base_n_units);
+        fprintf(fp, "r_ready: %d\n", _rc_model_holder->r_ready);
+        fprintf(fp, "c_ready: %d\n", _rc_model_holder->c_ready);
+    
+        printPackageRCModelToFile(fp);
+    
+        fprintf(fp, "printing matrix b:\n");
+        Misc::printDouble2DVector(_rc_model_holder->b, _rc_model_holder->n_nodes, _rc_model_holder->n_nodes, fp);
+        fprintf(fp, "printing vector a:\n");
+        Misc::printDouble1DVector(_rc_model_holder->a, _rc_model_holder->n_nodes, fp);
+        fprintf(fp, "printing vector inva:\n");
+        Misc::printDouble1DVector(_rc_model_holder->inva, _rc_model_holder->n_nodes, fp);
+        fprintf(fp, "printing matrix c:\n");
+        Misc::printDouble2DVector(_rc_model_holder->c, _rc_model_holder->n_nodes, _rc_model_holder->n_nodes, fp);
+        fprintf(fp, "printing vector g_amb:\n");
+        Misc::printDouble1DVector(_rc_model_holder->g_amb, _rc_model_holder->n_units+EXTRA, fp);
+
+        fclose(fp);
+    }
+    
     // creates matrices  B and invB: BT = Power in the steady state. 
     // NOTE: EXTRA nodes: 4 heat spreader peripheral nodes, 4 heat 
     // sink inner peripheral nodes, 4 heat sink outer peripheral 

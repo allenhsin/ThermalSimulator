@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string>
+#include <map>
 
 #include "source/system/event_scheduler.h"
 #include "source/models/model_type.h"
@@ -16,6 +17,9 @@
 #include "libutil/Log.h"
 #include "libutil/String.h"
 
+using std::map;
+using std::string;
+
 namespace Thermal
 {
     ThermalModel::ThermalModel(EventScheduler* event_scheduler, Data* data)
@@ -27,10 +31,14 @@ namespace Thermal
         , _temperature          (new Temperature())
         , _ready_to_execute     (false)
         , _parameter_ready      (false)
+        , _ttrace_file          (NULL)
     {}
 
     ThermalModel::~ThermalModel()
     {
+        if(_ttrace_file)
+            fclose(_ttrace_file);
+
         if(_package)
             delete _package;
 
@@ -120,7 +128,7 @@ namespace Thermal
         assert(_floorplan->getFloorplanHolder());
 
         // setup power and temperature floorplan unit names in data
-        _floorplan->setFloorplanUnitNamesInData();
+        _floorplan->setFloorplanUnitNmaesInTemperatureData();
 
         // allocate the RC model
         _rc_model->setFloorplanHolder(_floorplan->getFloorplanHolder());
@@ -132,8 +140,11 @@ namespace Thermal
         // precompute LUP decomposition for different time step sizes
         _rc_model->precomputeStepLupDcmp();
 
+        // print rc model to file for debug if specified
+        if(thermal_params->debug_print_enable)
+            _rc_model->printRCModelToFile();
     // ------------------------------------------------------------------------
-    
+
     // Setup initial temperature ----------------------------------------------
         
         // set related data holders
@@ -142,7 +153,22 @@ namespace Thermal
 
         // set initial temp based on init temp value or init temp file (in config)
         _temperature->setInitialTemperature();
+        
+        // print ttrace to file for debug if specified
+        if(thermal_params->debug_print_enable)
+        {
+            _ttrace_file = fopen(thermal_params->debug_ttrace_file.c_str(), "w");
 
+            if(!_ttrace_file)
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open ttrace file for output\n");
+
+            map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
+            assert(data_temperature.size()!=0);
+            // print flp unit names
+            for(map<string, double>::iterator it = data_temperature.begin(); it != data_temperature.end(); ++it)
+                fprintf(_ttrace_file, "%s ", it->first.c_str());
+            fprintf(_ttrace_file, "\n");
+        }
     // ------------------------------------------------------------------------
 
     // Schedule the first temperature calculation event -----------------------
@@ -174,13 +200,24 @@ namespace Thermal
 
     // Compute Transient Temperature ------------------------------------------
         _temperature->updateTransientTemperature();
+
+        // print ttrace to file for debug if specified
+        if(thermal_params->debug_print_enable)
+        {
+            if(!_ttrace_file)
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open ttrace file for output\n");
+
+            map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
+            assert(data_temperature.size()!=0);
+            // print flp unit names
+            for(map<string, double>::iterator it = data_temperature.begin(); it != data_temperature.end(); ++it)
+                fprintf(_ttrace_file, "%.2f ", it->second);
+            fprintf(_ttrace_file, "\n");
+        }
     // ------------------------------------------------------------------------
 
     // Schedule next transient temperature calculation event ------------------
-        if(scheduled_time < 10*thermal_params->sampling_intvl)
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL);
-        else
-            EventScheduler::getSingleton()->finish();
     // ------------------------------------------------------------------------
     }
 

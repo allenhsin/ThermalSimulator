@@ -2,11 +2,9 @@
 #ifndef __THERMAL_THERMAL_CONSTANTS_H__
 #define __THERMAL_THERMAL_CONSTANTS_H__
 
-// [general] --------------------------------------------------------------------------------------
-#define STR_SIZE        512
-#define LINE_SIZE       65536
-#define MAX_ENTRIES     512
+#include "source/misc/common_constants.h"
 
+// [general] --------------------------------------------------------------------------------------
 #define BLOCK           "block"
 #define GRID            "grid"
 // ------------------------------------------------------------------------------------------------

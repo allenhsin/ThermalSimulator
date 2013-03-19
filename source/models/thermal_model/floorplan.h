@@ -55,12 +55,12 @@ namespace Thermal
 
         FloorplanHolder* getFloorplanHolder() { return _floorplan_holder; }
 
-        void setFloorplanUnitNamesInData();
+        void setFloorplanUnitNmaesInTemperatureData();
 
         static bool isVertAdj(FloorplanHolder* floorplan_holder, int i, int j);
         static bool isHorizAdj(FloorplanHolder* floorplan_holder, int i, int j);
         static double getSharedLength(FloorplanHolder* floorplan_holder, int i, int j);
-        static int getUnitIndexFromName(FloorplanHolder* floorplan_holder, char* name);
+        static int getUnitIndexFromName(FloorplanHolder* floorplan_holder, const char* name);
 
     protected:
         int countFloorplanUnits(FILE* fp);

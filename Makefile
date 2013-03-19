@@ -6,6 +6,7 @@ DIRS_TO_SOURCE  := source \
                    source/system \
                    source/models \
                    source/models/thermal_model \
+                   source/models/physical_model \
                    include/libutil
 DIRS_TO_CONFIG  := source/misc/config
 

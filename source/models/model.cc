@@ -1,6 +1,7 @@
 
 #include "source/models/model.h"
 #include "source/models/thermal_model/thermal_model.h"
+#include "source/models/physical_model/physical_model.h"
 #include "libutil/Log.h"
 #include "libutil/String.h"
 
@@ -29,17 +30,17 @@ namespace Thermal
     {
         switch (model_type)
         {
-        case PERFORMANCE_MODEL:
-            return NULL;
+        //case PERFORMANCE_MODEL:
+        //    return NULL;
 
         case PHYSICAL_MODEL:
-            return NULL;
+            return new PhysicalModel(event_scheduler, data);
 
         case THERMAL_MODEL:
             return new ThermalModel(event_scheduler, data);
 
-        case EVALUATION_MODEL:
-            return NULL;
+        //case EVALUATION_MODEL:
+        //    return NULL;
 
         default:
             LibUtil::Log::printFatalLine(std::cerr, "ERROR: Unrecognized Model Type: " + (String) model_type);

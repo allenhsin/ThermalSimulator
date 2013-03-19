@@ -12,6 +12,7 @@
 
 using LibUtil::String;
 using std::map;
+using std::string;
 
 namespace Thermal
 {
@@ -261,7 +262,7 @@ namespace Thermal
         
     } // getSharedLength
 
-    int Floorplan::getUnitIndexFromName(FloorplanHolder* floorplan_holder, char* name)
+    int Floorplan::getUnitIndexFromName(FloorplanHolder* floorplan_holder, const char* name)
     {
         assert(floorplan_holder);
 
@@ -277,18 +278,15 @@ namespace Thermal
         return -1;
     } // getUnitIndexFromName
 
-    void Floorplan::setFloorplanUnitNamesInData()
+    void Floorplan::setFloorplanUnitNmaesInTemperatureData()
     {
         assert(_floorplan_holder);
         
-        map<char*, double>& temperature = Data::getSingleton()->getTemperature();
-        map<char*, double>& power       = Data::getSingleton()->getPower();
+        map<string, double>& temperature = Data::getSingleton()->getTemperature();
+        assert(temperature.size() == 0);
 
         for (int i=0; i<_floorplan_holder->_n_units; ++i)
-        {
-            temperature[ _floorplan_holder->_flp_units[i]._name ] = 0;
-            power[ _floorplan_holder->_flp_units[i]._name ] = 0;
-        }
+            temperature[ (string) _floorplan_holder->_flp_units[i]._name ] = 0;
     }
 
     void Floorplan::readFloorplan(std::string flp_file)

@@ -3,9 +3,9 @@
 
 #include <vector>
 #include <map>
-
-using std::vector;
-using std::map;
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace Thermal
 {
@@ -16,10 +16,10 @@ namespace Thermal
         static void release();
         static Data* getSingleton();
 
-        map<char*, double>& getTemperature()
+        std::map<std::string, double>& getTemperature()
         { return _temperature; }
 
-        map<char*, double>& getPower()
+        std::map<std::string, double>& getPower()
         { return _power; }
 
     protected:
@@ -29,12 +29,9 @@ namespace Thermal
     private:
         static Data* _data_singleton; 
     
-        map<char*, double> _temperature;
-        map<char*, double> _power;
+        std::map<std::string, double> _temperature;
+        std::map<std::string, double> _power;
         
-
-
-
     }; // class Data
 
 } // namespace Thermal

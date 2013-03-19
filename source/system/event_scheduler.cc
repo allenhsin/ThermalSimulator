@@ -71,8 +71,7 @@ namespace Thermal
         advanceSimClockToAbsTime(0);
 
         // Start up all models to prepare for running
-        //for (int i=0; i<NUM_MODEL_TYPES; ++i)
-        for(int i=THERMAL_MODEL; i==THERMAL_MODEL; ++i)
+        for (int i=0; i<NUM_MODEL_TYPES; ++i)
         {   
             assert(_model[i]!=NULL);
 

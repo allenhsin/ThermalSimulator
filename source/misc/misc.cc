@@ -97,6 +97,22 @@ namespace Thermal
         *b = t;
     }
 
+    void Misc::printDouble1DVector(std::vector<double>& v, int n, FILE* fp)
+    {
+        int i;
+        for (i=0; i < n; i++)
+            fprintf(fp, "%.12f\t", v[i]);
+        fprintf(fp, "\n");
+    }
+
+    void Misc::printDouble2DVector(std::vector< std::vector<double> >& m, int nr, int nc, FILE* fp)
+    {
+        int i;
+        for (i=0; i < nr; i++)
+            Misc::printDouble1DVector(m[i], nc, fp);
+        fprintf(fp, "\n");
+    }
+
 } // namespace Thermal
 
 
