@@ -14,8 +14,7 @@
 #include "source/system/simulator.h"
 #include "source/system/event_scheduler.h"
 #include "source/data/data.h"
-#include "libutil/Log.h"
-#include "libutil/String.h"
+#include "libutil/LibUtil.h"
 
 using std::map;
 using std::string;

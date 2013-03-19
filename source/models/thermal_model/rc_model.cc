@@ -12,8 +12,7 @@
 #include "source/models/thermal_model/thermal_util.h"
 #include "source/models/thermal_model/thermal_constants.h"
 #include "source/misc/misc.h"
-#include "libutil/Log.h"
-#include "libutil/String.h"
+#include "libutil/LibUtil.h"
 
 using std::vector;
 

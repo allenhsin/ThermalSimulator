@@ -4,8 +4,7 @@
 
 #include "source/models/thermal_model/thermal_util.h"
 #include "source/misc/misc.h"
-#include "libutil/Log.h"
-#include "libutil/String.h"
+#include "libutil/LibUtil.h"
 
 #define LOWER(a, i, j)		((i > j) ? a[i][j] : 0)
 #define UPPER(a, i, j)		((i <= j) ? a[i][j] : 0)

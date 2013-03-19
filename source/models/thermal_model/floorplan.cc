@@ -7,8 +7,7 @@
 #include "source/models/thermal_model/floorplan.h"
 #include "source/data/data.h"
 #include "source/misc/misc.h"
-#include "libutil/Log.h"
-#include "libutil/String.h"
+#include "libutil/LibUtil.h"
 
 using LibUtil::String;
 using std::map;

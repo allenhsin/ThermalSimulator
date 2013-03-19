@@ -2,8 +2,7 @@
 #include "source/models/model.h"
 #include "source/models/thermal_model/thermal_model.h"
 #include "source/models/physical_model/physical_model.h"
-#include "libutil/Log.h"
-#include "libutil/String.h"
+#include "libutil/LibUtil.h"
 
 #include <stddef.h>
 #include <stdio.h>
