@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.*;
 
-import display.Renderable;
-
 // A floorplan is a box containing a list of sub-floorplans positioned at specific
 // coordinates as well as its own position
 public class Floorplan
