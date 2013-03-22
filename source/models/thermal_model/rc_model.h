@@ -12,8 +12,9 @@
 namespace Thermal
 {   
 
-    struct PackageRCModelHolder
+    class PackageRCModelHolder
     {
+    public:
         // lateral resistances
         // peripheral spreader nodes
         double r_sp1_x;
@@ -110,8 +111,9 @@ namespace Thermal
         double c_amb_sec_per;
     };
 
-    struct RCModelHolder
+    class RCModelHolder
     {
+    public:
         // main matrices
         // conductance matrix
         std::vector< std::vector<double> > b;

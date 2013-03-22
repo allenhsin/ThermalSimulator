@@ -48,7 +48,7 @@ namespace Thermal
         // put temperature back to the data structure
         // (only the silicon layer units)
         for(int i=0; i<_floorplan_holder->_n_units; ++i)
-            data_temperature[ (string) _floorplan_holder->_flp_units[i]._name ] = _temperature[i];
+            data_temperature[ _floorplan_holder->_flp_units[i]._name ] = _temperature[i];
         // check that it doesn't add any new block into the data structure
         assert(data_temperature.size() == (unsigned int) _floorplan_holder->_n_units);
     }

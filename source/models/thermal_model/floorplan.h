@@ -4,45 +4,50 @@
 
 #include <string>
 #include <stdio.h>
+#include <vector>
+#include <string>
 
 #include "source/models/thermal_model/thermal_constants.h"
 
 namespace Thermal
 {
 
-    struct FloorplanUnit
+    class FloorplanUnit
     {
-        char    _name[STR_SIZE];
-        double  _width;
-        double  _height;
-        double  _leftx;
-        double  _bottomy;
+    public:
+        std::string _name;
+        double      _width;
+        double      _height;
+        double      _leftx;
+        double      _bottomy;
     };
 
-    struct FloorplanHolder
+    class FloorplanHolder
     {
-        FloorplanUnit*  _flp_units;
-        int             _n_units;
+    public:
+        std::vector<FloorplanUnit>  _flp_units;
+        int                         _n_units;
 
-        double          _total_width;
-        double          _total_height;
+        double                      _total_width;
+        double                      _total_height;
 
         FloorplanHolder()
-            : _flp_units    (NULL)
-            , _n_units      (0)
+            : _n_units      (0)
             , _total_width  (0)
             , _total_height (0)
-        {}
+        { _flp_units.clear(); }
 
         FloorplanHolder(int n_units)
-            : _flp_units    (new FloorplanUnit [n_units])
-            , _n_units      (n_units)
+            : _n_units      (n_units)
             , _total_width  (0)
             , _total_height (0)
-        {}
+        { 
+            _flp_units.clear();
+            _flp_units.resize(n_units);
+        }
 
         ~FloorplanHolder()
-        { if(_flp_units) delete [] _flp_units; }
+        {}
     };
 
     class Floorplan

@@ -172,6 +172,7 @@ namespace Thermal
 
     // Schedule the first temperature calculation event -----------------------
         EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, THERMAL_MODEL);
+        _last_execute_time = 0;
     // ------------------------------------------------------------------------
 
         _ready_to_execute = true;
@@ -217,6 +218,7 @@ namespace Thermal
 
     // Schedule next transient temperature calculation event ------------------
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL);
+        _last_execute_time = scheduled_time;
     // ------------------------------------------------------------------------
     }
 

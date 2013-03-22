@@ -60,7 +60,7 @@ namespace Thermal
 
         int i=0;
         char str[LINE_SIZE], copy[LINE_SIZE]; 
-        char name1[STR_SIZE];
+        char name[STR_SIZE];
         double width, height, leftx, bottomy;
         char *ptr;
     
@@ -79,9 +79,9 @@ namespace Thermal
             if (!ptr || ptr[0] == '#')
                 continue;
     
-            if (sscanf(copy, "%s%lf%lf%lf%lf", name1, &width, &height, &leftx, &bottomy) == 5) 
+            if (sscanf(copy, "%s%lf%lf%lf%lf", name, &width, &height, &leftx, &bottomy) == 5) 
             {
-                strcpy(_floorplan_holder->_flp_units[i]._name, name1);
+                _floorplan_holder->_flp_units[i]._name      = (string) name;
                 _floorplan_holder->_flp_units[i]._width     = width;
                 _floorplan_holder->_flp_units[i]._height    = height;
                 _floorplan_holder->_flp_units[i]._leftx     = leftx;
@@ -269,7 +269,7 @@ namespace Thermal
     
         for (i = 0; i < floorplan_holder->_n_units; i++) 
         {
-            if (!strcmp(name, floorplan_holder->_flp_units[i]._name)) 
+            if (floorplan_holder->_flp_units[i]._name == (string) name ) 
                 return i;
         }
     
@@ -285,7 +285,7 @@ namespace Thermal
         assert(temperature.size() == 0);
 
         for (int i=0; i<_floorplan_holder->_n_units; ++i)
-            temperature[ (string) _floorplan_holder->_flp_units[i]._name ] = 0;
+            temperature[ _floorplan_holder->_flp_units[i]._name ] = 0;
     }
 
     void Floorplan::readFloorplan(std::string flp_file)

@@ -8,6 +8,7 @@
 #include "source/models/model.h"
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
+#include "source/models/physical_model/power_trace_mode.h"
 #include "config.hpp"
 
 namespace Thermal
@@ -25,24 +26,10 @@ namespace Thermal
         config::Config* getPhysicalConfig(){ return _physical_config; }
 
     protected:
-        void readFloorplanUnitNamesFromPtrace();
-        bool readFloorplanUnitPowerFromPtrace();
-
-        void startupNormalMode();
-        void startupPtraceMode();
-
-        void executeNormalMode(double scheduled_time);
-        void executePtraceMode(double scheduled_time);
-
-        void setFloorplanUnitNamesInPowerData();
 
     private:
         config::Config*             _physical_config;
-       
-        FILE*                       _ptrace_file;
-        int                         _n_flp_units;
-        std::vector<std::string>    _ptrace_flp_units_names;
-        std::vector<double>         _flp_units_power;
+        PowerTraceMode*             _power_trace_mode;
 
         bool                        _ready_to_execute;
 

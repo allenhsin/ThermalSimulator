@@ -1,0 +1,19 @@
+
+Configuration Files for Physical Models
+===============================================================================
+
+I. How to write the Optical Link Netlist
+    The optical link netlist is used to build the physical model of the link.
+    The format of the netlist is similar to a spice or spectre one. It defines
+    the connectivity of the components like ring resonators, waveguide, laser
+    source and transceivers. Device-specific design parameters such as ring
+    radius or laser power can also be defined here. 
+    
+    The syntax of the netlist is
+        
+        TYPE NAME [PORT LIST]
+    
+    
+
+
+

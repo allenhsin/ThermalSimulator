@@ -12,8 +12,9 @@ using LibUtil::String;
 namespace Thermal
 {
     Model::Model(EventScheduler* event_scheduler, Data* data)
-        : _data             (data)
-        , _event_scheduler  (event_scheduler)
+        : _data                 (data)
+        , _event_scheduler      (event_scheduler)
+        , _last_execute_time    (0)
     {}
 
     Model::~Model()

@@ -28,6 +28,8 @@ namespace Thermal
         Data* _data;
         EventScheduler* _event_scheduler;
 
+        double _last_execute_time;
+
     private:
 
 
