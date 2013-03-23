@@ -8,6 +8,8 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
 import display.*;
 import floorplan.*;
 import gui.Floorplanner;
@@ -19,7 +21,7 @@ public class Main
 	{
 		if (args.length != 4)
 		{
-			System.out.println("Usage: Main floorplan_file ttrace_file dimension_x dimension_y");
+			System.out.print("Usage: Main floorplan_file ttrace_file dimension_x dimension_y\n");
 			System.exit(1);
 		}
 		
@@ -30,13 +32,13 @@ public class Main
 		int width = Integer.parseInt(args[2]);
 		int height = Integer.parseInt(args[3]);
 		
-		Floorplan fplan;
+		MasterInst top_inst;
 		TemperatureTrace temp_trace;
 		
 		try
 		{			
 			// Create the Floorplan
-			fplan = Floorplan.parseFloorplan(fplan_file);
+			top_inst = Master.parseMaster(fplan_file);
 			temp_trace = TemperatureTrace.parseTemperatureTrace(temp_trace_file);
 		}
 		catch (Exception e)
@@ -44,7 +46,18 @@ public class Main
 			throw new Error(e);
 		}
 
-		SwingUtilities.invokeLater(new ScreenRefresher(new Dimension(width, height), fplan, temp_trace));
+		
+		try
+		{
+            // Set System L&F
+	        UIManager.setLookAndFeel(
+	            UIManager.getSystemLookAndFeelClassName());
+	    } 
+	    catch (Exception e)
+	    {
+	       throw new Error(e);
+	    }
+		SwingUtilities.invokeLater(new ScreenRefresher(new Dimension(width, height), new Floorplan(top_inst, null), temp_trace));
 //		new Thread(new ScreenRefresher(new Dimension(width, height), fplan)).start();
 //		RenderWindow screen = new RenderWindow("Frame Buffer", pegasus.displayFrameBuffer());
 //		RenderWindow nextScreen = new RenderWindow("Frame Buffer", pegasus.activeFrameBuffer());

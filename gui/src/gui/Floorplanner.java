@@ -9,7 +9,6 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import display.FloorplanRender;
 import floorplan.Floorplan;
-import floorplan.FloorplanInst;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
@@ -30,6 +29,7 @@ import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JScrollBar;
+import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 
 import temperature.TemperatureTrace;
@@ -42,8 +42,10 @@ public class Floorplanner extends JFrame implements ListSelectionListener
 	ToolTab tabbed_pane;
 	
 	private JTable objects_table;
-	private JScrollPane objects_scroller;	
+	private JTree hier_tree;
 
+	private JScrollPane objects_scroller, hier_scroller;	
+	
 	public Floorplanner (String title, Dimension render_size, Floorplan floorplan) 
 	{
 		super (title);	
@@ -73,12 +75,18 @@ public class Floorplanner extends JFrame implements ListSelectionListener
 		getContentPane().add(tabbed_pane, BorderLayout.EAST);
 //		getContentPane().add(tabbed_pane, BorderLayout.EAST);
 		
+		hier_tree = new JTree(floorplan);
+		tabbed_pane.addTab("Hierarchy", null, hier_tree, null);
+		hier_scroller = new JScrollPane(hier_tree);
+		tabbed_pane.addTab("Hierarchy", null, hier_scroller, null);
+		
 		objects_table = new JTable(floorplan);
+		objects_table.setAutoCreateRowSorter(true);
 		objects_table.getSelectionModel().addListSelectionListener(this);
 		tabbed_pane.addTab("Objects", null, objects_table, null);
 		objects_scroller = new JScrollPane(objects_table);
-		tabbed_pane.insertTab("Objects", null, objects_scroller, null, 0);
-		
+		tabbed_pane.addTab("Objects", null, objects_scroller, null);
+	
 		render = new FloorplanRender (render_size);
 		render.setFloorplan(floorplan);
 		
@@ -93,13 +101,18 @@ public class Floorplanner extends JFrame implements ListSelectionListener
 	public void valueChanged(ListSelectionEvent e)
 	{		
 		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-		List<FloorplanInst> highlights = render.getHighlights();
+		List<Floorplan> highlights = render.getHighlights();
 		highlights.clear();
 		
 		if (!lsm.isSelectionEmpty())
 		{
 			for (int i = lsm.getMinSelectionIndex(); i <= lsm.getMaxSelectionIndex(); ++i)
-				if(lsm.isSelectedIndex(i)) highlights.add(floorplan.getFloorplanInsts().get(i));
+			{
+				if(lsm.isSelectedIndex(i))
+				{
+					highlights.add(floorplan.getChildrenMap().get(objects_table.getValueAt(i, 0)));
+				}
+			}
 		}
 		render.repaint();
 	}

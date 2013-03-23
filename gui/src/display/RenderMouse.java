@@ -24,7 +24,7 @@ public class RenderMouse extends MouseInputAdapter
 			int x_shift = p.x - image.getSize().width / 2;
 			int y_shift = p.y - image.getSize().height / 2;
 			
-			image.translate(-x_shift, -y_shift);			
+			image.translate(-x_shift, y_shift);			
 			image.repaint();
 		}
 	}
@@ -37,7 +37,7 @@ public class RenderMouse extends MouseInputAdapter
 		int y_shift = p.y - image.getSize().height / 2;
 		double scale_factor = Math.pow(SCALE_STEP, -e.getWheelRotation());
 		image.zoom(scale_factor);
-		image.translate((int) (x_shift * (1 - scale_factor)), (int) (y_shift * (1 - scale_factor)));
+		image.translate((int) (x_shift * (1 - scale_factor)), (int) -(y_shift * (1 - scale_factor)));
 		image.repaint();
 	}
 	

@@ -7,102 +7,94 @@ import java.util.*;
 import java.util.regex.*;
 
 import javax.swing.table.AbstractTableModel;
+import javax.swing.tree.TreeNode;
 
 // A floorplan is a box containing a list of sub-floorplans positioned at specific
 // coordinates as well as its own position. A floorplan can also be viewed as a 5
 // column table, having a sub-floorplan name, x-coordinate, y-coordinate, and the
 // height/width of each sub-floorplan
-public class Floorplan extends AbstractTableModel
+public class Floorplan extends AbstractTableModel implements TreeNode
 {
-	// Floorplan name, height, width
+	// Floorplan master
+	private Master master;
+	
+	// Parent floorplan instance
+	private Floorplan parent;
+	
+	// Instance parameters
 	private String name;
+	private double x;
+	private double y;
 	private double height;
 	private double width;
 	
-	// List of sub floorplans
-	private Vector<FloorplanInst> floorplan_insts;
-	// Mapping of floorplans
-	private HashMap<String, FloorplanInst> floorplan_map;
+	// List of child floorplans
+	private Vector<Floorplan> children;
+	// Mapping of child floorplans
+	private HashMap<String, Floorplan> children_map;
 	
-	public Floorplan(String name, double width, double height)
+	public Floorplan(MasterInst m, Floorplan parent)
 	{
-		this.name = name;
-		this.width = width;
-		this.height = height;
-		this.floorplan_insts = new Vector<FloorplanInst>();
-		this.floorplan_map = new HashMap<String, FloorplanInst>();
+		this.parent = parent;
+		this.children = new Vector<Floorplan>();
+		this.children_map = new HashMap<String, Floorplan>();
+		initialize(m);
 	}
 	
-	public String getName()
+	private void initialize(MasterInst m)
 	{
-		return name;
-	}
-	
-	public double getHeight()
-	{
-		return height;		
-	}
-	
-	public double getWidth()
-	{
-		return width;
-	}
-	
-	public Vector<FloorplanInst> getFloorplanInsts()
-	{
-		return floorplan_insts;
-	}
-	
-	public HashMap<String, FloorplanInst> getFloorplanMap()
-	{
-		return floorplan_map;
-	}
-	
-	public void addFloorplanInst(Floorplan sub_floorplan, double x, double y)
-	{
-		FloorplanInst inst = new FloorplanInst(sub_floorplan, x, y);
-		floorplan_insts.add(inst);
-		floorplan_map.put(sub_floorplan.getName(), inst);
-	}
-	
-	// Parses the floorplan from a file
-	public static Floorplan parseFloorplan(File file) throws IOException
-	{
-		// Setup
-		Floorplan f = new Floorplan("", 0.02, 0.02);		
-		int line_num = 0;
-		Scanner s;
+		height = 0.0;
+		width = 0.0;
 		
-		// Setup regex
-		Pattern fplan_pattern = Pattern.compile ("(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)");
-		Matcher fplan_pattern_matcher;
+		master = m.m;
+		name = m.n;
+		x = m.x;
+		y = m.y;
 		
-		s = new Scanner(file);
-		
-		while (s.hasNextLine())
-		{			
-			String line = s.nextLine();
-			++line_num;
-			
-			fplan_pattern_matcher = fplan_pattern.matcher(line);
-			
-			if (fplan_pattern_matcher.matches())
-			{
-				// Create sub floorplan
-				Floorplan sub_fplan = new Floorplan(						
-						fplan_pattern_matcher.group(1),
-						Double.parseDouble(fplan_pattern_matcher.group(2)),
-						Double.parseDouble(fplan_pattern_matcher.group(3)));
-				
-				// Add the sub floorplan
-				f.addFloorplanInst(sub_fplan, Double.parseDouble(fplan_pattern_matcher.group(4)), Double.parseDouble(fplan_pattern_matcher.group(5)));
-			}
-			else throw new Error("Invalid floorplan file syntax on line " + line_num + ": '" + line + "'");
+		// If the master is a leaf, then just set height and width and be done
+		if (m.m.isLeaf())
+		{
+			height = m.m.getHeight();
+			width = m.m.getWidth();
 		}
-		
-		s.close();
-
-		return f;
+		else
+		{
+			// Otherwise create floorplans from the master
+			Iterator<MasterInst> it = m.m.getFloorplanInsts().iterator();
+			while (it.hasNext())
+			{
+				MasterInst master_inst = it.next();
+				Floorplan f = new Floorplan(master_inst, this);
+				addChild(f);
+				
+				// Update height/width
+				if (f.getWidth() + f.getX() > width)
+					width = f.getWidth() + f.getX();
+				if (f.getHeight() + f.getY() > height)
+					height = f.getHeight() + f.getY();
+			}
+		}
+	}
+	
+	public String toString()
+	{
+		return name + " : " + master.getName(); 
+	}
+	
+	public Master getMaster() { return master; }
+	public String getName() { return name; }	
+	public double getX() { return x; }
+	public double getY() { return y; }
+	public double getWidth() { return width; }
+	public double getHeight() { return height; }
+	
+	public Vector<Floorplan> getChildren() { return children; }	
+	public HashMap<String, Floorplan> getChildrenMap() { return children_map; }
+	
+	public void addChild(Floorplan sub_floorplan)
+	{
+		children.add(sub_floorplan);
+		children_map.put(sub_floorplan.getName(), sub_floorplan);
 	}
 	
 	/**
@@ -118,7 +110,7 @@ public class Floorplan extends AbstractTableModel
 	 */
 	public int getRowCount() 
 	{
-		return floorplan_insts.size();
+		return children.size();
 	}
 
 	/**
@@ -128,11 +120,11 @@ public class Floorplan extends AbstractTableModel
 	{
 		switch(col)
 		{
-			case 0: return floorplan_insts.get(row).f.getName();
-			case 1: return floorplan_insts.get(row).x;
-			case 2: return floorplan_insts.get(row).y;
-			case 3: return floorplan_insts.get(row).f.getWidth();
-			case 4: return floorplan_insts.get(row).f.getHeight();
+			case 0: return children.get(row).name;
+			case 1: return children.get(row).x;
+			case 2: return children.get(row).y;
+			case 3: return children.get(row).width;
+			case 4: return children.get(row).height;
 		}
 		return null;
 	}
@@ -149,5 +141,13 @@ public class Floorplan extends AbstractTableModel
 		}
 		return null;		
 	}
+
+	public Enumeration children() { return children.elements(); }
+	public boolean getAllowsChildren() { return true; }
+	public TreeNode getChildAt(int idx) { return children.get(idx); }
+	public int getChildCount() { return children.size(); }
+	public int getIndex(TreeNode node) { return children.indexOf(node); }
+	public TreeNode getParent() { return parent; }
+	public boolean isLeaf() { return (children.size() == 0); }
 	
 }
