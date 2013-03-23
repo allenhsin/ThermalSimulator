@@ -6,16 +6,30 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.*;
 
+import javax.swing.table.AbstractTableModel;
+
 // A floorplan is a box containing a list of sub-floorplans positioned at specific
-// coordinates as well as its own position
-public class Floorplan
+// coordinates as well as its own position. A floorplan can also be viewed as a 5
+// column table, having a sub-floorplan name, x-coordinate, y-coordinate, and the
+// height/width of each sub-floorplan
+public class Floorplan extends AbstractTableModel
 {
+	// Floorplan name, height, width
+	private String name;
+	private double height;
+	private double width;
+	
+	// List of sub floorplans
+	private Vector<FloorplanInst> floorplan_insts;
+	// Mapping of floorplans
+	private HashMap<String, FloorplanInst> floorplan_map;
+	
 	public Floorplan(String name, double width, double height)
 	{
 		this.name = name;
 		this.width = width;
 		this.height = height;
-		this.floorplan_insts = new ArrayList<FloorplanInst>();
+		this.floorplan_insts = new Vector<FloorplanInst>();
 		this.floorplan_map = new HashMap<String, FloorplanInst>();
 	}
 	
@@ -34,7 +48,7 @@ public class Floorplan
 		return width;
 	}
 	
-	public ArrayList<FloorplanInst> getFloorplanInsts()
+	public Vector<FloorplanInst> getFloorplanInsts()
 	{
 		return floorplan_insts;
 	}
@@ -91,14 +105,49 @@ public class Floorplan
 		return f;
 	}
 	
-	// Floorplan name, height, width
-	private String name;
-	private double height;
-	private double width;
+	/**
+	 * There are only 5 columns
+	 */
+	public int getColumnCount() 
+	{
+		return 5;
+	}
+
+	/**
+	 * Each sub-floorplan instance is a row
+	 */
+	public int getRowCount() 
+	{
+		return floorplan_insts.size();
+	}
+
+	/**
+	 * Get the value of a cell in the table
+	 */
+	public Object getValueAt(int row, int col)
+	{
+		switch(col)
+		{
+			case 0: return floorplan_insts.get(row).f.getName();
+			case 1: return floorplan_insts.get(row).x;
+			case 2: return floorplan_insts.get(row).y;
+			case 3: return floorplan_insts.get(row).f.getWidth();
+			case 4: return floorplan_insts.get(row).f.getHeight();
+		}
+		return null;
+	}
 	
-	// List of sub floorplans
-	private ArrayList<FloorplanInst> floorplan_insts;
-	// Mapping of floorplans
-	private HashMap<String, FloorplanInst> floorplan_map;
+	public String getColumnName(int col)
+	{
+		switch(col)
+		{
+			case 0: return "Name";
+			case 1: return "X";
+			case 2: return "Y";
+			case 3: return "Width";
+			case 4: return "Height";
+		}
+		return null;		
+	}
 	
 }

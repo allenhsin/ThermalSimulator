@@ -8,7 +8,7 @@ import javax.swing.event.MouseInputAdapter;
 
 public class RenderMouse extends MouseInputAdapter 
 {
-	public RenderMouse(RenderImage image)
+	public RenderMouse(FloorplanRender image)
 	{
 		this.image = image;
 		image.addMouseListener(this);
@@ -42,7 +42,7 @@ public class RenderMouse extends MouseInputAdapter
 	}
 	
 	// The image that is being rendered
-	RenderImage image;
+	FloorplanRender image;
 	
 	// The scaling step size
 	public static final double SCALE_STEP = 1.1;

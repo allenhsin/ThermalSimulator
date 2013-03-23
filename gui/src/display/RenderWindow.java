@@ -28,7 +28,9 @@ public class RenderWindow extends JFrame implements ChangeListener
 		super (title);
 		
 		
-		image = new RenderImage (image_size, floorplan, temp_trace);
+		image = new FloorplanRender (image_size);
+		image.setFloorplan(floorplan);
+		image.setTempTrace(temp_trace);
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().add (image, BorderLayout.CENTER);
@@ -63,7 +65,7 @@ public class RenderWindow extends JFrame implements ChangeListener
 		image.repaint();
 	}
 	
-	RenderImage image;
+	FloorplanRender image;
 	JSlider slider;
 
 	

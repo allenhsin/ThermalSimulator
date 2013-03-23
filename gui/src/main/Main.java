@@ -4,10 +4,13 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.awt.Dimension;
+
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingUtilities;
 import display.*;
 import floorplan.*;
+import gui.Floorplanner;
 import temperature.*;
 
 public class Main 
@@ -51,7 +54,7 @@ public class Main
 
 class ScreenRefresher implements Runnable
 {
-	private RenderWindow window;
+	private JFrame window;
 	private Dimension dimension;
 	private Floorplan fplan;
 	private TemperatureTrace temp_trace;
@@ -65,6 +68,7 @@ class ScreenRefresher implements Runnable
 	
 	public void run()
 	{
-		this.window = new RenderWindow("Floorplan View", dimension, fplan, temp_trace);
+		this.window = new Floorplanner("Floorplanner", dimension, fplan);
+//		this.window = new RenderWindow("Floorplan View", dimension, fplan, temp_trace);
 	}
 }

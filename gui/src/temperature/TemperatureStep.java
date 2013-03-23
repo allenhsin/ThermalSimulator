@@ -5,7 +5,6 @@ import java.util.Scanner;
 // Holds the temperature for a particular timestep
 public class TemperatureStep 
 {
-	
 	private TemperatureStep(int elements)
 	{
 		temperatures = new double[elements];

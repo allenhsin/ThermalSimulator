@@ -9,7 +9,7 @@ import java.awt.event.KeyListener;
 
 public class RenderKeyboard implements KeyListener
 {
-	public RenderKeyboard(RenderImage image)
+	public RenderKeyboard(FloorplanRender image)
 	{
 		this.image = image;
 		image.addKeyListener(this);
@@ -33,6 +33,6 @@ public class RenderKeyboard implements KeyListener
 	}
 		
 	// The image that is being rendered
-	RenderImage image;
+	FloorplanRender image;
 	
 }
