@@ -7,7 +7,10 @@ import java.awt.Point;
 import javax.swing.event.MouseInputAdapter;
 
 public class RenderMouse extends MouseInputAdapter 
-{
+{	
+	// The scaling step size
+	public static final double SCALE_STEP = 1.1;
+	
 	public RenderMouse(FloorplanRender image)
 	{
 		this.image = image;
@@ -18,15 +21,19 @@ public class RenderMouse extends MouseInputAdapter
 	
 	public void mouseClicked(MouseEvent e)
 	{
+		image.requestFocus();
 		Point p = e.getPoint();		
-		if (e.getButton() == MouseEvent.BUTTON3)
+		if (e.getButton() == MouseEvent.BUTTON2)
+		{
+			image.zoom();
+		}
+		else if (e.getButton() == MouseEvent.BUTTON3)
 		{
 			int x_shift = p.x - image.getSize().width / 2;
-			int y_shift = p.y - image.getSize().height / 2;
-			
+			int y_shift = p.y - image.getSize().height / 2;			
 			image.translate(-x_shift, y_shift);			
-			image.repaint();
 		}
+		image.repaint();
 	}
 	
 	public void mouseWheelMoved(MouseWheelEvent e)
@@ -43,8 +50,4 @@ public class RenderMouse extends MouseInputAdapter
 	
 	// The image that is being rendered
 	FloorplanRender image;
-	
-	// The scaling step size
-	public static final double SCALE_STEP = 1.1;
-	
 }

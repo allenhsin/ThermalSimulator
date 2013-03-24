@@ -27,37 +27,21 @@ public class Main
 		
 		// Create a reference to the file
 		File fplan_file = new File(args[0]);
-		File temp_trace_file = new File(args[1]);
+		File temp_trace = new File(args[1]);
 		// Create screen dimensions
 		int width = Integer.parseInt(args[2]);
 		int height = Integer.parseInt(args[3]);
 		
-		MasterInst top_inst;
-		TemperatureTrace temp_trace;
-		
-		try
-		{			
-			// Create the Floorplan
-			top_inst = Master.parseMaster(fplan_file);
-			temp_trace = TemperatureTrace.parseTemperatureTrace(temp_trace_file);
-		}
-		catch (Exception e)
-		{
-			throw new Error(e);
-		}
-
-		
 		try
 		{
             // Set System L&F
-	        UIManager.setLookAndFeel(
-	            UIManager.getSystemLookAndFeelClassName());
+	        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 	    } 
 	    catch (Exception e)
 	    {
 	       throw new Error(e);
 	    }
-		SwingUtilities.invokeLater(new ScreenRefresher(new Dimension(width, height), new Floorplan(top_inst, null), temp_trace));
+		SwingUtilities.invokeLater(new ScreenRefresher(new Dimension(width, height), fplan_file, temp_trace));
 //		new Thread(new ScreenRefresher(new Dimension(width, height), fplan)).start();
 //		RenderWindow screen = new RenderWindow("Frame Buffer", pegasus.displayFrameBuffer());
 //		RenderWindow nextScreen = new RenderWindow("Frame Buffer", pegasus.activeFrameBuffer());
@@ -67,21 +51,25 @@ public class Main
 
 class ScreenRefresher implements Runnable
 {
-	private JFrame window;
-	private Dimension dimension;
-	private Floorplan fplan;
-	private TemperatureTrace temp_trace;
+	// Floorplanner GUI
+	private Floorplanner gui;
 	
-	ScreenRefresher (Dimension dimension, Floorplan fplan, TemperatureTrace temp_trace)
+	// Floorplan and temperature trace files loaded via command line
+	private File fplan_file, temp_trace;
+	// Command-line set dimensions
+	private Dimension dimension;
+	
+	ScreenRefresher (Dimension dimension, File fplan_file, File temp_trace)
 	{
 		this.dimension = dimension;
-		this.fplan = fplan;
+		this.fplan_file = fplan_file;
 		this.temp_trace = temp_trace;
 	}
 	
 	public void run()
 	{
-		this.window = new Floorplanner("Floorplanner", dimension, fplan);
-//		this.window = new RenderWindow("Floorplan View", dimension, fplan, temp_trace);
+		gui = new Floorplanner("Floorplanner", dimension);
+		gui.openFloorplanFile(fplan_file);
+		gui.openTemperatureTrace(temp_trace);
 	}
 }

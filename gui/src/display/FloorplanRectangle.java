@@ -8,11 +8,11 @@ class FloorplanRectangle
 	// Pixel coordinates
 	int x, y, w, h;	
 	// Constructor, calculates everything
-	FloorplanRectangle(Floorplan f, double trans_x, double trans_y,
+	FloorplanRectangle(Floorplan f, Floorplan top, double trans_x, double trans_y,
 			double offset_x, double offset_y, double scale)
 	{		
-		double x_raw = (f.getX() + trans_x) * scale + offset_x;
-		double y_raw = (f.getY() + trans_y) * scale + offset_y;
+		double x_raw = (f.getX() - top.getX() + trans_x) * scale + offset_x;
+		double y_raw = (f.getY() - top.getY() + trans_y) * scale + offset_y;
 		double w_raw = f.getWidth() * scale;
 		double h_raw = f.getHeight() * scale;
 		

@@ -76,7 +76,7 @@ public class TemperatureTrace
 	}
 	
 	// Parses the number of Elements and returns the number of Elements
-	private static int parseElements(TemperatureTrace temp, String line) throws Exception
+	private static int parseElements(TemperatureTrace temp, String line)
 	{
 		// Use a scanner to parse the line
 		Scanner s = new Scanner(line);

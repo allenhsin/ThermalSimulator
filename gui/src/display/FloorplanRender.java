@@ -84,15 +84,9 @@ public class FloorplanRender extends JComponent
 	public void setFloorplan(Floorplan floorplan)
 	{
 		this.floorplan = floorplan;
-
-		// Set default scale	
-		scale = 0.9 * Math.min(getPreferredSize().getWidth() / floorplan.getWidth(),
-				getPreferredSize().getHeight() / floorplan.getHeight());
-		
-		// Set translates
-		trans_x = -floorplan.getWidth() / 2;
-		trans_y = -floorplan.getHeight() / 2;
-		
+		highlights.clear();		
+		zoom();
+		repaint();
 	}
 	
 	/**
@@ -101,7 +95,8 @@ public class FloorplanRender extends JComponent
 	 */
 	public void setTempTrace(TemperatureTrace temp_trace)
 	{
-		this.temp_trace = temp_trace;		
+		this.temp_trace = temp_trace;
+		repaint();
 	}
 	
 	public synchronized void paintComponent (Graphics g0) 
@@ -130,6 +125,10 @@ public class FloorplanRender extends JComponent
 		// Get list of floorplan instances
 		Vector<Floorplan> fp_insts = floorplan.getChildren();
 		
+		// Get maximum and minimum temperatures
+		double max_temp = temp_trace.getMaxTemp();
+		double min_temp = temp_trace.getMinTemp();
+		
 		// Get temperatures at this time step
 		TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
 
@@ -137,7 +136,16 @@ public class FloorplanRender extends JComponent
 		Iterator<Floorplan> it = fp_insts.iterator();
 		while(it.hasNext())
 		{
-			FloorplanRectangle rect = new FloorplanRectangle(it.next(),
+			// Get the current floorplan
+			Floorplan f = it.next();
+			int idx = temp_trace.getIdxMap().get(f.getName());
+			double temperature = temp_step.getTemperatures()[idx];
+			
+			// Set the painting color based on the temperature
+			g.setColor(TemperatureColor.getColor(temperature, max_temp, min_temp));
+			
+			// Fill the rectangle with the correct color
+			FloorplanRectangle rect = new FloorplanRectangle(f, floorplan,
 					trans_x, trans_y, offset_x, offset_y, scale);			
 			g.fillRect(rect.x, rect.y, rect.w, rect.h);
 		}
@@ -157,14 +165,14 @@ public class FloorplanRender extends JComponent
 		Iterator<Floorplan> it = fp_insts.iterator();
 		while(it.hasNext())
 		{
-			FloorplanRectangle rect = new FloorplanRectangle(it.next(),
+			FloorplanRectangle rect = new FloorplanRectangle(it.next(), floorplan,
 					trans_x, trans_y, offset_x, offset_y, scale);			
 			g.drawRect(rect.x, rect.y, rect.w, rect.h);
 		}
 
 		// Draw border rectangle in cyan
 		g.setColor(Color.cyan);
-		FloorplanRectangle border = new FloorplanRectangle(floorplan,
+		FloorplanRectangle border = new FloorplanRectangle(floorplan, floorplan,
 				trans_x, trans_y, offset_x, offset_y, scale);
 		g.drawRect(border.x,  border.y, border.w, border.h);
 	}
@@ -178,7 +186,7 @@ public class FloorplanRender extends JComponent
 		Iterator<Floorplan> it = highlights.iterator();		
 		while(it.hasNext())
 		{
-			FloorplanRectangle rect = new FloorplanRectangle(it.next(),
+			FloorplanRectangle rect = new FloorplanRectangle(it.next(), floorplan,
 					trans_x, trans_y, offset_x, offset_y, scale);			
 
 			// Highlight in white
@@ -221,10 +229,23 @@ public class FloorplanRender extends JComponent
 		trans_y += y / scale;
 	}
 	
-	// Moves the image
+	// Zooms the image by an amount
 	public void zoom(double scale_factor)
 	{
 		scale = scale * scale_factor;
+	}
+	
+
+	// Centers the zoom
+	public void zoom()
+	{
+		// Set default scale	
+		scale = 0.9 * Math.min(getPreferredSize().getWidth() / floorplan.getWidth(),
+				getPreferredSize().getHeight() / floorplan.getHeight());
+		
+		// Set translates
+		trans_x = -floorplan.getWidth() / 2;
+		trans_y = -floorplan.getHeight() / 2;
 	}
 	
 	public void setTime(int time)

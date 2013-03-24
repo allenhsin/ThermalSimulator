@@ -12,6 +12,7 @@ import java.awt.Color;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSlider;
 
 import java.awt.BorderLayout;
@@ -21,25 +22,17 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 
-public class RenderWindow extends JFrame implements ChangeListener
+public class RenderPanel extends JPanel implements ChangeListener
 {
-	public RenderWindow (String title, Dimension image_size, Floorplan floorplan, TemperatureTrace temp_trace) 
+	public RenderPanel (String title, Dimension image_size, Floorplan floorplan, TemperatureTrace temp_trace) 
 	{
-		super (title);
-		
-		
+		super ();		
 		image = new FloorplanRender (image_size);
 		image.setFloorplan(floorplan);
 		image.setTempTrace(temp_trace);
 		
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		getContentPane().add (image, BorderLayout.CENTER);
+		add(image, BorderLayout.CENTER);
 		createSlider(temp_trace);
-		
-		
-		setResizable(false);
-		pack ();
-		setVisible (true);
 	}
 
 	public void redraw()
@@ -57,7 +50,7 @@ public class RenderWindow extends JFrame implements ChangeListener
 		slider.setPaintLabels(true);
 		slider.setToolTipText("Time Tick");
 		slider.addChangeListener(this);
-		getContentPane().add(slider, "South");
+		add(slider, "South");
 	}
 
 	public void stateChanged(ChangeEvent e) {
@@ -66,8 +59,6 @@ public class RenderWindow extends JFrame implements ChangeListener
 	}
 	
 	FloorplanRender image;
-	JSlider slider;
-
-	
+	JSlider slider;	
 }
 
