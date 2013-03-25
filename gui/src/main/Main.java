@@ -1,19 +1,11 @@
 package main;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
 import java.awt.Dimension;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
-import display.*;
-import floorplan.*;
 import gui.Floorplanner;
-import temperature.*;
 
 public class Main 
 {

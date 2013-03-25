@@ -12,6 +12,7 @@ import java.awt.AlphaComposite;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.*;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,8 +37,8 @@ public class FloorplanRender extends JComponent
 	private Floorplan floorplan;
 	// The temperature trace to follow
 	private TemperatureTrace temp_trace;
-	// Map of floorplan instances to highlight
-	private List<Floorplan> highlights;
+	// Map of floorplan instance names to highlight
+	private HashMap<String, Boolean> highlights;
 	
 	// Current rendered time step
 	private int time;
@@ -62,7 +63,7 @@ public class FloorplanRender extends JComponent
 		offset_y = image_size.getHeight() / 2;
 		
 		// Highlights
-		highlights = new LinkedList<Floorplan>();
+		highlights = new HashMap<String, Boolean>();
 
 		// Set time step to 0;
 		time = 0;
@@ -176,11 +177,12 @@ public class FloorplanRender extends JComponent
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5));
 
 		// Iterate through all highlights
-		Iterator<Floorplan> it = highlights.iterator();		
+		Iterator<String> it = highlights.keySet().iterator();		
 		while(it.hasNext())
 		{
-			FloorplanRectangle rect = new FloorplanRectangle(it.next(), floorplan,
-					trans_x, trans_y, offset_x, offset_y, scale);			
+			// Get the floorplan instance based on the instance name
+			FloorplanRectangle rect = new FloorplanRectangle(floorplan.getChildrenMap().get(it.next()),
+					floorplan, trans_x, trans_y, offset_x, offset_y, scale);			
 
 			// Highlight in white
 			g.setColor(Color.yellow);		
@@ -210,7 +212,7 @@ public class FloorplanRender extends JComponent
 		
 	}
 	
-	public List<Floorplan> getHighlights()
+	public HashMap<String, Boolean> getHighlights()
 	{
 		return highlights;
 	}

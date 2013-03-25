@@ -39,7 +39,7 @@ public class Master
 	// Constructor for a leaf master
 	public Master(double width, double height)
 	{
-		this("BlackBox");
+		this("Atomic");
 		leaf = true;
 		this.width = width;
 		this.height = height;
@@ -49,38 +49,20 @@ public class Master
 	{
 		MasterInst inst = new MasterInst(sub_master, inst_name, x, y);
 		master_insts.add(inst);
-		master_map.put(sub_master.getName(), inst);
+		master_map.put(inst_name, inst);
 	}
 	
-	public boolean isLeaf()
-	{
-		return leaf;
-	}
-
-	public double getHeight()
-	{
-		return height;		
-	}
-	
-	public double getWidth()
-	{
-		return width;
-	}
-	
-	public String getName()
+	public String toString()
 	{
 		return name;
 	}
 	
-	public Vector<MasterInst> getFloorplanInsts()
-	{
-		return master_insts;
-	}
-	
-	public HashMap<String, MasterInst> getFloorplanMap()
-	{
-		return master_map;
-	}
+	public boolean isLeaf() { return leaf; }
+	public double getHeight() { return height;	}	
+	public double getWidth() { return width; }	
+	public String getName() { return name; }	
+	public Vector<MasterInst> getFloorplanInsts() { return master_insts; }	
+	public HashMap<String, MasterInst> getFloorplanMap() { return master_map; }
 	
 	/**
 	 * Parses masters from a file
@@ -88,62 +70,4 @@ public class Master
 	 * @return Master
 	 * @throws IOException
 	 */
-	public static MasterMap parseMasters(File file) throws IOException
-	{
-		// Create HashMap with a mapping to all known masters
-		MasterMap masters = new MasterMap();
-		// Populate the masters map
-		parseMasters(file, masters);
-		return masters;
-	}
-	
-	private static void parseMasters(File file, MasterMap masters) throws IOException
-	{
-		// Until the subckt name is defined, make the master have a default name
-		Master m = new Master("Default");
-		MasterInst top = new MasterInst(m, "Top", 0.0, 0.0);
-		// Set this top be the top master
-		masters.put("Default", m);
-		masters.setTop(top);
-		
-		int line_num = 0;
-		Scanner s;
-		
-		// Setup regex
-		Pattern fplan_pattern = Pattern.compile ("(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)");
-		Matcher fplan_pattern_matcher;
-		
-		s = new Scanner(file);
-		
-		while (s.hasNextLine())
-		{			
-			String line = s.nextLine();
-			++line_num;
-			
-			fplan_pattern_matcher = fplan_pattern.matcher(line);
-			
-			if (fplan_pattern_matcher.matches())
-			{
-				// Right now don't do the check to see if the master already exists
-				// Right now all sub masters are leafs
-				// Create sub floorplan
-				Master sub_master = new Master(
-						Double.parseDouble(fplan_pattern_matcher.group(2)),
-						Double.parseDouble(fplan_pattern_matcher.group(3)));
-				
-				// Add the master inst
-				m.addMasterInst(sub_master, fplan_pattern_matcher.group(1), 
-						Double.parseDouble(fplan_pattern_matcher.group(4)), 
-						Double.parseDouble(fplan_pattern_matcher.group(5)));
-			}
-			else
-			{
-				s.close();
-				throw new Error("Invalid floorplan file syntax on line " + line_num + ": '" + line + "'");
-			}
-		}
-		
-		s.close();
-	}
-	
 }
