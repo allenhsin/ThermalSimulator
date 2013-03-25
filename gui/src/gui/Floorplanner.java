@@ -39,14 +39,16 @@ import temperature.TemperatureTrace;
 
 public class Floorplanner extends JFrame implements ListSelectionListener, TreeSelectionListener
 {	
-	Floorplan floorplan;
+	// The current top-level master instance
+	private MasterInst top_inst;
+
 	RenderPanel render_panel;
 	ToolTab tabbed_pane;
 	FloorplannerMenu menu_bar;
 	
 	private JTable objects_table;
 	private JTree hier_tree;
-
+	
 	private JScrollPane objects_scroller, hier_scroller;	
 	
 	public Floorplanner (String title, Dimension render_size) 
@@ -62,23 +64,26 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	
 	public void createNewFloorplan()
 	{
-		Master top = new Master("Default");
-		MasterInst top_inst = new MasterInst(top, "Top", 0.0, 0.0);
-		floorplan = new Floorplan(top_inst, null);
+		top_inst = new MasterInst(new Master("Default"), "Top", 0.0, 0.0);
+		hier_tree.setModel(new DefaultTreeModel(top_inst));
+		
+		Floorplan floorplan = new Floorplan(top_inst, null);
 		objects_table.setModel(floorplan);
 		render_panel.setFloorplan(floorplan);
-		hier_tree.setModel(new DefaultTreeModel(floorplan));
 	}
 	
 	public void openFloorplanFile(File fplan_file)
 	{
 		try
 		{
-			MasterInst top_inst = Master.parseMaster(fplan_file);
-			floorplan = new Floorplan(top_inst, null);
+
+			MasterInst top_inst = Master.parseMasters(fplan_file).getTop();
+
+			hier_tree.setModel(new DefaultTreeModel(top_inst));
+
+			Floorplan floorplan = new Floorplan(top_inst, null);
 			objects_table.setModel(floorplan);
 			render_panel.setFloorplan(floorplan);
-			hier_tree.setModel(new DefaultTreeModel(floorplan));
 
 		}
 		catch (Exception e)
@@ -111,7 +116,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		setJMenuBar(menu_bar);
 
 		tabbed_pane = new ToolTab(JTabbedPane.TOP);
-		tabbed_pane.setPreferredSize(new Dimension(370, 550));
+		tabbed_pane.setPreferredSize(new Dimension(450, 550));
 		getContentPane().add(tabbed_pane, BorderLayout.WEST);
 //		getContentPane().add(tabbed_pane, BorderLayout.EAST);
 		
@@ -146,7 +151,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 			{
 				if(lsm.isSelectedIndex(i))
 				{
-					highlights.add(floorplan.getChildrenMap().get(objects_table.getValueAt(i, 0)));
+					highlights.add(render_panel.getRender().getFloorplan().getChildrenMap().get(objects_table.getValueAt(i, 0)));
 				}
 			}
 		}
@@ -155,9 +160,9 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 
 	public void valueChanged(TreeSelectionEvent e) 
 	{
-		Floorplan f = (Floorplan) hier_tree.getLastSelectedPathComponent();
-		objects_table.setModel(f);
+		Floorplan f = new Floorplan((MasterInst) hier_tree.getLastSelectedPathComponent(), null);		
 		render_panel.setFloorplan(f);		
+		objects_table.setModel(f);
 		render_panel.repaint();
 	}
 }

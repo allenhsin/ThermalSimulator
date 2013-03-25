@@ -1,10 +1,14 @@
 package floorplan;
 
+import java.util.Enumeration;
+
+import javax.swing.tree.TreeNode;
+
 /**
  * Simple class 
  *
  */
-public class MasterInst
+public class MasterInst implements TreeNode
 {
 	// Instance of the master
 	public Master m;
@@ -21,4 +25,19 @@ public class MasterInst
 		this.y = y;		
 	}
 	
+	public String toString()
+	{
+		return n + " : " + m.getName();
+	}
+	
+	/** Methods that implement TreeNode functionality */
+	public Enumeration children() { return m.getFloorplanInsts().elements(); }
+	public boolean getAllowsChildren() { return true; }
+	public TreeNode getChildAt(int idx) { return m.getFloorplanInsts().get(idx); }
+	public int getChildCount() { return m.getFloorplanInsts().size(); }
+	public int getIndex(TreeNode node) { return m.getFloorplanInsts().indexOf(node); }
+	public TreeNode getParent() { return null; }
+	public boolean isLeaf() { return (m.getFloorplanInsts().size() == 0); }
 }
+
+

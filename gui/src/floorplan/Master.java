@@ -39,8 +39,8 @@ public class Master
 	// Constructor for a leaf master
 	public Master(double width, double height)
 	{
+		this("BlackBox");
 		leaf = true;
-		this.name = "BlackBox";
 		this.width = width;
 		this.height = height;
 	}
@@ -83,23 +83,29 @@ public class Master
 	}
 	
 	/**
-	 * Parses a master from a file
+	 * Parses masters from a file
 	 * @param file
 	 * @return Master
 	 * @throws IOException
 	 */
-	public static MasterInst parseMaster(File file) throws IOException
+	public static MasterMap parseMasters(File file) throws IOException
 	{
 		// Create HashMap with a mapping to all known masters
-		HashMap<String, Master> masters = new HashMap<String, Master>();
-		// Begin the actual master creation
-		return new MasterInst(parseMaster(file, masters), "Top", 0, 0);
+		MasterMap masters = new MasterMap();
+		// Populate the masters map
+		parseMasters(file, masters);
+		return masters;
 	}
 	
-	private static Master parseMaster(File file, HashMap<String, Master> masters) throws IOException
+	private static void parseMasters(File file, MasterMap masters) throws IOException
 	{
 		// Until the subckt name is defined, make the master have a default name
-		Master m = new Master("Default");		
+		Master m = new Master("Default");
+		MasterInst top = new MasterInst(m, "Top", 0.0, 0.0);
+		// Set this top be the top master
+		masters.put("Default", m);
+		masters.setTop(top);
+		
 		int line_num = 0;
 		Scanner s;
 		
@@ -138,8 +144,6 @@ public class Master
 		}
 		
 		s.close();
-
-		return m;
 	}
 	
 }

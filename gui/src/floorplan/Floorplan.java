@@ -13,7 +13,7 @@ import javax.swing.tree.TreeNode;
 // coordinates as well as its own position. A floorplan can also be viewed as a 5
 // column table, having a sub-floorplan name, x-coordinate, y-coordinate, and the
 // height/width of each sub-floorplan
-public class Floorplan extends AbstractTableModel implements TreeNode
+public class Floorplan extends AbstractTableModel
 {
 	// Floorplan master
 	private Master master;
@@ -98,11 +98,11 @@ public class Floorplan extends AbstractTableModel implements TreeNode
 	}
 	
 	/**
-	 * There are only 5 columns
+	 * There are only 6 columns
 	 */
 	public int getColumnCount() 
 	{
-		return 5;
+		return 6;
 	}
 
 	/**
@@ -121,10 +121,11 @@ public class Floorplan extends AbstractTableModel implements TreeNode
 		switch(col)
 		{
 			case 0: return children.get(row).name;
-			case 1: return children.get(row).x;
-			case 2: return children.get(row).y;
-			case 3: return children.get(row).width;
-			case 4: return children.get(row).height;
+			case 1: return children.get(row).getMaster().getName();
+			case 2: return children.get(row).x;
+			case 3: return children.get(row).y;
+			case 4: return children.get(row).width;
+			case 5: return children.get(row).height;
 		}
 		return null;
 	}
@@ -133,21 +134,14 @@ public class Floorplan extends AbstractTableModel implements TreeNode
 	{
 		switch(col)
 		{
-			case 0: return "Name";
-			case 1: return "X";
-			case 2: return "Y";
-			case 3: return "Width";
-			case 4: return "Height";
+			case 0: return "Instance";
+			case 1: return "Master";
+			case 2: return "X";
+			case 3: return "Y";
+			case 4: return "Width";
+			case 5: return "Height";
 		}
 		return null;		
 	}
-
-	public Enumeration children() { return children.elements(); }
-	public boolean getAllowsChildren() { return true; }
-	public TreeNode getChildAt(int idx) { return children.get(idx); }
-	public int getChildCount() { return children.size(); }
-	public int getIndex(TreeNode node) { return children.indexOf(node); }
-	public TreeNode getParent() { return parent; }
-	public boolean isLeaf() { return (children.size() == 0); }
 	
 }

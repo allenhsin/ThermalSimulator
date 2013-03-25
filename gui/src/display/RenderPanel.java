@@ -42,8 +42,8 @@ public class RenderPanel extends JPanel implements ChangeListener
 	// Time slider labels
 	private JLabel time_slider_file_text;
 	private JLabel time_slider_time_text;
-	// Remember the mapping between floorplan and temperature trace
-	private HashMap<Floorplan, TemperatureTrace> temp_trace_map;
+	// Remember the mapping between a master and the temperature trace
+	private HashMap<Master, TemperatureTrace> temp_trace_map;
 	
 	// Mouse listener
 	private RenderMouse mouse;
@@ -56,7 +56,7 @@ public class RenderPanel extends JPanel implements ChangeListener
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		setLayout(new BorderLayout());
 		
-		temp_trace_map = new HashMap<Floorplan, TemperatureTrace>();
+		temp_trace_map = new HashMap<Master, TemperatureTrace>();
 		
 		render = new FloorplanRender (image_size);
 		mouse = new RenderMouse(this);
@@ -100,16 +100,16 @@ public class RenderPanel extends JPanel implements ChangeListener
 		
 		// Add to hash map a value for the temperature trace for this floorplan,
 		// if it does not exist yet
-		if (!temp_trace_map.containsKey(f))
-			temp_trace_map.put(f, null);
-		setTempTrace(temp_trace_map.get(f));
+		if (!temp_trace_map.containsKey(f.getMaster()))
+			temp_trace_map.put(f.getMaster(), null);
+		setTempTrace(temp_trace_map.get(f.getMaster()));
 		
 	}
 	
 	public void setTempTrace(TemperatureTrace trace)
 	{
 		// Associate the currently rendered floorplan with this temperature trace
-		temp_trace_map.put(render.getFloorplan(), trace);
+		temp_trace_map.put(render.getFloorplan().getMaster(), trace);
 		// Tell the render to load the temperature trace
 		render.setTempTrace(trace);	
 		if (trace != null)
