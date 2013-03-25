@@ -12,7 +12,7 @@ public class MasterInst
 	public String n;
 	// Instance location (x, y)
 	public double x, y;
-
+	
 	public MasterInst(Master m, String n, double x, double y)
 	{
 		this.m = m;

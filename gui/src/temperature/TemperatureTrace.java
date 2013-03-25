@@ -7,6 +7,17 @@ import java.io.*;
 // A temperature trace class contains a list of temperatures at timesteps
 public class TemperatureTrace 
 {
+	// File source
+	private File file;
+	
+	// Temperature information
+	private HashMap<String, Integer> idx_map;
+	private TemperatureStep[] temp_steps;
+
+	// Maximum and minimum temperatures
+	private double max_temp;
+	private double min_temp;	
+
 	private TemperatureTrace(int timesteps)
 	{
 		idx_map = new HashMap<String, Integer>();
@@ -35,6 +46,11 @@ public class TemperatureTrace
 	{
 		return min_temp;
 	}
+	
+	public File getFile()
+	{
+		return file;
+	}
 
 	public static TemperatureTrace	parseTemperatureTrace(File f) throws Exception
 	{
@@ -51,6 +67,7 @@ public class TemperatureTrace
 
 		// Create new temperature trace
 		TemperatureTrace temp = new TemperatureTrace(lines-1);
+		temp.file = f;
 		
 		// Create scanner
 		Scanner s = new Scanner(f);
@@ -88,10 +105,4 @@ public class TemperatureTrace
 		return i;
 	}
 
-	private HashMap<String, Integer> idx_map;
-	private TemperatureStep[] temp_steps;
-
-	// Maximum and minimum temperatures
-	private double max_temp;
-	private double min_temp;	
 }

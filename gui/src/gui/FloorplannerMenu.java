@@ -43,6 +43,8 @@ class FloorplannerMenu extends JMenuBar
 		add(file_menu);
 		
 		// Create items in file menu
+		addMenuItem(file_menu, file_menu_listener, new JMenuItem("New Floorplan"),
+				KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
 		addMenuItem(file_menu, file_menu_listener, new JMenuItem("Open Floorplan..."),
 				KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 		addMenuItem(file_menu, file_menu_listener, new JMenuItem("Save Floorplan As..."),		
@@ -101,7 +103,11 @@ class FileMenuListener implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		String cmd = e.getActionCommand();
-		if (cmd.equals("Open Floorplan..."))
+		if (cmd.equals("New Floorplan"))
+		{
+			gui.createNewFloorplan();
+		}
+		else if (cmd.equals("Open Floorplan..."))
 		{
 			fc.setFileFilter(new FileNameExtensionFilter("Floorplan file (*.flp)", "flp"));
 			fc.showOpenDialog(gui);

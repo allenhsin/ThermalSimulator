@@ -18,47 +18,129 @@ import javax.swing.JSlider;
 import java.awt.BorderLayout;
 import java.util.*;
 
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 
+/**
+ * A render panel holds the floorplan render and some other knobs associated
+ * with viewing the floorplan render
+ *
+ */
 public class RenderPanel extends JPanel implements ChangeListener
 {
-	public RenderPanel (String title, Dimension image_size, Floorplan floorplan, TemperatureTrace temp_trace) 
+
+	// The floorplan render image
+	private FloorplanRender render;
+	// The slider for controller the current time (for temperature renders)
+	private JSlider time_slider;	
+
+	// Render labels
+	private JLabel render_name_text;
+	
+	// Time slider labels
+	private JLabel time_slider_file_text;
+	private JLabel time_slider_time_text;
+	// Remember the mapping between floorplan and temperature trace
+	private HashMap<Floorplan, TemperatureTrace> temp_trace_map;
+	
+	// Mouse listener
+	private RenderMouse mouse;
+	// Keyboard listener
+	private RenderKeyboard keyboard;
+
+	public RenderPanel (Dimension image_size) 
 	{
 		super ();		
-		image = new FloorplanRender (image_size);
-		image.setFloorplan(floorplan);
-		image.setTempTrace(temp_trace);
+		setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLayout(new BorderLayout());
 		
-		add(image, BorderLayout.CENTER);
-		createSlider(temp_trace);
+		temp_trace_map = new HashMap<Floorplan, TemperatureTrace>();
+		
+		render = new FloorplanRender (image_size);
+		mouse = new RenderMouse(this);
+		keyboard = new RenderKeyboard(this);
+		
+		add(render, BorderLayout.CENTER);
+		createTimeSliderPanel();
 	}
 
-	public void redraw()
+	private void createTimeSliderPanel()
 	{
-		this.repaint();
-	}
-	
-	private void createSlider(TemperatureTrace temp_trace)
-	{
-		int total_steps = temp_trace.getTemperatureSteps().length;
-		slider = new JSlider(0, total_steps - 1, 0);
-		slider.setMinorTickSpacing(total_steps / 20);
-		slider.setMajorTickSpacing(total_steps / 10);
-		slider.setPaintTicks(true);
-		slider.setPaintLabels(true);
-		slider.setToolTipText("Time Tick");
-		slider.addChangeListener(this);
-		add(slider, "South");
+		JPanel time_slider_panel = new JPanel();
+		time_slider_panel.setLayout(new BorderLayout());
+		
+		time_slider = new JSlider(0, 0, 0);
+		time_slider.setEnabled(false);
+		time_slider.setPaintTicks(true);
+		time_slider.setPaintLabels(true);
+		time_slider.setToolTipText("Time Tick");
+		time_slider.addChangeListener(this);
+
+		render_name_text = new JLabel("No floorplan loaded");
+		add(render_name_text, BorderLayout.NORTH);
+		
+		time_slider_file_text = new JLabel("No Temperature Trace Loaded", JLabel.CENTER);
+		time_slider_time_text = new JLabel("Time tick: 0", JLabel.CENTER);
+		time_slider_panel.add(time_slider, BorderLayout.CENTER);
+		time_slider_panel.add(time_slider_time_text,  BorderLayout.NORTH);
+		time_slider_panel.add(time_slider_file_text, BorderLayout.SOUTH);
+		add(time_slider_panel, BorderLayout.SOUTH);
+		
 	}
 
-	public void stateChanged(ChangeEvent e) {
-		image.setTime(((JSlider) e.getSource()).getValue());
-		image.repaint();
+	public void setFloorplan(Floorplan f)
+	{
+		// Tell the render to load the floorplan
+		render.setFloorplan(f);
+
+		// Update render name text
+		render_name_text.setText(f.toString());
+		
+		// Add to hash map a value for the temperature trace for this floorplan,
+		// if it does not exist yet
+		if (!temp_trace_map.containsKey(f))
+			temp_trace_map.put(f, null);
+		setTempTrace(temp_trace_map.get(f));
+		
 	}
 	
-	FloorplanRender image;
-	JSlider slider;	
+	public void setTempTrace(TemperatureTrace trace)
+	{
+		// Associate the currently rendered floorplan with this temperature trace
+		temp_trace_map.put(render.getFloorplan(), trace);
+		// Tell the render to load the temperature trace
+		render.setTempTrace(trace);	
+		if (trace != null)
+		{
+			// Update and enable slider with time information
+			int total_steps = trace.getTemperatureSteps().length;
+			time_slider.setMaximum(total_steps - 1);
+			time_slider.setValue(0);
+			time_slider.setMinorTickSpacing(total_steps / 20);
+			time_slider.setMajorTickSpacing(total_steps / 10);
+			time_slider_file_text.setText(trace.getFile().getName());
+			time_slider.setEnabled(true);
+		}
+		else
+		{
+			time_slider.setEnabled(false);
+			time_slider_file_text.setText("No Temperature Trace Loaded");
+		}
+	}
+	
+	public FloorplanRender getRender() { return render; }
+
+	/**
+	 * When the time tick slider moves
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		JSlider time_slider = (JSlider) e.getSource();
+		time_slider_time_text.setText("Time Tick: " + time_slider.getValue());
+		render.setTime(time_slider.getValue());
+		render.repaint();
+	}	
 }
 

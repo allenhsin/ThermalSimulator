@@ -11,43 +11,44 @@ public class RenderMouse extends MouseInputAdapter
 	// The scaling step size
 	public static final double SCALE_STEP = 1.1;
 	
-	public RenderMouse(FloorplanRender image)
+	// The panel the listener is a part of
+	RenderPanel panel;
+	
+	public RenderMouse(RenderPanel panel)
 	{
-		this.image = image;
-		image.addMouseListener(this);
-		image.addMouseWheelListener(this);
-
+		this.panel = panel;
+		panel.getRender().addMouseListener(this);
+		panel.getRender().addMouseWheelListener(this);
 	}
+
 	
 	public void mouseClicked(MouseEvent e)
 	{
-		image.requestFocus();
+		panel.getRender().requestFocus();
 		Point p = e.getPoint();		
 		if (e.getButton() == MouseEvent.BUTTON2)
 		{
-			image.zoom();
+			panel.getRender().zoom();
 		}
 		else if (e.getButton() == MouseEvent.BUTTON3)
 		{
-			int x_shift = p.x - image.getSize().width / 2;
-			int y_shift = p.y - image.getSize().height / 2;			
-			image.translate(-x_shift, y_shift);			
+			int x_shift = p.x - panel.getRender().getSize().width / 2;
+			int y_shift = p.y - panel.getRender().getSize().height / 2;			
+			panel.getRender().translate(-x_shift, y_shift);			
 		}
-		image.repaint();
+		panel.getRender().repaint();
 	}
 	
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
 		Point p = e.getPoint();
 
-		int x_shift = p.x - image.getSize().width / 2;
-		int y_shift = p.y - image.getSize().height / 2;
+		int x_shift = p.x - panel.getRender().getSize().width / 2;
+		int y_shift = p.y - panel.getRender().getSize().height / 2;
 		double scale_factor = Math.pow(SCALE_STEP, -e.getWheelRotation());
-		image.zoom(scale_factor);
-		image.translate((int) (x_shift * (1 - scale_factor)), (int) -(y_shift * (1 - scale_factor)));
-		image.repaint();
+		panel.getRender().zoom(scale_factor);
+		panel.getRender().translate((int) (x_shift * (1 - scale_factor)), (int) -(y_shift * (1 - scale_factor)));
+		panel.getRender().repaint();
 	}
 	
-	// The image that is being rendered
-	FloorplanRender image;
 }

@@ -36,10 +36,6 @@ public class FloorplanRender extends JComponent
 	private Floorplan floorplan;
 	// The temperature trace to follow
 	private TemperatureTrace temp_trace;
-	// Mouse listener
-	private RenderMouse mouse;
-	// Keyboard listener
-	private RenderKeyboard keyboard;		
 	// Map of floorplan instances to highlight
 	private List<Floorplan> highlights;
 	
@@ -65,10 +61,6 @@ public class FloorplanRender extends JComponent
 		offset_x = image_size.getWidth() / 2;
 		offset_y = image_size.getHeight() / 2;
 		
-		// Create mouse listener
-		mouse = new RenderMouse(this);
-		keyboard = new RenderKeyboard(this);
-		
 		// Highlights
 		highlights = new LinkedList<Floorplan>();
 
@@ -84,6 +76,7 @@ public class FloorplanRender extends JComponent
 	public void setFloorplan(Floorplan floorplan)
 	{
 		this.floorplan = floorplan;
+		temp_trace = null;
 		highlights.clear();		
 		zoom();
 		repaint();
@@ -252,5 +245,8 @@ public class FloorplanRender extends JComponent
 	{
 		this.time = time;
 	}
+	
+	public Floorplan getFloorplan() { return floorplan; }
+	public TemperatureTrace getTemperatureTrace() { return temp_trace; }
 	
 }

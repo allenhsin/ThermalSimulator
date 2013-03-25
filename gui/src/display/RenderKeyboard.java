@@ -9,13 +9,13 @@ import java.awt.event.KeyListener;
 
 public class RenderKeyboard implements KeyListener
 {
-	// The image that is being rendered
-	FloorplanRender image;
+	// The panel the listener is a part of
+	RenderPanel panel;
 	
-	public RenderKeyboard(FloorplanRender image)
+	public RenderKeyboard(RenderPanel panel)
 	{
-		this.image = image;
-		image.addKeyListener(this);
+		this.panel = panel;
+		panel.getRender().addKeyListener(this);
 	}
 
 	public void keyPressed(KeyEvent e)
@@ -23,27 +23,27 @@ public class RenderKeyboard implements KeyListener
 		switch(e.getKeyCode())
 		{
 			// Left Arrow
-			case 37: image.translate(100, 0); 
+			case 37: panel.getRender().translate(100, 0); 
 				break;
 			// Up Arrow
-			case 38: image.translate(0, -100); 
+			case 38: panel.getRender().translate(0, -100); 
 				break;
 			// Right Arrow
-			case 39: image.translate(-100, 0); 
+			case 39: panel.getRender().translate(-100, 0); 
 				break;
 			// Down Arrow
-			case 40: image.translate(0, 100); 
+			case 40: panel.getRender().translate(0, 100); 
 				break;
 			// Pg Up
-			case 33: image.zoom(1.2);
+			case 33: panel.getRender().zoom(1.2);
 				break;
 			// Pg Down
-			case 34: image.zoom(0.8);
+			case 34: panel.getRender().zoom(1 / 1.2);
 				break;
 			// Home
-			case 36: image.zoom();
+			case 36: panel.getRender().zoom();
 		}
-		image.repaint();
+		panel.getRender().repaint();
 	}
 
 	public void keyReleased(KeyEvent e) {
