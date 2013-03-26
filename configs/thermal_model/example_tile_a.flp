@@ -1,0 +1,10 @@
+
+include configs/thermal_model/example_tile_c.flp
+
+floorplan TileA;
+    
+    block_1 0.0005 0.0002 0.0000 0.0000;
+    block_2 0.0001 0.0002 0.0000 0.0002;
+    TileC tile_1 0.0001 0.0002;
+
+endfloorplan

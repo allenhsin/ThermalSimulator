@@ -3,29 +3,32 @@
 
 # Include sub-floorplans from other files
 # that can be instantiated.
-include /path/to/the/floorplan/file.flp;
-include /path/to/the/other/floorplan/file.flp;
+include configs/thermal_model/example_tile_a.flp
+include configs/thermal_model/example_tile_b.flp
 
 # New sub-floorplans can also be declared 
-# within the same file of the top level
-# It starts with the keyword "floorplan"
-floorplan NAME_OF_SUBFLOORPLAN_1;
+# within the same file of the top level.
+# It starts with the keyword "floorplan".
+# ATTENTION: sub-floorplan object names
+# cannot repeat!
+floorplan TileE;
 
     # The format to create a new block in the floorplan is
     #
     #       BLOCK_NAME WIDTH HEIGHT X_COORDINATE Y_COORDINATE
     #
     # All units are in meters
-    block_1 0.0015 0.003 0 0;
-    block_2 0.0075 0.003 0.0015 0;
+    block_1 0.0001 0.0001 0.0000 0.0000;
+    block_2 0.0002 0.0001 0.0001 0.0000;
+    block_3 0.0001 0.0001 0.0003 0.0000;
 
 endfloorplan
 
 # Add another sub-floorplan
-floorplan NAME_OF_SUBFLOORPLAN_2;
+floorplan TileD;
 
-    block_1 0.001 0.003 0 0;
-    block_2 0.001 0.0025 0 0.003;
+    block_1 0.0003 0.0001 0.0000 0.0000;
+    block_2 0.0003 0.0001 0.0007 0.0000;
     
     # Instantiate another sub-floorplan within a sub-floorplan.
     # The format is
@@ -35,7 +38,7 @@ floorplan NAME_OF_SUBFLOORPLAN_2;
     # All the blocks in the instantiated sub-floorplan
     # will be offset to new coordinates from
     # (X_COORDINATE, Y_COORDINATE)
-    SUBFLOORPLAN_NAME_FROM_OTHER_FILE 0 0.0055;
+    TileE tile_1 0.0003 0.0000;
 
 endfloorplan
 
@@ -43,11 +46,17 @@ endfloorplan
 # starts with the keyword "floorplan". But in the 
 # thermal configuration file, it has to specify 
 # the top level floorplan name
-floorplan NAME_OF_TOP_FLOORPLAN
+floorplan TheChip
+    
+    tile_6          0.0010 0.0001 0.0000 0.0009;
 
-    NAME_OF_SUBFLOORPLAN_1 0 0;
-    NAME_OF_SUBFLOORPLAN_2 0.009 0;
-    NAME_OF_SUBFLOORPLAN_FROM_OTHER_FILE 0.003 0;
+    TileA tile_1    0.0000 0.0000;
+    TileA tile_2    0.0005 0.0000;
+    
+    TileD tile_3    0.0000 0.0004;
+    
+    TileB tile_4    0.0000 0.0005;
+    TileB tile_5    0.0005 0.0005;
 
 endfloorplan
 
