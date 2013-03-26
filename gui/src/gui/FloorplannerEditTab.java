@@ -33,8 +33,9 @@ import floorplan.MasterInst;
 import floorplan.MasterMap;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.tree.DefaultTreeModel;
 
-public class FloorplannerEditTab extends JPanel implements ListSelectionListener, ActionListener, ItemListener, DocumentListener
+public class FloorplannerEditTab extends JPanel implements ListSelectionListener, ActionListener, ItemListener
 {
 	// Reference to the main floorplanner GUI
 	private Floorplanner gui;
@@ -61,8 +62,8 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	// Modified or not label
 	private JLabel label_mod;
 	
-	// List of selected objects
-	private List<Floorplan> selected;
+	// List of selected master instances
+	private List<MasterInst> selected;
 	// Current selection index
 	private int sel_index;
 	
@@ -74,7 +75,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		super();
 		this.gui = gui;
 		gui.getObjectsTable().getSelectionModel().addListSelectionListener(this);
-		selected = new LinkedList<Floorplan>();
+		selected = new LinkedList<MasterInst>();
 		createEditTab();
 	}
 	
@@ -139,7 +140,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		gbc_text_instance_name.gridy = 1;
 		panel_2.add(text_instance_name, gbc_text_instance_name);
 		text_instance_name.setColumns(10);
-		text_instance_name.getDocument().addDocumentListener(this);
+		text_instance_name.getDocument().addDocumentListener(new TextBoxEvents(this));
 		
 		JLabel label_instance_master = new JLabel("Instance Master");
 		GridBagConstraints gbc_label_instance_master = new GridBagConstraints();
@@ -184,7 +185,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		gbc_text_x_position.gridy = 4;
 		panel_2.add(text_x_position, gbc_text_x_position);
 		text_x_position.setColumns(10);
-		text_x_position.getDocument().addDocumentListener(this);
+		text_x_position.getDocument().addDocumentListener(new TextBoxEvents(this));
 		
 		JLabel label_y_position = new JLabel("Y Position");
 		GridBagConstraints gbc_label_y_position = new GridBagConstraints();
@@ -202,7 +203,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		gbc_text_y_position.gridy = 5;
 		panel_2.add(text_y_position, gbc_text_y_position);
 		text_y_position.setColumns(10);
-		text_y_position.getDocument().addDocumentListener(this);
+		text_y_position.getDocument().addDocumentListener(new TextBoxEvents(this));
 		
 		JLabel label_width = new JLabel("Width");
 		GridBagConstraints gbc_label_width = new GridBagConstraints();
@@ -220,7 +221,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		gbc_text_width.gridy = 6;
 		panel_2.add(text_width, gbc_text_width);
 		text_width.setColumns(10);
-		text_width.getDocument().addDocumentListener(this);
+		text_width.getDocument().addDocumentListener(new TextBoxEvents(this));
 		
 		JLabel label_height = new JLabel("Height");
 		GridBagConstraints gbc_label_height = new GridBagConstraints();
@@ -238,7 +239,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		gbc_text_height.gridy = 7;
 		panel_2.add(text_height, gbc_text_height);
 		text_height.setColumns(10);
-		text_height.getDocument().addDocumentListener(this);
+		text_height.getDocument().addDocumentListener(new TextBoxEvents(this));
 		
 		label_mod = new JLabel("No modifications made");
 		GridBagConstraints gbc_label_mod = new GridBagConstraints();
@@ -257,7 +258,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	public void valueChanged(ListSelectionEvent e) 
 	{		
 		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-		Floorplan cur_floorplan = (Floorplan) gui.getObjectsTable().getModel();
+		Master cur_master = (Master) gui.getObjectsTable().getModel();
 		
 		if (!e.getValueIsAdjusting())
 		{
@@ -270,8 +271,8 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 					if (lsm.isSelectedIndex(i))
 					{
 						// Get the floorplan that is being edited
-						Floorplan edit_floorplan = cur_floorplan.getChildrenMap().get(gui.getObjectsTable().getValueAt(i, 0));
-						selected.add(edit_floorplan);
+						MasterInst edit_inst = cur_master.getFloorplanInsts().get(i);
+						selected.add(edit_inst);
 					}
 				}			
 			}
@@ -311,39 +312,56 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		{
 			label_object_num.setText((sel_index + 1) + "/" + selected.size());		
 			// Update the text boxes with the parameters
-			Floorplan cur_fp = selected.get(sel_index);
+			MasterInst cur_inst = selected.get(sel_index);
 			
 			text_instance_name.setEnabled(true);
 			text_x_position.setEnabled(true);
 			text_y_position.setEnabled(true);
 			check_atomic.setEnabled(true);
 			
-			text_instance_name.setText(cur_fp.getName());
-			text_x_position.setText(Double.toString(cur_fp.getX()));
-			text_y_position.setText(Double.toString(cur_fp.getY()));
+			text_instance_name.setText(cur_inst.n);
+			text_x_position.setText(Double.toString(cur_inst.x));
+			text_y_position.setText(Double.toString(cur_inst.y));
 			
-			check_atomic.setSelected(cur_fp.getMaster().isLeaf());
-			text_height.setText(Double.toString(cur_fp.getHeight()));
-			text_width.setText(Double.toString(cur_fp.getWidth()));
-			combo_instance_master.setSelectedItem(cur_fp.getMaster());
+			check_atomic.setSelected(cur_inst.m.isLeaf());
+			setEditAtomic(cur_inst.m.isLeaf());
+			text_height.setText(Double.toString(cur_inst.m.getHeight()));
+			text_width.setText(Double.toString(cur_inst.m.getWidth()));
+			combo_instance_master.setSelectedItem(cur_inst.m);
 		}
 
 		// Fresh copy, no changes
 		setChanges(false);		
 	}
+	
+	/**
+	 * Set the state of the appropriate text boxes for an atomic/non-atomic instances
+	 */
+	private void setEditAtomic(boolean atomic)
+	{	
+		if (atomic)
+		{
+			text_height.setEnabled(true);
+			text_width.setEnabled(true);
+			combo_instance_master.setEnabled(false);
+		}
+		else
+		{	
+			text_height.setEnabled(false);
+			text_width.setEnabled(false);				
+			combo_instance_master.setEnabled(true);
+			combo_instance_master.setSelectedIndex(0);
+		}
+	}
 
 	/**
 	 * Pushes the changes to the master
 	 */
-	private void applySelected()
-	{
-		// Get the current master
-		Master cur_master = gui.getCurInst().m;		
-		// Get the selected floorplan
-		Floorplan sel_floorplan = selected.get(sel_index);
+	private void modifySelected()
+	{	
+		// get the selected instance
+		MasterInst edit_master_inst = selected.get(sel_index);
 
-		// Find the selected instance in the current master
-		MasterInst edit_master_inst = cur_master.getFloorplanMap().get(sel_floorplan.getName());
 		// Edit the instantiation
 		edit_master_inst.x = Double.parseDouble(text_x_position.getText());
 		edit_master_inst.y = Double.parseDouble(text_y_position.getText());
@@ -351,7 +369,9 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		
 		// If atomic is selected, make the thing a new atomic!
 		if (check_atomic.isSelected())
+		{
 			edit_master_inst.m = new Master(Double.parseDouble(text_width.getText()), Double.parseDouble(text_height.getText()));
+		}
 		// If the atomic is not selected then find the master and set it to that
 		else
 		{
@@ -366,8 +386,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 				JOptionPane.showMessageDialog(this, "Changing instance master to " + new_master.getName() + " causes recursive masters! Master will not be changed.",
 						"Error", JOptionPane.WARNING_MESSAGE);
 			}
-		}
-		
+		}		
 		
 		gui.updateView();
 	}
@@ -375,7 +394,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	/**
 	 * Set that the selection has been changed
 	 */
-	private void setChanges(boolean changed)
+	protected void setChanges(boolean changed)
 	{
 		button_discard.setEnabled(changed);
 		button_apply.setEnabled(changed);
@@ -395,37 +414,44 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		else if (e.getSource() == button_previous)
 			updateSelected(sel_index - 1);
 		else if (e.getSource() == button_apply)
-			applySelected();
+			modifySelected();
 		else if (e.getSource() == button_discard)
 			updateSelected(sel_index);
 		else throw new Error("Internal Error: " + e.getActionCommand() + "' is not supported!");
 	}
 
-	@Override
+	/**
+	 * Handles state changes for the atomic checkbox
+	 */
 	public void itemStateChanged(ItemEvent e)
 	{
+		setChanges(true);
 		if (e.getSource() == check_atomic)
 		{
 			if(e.getStateChange() == ItemEvent.DESELECTED)
-			{
-				text_height.setEnabled(false);
-				text_width.setEnabled(false);				
-				combo_instance_master.setEnabled(true);
-				combo_instance_master.setSelectedIndex(0);
-			}
+				setEditAtomic(false);
 			else if (e.getStateChange() == ItemEvent.SELECTED)
-			{
-				text_height.setEnabled(true);
-				text_width.setEnabled(true);
-				combo_instance_master.setEnabled(false);
-			}
+				setEditAtomic(true);
 		}
 		else throw new Error("Internal Error: Button '" + e.toString() + "' is not supported!");
 	}
 
-	public void changedUpdate(DocumentEvent arg0) { }
-
-	public void insertUpdate(DocumentEvent arg0) { setChanges(true); }
-
-	public void removeUpdate(DocumentEvent arg0) { setChanges(true); }
 }
+
+/**
+ *  Lots of helper classes for handling of events
+ */
+
+/**
+ *  Handles changes to the text boxes 
+ */
+class TextBoxEvents extends EventsHelper<FloorplannerEditTab> implements DocumentListener
+{
+
+	TextBoxEvents(FloorplannerEditTab edit_tab) { super(edit_tab); }
+	public void changedUpdate(DocumentEvent arg0) { owner.setChanges(true); }
+	public void insertUpdate(DocumentEvent arg0) { owner.setChanges(true); }
+	public void removeUpdate(DocumentEvent arg0) { owner.setChanges(true); }
+	
+}
+

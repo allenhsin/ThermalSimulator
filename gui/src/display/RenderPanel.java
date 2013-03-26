@@ -96,7 +96,7 @@ public class RenderPanel extends JPanel implements ChangeListener
 		render.setFloorplan(f);
 
 		// Update render name text
-		render_name_text.setText(f.toString());
+		render_name_text.setText(f.getMaster().getName());
 		
 		// Add to hash map a value for the temperature trace for this floorplan,
 		// if it does not exist yet
@@ -128,6 +128,15 @@ public class RenderPanel extends JPanel implements ChangeListener
 			time_slider.setEnabled(false);
 			time_slider_file_text.setText("No Temperature Trace Loaded");
 		}
+	}
+	
+	/**
+	 * Unloads all temperature traces
+	 */
+	public void unloadTempTrace()
+	{
+		render.setTempTrace(null);
+		temp_trace_map.clear();
 	}
 	
 	public FloorplanRender getRender() { return render; }

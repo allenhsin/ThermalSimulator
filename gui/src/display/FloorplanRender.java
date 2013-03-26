@@ -116,100 +116,120 @@ public class FloorplanRender extends JComponent
 	
 	public synchronized void paintTemperatures(Graphics2D g)
 	{
-		// Get list of floorplan instances
-		Vector<Floorplan> fp_insts = floorplan.getChildren();
-		
-		// Get maximum and minimum temperatures
-		double max_temp = temp_trace.getMaxTemp();
-		double min_temp = temp_trace.getMinTemp();
-		
-		// Get temperatures at this time step
-		TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
-
-		// Iterate through all rectangles
-		Iterator<Floorplan> it = fp_insts.iterator();
-		while(it.hasNext())
-		{
-			// Get the current floorplan
-			Floorplan f = it.next();
-			int idx = temp_trace.getIdxMap().get(f.getName());
-			double temperature = temp_step.getTemperatures()[idx];
-			
-			// Set the painting color based on the temperature
-			g.setColor(TemperatureColor.getColor(temperature, max_temp, min_temp));
-			
-			// Fill the rectangle with the correct color
-			FloorplanRectangle rect = new FloorplanRectangle(f, floorplan,
-					trans_x, trans_y, offset_x, offset_y, scale);			
-			g.fillRect(rect.x, rect.y, rect.w, rect.h);
-		}
+		// Disabled until new temperature format is done
+//		// Get list of floorplan instances
+//		Vector<Floorplan> fp_insts = floorplan.getChildren();
+//		
+//		// Get maximum and minimum temperatures
+//		double max_temp = temp_trace.getMaxTemp();
+//		double min_temp = temp_trace.getMinTemp();
+//		
+//		// Get temperatures at this time step
+//		TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
+//
+//		// Iterate through all rectangles
+//		Iterator<Floorplan> it = fp_insts.iterator();
+//		while(it.hasNext())
+//		{
+//			// Get the current floorplan
+//			Floorplan f = it.next();
+//			int idx = temp_trace.getIdxMap().get(f.getName());
+//			double temperature = temp_step.getTemperatures()[idx];
+//			
+//			// Set the painting color based on the temperature
+//			g.setColor(TemperatureColor.getColor(temperature, max_temp, min_temp));
+//			
+//			// Fill the rectangle with the correct color
+//			FloorplanRectangle rect = new FloorplanRectangle(f, floorplan,
+//					trans_x, trans_y, offset_x, offset_y, scale);			
+//			g.fillRect(rect.x, rect.y, rect.w, rect.h);
+//		}
 	}
 	
+	/**
+	 * Draw all the outlines of blocks
+	 */
 	public synchronized void paintOutlines(Graphics2D g)
 	{	
-		// Get list of floorplan instances
-		Vector<Floorplan> fp_insts = floorplan.getChildren();
-		
+		// Draw block outlines in white
+		g.setColor(Color.white);		
 		// Set alpha blending
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 1.0));
-		
-		// Draw block outlines in white
-		g.setColor(Color.white);
-		// Iterate through all rectangles
-		Iterator<Floorplan> it = fp_insts.iterator();
-		while(it.hasNext())
-		{
-			FloorplanRectangle rect = new FloorplanRectangle(it.next(), floorplan,
-					trans_x, trans_y, offset_x, offset_y, scale);			
-			g.drawRect(rect.x, rect.y, rect.w, rect.h);
-		}
-
-		// Draw border rectangle in cyan
+		// Paint outlines, starting with the top floorplan instance
+		paintOutlines(g, floorplan);
+		// Draw top-level border rectangle in cyan
 		g.setColor(Color.cyan);
 		FloorplanRectangle border = new FloorplanRectangle(floorplan, floorplan,
 				trans_x, trans_y, offset_x, offset_y, scale);
 		g.drawRect(border.x,  border.y, border.w, border.h);
+	}
+	
+	/**
+	 * Helper for painting a specific floorplan
+	 */
+	private synchronized void paintOutlines(Graphics2D g, Floorplan f)
+	{
+		// If it is a leaf, paint it
+		if (f.isLeaf())
+		{
+			FloorplanRectangle rect = new FloorplanRectangle(f, floorplan,
+					trans_x, trans_y, offset_x, offset_y, scale);			
+			g.drawRect(rect.x, rect.y, rect.w, rect.h);				
+		}
+		// Otherwise recusively call and paint
+		else
+		{
+			// Iterate through all sub-floorplans
+			Iterator<Floorplan> it = f.getChildren().iterator();
+			while(it.hasNext())
+				paintOutlines(g, it.next());
+		}
 	}
 
 	public synchronized void paintHighlights(Graphics2D g)
 	{
 		// Set alpha blending
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5));
+		g.setColor(Color.white);
 
-		// Iterate through all highlights
+		// Iterate through all highlights and select them
 		Iterator<String> it = highlights.keySet().iterator();		
 		while(it.hasNext())
+			paintHighlights(g, floorplan.getChildrenMap().get(it.next()));
+			
+	}
+	
+	/**
+	 * Helper for painting highlights
+	 */
+	private synchronized void paintHighlights(Graphics2D g, Floorplan f)
+	{
+		// Set alpha blending
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5));
+		// If it is a leaf, paint it
+		if (f.isLeaf())
 		{
-			// Get the floorplan instance based on the instance name
-			FloorplanRectangle rect = new FloorplanRectangle(floorplan.getChildrenMap().get(it.next()),
-					floorplan, trans_x, trans_y, offset_x, offset_y, scale);			
-
+			FloorplanRectangle rect = new FloorplanRectangle(f, floorplan,
+					trans_x, trans_y, offset_x, offset_y, scale);			
 			// Highlight in white
-			g.setColor(Color.yellow);		
 			g.drawRect(rect.x, rect.y, rect.w, rect.h);
-			g.setColor(Color.white);
-			g.fillRect(rect.x, rect.y, rect.w, rect.h);
+			g.fillRect(rect.x, rect.y, rect.w, rect.h);		
 		}
-		
+		// Otherwise recusively call and paint
+		else
+		{
+			// Iterate through all sub-floorplans
+			Iterator<Floorplan> it = f.getChildren().iterator();
+			while(it.hasNext())
+				paintHighlights(g, it.next());
+		}
 	}
 
 	public void repaintInst(Floorplan f)
 	{
-		double x_raw = (f.getX() + trans_x) * scale + offset_x;
-		double y_raw = (f.getY() + trans_y) * scale + offset_y;
-		double w_raw = f.getWidth() * scale;
-		double h_raw = f.getHeight() * scale;
-		
-		// Maybe a more efficient way to do this?
-		int w = (int) (Math.round(x_raw + w_raw) - Math.round(x_raw));
-		int h = (int) (Math.round(y_raw + h_raw) - Math.round(y_raw));
-		
-		repaint(	(int) Math.round(x_raw),
-					(int) Math.round(y_raw),
-					(int) w,
-					(int) h);
-		
-		
+		FloorplanRectangle rect = new FloorplanRectangle(f,
+				floorplan, trans_x, trans_y, offset_x, offset_y, scale);					
+		repaint(rect.x, rect.y, rect.w, rect.h);		
 	}
 	
 	public HashMap<String, Boolean> getHighlights()
@@ -229,7 +249,6 @@ public class FloorplanRender extends JComponent
 	{
 		scale = scale * scale_factor;
 	}
-	
 
 	// Centers the zoom
 	public void zoom()

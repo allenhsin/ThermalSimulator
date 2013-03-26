@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import display.FloorplanRender;
 import display.RenderPanel;
 import floorplan.Floorplan;
+import floorplan.FloorplanParser;
 import floorplan.Master;
 import floorplan.MasterInst;
 import floorplan.MasterMap;
@@ -19,6 +20,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -70,7 +72,6 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	public void createNewFloorplan()
 	{
 		MasterMap new_masters = new MasterMap();
-		new_masters.setTop(new MasterInst(new Master("Default"), "Top", 0.0, 0.0));
 		updateMasters(new_masters);
 	}
 	
@@ -78,7 +79,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	{
 		try
 		{
-			updateMasters(MasterMap.parseMasters(fplan_file));
+			updateMasters(FloorplanParser.parseMasters(fplan_file));
 		}
 		catch (Exception ex)
 		{
@@ -105,10 +106,12 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		setJMenuBar(menu_bar);
 
 		view_tabbed_pane = new ViewTab(JTabbedPane.TOP);
-		view_tabbed_pane.setPreferredSize(new Dimension(450, 550));
+		view_tabbed_pane.setPreferredSize(new Dimension(350, 550));
 		getContentPane().add(view_tabbed_pane, BorderLayout.WEST);
 		
 		hier_tree = new JTree();
+		hier_tree.setRootVisible(false);
+		hier_tree.setShowsRootHandles(true);
 		hier_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);		
 		hier_tree.getSelectionModel().addTreeSelectionListener(this);
 		view_tabbed_pane.addTab("Hierarchy", null, hier_tree, null);
@@ -134,12 +137,13 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	 * Updates the current masters map, should be called whenever the main master map changes
 	 * as this function will contain bookkeeping calls to all other GUI elements 
 	 */
+	public void updateMasters() { updateMasters(masters); }
 	public void updateMasters(MasterMap new_masters)
 	{
 		masters = new_masters;
-		hier_tree.setModel(new DefaultTreeModel(masters.getTop()));
 		tools.updateMasters(new_masters);
-		updateView(masters.getTop());
+		hier_tree.setModel(new DefaultTreeModel(masters));
+		updateView(cur_inst);
 	}
 	
 	/**
@@ -148,15 +152,18 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	public void updateView() { updateView(cur_inst); }
 	public void updateView(MasterInst new_inst)
 	{
-		cur_inst = new_inst;
-		Floorplan f = new Floorplan(cur_inst, null);
+		if (new_inst == null)
+			cur_inst = new MasterInst(masters.getDefaultMaster(), "Top", 0.0, 0.0);
+		else
+			cur_inst = new_inst;		
+		objects_table.setModel(cur_inst.m);
+		Floorplan f = new Floorplan(cur_inst.m);
 		render_panel.setFloorplan(f);
-		objects_table.setModel(f);
 		render_panel.repaint();
 	}
 	
 	public void valueChanged(ListSelectionEvent e)
-	{		
+	{
 		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 		HashMap<String, Boolean> highlights = render_panel.getRender().getHighlights();
 		
@@ -179,12 +186,17 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 
 	public void valueChanged(TreeSelectionEvent e) 
 	{
-		updateView((MasterInst) hier_tree.getLastSelectedPathComponent());
+		if (hier_tree.getLastSelectedPathComponent() != null)
+		{
+			if (hier_tree.getLastSelectedPathComponent() != masters)
+				updateView(((MasterInst) hier_tree.getLastSelectedPathComponent()));
+		}
 	}
 	
 	public MasterInst getCurInst() { return cur_inst; }
 	public MasterMap getMasters() { return masters; }
 	public JTable getObjectsTable() { return objects_table; }
+	public RenderPanel getRenderPanel() { return render_panel; }
 	
 }
 
@@ -196,3 +208,4 @@ class ViewTab extends JTabbedPane
 		super(tab_loc);
 	}
 }
+

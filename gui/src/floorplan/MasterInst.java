@@ -2,13 +2,14 @@ package floorplan;
 
 import java.util.Enumeration;
 
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 /**
  * Simple class 
  *
  */
-public class MasterInst implements TreeNode
+public class MasterInst implements MutableTreeNode
 {
 	// Instance of the master
 	public Master m;
@@ -38,6 +39,28 @@ public class MasterInst implements TreeNode
 	public int getIndex(TreeNode node) { return m.getFloorplanInsts().indexOf(node); }
 	public TreeNode getParent() { return null; }
 	public boolean isLeaf() { return (m.getFloorplanInsts().size() == 0); }
+
+	@Override
+	public void insert(MutableTreeNode child, int index)
+	{ 
+		m.getFloorplanInsts().insertElementAt((MasterInst) child, index);
+	}
+
+	public void remove(int index)
+	{
+		m.getFloorplanInsts().remove(index);		
+	}
+
+	public void remove(MutableTreeNode node)
+	{
+		m.getFloorplanInsts().remove((MasterInst) node);		
+	}
+
+	public void removeFromParent() { throw new Error("Should never happen"); }
+
+	public void setParent(MutableTreeNode newParent) { throw new Error("Should never happen"); }
+
+	public void setUserObject(Object object) { throw new Error("Should never happen"); }
 }
 
 

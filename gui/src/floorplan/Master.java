@@ -1,13 +1,11 @@
 package floorplan;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Scanner;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.swing.table.AbstractTableModel;
+import javax.swing.tree.TreeNode;
 
 /**
  * A floorplan master is a floorplan with a known layout, but hasn't been
@@ -15,32 +13,32 @@ import java.util.regex.Pattern;
  * instance. It can consist of many sub floorplan masters. When editing a
  * floorplan, you are actually editing the floorplan master. 
  */
-public class Master 
+public class Master extends AbstractTableModel implements TreeNode
 {	
 	private String name;
 	private double height;
 	private double width;
-	private boolean leaf;
+	private boolean atomic;
 	
 	// List of sub floorplans
 	private Vector<MasterInst> master_insts;
 	// Mapping of floorplans by instance name
-	private HashMap<String, MasterInst> master_map;
+	private Hashtable<String, MasterInst> master_map;
 	
 	// Constructor for a non-leaf master
 	public Master(String name)
 	{
-		leaf = false;
+		atomic = false;
 		this.name = name;
 		this.master_insts = new Vector<MasterInst>();
-		this.master_map = new HashMap<String, MasterInst>();
+		this.master_map = new Hashtable<String, MasterInst>();
 	}
 	
 	// Constructor for a leaf master
 	public Master(double width, double height)
 	{
 		this("Atomic");
-		leaf = true;
+		atomic = true;
 		this.width = width;
 		this.height = height;
 	}
@@ -57,17 +55,90 @@ public class Master
 		return name;
 	}
 	
-	public boolean isLeaf() { return leaf; }
+	public boolean isLeaf() { return atomic; }
 	public double getHeight() { return height;	}	
 	public double getWidth() { return width; }	
 	public String getName() { return name; }	
 	public Vector<MasterInst> getFloorplanInsts() { return master_insts; }	
-	public HashMap<String, MasterInst> getFloorplanMap() { return master_map; }
-	
+	public Hashtable<String, MasterInst> getFloorplanMap() { return master_map; }
+
 	/**
-	 * Parses masters from a file
-	 * @param file
-	 * @return Master
-	 * @throws IOException
+	 * There are only 4 columns
 	 */
+	public int getColumnCount() { return 4; }
+
+	/**
+	 * Each sub-master instance is a row
+	 */
+	public int getRowCount() 
+	{
+		return master_insts.size();
+	}
+
+	/**
+	 * Get the value of a cell in the table
+	 */
+	public Object getValueAt(int row, int col)
+	{
+		switch(col)
+		{
+			case 0: return master_insts.get(row).n;
+			case 1: return master_insts.get(row).m.getName();
+			case 2: return master_insts.get(row).x;
+			case 3: return master_insts.get(row).y;
+		}
+		return null;
+	}
+	
+	public String getColumnName(int col)
+	{
+		switch(col)
+		{
+			case 0: return "Instance";
+			case 1: return "Master";
+			case 2: return "X";
+			case 3: return "Y";
+		}
+		return null;		
+	}
+		
+	/** 
+	 * Methods that implement TreeNode functionality 
+	 * Note that any elements/enumerators we return class are of type Master
+	 * and not MasterInst!
+	 */
+	public Enumeration children()
+	{
+		Vector<Master> vec = new Vector<Master>();
+		Enumeration<MasterInst> en = master_insts.elements();
+		while(en.hasMoreElements())
+			vec.add(en.nextElement().m);
+		return vec.elements();
+	}
+	
+	public boolean getAllowsChildren()
+	{ 
+		return true; 
+	}
+	
+	public TreeNode getChildAt(int idx)
+	{ 
+		return master_insts.get(idx).m;
+	}
+	
+	public int getChildCount()
+	{ 
+		return master_insts.size();
+	}
+	
+	public int getIndex(TreeNode node)
+	{
+		return master_insts.indexOf(node);
+	}
+	
+	public TreeNode getParent() 
+	{ 
+		return null; 
+	}
+	
 }

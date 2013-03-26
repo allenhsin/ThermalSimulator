@@ -7,37 +7,58 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Scanner;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.event.ListDataListener;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-public class MasterMap extends Hashtable<String, Master> implements ComboBoxModel
+/**
+ * A master map holds all the floorplan masters in a map format
+ * @author DrunkenMan
+ *
+ */
+public class MasterMap implements ComboBoxModel, MutableTreeNode
 {
-	// The master instance designated as the top-level master instance
-	private MasterInst top_inst;
-	
+	// Hashtable containing all the masters
+	Hashtable<String, Master> masters;
+	// Vector containing all the masters, each instantiated as their own master
+	// library instance
+	Vector<MasterInst> lib_insts;
+	// Default instance to load
+	private Master default_master;
+
 	// The selected master
 	private Master selected;
 
-	public void setTop(MasterInst top_inst)
+	public MasterMap()
 	{
-		this.top_inst = top_inst;
-	}
+		masters = new Hashtable<String, Master>();
+		lib_insts = new Vector<MasterInst>();
+		default_master = new Master(0.0, 0.0);
+	}	
 	
-	public MasterInst getTop()
+	public boolean hasRecursiveMasters(Master master)
 	{
-		return top_inst;
+		return hasRecursiveMasters(master, new HashMap<Master, Boolean>());
 	}
-	
+
 	public boolean hasRecursiveMasters()
 	{
-		return hasRecursiveMasters(getTop().m, new HashMap<Master, Boolean>());
+		// Check all masters to see if any of them are recursive
+		Iterator<Master> it = masters.values().iterator();
+		while(it.hasNext())
+		{
+			if (hasRecursiveMasters(it.next()))
+				return true;
+		}		
+		return false;
 	}
 	
-	public boolean hasRecursiveMasters(Master master, HashMap<Master, Boolean> parent_masters)
+	private boolean hasRecursiveMasters(Master master, HashMap<Master, Boolean> parent_masters)
 	{
 		// If I find a master that is already in the list of parent masters, then
 		// there is recursion
@@ -56,85 +77,77 @@ public class MasterMap extends Hashtable<String, Master> implements ComboBoxMode
 		parent_masters.remove(master);
 		return false;
 	}
-	
-	public static MasterMap parseMasters(File file) throws IOException
+
+	/**
+	 * Add a new master to the map
+	 */
+	public void addMaster(Master m) throws Exception
 	{
-		// Create HashMap with a mapping to all known masters
-		MasterMap masters = new MasterMap();
-		// Populate the masters map
-		parseMasters(file, masters);
-		return masters;
+		if (hasMaster(m.getName()))
+			throw new Exception("Duplicate master: " + m.getName());
+		default_master = m; 
+		masters.put(m.getName(), m);
+		lib_insts.add(new MasterInst(m, "(Lib)", 0.0, 0.0));
 	}
 	
-	private static void parseMasters(File file, MasterMap masters) throws IOException
+	/**
+	 * Get a new master from the map
+	 */
+	public Master getMaster(String name) throws Exception
 	{
-		// Until the subckt name is defined, make the master have a default name
-		Master m = new Master("Default");
-		MasterInst top = new MasterInst(m, "Top", 0.0, 0.0);
-		// Set this top be the top master
-		masters.put("Default", m);
-		masters.setTop(top);
-		
-		int line_num = 0;
-		Scanner s;
-		
-		// Setup regex
-		Pattern fplan_pattern = Pattern.compile ("(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)");
-		Matcher fplan_pattern_matcher;
-		
-		s = new Scanner(file);
-		
-		while (s.hasNextLine())
-		{			
-			String line = s.nextLine();
-			++line_num;
-			
-			fplan_pattern_matcher = fplan_pattern.matcher(line);
-			
-			if (fplan_pattern_matcher.matches())
-			{
-				// Right now don't do the check to see if the master already exists
-				// Right now all sub masters are leafs
-				// Create sub floorplan
-				Master sub_master = new Master(
-						Double.parseDouble(fplan_pattern_matcher.group(2)),
-						Double.parseDouble(fplan_pattern_matcher.group(3)));
-				
-				// Add the master inst
-				m.addMasterInst(sub_master, fplan_pattern_matcher.group(1), 
-						Double.parseDouble(fplan_pattern_matcher.group(4)), 
-						Double.parseDouble(fplan_pattern_matcher.group(5)));
-			}
-			else
-			{
-				s.close();
-				throw new Error("Invalid floorplan file syntax on line " + line_num + ": '" + line + "'");
-			}
-		}
-		
-		s.close();
+		if (hasMaster(name))
+			return masters.get(name);		
+		throw new Exception("Instance master does not exist: " + name);
 	}
+	
+	/**
+	 * Has a master by that already been defined?
+	 */
+	public boolean hasMaster(String name)
+	{
+		return masters.containsKey(name);
+	}
+	
+	/**
+	 * Get the default selected instance
+	 */
+	public Master getDefaultMaster()
+	{
+		return default_master;
+	}
+	
+	/** 
+	 * Methods that implement ComboBoxModel functionality 
+	 * The combo box methods must return objects of type Master
+	 */
 	
 	public void addListDataListener(ListDataListener arg0) {}
-	
-	public Object getElementAt(int idx)
-	{
-		Enumeration<Master> enumerator = elements();
-		if (idx >= size())
-			return null;
-
-		for (int i = 0; i < idx; ++i)
-			enumerator.nextElement();
-		
-		return enumerator.nextElement();
-	}
-
-	public int getSize() { return size(); }
-
+	public Object getElementAt(int idx) { return lib_insts.get(idx).m; }
+	public int getSize() { return masters.size(); }
 	public void removeListDataListener(ListDataListener arg0) {}
-
 	public Object getSelectedItem() { return selected; }
-
 	public void setSelectedItem(Object item) { selected = (Master) item; }
 
+	/** End ComboBoxModel methods */
+	
+	/** Methods that implement TreeNode functionality
+	 * The TreeNode methods must return objects of type MasterInst */
+	public Enumeration children() { return lib_insts.elements(); }	
+	public boolean getAllowsChildren() { return true; }	
+	public TreeNode getChildAt(int idx) { return lib_insts.get(idx); }	
+	public int getChildCount() { return lib_insts.size(); }	
+	public int getIndex(TreeNode node) { return lib_insts.indexOf(node); }	
+	public TreeNode getParent() { return null; }	
+	public boolean isLeaf() { return lib_insts.isEmpty(); }
+
+	// Should never happen
+	public void insert(MutableTreeNode node, int idx) { throw new Error("Should never happen"); }
+	public void remove(int arg0) { throw new Error("Should never happen"); }
+	public void remove(MutableTreeNode arg0) { throw new Error("Should never happen"); }
+	public void removeFromParent() { throw new Error("Should never happen"); }
+	public void setParent(MutableTreeNode arg0) { throw new Error("Should never happen"); }
+	public void setUserObject(Object arg0) { throw new Error("Should never happen"); }
+	
+	/** End TreeNode methods */	
 }
+
