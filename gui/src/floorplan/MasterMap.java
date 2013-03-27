@@ -132,7 +132,7 @@ public class MasterMap implements ComboBoxModel, MutableTreeNode
 	
 	/** Methods that implement TreeNode functionality
 	 * The TreeNode methods must return objects of type MasterInst */
-	public Enumeration children() { return lib_insts.elements(); }	
+	public Enumeration<MasterInst> children() { return lib_insts.elements(); }	
 	public boolean getAllowsChildren() { return true; }	
 	public TreeNode getChildAt(int idx) { return lib_insts.get(idx); }	
 	public int getChildCount() { return lib_insts.size(); }	

@@ -142,7 +142,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		masters = new_masters;
 		tools.updateMasters(new_masters);
 		hier_tree.setModel(new DefaultTreeModel(masters));
-		updateView(cur_inst);
+		updateView(null);
 	}
 	
 	/**
@@ -155,11 +155,11 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		render_panel.repaint();
 		objects_table.repaint();
 		hier_tree.repaint();
-	}	
+	}
 	
 	/**
 	 * Updates the current view to a view of the new master instance. Should be
-	 * called if the currently displayed instance changes
+	 * called if there has been
 	 */
 	public void updateView(MasterInst new_inst)
 	{
@@ -170,6 +170,14 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		objects_table.setModel(cur_inst.m);
 		render_panel.setView(cur_inst);
 		refreshView();
+	}
+	
+	/**
+	 * Redo all the highlights
+	 */
+	public void rehighlight()
+	{
+		
 	}
 	
 	public void valueChanged(ListSelectionEvent e)
