@@ -23,7 +23,7 @@ public class Main
 			fplan_file = null;
 			temp_trace = null;
 			height = 600;
-			width = 600;
+			width = 300;
 //			System.out.print("Usage: Main floorplan_file ttrace_file dimension_x dimension_y\n");
 //			System.exit(1);
 		}

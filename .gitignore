@@ -24,6 +24,11 @@
 # vim swap file
 *.swp
 
+# eclipse project files
+.project
+.classpath
+gui/bin/*
+
 # library, include and executable files
 include/boost/*
 config_test

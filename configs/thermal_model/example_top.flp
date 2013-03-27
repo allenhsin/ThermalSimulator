@@ -2,9 +2,10 @@
 # This is a comment line
 
 # Include sub-floorplan objects from other files
-# that can be instantiated.
-include configs/thermal_model/example_tile_a.flp
-include configs/thermal_model/example_tile_b.flp
+# that can be instantiated. The path is relative
+# to the current file
+include example_tile_a.flp
+include example_tile_b.flp
 
 # New sub-floorplan objects can also be declared 
 # within the same file of the top level. It starts 

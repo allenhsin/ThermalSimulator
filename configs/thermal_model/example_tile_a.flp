@@ -1,5 +1,5 @@
 
-include configs/thermal_model/example_tile_c.flp
+include example_tile_c.flp
 
 floorplan TileA
     
