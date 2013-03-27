@@ -1,0 +1,36 @@
+
+floorplan RingResonator
+    atomic ring 10e-6 10e-6 0 0
+endfloorplan
+
+floorplan WaveGuide
+    atomic waveguide 500e-6 5e-6 0 0
+endfloorplan
+
+floorplan RingBank
+    RingResonator bank_1  0    0
+    RingResonator bank_2 10e-6 0
+    RingResonator bank_3 20e-6 0
+    RingResonator bank_4 30e-6 0
+    RingResonator bank_5 40e-6 0
+    RingResonator bank_6 50e-6 0
+    RingResonator bank_7 60e-6 0
+    RingResonator bank_8 70e-6 0
+endfloorplan
+
+floorplan OpticalLink
+
+    WaveGuide wave_guide          0    240e-6
+    RingBank  modulator_bank     20e-6 245e-6
+    RingBank  receiver_bank     400e-6 245e-6
+    
+    atomic empty_space_1  20e-6 10e-6   0    245e-6
+    atomic empty_space_2  20e-6 10e-6 480e-6 245e-6
+    atomic empty_space_3 300e-6 10e-6 100e-6 245e-6
+
+    atomic function_block_1 500e-6 245e-6 0 255e-6
+    atomic function_block_2 500e-6 240e-6 0 0
+
+endfloorplan
+
+
