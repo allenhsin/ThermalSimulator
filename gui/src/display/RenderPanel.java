@@ -92,48 +92,45 @@ public class RenderPanel extends JPanel implements ChangeListener
 
 	/**
 	 * Set the master instance to view
-	 * @param f
 	 */
 	public void setView(MasterInst master_inst)
 	{
-		// Create a new floorplan viewing object
-		Floorplan f = new Floorplan(master_inst, null);
 		// Tell the render to load the floorplan
-		render.setFloorplan(f);
+		render.setRenderTarget(master_inst);
 
 		// Update render name text
-		render_name_text.setText(f.getMaster().getName());
+		render_name_text.setText(master_inst.m.getName());
 		
 		// Add to hash map a value for the temperature trace for this floorplan,
 		// if it does not exist yet
-		if (!temp_trace_map.containsKey(f.getMaster()))
-			temp_trace_map.put(f.getMaster(), null);
-		setTempTrace(temp_trace_map.get(f.getMaster()));
+		if (!temp_trace_map.containsKey(master_inst.m))
+			temp_trace_map.put(master_inst.m, null);
+		setTempTrace(temp_trace_map.get(master_inst.m));
 		
 	}
 	
 	public void setTempTrace(TemperatureTrace trace)
 	{
-		// Associate the currently rendered floorplan with this temperature trace
-		temp_trace_map.put(render.getFloorplan().getMaster(), trace);
-		// Tell the render to load the temperature trace
-		render.setTempTrace(trace);	
-		if (trace != null)
-		{
-			// Update and enable slider with time information
-			int total_steps = trace.getTemperatureSteps().length;
-			time_slider.setMaximum(total_steps - 1);
-			time_slider.setValue(0);
-			time_slider.setMinorTickSpacing(total_steps / 20);
-			time_slider.setMajorTickSpacing(total_steps / 10);
-			time_slider_file_text.setText(trace.getFile().getName());
-			time_slider.setEnabled(true);
-		}
-		else
-		{
-			time_slider.setEnabled(false);
-			time_slider_file_text.setText("No Temperature Trace Loaded");
-		}
+//		// Associate the currently rendered floorplan with this temperature trace
+//		temp_trace_map.put(render.getFloorplan().getMaster(), trace);
+//		// Tell the render to load the temperature trace
+//		render.setTempTrace(trace);	
+//		if (trace != null)
+//		{
+//			// Update and enable slider with time information
+//			int total_steps = trace.getTemperatureSteps().length;
+//			time_slider.setMaximum(total_steps - 1);
+//			time_slider.setValue(0);
+//			time_slider.setMinorTickSpacing(total_steps / 20);
+//			time_slider.setMajorTickSpacing(total_steps / 10);
+//			time_slider_file_text.setText(trace.getFile().getName());
+//			time_slider.setEnabled(true);
+//		}
+//		else
+//		{
+//			time_slider.setEnabled(false);
+//			time_slider_file_text.setText("No Temperature Trace Loaded");
+//		}
 	}
 	
 	/**

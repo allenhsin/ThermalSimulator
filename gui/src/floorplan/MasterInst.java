@@ -31,14 +31,19 @@ public class MasterInst implements MutableTreeNode
 		return n + " : " + m.getName();
 	}
 	
+	public boolean isAtomic()
+	{
+		return m.isAtomic();
+	}
+	
 	/** Methods that implement TreeNode functionality */
-	public Enumeration children() { return m.getFloorplanInsts().elements(); }
+	public Enumeration<MasterInst> children() { return m.getFloorplanInsts().elements(); }
 	public boolean getAllowsChildren() { return true; }
 	public TreeNode getChildAt(int idx) { return m.getFloorplanInsts().get(idx); }
 	public int getChildCount() { return m.getFloorplanInsts().size(); }
 	public int getIndex(TreeNode node) { return m.getFloorplanInsts().indexOf(node); }
 	public TreeNode getParent() { return null; }
-	public boolean isLeaf() { return (m.getFloorplanInsts().size() == 0); }
+	public boolean isLeaf() { return m.isAtomic(); }
 
 	@Override
 	public void insert(MutableTreeNode child, int index)

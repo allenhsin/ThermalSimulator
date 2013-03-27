@@ -8,7 +8,6 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import display.FloorplanRender;
 import display.RenderPanel;
-import floorplan.Floorplan;
 import floorplan.FloorplanParser;
 import floorplan.Master;
 import floorplan.MasterInst;
@@ -147,16 +146,20 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	}
 	
 	/**
-	 * Refreshes the view
+	 * Refreshes the view. Should be called if instance properties change, but
+	 * no instances have been added or deleted
 	 */
 	public void refreshView()
 	{
-		updateView(cur_inst);
-	}
-	
+		// Just needs to repaint, nothing else
+		render_panel.repaint();
+		objects_table.repaint();
+		hier_tree.repaint();
+	}	
 	
 	/**
-	 * Updates the current view to a view of the new master instance
+	 * Updates the current view to a view of the new master instance. Should be
+	 * called if the currently displayed instance changes
 	 */
 	public void updateView(MasterInst new_inst)
 	{
@@ -166,7 +169,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 			cur_inst = new_inst;		
 		objects_table.setModel(cur_inst.m);
 		render_panel.setView(cur_inst);
-		render_panel.repaint();
+		refreshView();
 	}
 	
 	public void valueChanged(ListSelectionEvent e)
@@ -190,11 +193,6 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		render_panel.repaint();
 	}
 	
-	private void rehighlight()
-	{
-		
-	}
-
 	public void valueChanged(TreeSelectionEvent e) 
 	{
 		if (hier_tree.getLastSelectedPathComponent() != null)

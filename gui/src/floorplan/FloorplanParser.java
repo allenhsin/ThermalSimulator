@@ -66,7 +66,9 @@ public class FloorplanParser
 					if (cmd[0].equals(CMD_INCLUDE))
 					{
 						IncludeCommand c = new IncludeCommand(cmd);
-						parseMasters(new File(c.file_name), masters);
+						// Setup path to the included file, relative to the path of the current file
+						File include_file = new File(file.getParentFile().getPath() + File.separator + c.file_location);
+						parseMasters(include_file, masters);
 					}
 					// Floorplan definition
 					else if (cmd[0].equals(CMD_FLOORPLAN))
@@ -137,11 +139,11 @@ public class FloorplanParser
  */
 class IncludeCommand
 {
-	String file_name;
+	String file_location;
 	IncludeCommand(String[] cmd) throws Exception
 	{
 		if (cmd.length == 2)
-			this.file_name = cmd[1];
+			this.file_location = cmd[1];
 		else
 			throw new Exception("Syntax error: floorplan command expects 1 argument!");
 	}

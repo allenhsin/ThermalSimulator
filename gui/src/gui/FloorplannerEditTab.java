@@ -27,7 +27,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import floorplan.Floorplan;
 import floorplan.Master;
 import floorplan.MasterInst;
 import floorplan.MasterMap;
@@ -388,6 +387,8 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			}
 		}		
 		
+		// Fresh copy, no changes
+		setChanges(false);
 		gui.refreshView();
 	}
 	

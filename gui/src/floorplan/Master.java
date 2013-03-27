@@ -55,13 +55,14 @@ public class Master extends AbstractTableModel implements TreeNode
 		return name;
 	}
 	
-	public boolean isLeaf() { return atomic; }
+	public boolean isAtomic() { return atomic; }
 	public double getHeight() { return height;	}	
 	public double getWidth() { return width; }	
 	public String getName() { return name; }	
 	public Vector<MasterInst> getFloorplanInsts() { return master_insts; }	
-	public Hashtable<String, MasterInst> getFloorplanMap() { return master_map; }
+//	public Hashtable<String, MasterInst> getFloorplanMap() { return master_map; }
 
+	public boolean isLeaf() { return atomic; }
 	/**
 	 * There are only 4 columns
 	 */
