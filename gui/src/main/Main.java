@@ -58,7 +58,7 @@ class ScreenRefresher implements Runnable
 	// Floorplanner GUI
 	private Floorplanner gui;
 	
-	// Floorplan and temperature trace files loaded via command line
+	// Floorplan and temperature trace files loaded via command line args
 	private File fplan_file, temp_trace;
 	// Command-line set dimensions
 	private Dimension dimension;
