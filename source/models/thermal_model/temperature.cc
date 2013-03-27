@@ -259,7 +259,9 @@ namespace Thermal
         assert(_temperature.size() == (unsigned int) _rc_model_holder->n_nodes);
 
         map<string, double>& data_power = Data::getSingleton()->getPower();
-        assert(data_power.size() == (unsigned int) _floorplan_holder->_n_units);
+
+        if(data_power.size() != (unsigned int) _floorplan_holder->_n_units)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: mismatch between number of blocks in the floorplan and physical model.\n");
         
         // put main power data information into local _power vector
         for(map<string, double>::iterator it = data_power.begin(); it != data_power.end(); ++it)

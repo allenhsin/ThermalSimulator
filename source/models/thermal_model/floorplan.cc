@@ -227,7 +227,8 @@ namespace Thermal
         for(int i=0; i<remaining_token_to_read; ++i)
             strtok(NULL, " \r\t\n");
 
-        if(token = strtok(NULL, " \r\t\n"))
+        token = strtok(NULL, " \r\t\n");
+        if(token)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unrecognized token: " + (string) token + " at end of line\n");
     }
 
@@ -236,6 +237,9 @@ namespace Thermal
         char    line[LINE_SIZE];
         string  line_copy;
         char*   line_token;
+
+        string  new_file_path;
+
         char    flp_obj_name[STR_SIZE];
         char    unit_name[STR_SIZE];
         double  leftx, bottomy, width, height;
@@ -268,7 +272,12 @@ namespace Thermal
             else if (!strcmp(line_token, "include"))
             {
                 line_token = strtok(NULL, " \r\t\n");
-                parseFloorplanFile( (string) line_token, top_flp_object_name );
+                if(!line_token)
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: no file specified for include");
+
+                new_file_path = flp_file.substr(0, (flp_file.find_last_of("/\\")+1) ) + ((string) line_token);
+
+                parseFloorplanFile( new_file_path, top_flp_object_name );
                 isEndOfLine(0);
             }
             // read a sub-floorplan object when keyword "floorplan" is read
