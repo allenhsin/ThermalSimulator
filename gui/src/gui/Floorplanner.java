@@ -147,9 +147,17 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	}
 	
 	/**
+	 * Refreshes the view
+	 */
+	public void refreshView()
+	{
+		updateView(cur_inst);
+	}
+	
+	
+	/**
 	 * Updates the current view to a view of the new master instance
 	 */
-	public void updateView() { updateView(cur_inst); }
 	public void updateView(MasterInst new_inst)
 	{
 		if (new_inst == null)
@@ -157,8 +165,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		else
 			cur_inst = new_inst;		
 		objects_table.setModel(cur_inst.m);
-		Floorplan f = new Floorplan(cur_inst.m);
-		render_panel.setFloorplan(f);
+		render_panel.setView(cur_inst);
 		render_panel.repaint();
 	}
 	
@@ -179,9 +186,13 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 				else
 					highlights.remove((String) objects_table.getValueAt(i, 0));
 			}
-		}
-		
+		}		
 		render_panel.repaint();
+	}
+	
+	private void rehighlight()
+	{
+		
 	}
 
 	public void valueChanged(TreeSelectionEvent e) 

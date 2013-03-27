@@ -12,18 +12,29 @@ public class Main
 {
 	public static void main (String[] args)
 	{
+		// Create a reference to the file
+		File fplan_file;
+		File temp_trace;
+		int width;
+		int height;
+
 		if (args.length != 4)
 		{
-			System.out.print("Usage: Main floorplan_file ttrace_file dimension_x dimension_y\n");
-			System.exit(1);
+			fplan_file = null;
+			temp_trace = null;
+			height = 600;
+			width = 600;
+//			System.out.print("Usage: Main floorplan_file ttrace_file dimension_x dimension_y\n");
+//			System.exit(1);
 		}
-		
-		// Create a reference to the file
-		File fplan_file = new File(args[0]);
-		File temp_trace = new File(args[1]);
-		// Create screen dimensions
-		int width = Integer.parseInt(args[2]);
-		int height = Integer.parseInt(args[3]);
+		else
+		{
+			fplan_file = new File(args[0]);
+			temp_trace = new File(args[1]);
+			// Create screen dimensions
+			width = Integer.parseInt(args[2]);
+			height = Integer.parseInt(args[3]);
+		}
 		
 		try
 		{
@@ -62,7 +73,9 @@ class ScreenRefresher implements Runnable
 	public void run()
 	{
 		gui = new Floorplanner("Floorplanner", dimension);
-		gui.openFloorplanFile(fplan_file);
-		gui.openTemperatureTrace(temp_trace);
+		if (fplan_file != null)
+			gui.openFloorplanFile(fplan_file);
+		if (temp_trace != null)
+			gui.openTemperatureTrace(temp_trace);
 	}
 }

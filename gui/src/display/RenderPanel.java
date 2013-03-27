@@ -90,8 +90,14 @@ public class RenderPanel extends JPanel implements ChangeListener
 		
 	}
 
-	public void setFloorplan(Floorplan f)
+	/**
+	 * Set the master instance to view
+	 * @param f
+	 */
+	public void setView(MasterInst master_inst)
 	{
+		// Create a new floorplan viewing object
+		Floorplan f = new Floorplan(master_inst, null);
 		// Tell the render to load the floorplan
 		render.setFloorplan(f);
 

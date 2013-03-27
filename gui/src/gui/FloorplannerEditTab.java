@@ -388,7 +388,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			}
 		}		
 		
-		gui.updateView();
+		gui.refreshView();
 	}
 	
 	/**
