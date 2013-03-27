@@ -2,6 +2,6 @@
 floorplan TileC
     
     atomic block_1 0.0002 0.0002 0.0000 0.0000
-    atomic block_2 0.0002 0.0002 0.0000 0.0002
+    atomic block_2 0.0002 0.0002 0.0002 0.0000
 
 endfloorplan

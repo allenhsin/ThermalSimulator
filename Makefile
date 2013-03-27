@@ -45,7 +45,10 @@ $(TARGET): $(OBJS)
 	mkdir -p $(dir $@)
 	touch $@
 
-.phony: clean
+.phony: clean clean-results
 clean:
-	$(RM) -rf $(OBJS) $(TARGET) $(CONFIG_TEST)
+	$(RM) -rf $(OBJS) $(TARGET)
+
+clean-results:
+	$(RM) -rf results/*.out results/*.log
 

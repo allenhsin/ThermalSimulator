@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <vector>
 #include <string>
+#include <map>
 
 #include "source/models/thermal_model/thermal_constants.h"
 
@@ -56,11 +57,11 @@ namespace Thermal
         Floorplan();
         ~Floorplan();
 
-        void readFloorplan(std::string flp_file);
+        void loadFloorplan(std::string flp_file, std::string top_flp_object_name);
 
         FloorplanHolder* getFloorplanHolder() { return _floorplan_holder; }
 
-        void setFloorplanUnitNmaesInTemperatureData();
+        void setFloorplanUnitNamesInTemperatureData();
 
         static bool isVertAdj(FloorplanHolder* floorplan_holder, int i, int j);
         static bool isHorizAdj(FloorplanHolder* floorplan_holder, int i, int j);
@@ -68,16 +69,17 @@ namespace Thermal
         static int getUnitIndexFromName(FloorplanHolder* floorplan_holder, const char* name);
 
     protected:
-        int countFloorplanUnits(FILE* fp);
-        void populateFloorplanUnits(FILE* fp);
-        void offsetFloorplanCoordinate(double x, double y);
+        void parseFloorplanFile(std::string flp_file, std::string top_flp_object_name);
 
+        void offsetFloorplanCoordinate(double x, double y);
         void calculateChipTotalWidth();
         void calculateChipTotalHeight();
 
     private:
        FloorplanHolder* _floorplan_holder; 
+       std::map<std::string, std::vector<FloorplanUnit> > _floorplan_objects;
 
+       bool _top_flp_object_found;
 
     }; // class Floorplan
 

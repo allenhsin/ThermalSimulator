@@ -11,91 +11,23 @@
 
 using LibUtil::String;
 using std::map;
+using std::vector;
 using std::string;
 
 namespace Thermal
 {
     Floorplan::Floorplan()
-        : _floorplan_holder (NULL)
-    {}
+        : _floorplan_holder     (NULL)
+        , _top_flp_object_found (false)
+    {
+        _floorplan_objects.clear();
+    }
 
     Floorplan::~Floorplan()
     {
         if(_floorplan_holder)
             delete _floorplan_holder;
     }
-
-    int Floorplan::countFloorplanUnits(FILE* fp)
-    {
-        char str1[LINE_SIZE], str2[LINE_SIZE];
-        char name[STR_SIZE];
-        double leftx, bottomy, width, height;
-        char *ptr;
-        int count = 0;
-    
-        fseek(fp, 0, SEEK_SET);
-        while(!feof(fp)) 
-        {
-            fgets(str1, LINE_SIZE, fp);
-            if (feof(fp))
-                break;
-            strcpy(str2, str1);
-            
-            /* ignore comments and empty lines  */
-            ptr = strtok(str1, " \r\t\n");
-            if (!ptr || ptr[0] == '#')
-                continue;
-    
-            /* functional block placement information   */
-            if (sscanf(str2, "%s%lf%lf%lf%lf", name, &leftx, &bottomy, &width, &height) == 5)
-                count++;
-            else
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong floorplan file format around line: " + (String) count + ".\n");
-        }
-        return count;
-    } // countFloorplanUnits
-
-    void Floorplan::populateFloorplanUnits(FILE* fp)
-    {
-
-        int i=0;
-        char str[LINE_SIZE], copy[LINE_SIZE]; 
-        char name[STR_SIZE];
-        double width, height, leftx, bottomy;
-        char *ptr;
-    
-        assert(_floorplan_holder);
-
-        fseek(fp, 0, SEEK_SET);
-        while(!feof(fp))
-        {
-            fgets(str, LINE_SIZE, fp);
-            if (feof(fp))
-                break;
-            strcpy(copy, str);
-    
-            /* ignore comments and empty lines  */
-            ptr = strtok(str, " \r\t\n");
-            if (!ptr || ptr[0] == '#')
-                continue;
-    
-            if (sscanf(copy, "%s%lf%lf%lf%lf", name, &width, &height, &leftx, &bottomy) == 5) 
-            {
-                _floorplan_holder->_flp_units[i]._name      = (string) name;
-                _floorplan_holder->_flp_units[i]._width     = width;
-                _floorplan_holder->_flp_units[i]._height    = height;
-                _floorplan_holder->_flp_units[i]._leftx     = leftx;
-                _floorplan_holder->_flp_units[i]._bottomy   = bottomy;
-                i++;
-            }
-            else
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong floorplan file format around line: i" + (String) i + ".\n");
-                
-        }
-
-        assert(i == _floorplan_holder->_n_units);
-    } // populateFloorplanUnits
-
 
     void Floorplan::offsetFloorplanCoordinate(double x, double y)
     {
@@ -277,7 +209,7 @@ namespace Thermal
         return -1;
     } // getUnitIndexFromName
 
-    void Floorplan::setFloorplanUnitNmaesInTemperatureData()
+    void Floorplan::setFloorplanUnitNamesInTemperatureData()
     {
         assert(_floorplan_holder);
         
@@ -288,32 +220,171 @@ namespace Thermal
             temperature[ _floorplan_holder->_flp_units[i]._name ] = 0;
     }
 
-    void Floorplan::readFloorplan(std::string flp_file)
+    void isEndOfLine(int remaining_token_to_read)
     {
+        char* token;
+
+        for(int i=0; i<remaining_token_to_read; ++i)
+            strtok(NULL, " \r\t\n");
+
+        if(token = strtok(NULL, " \r\t\n"))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unrecognized token: " + (string) token + " at end of line\n");
+    }
+
+    void Floorplan::parseFloorplanFile(string flp_file, string top_flp_object_name)
+    {
+        char    line[LINE_SIZE];
+        string  line_copy;
+        char*   line_token;
+        char    flp_obj_name[STR_SIZE];
+        char    unit_name[STR_SIZE];
+        double  leftx, bottomy, width, height;
+                            
+        FloorplanUnit floorplan_unit;
+
+        FILE* fp = fopen (flp_file.c_str(), "r");
+        if(!fp)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open floorplan file: " + flp_file + "\n");
+
+        fseek(fp, 0, SEEK_SET);
+        while(!feof(fp))
+        {
+            // if top level floorplan object is already found then escape
+            if(_top_flp_object_found)
+                break;
+            
+            // read a line from the file
+            fgets(line, LINE_SIZE, fp);
+            if (feof(fp))
+                break;
+
+            line_copy = (string) line;
+            line_token = strtok(line, " \r\t\n");
+            
+            // ignore comments and empty lines
+            if      (!line_token || line_token[0] == '#')
+                continue;
+            // read included floorplan file when keyword "include" is read
+            else if (!strcmp(line_token, "include"))
+            {
+                line_token = strtok(NULL, " \r\t\n");
+                parseFloorplanFile( (string) line_token, top_flp_object_name );
+                isEndOfLine(0);
+            }
+            // read a sub-floorplan object when keyword "floorplan" is read
+            else if (!strcmp(line_token, "floorplan"))
+            {
+                // extract the object name
+                line_token = strtok(NULL, " \r\t\n");
+                strcpy(flp_obj_name, line_token);
+                // check floorplan object name validity
+                if(!flp_obj_name)
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: no floorplan object name\n");
+                // check if there are duplicated floorplan objs names
+                if(_floorplan_objects.count( (string) flp_obj_name ))
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: duplicated floorplan object names: " + (string)flp_obj_name + " \n");
+                isEndOfLine(0);
+
+                // read floorplan blocks in this object
+                while(!feof(fp))
+                {
+                    fgets(line, LINE_SIZE, fp);
+                    if (feof(fp))
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: floorplan object definition not completed\n");
+                    
+                    line_copy = (string) line;
+                    line_token = strtok(line, " \r\t\n");
+                    
+                    // ignore comments and empty lines
+                    if      (!line_token || line_token[0] == '#')
+                        continue;
+                    // exit floorplan object definition
+                    else if (!strcmp(line_token, "endfloorplan"))
+                    {
+                        isEndOfLine(0);
+                        break;
+                    }
+                    // atomic blocks
+                    else if (!strcmp(line_token, "atomic"))
+                    {
+                        if (sscanf(line_copy.c_str(), "%*s%s%lf%lf%lf%lf", unit_name, &width, &height, &leftx, &bottomy) == 5) 
+                        {
+                            floorplan_unit._name    = (string) unit_name;
+                            floorplan_unit._width   = width;
+                            floorplan_unit._height  = height;
+                            floorplan_unit._leftx   = leftx;
+                            floorplan_unit._bottomy = bottomy;
+                        }
+                        else
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong atomic floorplan block format\n");
+                        
+                        // push atomic block into current object
+                        _floorplan_objects[(string) flp_obj_name].push_back(floorplan_unit);
+                        isEndOfLine(5);
+                    }
+                    // instantiate floorplan object
+                    else
+                    {
+                        // check if the instantiated object is in the floorplan object map
+                        if(!_floorplan_objects.count( (string) line_token ))
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot find floorplan object: " + (string)line_token + " \n");
+                        
+                        if (sscanf(line_copy.c_str(), "%*s%s%lf%lf", unit_name, &leftx, &bottomy) != 3) 
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong floorplan object instantiation format\n");
+
+                        // put every block in the instantiated object to the new object with new name and new coordinates
+                        for(vector<FloorplanUnit>::iterator it = _floorplan_objects[(string) line_token].begin(); it != _floorplan_objects[(string) line_token].end(); ++it)
+                        {
+                            floorplan_unit._name    = ((string) unit_name) + "." + (*it)._name;
+                            floorplan_unit._width   = (*it)._width;
+                            floorplan_unit._height  = (*it)._height;
+                            floorplan_unit._leftx   = (*it)._leftx + leftx;
+                            floorplan_unit._bottomy = (*it)._bottomy + bottomy;
+                            
+                            // push hierarchy block into current object
+                            _floorplan_objects[(string) flp_obj_name].push_back(floorplan_unit);
+                        }
+                        isEndOfLine(3);
+                    }
+                }
+                
+                // if this floorplan object is the top level object,
+                // stop reading further objects and copy this object
+                // back to the floorplan holder
+                if( ((string) flp_obj_name) == top_flp_object_name )
+                {
+                    _floorplan_holder = new FloorplanHolder( _floorplan_objects[top_flp_object_name].size() );
+                    _floorplan_holder->_flp_units = _floorplan_objects[top_flp_object_name];
+                    
+                    _top_flp_object_found = true;
+
+                    break;
+                }
+            }
+            // unrecognized syntax
+            else
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong syntax: " + line_copy + 
+                                                        "\n       include another floorplan file or define a floorplan object!");
+        }
+
+        // close floorplan file
+        fclose(fp);
+    } // parseFloorplanFile
+
+    void Floorplan::loadFloorplan(string flp_file, string top_flp_object_name)
+    {
+        parseFloorplanFile(flp_file, top_flp_object_name);
+        if(!_top_flp_object_found)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: top level floorplan object not found!\n");
         
-        FILE    *fp;
-        int     n_units = 0;
-    
-        fp = fopen (flp_file.c_str(), "r");
-
-        if (!fp) 
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open floorplan file.\n");
-    
-        // 1st pass - find n_units
-        n_units = countFloorplanUnits(fp);
-        if(n_units<=0)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: no units in floorplan file.\n");
-        // allocate floorplan holder
-        _floorplan_holder = new FloorplanHolder(n_units);
-    
-        // 2nd pass - populate units info
-        populateFloorplanUnits(fp);
-
-        fclose(fp); 
+        // print unit name out for convenience
+        //printf("\n\n");
+        //for(int i=0; i<_floorplan_holder->_n_units; ++i)
+        //    printf("%s\n", _floorplan_holder->_flp_units[i]._name.c_str());
+        //printf("\n\n");
 
         // make sure the origin is (0,0)
         offsetFloorplanCoordinate(0, 0);   
-
         // calculate total chip dimension
         calculateChipTotalWidth();
         calculateChipTotalHeight();

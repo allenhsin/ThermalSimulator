@@ -36,6 +36,7 @@ namespace Thermal
 
         // [env_setup]
         floorplan_file      = getThermalConfig()->getString("env_setup/floorplan_file");
+        top_flp_object      = getThermalConfig()->getString("env_setup/top_flp_object");
         ambient             = getThermalConfig()->getFloat("env_setup/ambient");
         init_file_used      = getThermalConfig()->getBool("env_setup/init_file_used");
         init_temp_file      = getThermalConfig()->getString("env_setup/init_temp_file");

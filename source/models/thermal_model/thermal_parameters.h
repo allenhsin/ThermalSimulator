@@ -34,6 +34,7 @@ namespace Thermal
         // list of parameters in the thermal config file
         // [env_setup]
         std::string     floorplan_file;
+        std::string     top_flp_object;
         double          ambient;
         bool            init_file_used;
         std::string     init_temp_file;

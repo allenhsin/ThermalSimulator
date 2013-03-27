@@ -120,16 +120,14 @@ namespace Thermal
         }
     // ------------------------------------------------------------------------
     
-        _floorplan->readFloorplan(thermal_params->floorplan_file);
-
-    /* Construct floorplan and RC models --------------------------------------
+    // Construct floorplan and RC models --------------------------------------
         
         // read in floorplan from flp file
-        _floorplan->readFloorplan(thermal_params->floorplan_file);
+        _floorplan->loadFloorplan(thermal_params->floorplan_file, thermal_params->top_flp_object);
         assert(_floorplan->getFloorplanHolder());
 
         // setup power and temperature floorplan unit names in data
-        _floorplan->setFloorplanUnitNmaesInTemperatureData();
+        _floorplan->setFloorplanUnitNamesInTemperatureData();
 
         // allocate the RC model
         _rc_model->setFloorplanHolder(_floorplan->getFloorplanHolder());
@@ -144,9 +142,9 @@ namespace Thermal
         // print rc model to file for debug if specified
         if(thermal_params->debug_print_enable)
             _rc_model->printRCModelToFile();
-    // ------------------------------------------------------------------------*/
+    // ------------------------------------------------------------------------
 
-    /* Setup initial temperature ----------------------------------------------
+    // Setup initial temperature ----------------------------------------------
         
         // set related data holders
         _temperature->setFloorplanHolder(_floorplan->getFloorplanHolder());
@@ -170,12 +168,12 @@ namespace Thermal
                 fprintf(_ttrace_file, "%s ", it->first.c_str());
             fprintf(_ttrace_file, "\n");
         }
-    // ------------------------------------------------------------------------*/
+    // ------------------------------------------------------------------------
 
-    /* Schedule the first temperature calculation event -----------------------
+    // Schedule the first temperature calculation event -----------------------
         EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, THERMAL_MODEL);
         _last_execute_time = 0;
-    // ------------------------------------------------------------------------*/
+    // ------------------------------------------------------------------------
 
         _ready_to_execute = true;
     }
