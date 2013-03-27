@@ -1,11 +1,10 @@
 ThermalSimulator
-================
+===============================================================================
 
 A MIT ISG Project
 
-
-
 I. Boost Libraries Installation:
+    ---------------------------------------------------------------------------
     The simulator requires the Boost C++ libraries.
     Here's a quick installation tutorial (revised from the boost website)
     1.  Download Boost C++ libraries from http://www.boost.org/
@@ -21,6 +20,30 @@ I. Boost Libraries Installation:
     6.  Done!
     7.  Extra step for cygwin users. For some reason, cygwin expects the files 
         to be compiled to dll files named cygboost_*.dll.a as opposed to 
-        libboost_*.dll.a. Change the file names to cygboost and or else you will 
+        libboost_*.dll.a. Change the file names to cygboost and or else you will
         getting missing dll errors when running the program.
+    ---------------------------------------------------------------------------
 
+II, Simulator Configuration:
+    ---------------------------------------------------------------------------
+    The simulator can be tuned by the configuration files in the configs/ 
+    folder. For different parts of the simulator, for instance the thermal 
+    model and physical model, several different configuration files and 
+    input files are required and are discussed as follows:
+
+    1. configs/thermal_sim.cfg
+        This is the top level simulator config file. it defines the 
+        sub-config files to different parts of the simulator as well
+        as log system control.
+
+    2. configs/thermal_model
+        This folder contains the config file and input files for the
+        thermal model. The .flp file is the floorplan file which defines
+        the physical arrangement of the chip functional blocks and devices.
+        The .init file, when used, defines the initial temperature of the
+        floorplan blocks when running simulation.
+
+    3. configs/physical_model
+        This folder contains the config file and input files for the
+        physical model. 
+    ---------------------------------------------------------------------------

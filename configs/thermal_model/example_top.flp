@@ -8,19 +8,21 @@ include configs/thermal_model/example_tile_b.flp
 
 # New sub-floorplan objects can also be declared 
 # within the same file of the top level. It starts 
-# with the keyword "floorplan."
+# with the keyword "floorplan".
 # ATTENTION: sub-floorplan object names cannot repeat!
 floorplan TileE 
 
-    # The format to create a new block in the floorplan is
+    # The format to create a new atomic block in the floorplan
+    # starts with the keyword "atomic" and is as follows:
     #
-    #       BLOCK_NAME WIDTH HEIGHT X_COORDINATE Y_COORDINATE
+    #       atomic BLOCK_NAME WIDTH HEIGHT X_COORDINATE Y_COORDINATE
     #
     # All units are in meters
     atomic block_1 0.0001 0.0001 0.0000 0.0000
     atomic block_2 0.0002 0.0001 0.0001 0.0000
     atomic block_3 0.0001 0.0001 0.0003 0.0000
-
+# end of definition of a sub-floorplan subject 
+# with keyword "endfloorplan"
 endfloorplan 
 
 # Add another sub-floorplan
@@ -29,14 +31,13 @@ floorplan TileD
     atomic block_1 0.0003 0.0001 0.0000 0.0000
     atomic block_2 0.0003 0.0001 0.0007 0.0000
     
-    # Instantiate another sub-floorplan object instance 
-    # within a sub-floorplan. The format is
+    # Instantiate another sub-floorplan object within the 
+    # sub-floorplan. The format is
     #
-    #       SUB_FLOORPLAN_NAME X_COORDINATE Y_COORDINATE
+    #       FLOORPLAN_OBJECT_NAME INSTANCE_NAME X_COORDINATE Y_COORDINATE
     #
-    # All the blocks in the instantiated sub-floorplan
-    # will be offset to new coordinates from
-    # (X_COORDINATE, Y_COORDINATE)
+    # All the blocks in the instantiated sub-floorplan object
+    # will be offset to new coordinates from (X_COORDINATE, Y_COORDINATE)
     TileE tile_1 0.0003 0.0000
 
 endfloorplan
