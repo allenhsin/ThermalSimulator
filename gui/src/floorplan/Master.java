@@ -58,6 +58,7 @@ public class Master extends AbstractTableModel implements TreeNode
 	public boolean isAtomic() { return atomic; }
 	public double getHeight() { return height;	}	
 	public double getWidth() { return width; }	
+	public void setName(String name) { this.name = name; }
 	public String getName() { return name; }	
 	public Vector<MasterInst> getFloorplanInsts() { return master_insts; }	
 //	public Hashtable<String, MasterInst> getFloorplanMap() { return master_map; }

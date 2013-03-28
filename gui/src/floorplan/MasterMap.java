@@ -90,6 +90,29 @@ public class MasterMap implements ComboBoxModel, MutableTreeNode
 		lib_insts.add(new MasterInst(m, "(Lib)", 0.0, 0.0));
 	}
 	
+	public void removeMaster(String name) throws Exception
+	{
+		// Check to make sure the master exists
+		if (!hasMaster(name))
+			throw new Exception("Master does not exist: " + name);
+
+		// Get the master
+		Master m = masters.get(name);
+		// remove it fromt he map
+		masters.remove(name);		
+		// Find it in the list of library instances
+		Iterator<MasterInst> it = lib_insts.iterator();
+		int idx = 0;
+		int remove_idx = -1;
+		while(it.hasNext())
+		{
+			if (it.next().m == m) remove_idx = idx;
+			++idx;
+		}
+		// Delete it
+		lib_insts.remove(remove_idx);
+	}
+	
 	/**
 	 * Get a new master from the map
 	 */
@@ -106,6 +129,20 @@ public class MasterMap implements ComboBoxModel, MutableTreeNode
 	public boolean hasMaster(String name)
 	{
 		return masters.containsKey(name);
+	}
+	
+	/**
+	 * Renames a master in the map
+	 */
+	public void renameMaster(String old_name, String new_name) throws Exception
+	{
+		if (hasMaster(new_name))
+			throw new Exception("Instance master with new name already exists: " + new_name);
+		
+		Master m = getMaster(old_name);
+		m.setName(new_name);
+		removeMaster(old_name);
+		addMaster(m);
 	}
 	
 	/**

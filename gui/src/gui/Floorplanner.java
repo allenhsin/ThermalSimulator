@@ -1,10 +1,16 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.Point;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JLabel;
 import display.FloorplanRender;
 import display.RenderPanel;
@@ -21,12 +27,16 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import java.io.File;
 import java.util.HashMap;
 
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -113,6 +123,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		hier_tree.setShowsRootHandles(true);
 		hier_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);		
 		hier_tree.getSelectionModel().addTreeSelectionListener(this);
+		new HierMouse(hier_tree);
 		view_tabbed_pane.addTab("Hierarchy", null, hier_tree, null);
 		hier_scroller = new JScrollPane(hier_tree);
 		view_tabbed_pane.addTab("Hierarchy", null, hier_scroller, null);
@@ -152,6 +163,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	public void refreshView()
 	{
 		// Just needs to repaint, nothing else
+		updateHighlights();
 		render_panel.repaint();
 		objects_table.repaint();
 		hier_tree.repaint();
@@ -173,32 +185,49 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	}
 	
 	/**
-	 * Redo all the highlights
+	 * Update all the highlights all the highlights
 	 */
-	public void rehighlight()
+	public void updateHighlights()
 	{
-		
-	}
-	
-	public void valueChanged(ListSelectionEvent e)
-	{
-		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+		ListSelectionModel lsm = objects_table.getSelectionModel();
 		HashMap<String, Boolean> highlights = render_panel.getRender().getHighlights();
 		
-		for (int i = e.getFirstIndex(); i <= e.getLastIndex(); ++i)
+		// Clear all current highlights
+		highlights.clear();
+		// Check if selection is empty
+		if (!lsm.isSelectionEmpty())
 		{
-			// Only need to do this if i is within the table row range
-			if (i >= 0 && i < objects_table.getModel().getRowCount())
+			// Go through all selected entries, add to table
+			for (int i = lsm.getMinSelectionIndex(); i <= lsm.getMaxSelectionIndex(); ++i)
 			{
 				// If it has been selected, add it to the highlights
 				if (lsm.isSelectedIndex(i))
 					highlights.put((String) objects_table.getValueAt(i, 0), new Boolean(true));
-				// If it has been deselected, remove it from the highlights
-				else
-					highlights.remove((String) objects_table.getValueAt(i, 0));
 			}
-		}		
+		}
+	}
+	
+	public void valueChanged(ListSelectionEvent e)
+	{
+		updateHighlights();
 		render_panel.repaint();
+//		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+//		HashMap<String, Boolean> highlights = render_panel.getRender().getHighlights();
+//		
+//		for (int i = e.getFirstIndex(); i <= e.getLastIndex(); ++i)
+//		{
+//			// Only need to do this if i is within the table row range
+//			if (i >= 0 && i < objects_table.getModel().getRowCount())
+//			{
+//				// If it has been selected, add it to the highlights
+//				if (lsm.isSelectedIndex(i))
+//					highlights.put((String) objects_table.getValueAt(i, 0), new Boolean(true));
+//				// If it has been deselected, remove it from the highlights
+//				else
+//					highlights.remove((String) objects_table.getValueAt(i, 0));
+//			}
+//		}		
+//		render_panel.repaint();
 	}
 	
 	public void valueChanged(TreeSelectionEvent e) 
@@ -217,6 +246,67 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	
 }
 
+class HierMouse extends MouseAdapter
+{
+	private JTree hier_tree;
+	
+	HierMouse (JTree hier_tree)
+	{
+		this.hier_tree = hier_tree;
+		hier_tree.addMouseListener(this);
+	}
+	public void mouseClicked(MouseEvent e)
+	{
+		if (e.getButton() == MouseEvent.BUTTON3)
+		{
+			TreePath sel_path = hier_tree.getPathForLocation(e.getX(), e.getY());
+			hier_tree.setSelectionPath(sel_path);
+			if (!((MasterInst) sel_path.getLastPathComponent()).isAtomic())
+			{
+				JPopupMenu popup = new JPopupMenu();
+				JMenuItem rename = new JMenuItem("Rename");
+				JMenuItem remove = new JMenuItem("Delete");
+				rename.addActionListener(new HierContext(hier_tree));
+				remove.addActionListener(new HierContext(hier_tree));
+				popup.add(rename);
+				popup.add(remove);
+				popup.show(hier_tree, e.getX(), e.getY());
+			}
+		}
+	}
+}
+
+class HierContext implements ActionListener
+{
+	private JTree hier_tree;
+	HierContext(JTree hier_tree)
+	{
+		this.hier_tree = hier_tree;
+	}
+	public void actionPerformed(ActionEvent e) 
+	{
+		try
+		{
+			MasterInst t = (MasterInst) hier_tree.getSelectionPath().getLastPathComponent();
+			
+			if (e.getActionCommand().equals("Rename"))
+			{
+				((MasterMap) hier_tree.getModel().getRoot()).renameMaster(
+						t.m.getName(), "BLAH");			
+			}
+			else if (e.getActionCommand().equals("Delete"))
+			{
+				((MasterMap) hier_tree.getModel().getRoot()).removeMaster(
+						t.m.getName());
+				((DefaultTreeModel) hier_tree.getModel()).nodeStructureChanged(t);
+			}
+		}
+		catch (Exception ex)
+		{
+			JOptionPane.showMessageDialog(hier_tree, ex.getMessage(), "Open", JOptionPane.WARNING_MESSAGE);
+		}
+	}
+}
 
 class ViewTab extends JTabbedPane
 {

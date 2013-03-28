@@ -65,6 +65,9 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	private List<MasterInst> selected;
 	// Current selection index
 	private int sel_index;
+	// If there are currently unapplied changes
+	private boolean changed;
+	
 	
 	/**
 	 * Create a tool tab with the correct tab location
@@ -253,9 +256,13 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 
 	/**
 	 * When things get selected, change what is currently displayed in the edit tab
+	 * and also prompt user to save current changes if there changes
 	 */
 	public void valueChanged(ListSelectionEvent e) 
-	{		
+	{
+		// Before doing anything, ask user to save changes, if there were modifications
+		checkApply();
+
 		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 		Master cur_master = (Master) gui.getObjectsTable().getModel();
 		
@@ -282,6 +289,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	// Tell the edit tab to update the display for the currently selected items
 	private void updateSelected(int sel_index)
 	{
+		// Then change the selection
 		this.sel_index = sel_index;
 		// Disable buttons as appropriate
 		if (sel_index > 0) button_previous.setEnabled(true);
@@ -349,14 +357,15 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			text_height.setEnabled(false);
 			text_width.setEnabled(false);				
 			combo_instance_master.setEnabled(true);
-			combo_instance_master.setSelectedIndex(0);
+			if (combo_instance_master.getItemCount() > 0)
+				combo_instance_master.setSelectedIndex(0);
 		}
 	}
 
 	/**
 	 * Pushes the changes to the master
 	 */
-	private void modifySelected()
+	private void applySelected()
 	{	
 		// get the selected instance
 		MasterInst edit_master_inst = selected.get(sel_index);
@@ -368,9 +377,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		
 		// If atomic is selected, make the thing a new atomic!
 		if (check_atomic.isSelected())
-		{
 			edit_master_inst.m = new Master(Double.parseDouble(text_width.getText()), Double.parseDouble(text_height.getText()));
-		}
 		// If the atomic is not selected then find the master and set it to that
 		else
 		{
@@ -397,6 +404,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	 */
 	protected void setChanges(boolean changed)
 	{
+		this.changed = changed;
 		button_discard.setEnabled(changed);
 		button_apply.setEnabled(changed);
 		if (changed) label_mod.setText("Modifications made");
@@ -411,11 +419,17 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		if (e.getSource() == combo_instance_master)
 			setChanges(true);
 		else if (e.getSource() == button_next)
+		{
+			checkApply();
 			updateSelected(sel_index + 1);
+		}
 		else if (e.getSource() == button_previous)
+		{
+			checkApply();
 			updateSelected(sel_index - 1);
+		}
 		else if (e.getSource() == button_apply)
-			modifySelected();
+			applySelected();
 		else if (e.getSource() == button_discard)
 			updateSelected(sel_index);
 		else throw new Error("Internal Error: " + e.getActionCommand() + "' is not supported!");
@@ -435,6 +449,22 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 				setEditAtomic(true);
 		}
 		else throw new Error("Internal Error: Button '" + e.toString() + "' is not supported!");
+	}
+	
+	/**
+	 * Checks to see if there have been changes and forces the user to apply
+	 * or discard current changes if there have been changes
+	 */
+	private void checkApply()
+	{
+		if (changed)
+		{
+			int sel = JOptionPane.showOptionDialog(gui, "Object has modifications, apply modifications?",
+				"Apply modifications", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+				null, new String[] {"Apply", "Discard"}, "Discard");
+			if (sel == 0) applySelected();
+			else if (sel == 1) updateSelected(sel_index);
+		}
 	}
 
 }
