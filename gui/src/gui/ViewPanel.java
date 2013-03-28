@@ -3,6 +3,7 @@ package gui;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 
 import javax.swing.JComboBox;
 import java.awt.FlowLayout;
@@ -65,7 +66,7 @@ public class ViewPanel extends JPanel
 		panel_2.add(lblSelectedMaster);
 		masters_box = new JComboBox<Master>();
 		masters_box.setPreferredSize(new Dimension(200, 20));
-		masters_box.addActionListener(new MasterBoxListener(this));
+		masters_box.addActionListener(new MasterBoxListener(this));		
 		panel_2.add(masters_box);
 		
 		MasterButtonListener button_listener = new MasterButtonListener(this);
@@ -148,9 +149,13 @@ class MasterButtonListener extends EventsHelper<ViewPanel> implements ActionList
 				owner.getGUI().updateView((Master) owner.getMastersBox().getSelectedItem());
 			else if (e.getActionCommand() == "New")
 			{
+				
 				owner.getGUI().getMasters().addMaster();
-				owner.getMastersBox().setModel(new DefaultComboBoxModel(owner.getGUI().getMasters().masters.values().toArray()));
-				//owner.getGUI().updateView(owner.getGUI().getMasters().getDefaultMaster());
+				Master new_master = owner.getGUI().getMasters().getDefaultMaster();
+				owner.getGUI().updateView(new_master);
+				owner.getMastersBox().setSelectedItem(new_master);
+				// Seems like the only way to get the combobox to show up correctly again...
+				owner.getMastersBox().updateUI();
 			}
 			else if (e.getActionCommand() == "Rename")
 			{}
@@ -176,11 +181,12 @@ class MasterBoxListener extends EventsHelper<ViewPanel> implements ActionListene
 	
 	public void actionPerformed(ActionEvent e) 
 	{
-		JComboBox<Master> master_box = (JComboBox<Master>) e.getSource();
-		if (master_box.getSelectedItem() == null)
-		{
-			// Disable buttons
-		}
+		
+//		JComboBox<Master> master_box = (JComboBox<Master>) e.getSource();
+//		if (master_box.getSelectedItem() != null)
+//		{
+//			master_box.setEnabled(false);
+//		}
 	}	
 }
 
