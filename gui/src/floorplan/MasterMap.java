@@ -12,6 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.MutableComboBoxModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -21,24 +23,27 @@ import javax.swing.tree.TreeNode;
  * @author DrunkenMan
  *
  */
-public class MasterMap implements ComboBoxModel, MutableTreeNode
+public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 {
+//	
 	// Hashtable containing all the masters
-	Hashtable<String, Master> masters;
+	public Hashtable<String, Master> masters;
 	// Vector containing all the masters, each instantiated as their own master
 	// library instance
 	Vector<MasterInst> lib_insts;
 	// Default instance to load
 	private Master default_master;
-
 	// The selected master
 	private Master selected;
+	// The current unnamed number count
+	private int new_master_count;
 
 	public MasterMap()
 	{
 		masters = new Hashtable<String, Master>();
 		lib_insts = new Vector<MasterInst>();
-		default_master = new Master(0.0, 0.0);
+		default_master = new Master("Unnamed_0");
+		new_master_count = 1;
 	}	
 	
 	public boolean hasRecursiveMasters(Master master)
@@ -79,15 +84,29 @@ public class MasterMap implements ComboBoxModel, MutableTreeNode
 	}
 
 	/**
+	 * Add a new, empty, unnamed master to the map
+	 */
+	public void addMaster() throws Exception
+	{
+		addMaster(new Master("Unnamed_" + (new_master_count++)));
+	}
+	
+	/**
 	 * Add a new master to the map
 	 */
 	public void addMaster(Master m) throws Exception
 	{
 		if (hasMaster(m.getName()))
 			throw new Exception("Duplicate master: " + m.getName());
+
+		// Create new library instance and let the master know about it
+		MasterInst lib_instance = new MasterInst(m, "(Lib)", 0.0, 0.0);
+		m.setLibInstance(lib_instance);
+		// Add the master and lib instance
+		masters.put(m.getName(), m);		
+		lib_insts.add(lib_instance);
+		// Update the default master to this one
 		default_master = m; 
-		masters.put(m.getName(), m);
-		lib_insts.add(new MasterInst(m, "(Lib)", 0.0, 0.0));
 	}
 	
 	public void removeMaster(String name) throws Exception
@@ -159,12 +178,23 @@ public class MasterMap implements ComboBoxModel, MutableTreeNode
 	 */
 	
 	public void addListDataListener(ListDataListener arg0) {}
-	public Object getElementAt(int idx) { return lib_insts.get(idx).m; }
-	public int getSize() { return masters.size(); }
+	public Master getElementAt(int idx) { return lib_insts.get(idx).m; }
+	public int getSize() { return lib_insts.size(); }
 	public void removeListDataListener(ListDataListener arg0) {}
 	public Object getSelectedItem() { return selected; }
 	public void setSelectedItem(Object item) { selected = (Master) item; }
 
+	public void addElement(Master item)
+	{
+		System.out.println("BLAH");
+		try {addMaster((Master) item);} catch (Exception e) {};
+	}
+	
+	public void insertElementAt(Master item, int idx)
+	{
+		System.out.println("BLAH2");
+		try {addMaster((Master) item);} catch (Exception e) {};
+	}
 	/** End ComboBoxModel methods */
 	
 	/** Methods that implement TreeNode functionality
@@ -184,6 +214,18 @@ public class MasterMap implements ComboBoxModel, MutableTreeNode
 	public void removeFromParent() { throw new Error("Should never happen"); }
 	public void setParent(MutableTreeNode arg0) { throw new Error("Should never happen"); }
 	public void setUserObject(Object arg0) { throw new Error("Should never happen"); }
+
+	@Override
+	public void removeElement(Object arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeElementAt(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	/** End TreeNode methods */	
 }

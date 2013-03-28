@@ -50,20 +50,16 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	// The master map containing all masters
 	private MasterMap masters;
 	// The currently displayed Master
-	private MasterInst cur_inst;
+	private Master cur_master;
 
 	// The tool tab
 	private FloorplannerTools tools;
 	
 	private RenderPanel render_panel;
-	private ViewTab view_tabbed_pane;
 	private FloorplannerMenu menu_bar;
 	
-	private JTable objects_table;
-	private JTree hier_tree;
-	
-	// Scrollers for the left-side tab
-	private JScrollPane objects_scroller, hier_scroller;	
+	// View panel
+	private ViewPanel view_panel;
 	
 	public Floorplanner (String title, Dimension render_size) 
 	{
@@ -114,27 +110,9 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		menu_bar = new FloorplannerMenu(this);
 		setJMenuBar(menu_bar);
 
-		view_tabbed_pane = new ViewTab(JTabbedPane.TOP);
-		view_tabbed_pane.setPreferredSize(new Dimension(350, 550));
-		getContentPane().add(view_tabbed_pane, BorderLayout.WEST);
-		
-		hier_tree = new JTree();
-		hier_tree.setRootVisible(false);
-		hier_tree.setShowsRootHandles(true);
-		hier_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);		
-		hier_tree.getSelectionModel().addTreeSelectionListener(this);
-		new HierMouse(hier_tree);
-		view_tabbed_pane.addTab("Hierarchy", null, hier_tree, null);
-		hier_scroller = new JScrollPane(hier_tree);
-		view_tabbed_pane.addTab("Hierarchy", null, hier_scroller, null);
-		
-		objects_table = new JTable();
-		objects_table.setAutoCreateRowSorter(true);
-		objects_table.getSelectionModel().addListSelectionListener(this);
-		view_tabbed_pane.addTab("Objects", null, objects_table, null);
-		objects_scroller = new JScrollPane(objects_table);
-		view_tabbed_pane.addTab("Objects", null, objects_scroller, null);
-	
+		view_panel = new ViewPanel(this);
+		getContentPane().add(view_panel, BorderLayout.WEST);
+			
 		render_panel = new RenderPanel(render_size);
 		getContentPane().add(render_panel, BorderLayout.CENTER);
 		
@@ -152,7 +130,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	{
 		masters = new_masters;
 		tools.updateMasters(new_masters);
-		hier_tree.setModel(new DefaultTreeModel(masters));
+		view_panel.updateMasters(new_masters);
 		updateView(null);
 	}
 	
@@ -165,22 +143,21 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		// Just needs to repaint, nothing else
 		updateHighlights();
 		render_panel.repaint();
-		objects_table.repaint();
-		hier_tree.repaint();
+		view_panel.repaint();
 	}
 	
 	/**
-	 * Updates the current view to a view of the new master instance. Should be
-	 * called if there has been
+	 * Updates the current view to a view of the new master. Should be
+	 * called if there has been changes to what master to biew
 	 */
-	public void updateView(MasterInst new_inst)
+	public void updateView(Master new_master)
 	{
-		if (new_inst == null)
-			cur_inst = new MasterInst(masters.getDefaultMaster(), "Top", 0.0, 0.0);
+		if (new_master == null)
+			cur_master = masters.getDefaultMaster();
 		else
-			cur_inst = new_inst;		
-		objects_table.setModel(cur_inst.m);
-		render_panel.setView(cur_inst);
+			cur_master = new_master;
+		view_panel.updateView(cur_master);
+		render_panel.setView(new MasterInst(cur_master, "Top", 0, 0));
 		refreshView();
 	}
 	
@@ -189,7 +166,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	 */
 	public void updateHighlights()
 	{
-		ListSelectionModel lsm = objects_table.getSelectionModel();
+		ListSelectionModel lsm = view_panel.getObjectsTable().getSelectionModel();
 		HashMap<String, Boolean> highlights = render_panel.getRender().getHighlights();
 		
 		// Clear all current highlights
@@ -202,9 +179,10 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 			{
 				// If it has been selected, add it to the highlights
 				if (lsm.isSelectedIndex(i))
-					highlights.put((String) objects_table.getValueAt(i, 0), new Boolean(true));
+					highlights.put((String) view_panel.getObjectsTable().getValueAt(i, 0), new Boolean(true));
 			}
 		}
+		render_panel.repaint();
 	}
 	
 	public void valueChanged(ListSelectionEvent e)
@@ -232,16 +210,16 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	
 	public void valueChanged(TreeSelectionEvent e) 
 	{
-		if (hier_tree.getLastSelectedPathComponent() != null)
-		{
-			if (hier_tree.getLastSelectedPathComponent() != masters)
-				updateView(((MasterInst) hier_tree.getLastSelectedPathComponent()));
-		}
+//		if (view_panel.getHierTree().getLastSelectedPathComponent() != null)
+//		{
+//			if (view_panel.getHierTree().getLastSelectedPathComponent() != masters)
+//				updateView(((MasterInst) view_panel.getHierTree().getLastSelectedPathComponent()));
+//		}
 	}
 	
-	public MasterInst getCurInst() { return cur_inst; }
+	public Master getCurMaster() { return cur_master; }
 	public MasterMap getMasters() { return masters; }
-	public JTable getObjectsTable() { return objects_table; }
+	public JTable getObjectsTable() { return view_panel.getObjectsTable(); }
 	public RenderPanel getRenderPanel() { return render_panel; }
 	
 }
@@ -305,14 +283,6 @@ class HierContext implements ActionListener
 		{
 			JOptionPane.showMessageDialog(hier_tree, ex.getMessage(), "Open", JOptionPane.WARNING_MESSAGE);
 		}
-	}
-}
-
-class ViewTab extends JTabbedPane
-{
-	ViewTab (int tab_loc)
-	{
-		super(tab_loc);
 	}
 }
 

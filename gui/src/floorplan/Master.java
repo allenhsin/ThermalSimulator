@@ -24,6 +24,8 @@ public class Master extends AbstractTableModel implements TreeNode
 	private Vector<MasterInst> master_insts;
 	// Mapping of floorplans by instance name
 	private Hashtable<String, MasterInst> master_map;
+	// Instance of master in the library
+	private MasterInst lib_instance;
 	
 	// Constructor for a non-leaf master
 	public Master(String name)
@@ -59,9 +61,12 @@ public class Master extends AbstractTableModel implements TreeNode
 	public double getHeight() { return height;	}	
 	public double getWidth() { return width; }	
 	public void setName(String name) { this.name = name; }
-	public String getName() { return name; }	
+	public String getName() { return name; }
+	public MasterInst getLibInstance() { return lib_instance; }
+	public void setLibInstance(MasterInst lib_instance) { this.lib_instance = lib_instance; }
+	
 	public Vector<MasterInst> getFloorplanInsts() { return master_insts; }	
-//	public Hashtable<String, MasterInst> getFloorplanMap() { return master_map; }
+	public Hashtable<String, MasterInst> getFloorplanMap() { return master_map; }
 
 	public boolean isLeaf() { return atomic; }
 	/**
@@ -106,16 +111,11 @@ public class Master extends AbstractTableModel implements TreeNode
 		
 	/** 
 	 * Methods that implement TreeNode functionality 
-	 * Note that any elements/enumerators we return class are of type Master
-	 * and not MasterInst!
+	 * Note that any elements/enumerators we return class are of type MasterInst!
 	 */
-	public Enumeration children()
+	public Enumeration<MasterInst> children()
 	{
-		Vector<Master> vec = new Vector<Master>();
-		Enumeration<MasterInst> en = master_insts.elements();
-		while(en.hasMoreElements())
-			vec.add(en.nextElement().m);
-		return vec.elements();
+		return master_insts.elements();
 	}
 	
 	public boolean getAllowsChildren()
