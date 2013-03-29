@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.math.BigDecimal;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -355,22 +356,19 @@ public class InstanceDialogBox extends JDialog
 			{
 				int num_x = Integer.parseInt(text_num_x.getText());
 				int num_y = Integer.parseInt(text_num_y.getText());
-				double d_x = Double.parseDouble(text_dx.getText());
-				double d_y = Double.parseDouble(text_dy.getText());
 				
+				BigDecimal d_x = BigDecimal.valueOf(Double.parseDouble(text_dx.getText()));
+				BigDecimal d_y = BigDecimal.valueOf(Double.parseDouble(text_dy.getText()));
+
 				// Will number horizontally first, then vertically
-				double x_offset = 0;
-				double y_offset = 0;
 				for (int i = 0; i < num_y; ++i)
 				{
-					x_offset = 0;
 					for (int j = 0; j < num_x; ++j)
 					{
 						createInstance("_" + (i * num_x + j), 
-								x_offset, y_offset);
-						x_offset += d_x;
+							d_x.multiply(BigDecimal.valueOf(j)).doubleValue(), 
+							d_y.multiply(BigDecimal.valueOf(i)).doubleValue());
 					}
-					y_offset += d_y;
 				}
 			}
 			else createInstance("", 0.0, 0.0);

@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import java.awt.AlphaComposite;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -33,8 +35,8 @@ public class FloorplanRender extends JComponent
 	private double scale;
 	
 	// Image offset
-	private double offset_x;
-	private double offset_y;
+	private int offset_x;
+	private int offset_y;
 
 	// Image translation
 	private double trans_x;
@@ -45,8 +47,8 @@ public class FloorplanRender extends JComponent
 		//setSize(image_size);
 		setPreferredSize(image_size);
 		
-		offset_x = image_size.getWidth() / 2;
-		offset_y = image_size.getHeight() / 2;
+		offset_x = (int) image_size.getWidth() / 2;
+		offset_y = (int) image_size.getHeight() / 2;
 		
 		// Highlights
 		highlights = new HashMap<String, Boolean>();
