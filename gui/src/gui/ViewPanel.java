@@ -67,10 +67,10 @@ public class ViewPanel extends JPanel
 		JPanel panel_2 = new JPanel();
 		panel.add(panel_2, BorderLayout.CENTER);
 		panel_2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));		
-		JLabel lblSelectedMaster = new JLabel("Selected Master");
-		panel_2.add(lblSelectedMaster);
+		JLabel label_master = new JLabel("Floorplan");
+		panel_2.add(label_master);
 		masters_box = new JComboBox();
-		masters_box.setPreferredSize(new Dimension(200, 20));
+		masters_box.setPreferredSize(new Dimension(180, 20));
 		masters_box.addActionListener(new MasterBoxListener(this));	
 		panel_2.add(masters_box);
 		
@@ -177,6 +177,14 @@ class InstanceButtonListener extends EventsHelper<ViewPanel> implements ActionLi
 				Vector<MasterInst> new_insts = InstanceDialogBox.showDialog(owner, owner, owner.getGUI().getMasters());
 				for (int i = 0; i < new_insts.size(); ++i)
 					cur_master.addMasterInst(new_insts.get(i));
+				// Check for recursive floorplans
+				if (owner.getGUI().getMasters().hasRecursiveMasters(cur_master))
+				{
+					// If there are recursive floorplans, undo adds and throw exception
+					for (int i = 0; i < new_insts.size(); ++i)
+						cur_master.deleteMasterInst(new_insts.get(i));
+					throw new Exception("Failed to add new instance(s): new instance(s) causes recursive floorplans!");
+				}
 				owner.getGUI().updateView();
 			}
 			else if (e.getActionCommand() == "Delete")

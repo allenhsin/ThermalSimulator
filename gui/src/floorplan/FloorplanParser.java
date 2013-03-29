@@ -1,6 +1,9 @@
 package floorplan;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -39,6 +42,9 @@ public class FloorplanParser
 		return masters;
 	}
 	
+	/**
+	 * Parse masters helper function
+	 */
 	private static void parseMasters(File file, MasterMap masters) throws Exception
 	{
 		// Open the file with a scanner
@@ -131,6 +137,102 @@ public class FloorplanParser
 		return COMMAND_PATTERN.split(line);
 	}
 
+	
+	/**
+	 * Writes masters to a file. It identifies the dependencies of the masters
+	 * and only writes a master when its dependencies have already been taken care
+	 * of
+	 */	
+	public static void writeMasters(File file, MasterMap masters) throws Exception
+	{
+		FileWriter writer = new FileWriter(file);
+		Hashtable<String, Master> masters_to_write = (Hashtable<String, Master>) masters.getMasters().clone();
+		
+		try
+		{
+			// While there are masters to write
+			while(masters_to_write.size() > 0)
+			{
+				
+				// Initialize variables/iterator
+				Master master_to_write = null;
+				Iterator<Master> master_it = masters_to_write.values().iterator();
+				// Keep searching until it runs out and while it hasn't found a master to write yet
+				while((master_to_write == null) && master_it.hasNext())
+				{
+					// Initialize current master to a dependent-less state
+					Master cur_master = master_it.next();
+					boolean has_dependents = false;
+					
+					// Keep searching for dependents until either it finds one or until there are no
+					// subinstances left
+					Iterator<MasterInst> inst_it = cur_master.getInstances().iterator();
+					while (!has_dependents && inst_it.hasNext())
+					{
+						MasterInst cur_inst = inst_it.next();
+						// If the instance is not atomic and it is still in the list of masters to
+						// write, then the master has dependents
+						if (!cur_inst.isAtomic() && masters_to_write.containsKey(cur_inst.m.getName()))
+							has_dependents = true;
+					}
+					
+					// If the current master has no unwritten dependencies, then set it as the master to write
+					if (!has_dependents)
+						master_to_write = cur_master;
+				}
+				
+				// If we have exhausted all the possibilities
+				if (master_to_write == null)
+				{
+					throw new Exception("All remaining masters have unresolved dependencies");
+				}
+				// If we have found a master with no unresolved dependents
+				else
+				{
+					// Write the master to the file
+					writeMaster(writer, master_to_write);
+					// Remove from masters to write
+					masters_to_write.remove(master_to_write.getName());
+				}
+				
+			}
+			
+		}
+		catch (Exception e)
+		{
+			writer.close();
+			throw new Exception("All remaining masters have unresolved dependencies");
+		}
+		
+		writer.close();
+	}
+	
+	/**
+	 * Writes a master to a file
+	 */
+	private static void writeMaster(FileWriter writer, Master master) throws Exception
+	{
+		writer.write(String.format("# Floorplan %s, %d instances\n",
+				master.getName(), master.getInstances().size()));
+		writer.write(new FloorplanCommand(master).getCommand("") + "\n");
+		
+		Iterator<MasterInst> it = master.getInstances().iterator();
+		while(it.hasNext())
+		{
+			MasterInst inst = it.next();
+			if(inst.isAtomic())
+				writer.write(new AtomicCommand(inst).getCommand("    ") + "\n");
+			else
+				writer.write(new InstanceCommand(inst).getCommand("    ") + "\n");
+		}
+		
+		writer.write(new EndFloorplanCommand(master).getCommand("") + "\n");
+		writer.write("\n");
+	}
+	
+	/**
+	 * 
+	 */
 }
 
 /**
@@ -159,6 +261,19 @@ class FloorplanCommand
 			throw new Exception("Syntax error: floorplan command expects 1 argument!");
 	}
 	
+	FloorplanCommand(Master m) throws Exception
+	{
+		if (!m.isAtomic())
+			this.name = m.getName();
+		else
+			throw new Exception("Master was atomic!");
+	}
+	
+	String getCommand(String indent)
+	{
+		return String.format("%sfloorplan %s", indent, name);
+	}
+	
 }
 
 class EndFloorplanCommand
@@ -167,6 +282,17 @@ class EndFloorplanCommand
 	{
 		if (cmd.length != 1)
 			throw new Exception("Syntax error: endfloorplan command does not expect arguments!");
+	}
+	
+	EndFloorplanCommand(Master m) throws Exception
+	{
+		if (m.isAtomic())
+			throw new Exception("Master was atomic!");
+	}
+	
+	String getCommand(String indent)
+	{
+		return String.format("%sendfloorplan", indent);
 	}
 }
 
@@ -187,6 +313,26 @@ class AtomicCommand
 		else
 			throw new Exception("Syntax error: atomic command expects 5 arguments!");
 	}
+	
+	AtomicCommand(MasterInst m) throws Exception
+	{
+		if (m.isLeaf())
+		{
+			this.name = m.n;
+			this.x = m.x;
+			this.y = m.y;
+			this.w = m.m.getWidth();
+			this.h = m.m.getHeight();
+		}
+		else
+			throw new Exception("Master instance was not atomic!");
+	}
+	
+	String getCommand(String indent)
+	{
+		return String.format("%satomic %s %f %f %f %f", indent, 
+				name, w, h, x, y);
+	}
 }
 
 class InstanceCommand
@@ -205,5 +351,24 @@ class InstanceCommand
 		}
 		else
 			throw new Exception("Syntax error: instance instantiations requires 3 arguments!");
+	}
+	
+	InstanceCommand(MasterInst m) throws Exception
+	{
+		if (!m.isLeaf())
+		{
+			this.master_name = m.m.getName();
+			this.name = m.n;
+			this.x = m.x;
+			this.y = m.y;
+		}
+		else
+			throw new Exception("Master instance was atomic!");
+	}
+
+	String getCommand(String indent)
+	{
+		return String.format("%s%s %s %f %f", indent, 
+				master_name, name, x, y);
 	}
 }

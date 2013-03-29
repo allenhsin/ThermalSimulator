@@ -97,7 +97,7 @@ public class RenderPanel extends JPanel implements ChangeListener
 				temp_trace_map.put(master, null);
 			setTempTrace(temp_trace_map.get(master));
 		}
-		else render_name_text.setText("Not viewing any masters");
+		else render_name_text.setText("Not viewing any floorplans");
 	}
 	
 	public void setTempTrace(TemperatureTrace trace)

@@ -332,8 +332,8 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			text_x_position.setText(Double.toString(cur_inst.x));
 			text_y_position.setText(Double.toString(cur_inst.y));
 			
-			check_atomic.setSelected(cur_inst.m.isLeaf());
-			setEditAtomic(cur_inst.m.isLeaf());
+			check_atomic.setSelected(cur_inst.m.isAtomic());
+			setEditAtomic(cur_inst.m.isAtomic());
 			text_height.setText(Double.toString(cur_inst.m.getHeight()));
 			text_width.setText(Double.toString(cur_inst.m.getWidth()));
 			combo_instance_master.setSelectedItem(cur_inst.m);
@@ -389,9 +389,9 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			if (gui.getMasters().hasRecursiveMasters())
 			{
 				combo_instance_master.setSelectedItem(old_master);
-				check_atomic.setSelected(old_master.isLeaf());
+				check_atomic.setSelected(old_master.isAtomic());
 				edit_master_inst.m = old_master;
-				JOptionPane.showMessageDialog(gui, "Changing instance master to " + new_master.getName() + " causes recursive masters! Master will not be changed.",
+				JOptionPane.showMessageDialog(gui, "Changing instance master to " + new_master.getName() + " causes recursive floorplans! Instance master will not be changed.",
 						"Error", JOptionPane.WARNING_MESSAGE);
 			}
 		}		

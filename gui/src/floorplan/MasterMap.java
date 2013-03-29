@@ -17,7 +17,7 @@ import javax.swing.tree.TreeNode;
  * @author DrunkenMan
  *
  */
-public class MasterMap implements ComboBoxModel
+public class MasterMap
 {
 //	
 	// Hashtable containing all the masters
@@ -217,7 +217,7 @@ public class MasterMap implements ComboBoxModel
 	}
 	
 	/**
-	 * Get an instance instance
+	 * Get a master
 	 */
 	public Master getDefaultMaster()
 	{
@@ -238,38 +238,5 @@ public class MasterMap implements ComboBoxModel
 	
 	public Hashtable<String, Master> getMasters() { return masters; }
 	
-	/** 
-	 * Methods that implement ComboBoxModel functionality 
-	 * The combo box methods must return objects of type Master
-	 */
-	
-	public void addListDataListener(ListDataListener arg0) {}
-	public Master getElementAt(int idx) { return lib_insts.get(idx).m; }
-	public int getSize() { return lib_insts.size(); }
-	public void removeListDataListener(ListDataListener arg0) {}
-	public Object getSelectedItem() { return selected; }
-	public void setSelectedItem(Object item) { selected = (Master) item; }
-
-	/** End ComboBoxModel methods */
-	
-	/** Methods that implement TreeNode functionality
-	 * The TreeNode methods must return objects of type MasterInst */
-	public Enumeration<MasterInst> children() { return lib_insts.elements(); }	
-	public boolean getAllowsChildren() { return true; }	
-	public TreeNode getChildAt(int idx) { return lib_insts.get(idx); }	
-	public int getChildCount() { return lib_insts.size(); }	
-	public int getIndex(TreeNode node) { return lib_insts.indexOf(node); }	
-	public TreeNode getParent() { return null; }	
-	public boolean isLeaf() { return lib_insts.isEmpty(); }
-
-	// Should never happen
-	public void insert(MutableTreeNode node, int idx) { throw new Error("Should never happen"); }
-	public void remove(int arg0) { throw new Error("Should never happen"); }
-	public void remove(MutableTreeNode arg0) { throw new Error("Should never happen"); }
-	public void removeFromParent() { throw new Error("Should never happen"); }
-	public void setParent(MutableTreeNode arg0) { throw new Error("Should never happen"); }
-	public void setUserObject(Object arg0) { throw new Error("Should never happen"); }
-	
-	/** End TreeNode methods */	
 }
 

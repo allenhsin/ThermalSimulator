@@ -82,8 +82,20 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		}
 		catch (Exception ex)
 		{
-			JOptionPane.showMessageDialog(this, ex.getMessage(), "Open", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "File reading aborted: " + ex.getMessage(), "Open", JOptionPane.WARNING_MESSAGE);
 		}
+	}
+	
+	public void saveFloorplanFile(File fplan_file)
+	{
+		try
+		{
+			FloorplanParser.writeMasters(fplan_file, masters);
+		}
+		catch (Exception ex)
+		{
+			JOptionPane.showMessageDialog(this, "File writing aborted: " + ex.getMessage(), "Save", JOptionPane.WARNING_MESSAGE);
+		}		
 	}
 
 	public void openTemperatureTrace(File temp_trace)
@@ -92,9 +104,9 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		{
 			render_panel.setTempTrace(TemperatureTrace.parseTemperatureTrace(temp_trace));
 		}
-		catch (Exception e)
+		catch (Exception ex)
 		{ 
-			JOptionPane.showMessageDialog(this, e.getMessage(), "Open", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "File reading aborted: " + ex.getMessage(), "Open", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 	

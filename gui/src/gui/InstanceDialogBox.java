@@ -358,10 +358,20 @@ public class InstanceDialogBox extends JDialog
 				double d_x = Double.parseDouble(text_dx.getText());
 				double d_y = Double.parseDouble(text_dy.getText());
 				
-				for (int i = 0; i < num_x; ++i)
-					for (int j = 0; j < num_y; ++j)
-						createInstance("_" + (i * num_y + j), 
-								d_x * i, d_y * j);
+				// Will number horizontally first, then vertically
+				double x_offset = 0;
+				double y_offset = 0;
+				for (int i = 0; i < num_y; ++i)
+				{
+					x_offset = 0;
+					for (int j = 0; j < num_x; ++j)
+					{
+						createInstance("_" + (i * num_x + j), 
+								x_offset, y_offset);
+						x_offset += d_x;
+					}
+					y_offset += d_y;
+				}
 			}
 			else createInstance("", 0.0, 0.0);
 		}

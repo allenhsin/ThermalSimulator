@@ -118,6 +118,8 @@ class FileMenuListener implements ActionListener
 		{
 			fc.setFileFilter(new FileNameExtensionFilter("Floorplan file (*.flp)", "flp"));
 			fc.showSaveDialog(gui);			
+			if (fc.getSelectedFile() != null)
+				gui.saveFloorplanFile(fc.getSelectedFile());
 		}
 		else if (cmd.equals("Open Temperature Trace..."))
 		{
