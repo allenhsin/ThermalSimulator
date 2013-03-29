@@ -365,10 +365,17 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	}
 
 	/**
-	 * Pushes the changes to the master
+	 * Pushes the changes to the master, returns whether the operation was successful
 	 */
-	private void applySelected()
+	private boolean applySelected()
 	{	
+		// Any changes causes temperature traces to be cleared
+		gui.getRenderPanel().unloadTempTraces();
+
+		// if input checking failed, immediately return false
+		if (!checkInputs())
+			return false;
+		
 		// get the selected instance
 		MasterInst edit_master_inst = selected.get(sel_index);
 
@@ -399,6 +406,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		// Fresh copy, no changes
 		setChanges(false);
 		gui.refreshView();
+		return true;
 	}
 	
 	/**
@@ -464,9 +472,49 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			int sel = JOptionPane.showOptionDialog(gui, "Current object has modifications, apply modifications?",
 				"Apply modifications", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
 				null, new String[] {"Apply", "Discard"}, "Discard");
-			if (sel == 0) applySelected();
+			if (sel == 0)
+				applySelected();
 			else if (sel == 1) updateSelected(sel_index);
 		}
+	}
+	
+	/**
+	 * Returns whether the inputs are valid, throws up dialogs to warn the user
+	 */
+	private boolean checkInputs()
+	{
+		// Text boxes
+		if(text_instance_name.getText().isEmpty())
+		{
+			JOptionPane.showMessageDialog(this, "Instance name cannot be empty.",
+					"Error", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		if (!check_atomic.isSelected() && (combo_instance_master.getSelectedIndex() == -1))
+		{
+			JOptionPane.showMessageDialog(this, "You must specify an instance master for a non-atomic instance.",
+					"Error", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		
+		// Check number formatting
+		try
+		{
+			Double.parseDouble(text_x_position.getText());
+			Double.parseDouble(text_y_position.getText());
+			if (check_atomic.isSelected())
+			{
+				Double.parseDouble(text_width.getText());
+				Double.parseDouble(text_height.getText());
+			}
+		}
+		catch (NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(this, "Invalid numeric values used for position/dimension.",
+					"Error", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		return true;
 	}
 
 }

@@ -58,12 +58,11 @@ public class InstanceDialogBox extends JDialog
 	// New instances to return
 	private Vector<MasterInst> new_insts;
 		
-	private InstanceDialogBox(JComponent frame_comp, JComponent location_comp, MasterMap masters) 
+	private InstanceDialogBox(JFrame frame, JComponent location_comp, MasterMap masters) 
 	{
-		super(JOptionPane.getFrameForComponent(frame_comp), "New Instance", true);
+		super(frame, "New Instance", true);
 
 		this.masters = masters;
-		new_insts = new Vector<MasterInst>();
 
 		layoutGUI();
 		addListeners();
@@ -347,45 +346,44 @@ public class InstanceDialogBox extends JDialog
 
 	/**
 	 * Creates the instances and adds them to the list of new instances
+	 * returns if the operation is successful
 	 */
-	public void createInstances()
+	public boolean createInstances()
 	{
-		try
+		// If the input check did not succeed, report failure
+		if (!checkInputs())
+			return false;
+		
+		new_insts = new Vector<MasterInst>();
+		if(check_array.isSelected())
 		{
-			if(check_array.isSelected())
-			{
-				int num_x = Integer.parseInt(text_num_x.getText());
-				int num_y = Integer.parseInt(text_num_y.getText());
-				
-				BigDecimal d_x = BigDecimal.valueOf(Double.parseDouble(text_dx.getText()));
-				BigDecimal d_y = BigDecimal.valueOf(Double.parseDouble(text_dy.getText()));
+			int num_x = Integer.parseInt(text_num_x.getText());
+			int num_y = Integer.parseInt(text_num_y.getText());
+			
+			BigDecimal d_x = BigDecimal.valueOf(Double.parseDouble(text_dx.getText()));
+			BigDecimal d_y = BigDecimal.valueOf(Double.parseDouble(text_dy.getText()));
 
-				// Will number horizontally first, then vertically
-				for (int i = 0; i < num_y; ++i)
+			// Will number horizontally first, then vertically
+			for (int i = 0; i < num_y; ++i)
+			{
+				for (int j = 0; j < num_x; ++j)
 				{
-					for (int j = 0; j < num_x; ++j)
-					{
-						createInstance("_" + (i * num_x + j), 
-							d_x.multiply(BigDecimal.valueOf(j)).doubleValue(), 
-							d_y.multiply(BigDecimal.valueOf(i)).doubleValue());
-					}
+					createInstance("_" + (i * num_x + j), 
+						d_x.multiply(BigDecimal.valueOf(j)).doubleValue(), 
+						d_y.multiply(BigDecimal.valueOf(i)).doubleValue());
 				}
 			}
-			else createInstance("", 0.0, 0.0);
 		}
-		catch (Exception e)
-		{
-			JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(),
-					"Error", JOptionPane.WARNING_MESSAGE);
-		}
+		else createInstance("", 0.0, 0.0);
+		return true;
 	}
 	
 	/**
 	 * Creates one instance, based on the numbers in the text boxes
 	 */
-	private void createInstance(String name_postpend, double x_offset, double y_offset) throws Exception
+	private void createInstance(String name_postpend, double x_offset, double y_offset)
 	{
-		Master new_inst_master;
+		Master new_inst_master = null;
 		// First check if it is atomic or not
 		if (check_atomic.isSelected())
 		{
@@ -398,8 +396,6 @@ public class InstanceDialogBox extends JDialog
 		{
 			if (combo_instance_master.getSelectedIndex() != -1)
 				new_inst_master = (Master) combo_instance_master.getSelectedItem();
-			else
-				throw new Exception("Instance master must be given for a non-atomic instance.");
 		}
 		// Get instance name
 		String inst_name = text_instance_name.getText() + name_postpend;
@@ -414,16 +410,73 @@ public class InstanceDialogBox extends JDialog
 	/**
 	 * Show the dialog and returns a vector of the new instances to add
 	 */
-	public static Vector<MasterInst> showDialog(JComponent frame_comp, JComponent location_comp, MasterMap masters)
+	public static Vector<MasterInst> showDialog(JFrame frame, JComponent location_comp, MasterMap masters)
 	{
-		InstanceDialogBox dialog = new InstanceDialogBox(frame_comp, location_comp, masters);
+		InstanceDialogBox dialog = new InstanceDialogBox(frame, location_comp, masters);
 		return dialog.getNewInsts();
+	}
+	
+	/**
+	 * Returns whether the inputs are valid, throws up dialogs to warn the user
+	 */
+	private boolean checkInputs()
+	{
+		// Text boxes
+		if(text_instance_name.getText().isEmpty())
+		{
+			JOptionPane.showMessageDialog(this, "Instance name cannot be empty.",
+					"Error", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		if (!check_atomic.isSelected() && (combo_instance_master.getSelectedIndex() == -1))
+		{
+			JOptionPane.showMessageDialog(this, "You must specify an instance master for a non-atomic instance.",
+					"Error", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		
+		// Check number formatting
+		try
+		{
+			Double.parseDouble(text_x_position.getText());
+			Double.parseDouble(text_y_position.getText());
+			if (check_atomic.isSelected())
+			{
+				Double.parseDouble(text_width.getText());
+				Double.parseDouble(text_height.getText());
+			}
+		}
+		catch (NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(this, "Invalid numeric values used for position/dimension.",
+					"Error", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		try
+		{
+			if (check_array.isSelected())
+			{
+				Integer.parseInt(text_num_x.getText());
+				Integer.parseInt(text_num_y.getText());
+				Double.parseDouble(text_dx.getText());
+				Double.parseDouble(text_dy.getText());
+			}
+		}
+		catch (NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(this, "Invalid numeric values used for array parameters.",
+					"Error", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+
+		return true;
 	}
 	
 	/**
 	 * Gets the new instances it added
 	 */
 	public Vector<MasterInst> getNewInsts() { return new_insts; }
+
 }
 
 class InstanceDialogButtonListener extends EventsHelper<InstanceDialogBox> implements ActionListener
@@ -436,9 +489,7 @@ class InstanceDialogButtonListener extends EventsHelper<InstanceDialogBox> imple
 	public void actionPerformed(ActionEvent e) 
 	{
 		if (e.getActionCommand().equals("Ok"))
-			owner.createInstances();
-		
-		owner.setVisible(false);
+			owner.setVisible(!owner.createInstances());
 	}
 	
 }

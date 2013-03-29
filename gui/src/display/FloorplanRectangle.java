@@ -50,16 +50,26 @@ class FloorplanRectangle
 	FloorplanRectangle(Box b, Coord origin, double trans_x, double trans_y,
 			int offset_x, int offset_y, double scale)
 	{
-		double llx = b.llx + origin.x + trans_x;
-		double lly = b.lly + origin.y + trans_y;
-		double urx = llx + b.getWidth();
-		double ury = lly + b.getHeight();
-		
-		// Maybe a more efficient way to do this?
-		w = (int) roundSigFigs(urx * scale, 6) - (int) roundSigFigs(llx * scale, 6);
-		h = (int) roundSigFigs(ury * scale, 6) - (int) roundSigFigs(lly * scale, 6);
-		x = (int) roundSigFigs(llx * scale, 6) + offset_x;
-		y = (int) roundSigFigs(lly * scale, 6) + offset_y;
+		if (b.isValidBox())
+		{
+			double llx = b.llx + origin.x + trans_x;
+			double lly = b.lly + origin.y + trans_y;
+			double urx = llx + b.getWidth();
+			double ury = lly + b.getHeight();
+			
+			// Maybe a more efficient way to do this?
+			w = (int) roundSigFigs(urx * scale, 6) - (int) roundSigFigs(llx * scale, 6);
+			h = (int) roundSigFigs(ury * scale, 6) - (int) roundSigFigs(lly * scale, 6);
+			x = (int) roundSigFigs(llx * scale, 6) + offset_x;
+			y = (int) roundSigFigs(lly * scale, 6) + offset_y;
+		}
+		else
+		{
+			x = 0;
+			y = 0;
+			w = 0;
+			h = 0;
+		}
 	}
 	
 	public static double roundSigFigs(double x, int sig_figs)

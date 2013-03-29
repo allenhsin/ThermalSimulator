@@ -6,6 +6,7 @@ import temperature.*;
 import java.awt.Dimension;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 
@@ -38,7 +39,7 @@ public class RenderPanel extends JPanel implements ChangeListener
 	// Remember the mapping between a master and the temperature trace
 	private HashMap<Master, TemperatureTrace> temp_trace_map;
 	
-	public RenderPanel (Dimension image_size) 
+	public RenderPanel (Dimension image_size)
 	{
 		super ();		
 		setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -102,34 +103,43 @@ public class RenderPanel extends JPanel implements ChangeListener
 	
 	public void setTempTrace(TemperatureTrace trace)
 	{
-//		// Associate the currently rendered floorplan with this temperature trace
-//		temp_trace_map.put(render.getFloorplan().getMaster(), trace);
-//		// Tell the render to load the temperature trace
-//		render.setTempTrace(trace);	
-//		if (trace != null)
-//		{
-//			// Update and enable slider with time information
-//			int total_steps = trace.getTemperatureSteps().length;
-//			time_slider.setMaximum(total_steps - 1);
-//			time_slider.setValue(0);
-//			time_slider.setMinorTickSpacing(total_steps / 20);
-//			time_slider.setMajorTickSpacing(total_steps / 10);
-//			time_slider_file_text.setText(trace.getFile().getName());
-//			time_slider.setEnabled(true);
-//		}
-//		else
-//		{
-//			time_slider.setEnabled(false);
-//			time_slider_file_text.setText("No Temperature Trace Loaded");
-//		}
+		if (trace == null)
+		{
+			render.setTempTrace(null);
+			time_slider.setEnabled(false);
+			time_slider_file_text.setText("No Temperature Trace Loaded");
+		}
+		else if (trace.isCompatible(render.getRenderTarget()))
+		{
+			// Associate the currently rendered floorplan with this temperature trace
+			temp_trace_map.put(render.getRenderTarget(), trace);
+			// Tell the render to load the temperature trace
+			render.setTempTrace(trace);	
+			// Update and enable slider with time information
+			int total_steps = trace.getTemperatureSteps().length;
+			time_slider.setMaximum(total_steps - 1);
+			time_slider.setValue(0);
+			time_slider.setMinorTickSpacing(total_steps / 20);
+			time_slider.setMajorTickSpacing(total_steps / 10);
+			time_slider_file_text.setText(trace.getFile().getName());
+			time_slider.setEnabled(true);
+		}
+		else
+		{
+			Vector<String> report = trace.getCompatibilityReport(render.getRenderTarget());
+			for (int i = 0; i < report.size(); ++i)
+				System.out.println(report.get(i));
+			JOptionPane.showMessageDialog(this, "Temperature trace not compatible" +
+					" with currently viewed master.", "Failed to load", JOptionPane.WARNING_MESSAGE);
+		}
 	}
 	
 	/**
 	 * Unloads all temperature traces
 	 */
-	public void unloadTempTrace()
+	public void unloadTempTraces()
 	{
-		render.setTempTrace(null);
+		setTempTrace(null);
 		temp_trace_map.clear();
 	}
 	

@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import java.awt.AlphaComposite;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.HashMap;
@@ -21,6 +23,10 @@ import temperature.*;
  */
 public class FloorplanRender extends JComponent
 {	
+	// Min/Max scale (essentially sets maximum zoom levels)
+	public static final double MAX_SCALE = 10e9;
+	public static final double MIN_SCALE = 1e-6;
+	
 	// The master to render
 	private Master render_target;
 	// The temperature trace to follow
@@ -41,20 +47,19 @@ public class FloorplanRender extends JComponent
 	// Image translation
 	private double trans_x;
 	private double trans_y;
+	
 
 	public FloorplanRender (Dimension image_size)
 	{		
-		//setSize(image_size);
 		setPreferredSize(image_size);
-		
-		offset_x = (int) image_size.getWidth() / 2;
-		offset_y = (int) image_size.getHeight() / 2;
-		
+
 		// Highlights
 		highlights = new HashMap<String, Boolean>();
 
 		// Set time step to 0;
 		time = 0;
+		
+		addComponentListener(new RenderComponentListener());
 		
 	}
 	
@@ -73,6 +78,7 @@ public class FloorplanRender extends JComponent
 		// Go to default zoom if we are actually rendering something		
 		if (render_target != null)
 		{
+			updateImageSize();
 			zoom();
 			repaint();
 		}
@@ -98,7 +104,7 @@ public class FloorplanRender extends JComponent
 		g.setPaintMode ();
 		g.setColor(Color.black);
 		// Fill background with black
-		g.fillRect(0, 0, (int) getPreferredSize().getWidth(), (int) getPreferredSize().getHeight());
+		g.fillRect(0, 0, (int) getSize().getWidth(), (int) getSize().getHeight());
 		
 		// If there is stuff to render
 		if (render_target != null)
@@ -112,34 +118,44 @@ public class FloorplanRender extends JComponent
 	
 	public synchronized void paintTemperatures(Graphics2D g)
 	{
-		// Disabled until new temperature format is done
-//		// Get list of floorplan instances
-//		Vector<Floorplan> fp_insts = floorplan.getChildren();
-//		
-//		// Get maximum and minimum temperatures
-//		double max_temp = temp_trace.getMaxTemp();
-//		double min_temp = temp_trace.getMinTemp();
-//		
-//		// Get temperatures at this time step
-//		TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
-//
-//		// Iterate through all rectangles
-//		Iterator<Floorplan> it = fp_insts.iterator();
-//		while(it.hasNext())
-//		{
-//			// Get the current floorplan
-//			Floorplan f = it.next();
-//			int idx = temp_trace.getIdxMap().get(f.getName());
-//			double temperature = temp_step.getTemperatures()[idx];
-//			
-//			// Set the painting color based on the temperature
-//			g.setColor(TemperatureColor.getColor(temperature, max_temp, min_temp));
-//			
-//			// Fill the rectangle with the correct color
-//			FloorplanRectangle rect = new FloorplanRectangle(f, floorplan,
-//					trans_x, trans_y, offset_x, offset_y, scale);			
-//			g.fillRect(rect.x, rect.y, rect.w, rect.h);
-//		}
+		// Paint temperatures helper
+		paintTemperatures(g, render_target, new Coord(0.0, 0.0), "");
+	}
+	
+	private synchronized void paintTemperatures(Graphics2D g, Master target, Coord origin, String hier_name)
+	{
+		if (target.isAtomic())
+		{
+			// Get maximum and minimum temperatures
+			double max_temp = temp_trace.getMaxTemp();
+			double min_temp = temp_trace.getMinTemp();
+		
+			// Get temperatures at this time step
+			int idx = temp_trace.getIdxMap().get(hier_name);
+			TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
+			
+			// Set the painting color based on the temperature
+			g.setColor(TemperatureColor.getColor(temp_step.getTemperatures()[idx], max_temp, min_temp));
+			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
+					trans_x, trans_y, offset_x, offset_y, scale);			
+			g.fillRect(rect.x, rect.y, rect.w, rect.h);
+		}
+		else
+		{
+			// Recursively paint outlines through all sub instances
+			Iterator<MasterInst> it = target.getInstances().iterator();
+			while(it.hasNext())
+			{
+				MasterInst next_inst = it.next();
+				// Kind of a hack to avoid the extra hierarchical separator
+				if (next_inst.isAtomic())
+					paintTemperatures(g, next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y),
+							hier_name + next_inst.n);					
+				else
+					paintTemperatures(g, next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y),
+							hier_name + next_inst.n + Master.HIER_SEPARATOR);
+			}
+		}
 	}
 	
 	/**
@@ -240,10 +256,17 @@ public class FloorplanRender extends JComponent
 		trans_y += y / scale;
 	}
 	
-	// Zooms the image by an amount
+	public void setScale(double scale)
+	{
+		this.scale = Math.min(Math.max(scale, MIN_SCALE), MAX_SCALE);
+	}
+	
+	/** 
+	 * Zooms the image by an amount
+	 */
 	public void zoom(double scale_factor)
 	{
-		scale = scale * scale_factor;
+		setScale(scale * scale_factor);
 	}
 
 	// Centers the zoom
@@ -251,9 +274,9 @@ public class FloorplanRender extends JComponent
 	{
 		Box b_box = getBoundingBox(render_target);
 		// Set default scale	
-		scale = 0.9 * Math.min(getPreferredSize().getWidth() / b_box.getWidth(),
-				getPreferredSize().getHeight() / b_box.getHeight());
-		
+		setScale(0.9 * Math.min(getSize().getWidth() / b_box.getWidth(),
+				getSize().getHeight() / b_box.getHeight()));
+
 		// Set translates
 		trans_x = -b_box.getWidth() / 2;
 		trans_y = -b_box.getHeight() / 2;
@@ -294,8 +317,26 @@ public class FloorplanRender extends JComponent
 		this.time = time;
 	}
 	
+	public void updateImageSize()
+	{ 
+		offset_x = (int) getSize().getWidth() / 2;
+		offset_y = (int) getSize().getHeight() / 2;
+	}
+	
 	public Master getRenderTarget() { return render_target; }
 	public TemperatureTrace getTemperatureTrace() { return temp_trace; }	
+}
+
+class RenderComponentListener implements ComponentListener
+{
+	public void componentHidden(ComponentEvent e) {}
+	public void componentMoved(ComponentEvent e) {}
+	public void componentResized(ComponentEvent e) 
+	{
+		((FloorplanRender) e.getSource()).updateImageSize();	
+		((FloorplanRender) e.getSource()).repaint();
+	}
+	public void componentShown(ComponentEvent e) {}	
 }
 
 /**
@@ -332,5 +373,14 @@ class Box
 	double getWidth()
 	{
 		return urx - llx;
+	}
+	
+	boolean isValidBox()
+	{
+		if (llx >= urx)
+			return false;
+		if (lly >= ury)
+			return false;
+		return true;
 	}
 }

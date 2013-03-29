@@ -168,13 +168,15 @@ class InstanceButtonListener extends EventsHelper<ViewPanel> implements ActionLi
 
 	public void actionPerformed(ActionEvent e) 
 	{
+		// Any changes causes temperature traces to be cleared
+		owner.getGUI().getRenderPanel().unloadTempTraces();		
+
 		Master cur_master = owner.getGUI().getCurMaster();
-		
 		try
 		{
 			if (e.getActionCommand() == "New Instance...")
 			{
-				Vector<MasterInst> new_insts = InstanceDialogBox.showDialog(owner, owner, owner.getGUI().getMasters());
+				Vector<MasterInst> new_insts = InstanceDialogBox.showDialog(owner.getGUI(), owner, owner.getGUI().getMasters());
 				for (int i = 0; i < new_insts.size(); ++i)
 					cur_master.addMasterInst(new_insts.get(i));
 				// Check for recursive floorplans
@@ -185,7 +187,7 @@ class InstanceButtonListener extends EventsHelper<ViewPanel> implements ActionLi
 						cur_master.deleteMasterInst(new_insts.get(i));
 					throw new Exception("Failed to add new instance(s): new instance(s) causes recursive floorplans!");
 				}
-				owner.getGUI().updateView();
+				
 			}
 			else if (e.getActionCommand() == "Delete")
 			{
@@ -197,13 +199,14 @@ class InstanceButtonListener extends EventsHelper<ViewPanel> implements ActionLi
 				
 				for (int i = 0; i < selected_names.length; ++i)
 					cur_master.deleteMasterInst(selected_names[i]);
-				owner.getGUI().updateView();
 			}
 		}
 		catch (Exception ex)
 		{
 			JOptionPane.showMessageDialog(owner.getGUI(), ex.getMessage(), "Operation failed", JOptionPane.WARNING_MESSAGE);
 		}
+		
+		owner.getGUI().updateView();
 	}
 }
 
@@ -214,7 +217,6 @@ class MasterButtonListener extends EventsHelper<ViewPanel> implements ActionList
 		super(owner);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
 		JComboBox master_box = owner.getMastersBox();

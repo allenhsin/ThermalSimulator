@@ -12,29 +12,27 @@ public class Main
 {
 	public static void main (String[] args)
 	{
-		// Create a reference to the file
-		File fplan_file;
-		File temp_trace;
-		int width;
-		int height;
+		initialize(args);	
+	}
+	
+    private static void setRuntimeOptions(OptionParser option_parser)
+    {
+        option_parser.addOption("-render_size", "RenderSize", true, "X_pixels,Y_pixels", true, "600,600",
+                "Specify the size of the render window, in pixels");
 
-		if (args.length != 4)
-		{
-			fplan_file = null;
-			temp_trace = null;
-			height = 600;
-			width = 300;
-//			System.out.print("Usage: Main floorplan_file ttrace_file dimension_x dimension_y\n");
-//			System.exit(1);
-		}
-		else
-		{
-			fplan_file = new File(args[0]);
-			temp_trace = new File(args[1]);
-			// Create screen dimensions
-			width = Integer.parseInt(args[2]);
-			height = Integer.parseInt(args[3]);
-		}
+        option_parser.addOption("-floorplan", "FloorplanFile", true, "File", true, "",
+                "Specify a floorplan file to load on startup");
+
+        option_parser.addOption("-temp_trace", "TempTrace", true, "File", true, "", 
+                "Specify a temperature trace file to load on startup");
+    }
+
+	private static void initialize(String[] args)
+	{
+		OptionParser option_parser = new OptionParser();
+		setRuntimeOptions(option_parser);		
+		// Parse the options
+		option_parser.parseArguments(args, System.err, System.out);
 		
 		try
 		{
@@ -43,17 +41,38 @@ public class Main
 	    } 
 	    catch (Exception e)
 	    {
-	       throw new Error(e);
+	       // Not a big issue if we can't set the system-native look and feel
 	    }
-		SwingUtilities.invokeLater(new ScreenRefresher(new Dimension(width, height), fplan_file, temp_trace));
-//		new Thread(new ScreenRefresher(new Dimension(width, height), fplan)).start();
-//		RenderWindow screen = new RenderWindow("Frame Buffer", pegasus.displayFrameBuffer());
-//		RenderWindow nextScreen = new RenderWindow("Frame Buffer", pegasus.activeFrameBuffer());
 		
-	}
+
+		File fplan_file = null;
+		File temp_trace = null;
+		
+		// Load floorplan file on startup
+		if(!option_parser.get("FloorplanFile").isEmpty())
+			fplan_file = new File(option_parser.get("FloorplanFile"));
+		
+		// Load temperature trace on startup
+		if(!option_parser.get("TempTrace").isEmpty())
+			temp_trace = new File(option_parser.get("TempTrace"));
+		
+		// Parse render size
+		Dimension render_size;
+		try
+		{
+			String[] render_size_string = option_parser.get("RenderSize").split(",");
+			render_size = new Dimension(Integer.parseInt(render_size_string[0]), Integer.parseInt(render_size_string[1]));
+		}
+		catch (Exception e)
+		{
+			render_size = new Dimension(600, 600);
+		}
+			
+		SwingUtilities.invokeLater(new GUIRunnable(render_size, fplan_file, temp_trace));	
+	}	
 }
 
-class ScreenRefresher implements Runnable
+class GUIRunnable implements Runnable
 {
 	// Floorplanner GUI
 	private Floorplanner gui;
@@ -63,7 +82,7 @@ class ScreenRefresher implements Runnable
 	// Command-line set dimensions
 	private Dimension dimension;
 	
-	ScreenRefresher (Dimension dimension, File fplan_file, File temp_trace)
+	GUIRunnable (Dimension dimension, File fplan_file, File temp_trace)
 	{
 		this.dimension = dimension;
 		this.fplan_file = fplan_file;

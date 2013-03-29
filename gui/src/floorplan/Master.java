@@ -2,10 +2,9 @@ package floorplan;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.table.AbstractTableModel;
-import javax.swing.tree.TreeNode;
 
 /**
  * A floorplan master is a floorplan with a known layout, but hasn't been
@@ -13,8 +12,11 @@ import javax.swing.tree.TreeNode;
  * instance. It can consist of many sub floorplan masters. When editing a
  * floorplan, you are actually editing the floorplan master. 
  */
-public class Master implements Comparable
+public class Master implements Comparable<Master>
 {	
+	// Hierarchy separator
+	public static final String HIER_SEPARATOR = ".";
+	
 	private String name;
 	private double height;
 	private double width;
@@ -78,6 +80,34 @@ public class Master implements Comparable
 		return name;
 	}
 	
+	/**
+	 * Get a map of all the atomic instances
+	 */
+	public Hashtable<String, MasterInst> getAllAtomics()
+	{
+		Hashtable<String, MasterInst> atomic_map = new Hashtable<String, MasterInst>();
+		getAllAtomics("", atomic_map);
+		return atomic_map;		
+	}
+
+	/**
+	 * Helper that adds all atomic instances to the given map
+	 */
+	private void getAllAtomics(String cur_hier, Hashtable<String, MasterInst> atomic_map)
+	{
+		Iterator<MasterInst> it = master_insts.iterator();
+		while(it.hasNext())
+		{
+			MasterInst cur_inst = it.next();
+			// If the current instance is atomic, add it to the map
+			if (cur_inst.isAtomic())
+				atomic_map.put(cur_hier + cur_inst.n, cur_inst);
+			// If not tell it to add all of its atomics to the map
+			else
+				cur_inst.m.getAllAtomics(cur_hier + cur_inst.n + HIER_SEPARATOR, atomic_map);
+		}		
+	}
+	
 	public boolean isAtomic() { return atomic; }
 	public double getHeight() { return height;	}	
 	public double getWidth() { return width; }	
@@ -89,9 +119,9 @@ public class Master implements Comparable
 	public Vector<MasterInst> getInstances() { return master_insts; }	
 	public Hashtable<String, MasterInst> getInstanceMap() { return master_map; }
 
-	public int compareTo(Object other_obj)
+	public int compareTo(Master other_obj)
 	{
-		return name.compareTo(other_obj.toString());		
+		return name.compareTo(other_obj.name);		
 	}
 	
 }
