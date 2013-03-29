@@ -1,5 +1,6 @@
 package gui;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
@@ -27,6 +28,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import floorplan.InstanceTableModel;
 import floorplan.Master;
 import floorplan.MasterInst;
 import floorplan.MasterMap;
@@ -83,7 +85,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	
 	public void updateMasters(MasterMap new_masters)
 	{
-		combo_instance_master.setModel(new_masters);
+		combo_instance_master.setModel(new DefaultComboBoxModel(new_masters.toArray()));
 	}
 	
 	private void createEditTab()
@@ -264,7 +266,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		checkApply();
 
 		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-		Master cur_master = (Master) gui.getObjectsTable().getModel();
+		Master cur_master = gui.getCurMaster();
 		
 		if (!e.getValueIsAdjusting())
 		{
@@ -277,7 +279,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 					if (lsm.isSelectedIndex(i))
 					{
 						// Get the floorplan that is being edited
-						MasterInst edit_inst = cur_master.getFloorplanInsts().get(i);
+						MasterInst edit_inst = cur_master.getInstances().get(i);
 						selected.add(edit_inst);
 					}
 				}			
@@ -389,7 +391,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 				combo_instance_master.setSelectedItem(old_master);
 				check_atomic.setSelected(old_master.isLeaf());
 				edit_master_inst.m = old_master;
-				JOptionPane.showMessageDialog(this, "Changing instance master to " + new_master.getName() + " causes recursive masters! Master will not be changed.",
+				JOptionPane.showMessageDialog(gui, "Changing instance master to " + new_master.getName() + " causes recursive masters! Master will not be changed.",
 						"Error", JOptionPane.WARNING_MESSAGE);
 			}
 		}		
@@ -459,7 +461,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	{
 		if (changed)
 		{
-			int sel = JOptionPane.showOptionDialog(gui, "Object has modifications, apply modifications?",
+			int sel = JOptionPane.showOptionDialog(gui, "Current object has modifications, apply modifications?",
 				"Apply modifications", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
 				null, new String[] {"Apply", "Discard"}, "Discard");
 			if (sel == 0) applySelected();

@@ -1,26 +1,20 @@
 package gui;
 
 import java.awt.Dimension;
-import java.awt.Point;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JLabel;
-import display.FloorplanRender;
 import display.RenderPanel;
 import floorplan.FloorplanParser;
 import floorplan.Master;
 import floorplan.MasterInst;
 import floorplan.MasterMap;
 
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -131,7 +125,14 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		masters = new_masters;
 		tools.updateMasters(new_masters);
 		view_panel.updateMasters(new_masters);
-		updateView(null);
+		
+		// Update to the default view of the new masters map does not
+		// contain the current displayed masters
+		if (new_masters != null && cur_master != null &&
+			masters.getMasters().containsKey(cur_master.getName()))
+			updateView(masters.getMasters().get(cur_master.getName()));
+		else
+			updateView(null);
 	}
 	
 	/**
@@ -148,8 +149,9 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	
 	/**
 	 * Updates the current view to a view of the new master. Should be
-	 * called if there has been changes to what master to biew
+	 * called if there has been changes to what master to view
 	 */
+	public void updateView() { updateView(cur_master); }
 	public void updateView(Master new_master)
 	{
 		if (new_master == null)
@@ -157,7 +159,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		else
 			cur_master = new_master;
 		view_panel.updateView(cur_master);
-		render_panel.setView(new MasterInst(cur_master, "Top", 0, 0));
+		render_panel.setView(cur_master);
 		refreshView();
 	}
 	

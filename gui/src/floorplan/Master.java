@@ -13,7 +13,7 @@ import javax.swing.tree.TreeNode;
  * instance. It can consist of many sub floorplan masters. When editing a
  * floorplan, you are actually editing the floorplan master. 
  */
-public class Master extends AbstractTableModel implements TreeNode
+public class Master extends AbstractTableModel implements Comparable, TreeNode
 {	
 	private String name;
 	private double height;
@@ -45,11 +45,32 @@ public class Master extends AbstractTableModel implements TreeNode
 		this.height = height;
 	}
 	
+	/**
+	 * Add an instance
+	 */
+	public void addMasterInst(MasterInst sub_inst)
+	{
+		master_insts.add(sub_inst);
+		master_map.put(sub_inst.n, sub_inst);
+	}
+	
 	public void addMasterInst(Master sub_master, String inst_name, double x, double y)
 	{
-		MasterInst inst = new MasterInst(sub_master, inst_name, x, y);
-		master_insts.add(inst);
-		master_map.put(inst_name, inst);
+		addMasterInst(new MasterInst(sub_master, inst_name, x, y));
+	}
+
+	/**
+	 * Delete an instance
+	 */
+	public void deleteMasterInst(MasterInst sub_inst)
+	{
+		master_insts.remove(sub_inst);
+		master_map.remove(sub_inst);
+	}
+	
+	public void deleteMasterInst(String name)
+	{
+		deleteMasterInst(master_map.get(name));
 	}
 	
 	public String toString()
@@ -65,8 +86,8 @@ public class Master extends AbstractTableModel implements TreeNode
 	public MasterInst getLibInstance() { return lib_instance; }
 	public void setLibInstance(MasterInst lib_instance) { this.lib_instance = lib_instance; }
 	
-	public Vector<MasterInst> getFloorplanInsts() { return master_insts; }	
-	public Hashtable<String, MasterInst> getFloorplanMap() { return master_map; }
+	public Vector<MasterInst> getInstances() { return master_insts; }	
+	public Hashtable<String, MasterInst> getInstanceMap() { return master_map; }
 
 	public boolean isLeaf() { return atomic; }
 	/**
@@ -142,5 +163,11 @@ public class Master extends AbstractTableModel implements TreeNode
 	{ 
 		return null; 
 	}
+
+	public int compareTo(Object other_obj)
+	{
+		return name.compareTo(other_obj.toString());		
+	}
 	
 }
+

@@ -37,28 +37,28 @@ public class MasterInst implements MutableTreeNode
 	}
 	
 	/** Methods that implement TreeNode functionality */
-	public Enumeration<MasterInst> children() { return m.getFloorplanInsts().elements(); }
+	public Enumeration<MasterInst> children() { return m.getInstances().elements(); }
 	public boolean getAllowsChildren() { return true; }
-	public TreeNode getChildAt(int idx) { return m.getFloorplanInsts().get(idx); }
-	public int getChildCount() { return m.getFloorplanInsts().size(); }
-	public int getIndex(TreeNode node) { return m.getFloorplanInsts().indexOf(node); }
+	public TreeNode getChildAt(int idx) { return m.getInstances().get(idx); }
+	public int getChildCount() { return m.getInstances().size(); }
+	public int getIndex(TreeNode node) { return m.getInstances().indexOf(node); }
 	public TreeNode getParent() { return null; }
 	public boolean isLeaf() { return m.isAtomic(); }
 
 	@Override
 	public void insert(MutableTreeNode child, int index)
 	{ 
-		m.getFloorplanInsts().insertElementAt((MasterInst) child, index);
+		m.getInstances().insertElementAt((MasterInst) child, index);
 	}
 
 	public void remove(int index)
 	{
-		m.getFloorplanInsts().remove(index);		
+		m.getInstances().remove(index);		
 	}
 
 	public void remove(MutableTreeNode node)
 	{
-		m.getFloorplanInsts().remove((MasterInst) node);		
+		m.getInstances().remove((MasterInst) node);		
 	}
 
 	public void removeFromParent() { throw new Error("Should never happen"); }

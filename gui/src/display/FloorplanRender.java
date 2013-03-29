@@ -1,13 +1,9 @@
 package display;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Stroke;
 
 import java.awt.AlphaComposite;
 import java.util.HashMap;
@@ -23,8 +19,8 @@ import temperature.*;
  */
 public class FloorplanRender extends JComponent
 {	
-	// The master instance to render
-	private MasterInst render_target;
+	// The master to render
+	private Master render_target;
 	// The temperature trace to follow
 	private TemperatureTrace temp_trace;
 	// Map of floorplan instance names to highlight
@@ -64,7 +60,7 @@ public class FloorplanRender extends JComponent
 	 * Set the floorplan to render
 	 * @param floorplan
 	 */
-	public void setRenderTarget(MasterInst render_target)
+	public void setRenderTarget(Master render_target)
 	{
 		// Unload the temperature trace
 		temp_trace = null;
@@ -72,9 +68,12 @@ public class FloorplanRender extends JComponent
 		this.render_target = render_target;
 		// Clear all highlights
 		highlights.clear();
-		// Default zoom
-		zoom();
-		repaint();
+		// Go to default zoom if we are actually rendering something		
+		if (render_target != null)
+		{
+			zoom();
+			repaint();
+		}
 	}
 	
 	/**
@@ -164,7 +163,7 @@ public class FloorplanRender extends JComponent
 	 * Paint a master instance at a specific location, returns the upper right
 	 * coordinates
 	 */
-	private synchronized void paintOutlines(Graphics2D g, MasterInst target, Coord origin)
+	private synchronized void paintOutlines(Graphics2D g, Master target, Coord origin)
 	{
 		// If it is a leaf, paint it
 		if (target.isAtomic())
@@ -177,11 +176,11 @@ public class FloorplanRender extends JComponent
 		else
 		{
 			// Recursively paint outlines through all sub instances
-			Iterator<MasterInst> it = target.m.getFloorplanInsts().iterator();
+			Iterator<MasterInst> it = target.getInstances().iterator();
 			while(it.hasNext())
 			{
 				MasterInst next_inst = it.next();
-				paintOutlines(g, next_inst, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
+				paintOutlines(g, next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
 			}
 		}
 	}
@@ -193,19 +192,19 @@ public class FloorplanRender extends JComponent
 		g.setColor(Color.white);
 
 		// Iterate through all sub-instances, see if any of them need to be highlighted
-		Iterator<MasterInst> it = render_target.m.getFloorplanInsts().iterator();		
+		Iterator<MasterInst> it = render_target.getInstances().iterator();		
 		while(it.hasNext())
 		{
 			MasterInst next_inst = it.next();
 			if (highlights.containsKey(next_inst.n))
-				paintHighlights(g, next_inst, new Coord(next_inst.x, next_inst.y));
+				paintHighlights(g, next_inst.m, new Coord(next_inst.x, next_inst.y));
 		}
 	}
 	
 	/**
 	 * Helper for painting highlights
 	 */
-	private synchronized void paintHighlights(Graphics2D g, MasterInst target, Coord origin)
+	private synchronized void paintHighlights(Graphics2D g, Master target, Coord origin)
 	{
 		// If it is a leaf, paint it
 		if (target.isAtomic())
@@ -218,11 +217,11 @@ public class FloorplanRender extends JComponent
 		else
 		{
 			// Recursively paint outlines through all sub instances
-			Iterator<MasterInst> it = target.m.getFloorplanInsts().iterator();
+			Iterator<MasterInst> it = target.getInstances().iterator();
 			while(it.hasNext())
 			{
 				MasterInst next_inst = it.next();
-				paintHighlights(g, next_inst, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
+				paintHighlights(g, next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
 			}
 		}
 	}
@@ -261,25 +260,25 @@ public class FloorplanRender extends JComponent
 	/**
 	 * Get the bounding box of a master instance
 	 */
-	public static Box getBoundingBox(MasterInst m)
+	public static Box getBoundingBox(Master m)
 	{
 		return getBoundingBox(m, new Coord(0, 0));
 	}
 	
-	private static Box getBoundingBox(MasterInst m, Coord origin)
+	private static Box getBoundingBox(Master m, Coord origin)
 	{
 		if (m.isAtomic())
 			return new Box(origin.x, origin.y,
-					origin.x + m.m.getWidth(), origin.y + m.m.getHeight());
+					origin.x + m.getWidth(), origin.y + m.getHeight());
 		
 		// Create new box instance
 		Box box = new Box(Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
 		// Iterate through all elements
-		Iterator<MasterInst> it = m.m.getFloorplanInsts().iterator();
+		Iterator<MasterInst> it = m.getInstances().iterator();
 		while(it.hasNext())
 		{
 			MasterInst next_inst = it.next();
-			Box next_box = getBoundingBox(next_inst, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
+			Box next_box = getBoundingBox(next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
 			box.llx = Math.min(next_box.llx, box.llx);
 			box.lly = Math.min(next_box.lly, box.lly);
 			box.urx = Math.max(next_box.urx, box.urx);
@@ -293,7 +292,7 @@ public class FloorplanRender extends JComponent
 		this.time = time;
 	}
 	
-	public MasterInst getRenderTarget() { return render_target; }
+	public Master getRenderTarget() { return render_target; }
 	public TemperatureTrace getTemperatureTrace() { return temp_trace; }	
 }
 

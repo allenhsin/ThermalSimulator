@@ -18,6 +18,8 @@ import javax.swing.JTree;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.Vector;
+
 import javax.swing.JTabbedPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -26,6 +28,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import floorplan.InstanceTableModel;
 import floorplan.Master;
 import floorplan.MasterInst;
 import floorplan.MasterMap;
@@ -39,7 +42,9 @@ public class ViewPanel extends JPanel
 	// Table of objects in the current master
 	private JTable objects_table;
 	// Combo box for selected masters
-	private JComboBox<Master> masters_box;
+	private JComboBox masters_box;
+	// Master control buttons
+	private JButton button_new, button_rename, button_delete;
 	
 	public ViewPanel(Floorplanner gui)
 	{
@@ -64,27 +69,23 @@ public class ViewPanel extends JPanel
 		panel_2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));		
 		JLabel lblSelectedMaster = new JLabel("Selected Master");
 		panel_2.add(lblSelectedMaster);
-		masters_box = new JComboBox<Master>();
+		masters_box = new JComboBox();
 		masters_box.setPreferredSize(new Dimension(200, 20));
-		masters_box.addActionListener(new MasterBoxListener(this));		
+		masters_box.addActionListener(new MasterBoxListener(this));	
 		panel_2.add(masters_box);
 		
 		MasterButtonListener button_listener = new MasterButtonListener(this);
 		
-		JButton button_view = new JButton("View");
-		button_view.addActionListener(button_listener);
-		panel_1.add(button_view);
+		button_new = new JButton("New");
+		button_rename = new JButton("Rename");
+		button_delete = new JButton("Delete");
 		
-		JButton button_new = new JButton("New");
 		button_new.addActionListener(button_listener);
-		panel_1.add(button_new);
-		
-		JButton button_rename = new JButton("Rename");
 		button_rename.addActionListener(button_listener);
-		panel_1.add(button_rename);
-		
-		JButton button_delete = new JButton("Delete");
 		button_delete.addActionListener(button_listener);
+
+		panel_1.add(button_new);		
+		panel_1.add(button_rename);		
 		panel_1.add(button_delete);
 		
 		
@@ -101,12 +102,31 @@ public class ViewPanel extends JPanel
 		JScrollPane hier_scroller = new JScrollPane(hier_tree);
 		view_tabbed_pane.addTab("Hierarchy", null, hier_scroller, null);
 		
+		JPanel panel_3 = new JPanel();
+		panel_3.setLayout(new BorderLayout(0, 5));
+		view_tabbed_pane.addTab("Instances", null, panel_3, null);
+		
+		JPanel instance_button_panel = new JPanel();
+		instance_button_panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		panel_3.add(instance_button_panel, BorderLayout.SOUTH);
+		
+		InstanceButtonListener inst_button_listener = new InstanceButtonListener(this);
+		
+		JButton button_new_instance = new JButton("New Instance...");
+		JButton button_delete_instance = new JButton("Delete");
+
+		button_new_instance.addActionListener(inst_button_listener);
+		button_delete_instance.addActionListener(inst_button_listener);
+		
+		instance_button_panel.add(button_new_instance);
+		instance_button_panel.add(button_delete_instance);
+		
 		objects_table = new JTable();
 		objects_table.setAutoCreateRowSorter(true);
 		objects_table.getSelectionModel().addListSelectionListener(new ObjectsTableListener(this));
-		view_tabbed_pane.addTab("Objects", null, objects_table, null);
+		panel_3.add(objects_table, BorderLayout.CENTER);
 		JScrollPane objects_scroller = new JScrollPane(objects_table);
-		view_tabbed_pane.addTab("Objects", null, objects_scroller, null);	
+		panel_3.add(objects_scroller, BorderLayout.CENTER);	
 	}
 	
 	/**
@@ -114,7 +134,7 @@ public class ViewPanel extends JPanel
 	 */
 	public void updateMasters(MasterMap masters)
 	{
-		masters_box.setModel(masters);
+		masters_box.setModel(new DefaultComboBoxModel(masters.toArray()));
 		masters_box.setSelectedItem(masters.getDefaultMaster());
 	}
 	
@@ -123,14 +143,60 @@ public class ViewPanel extends JPanel
 	 */
 	public void updateView(Master new_master)
 	{
-		objects_table.setModel(new_master);
-		hier_tree.setModel(new DefaultTreeModel(new_master.getLibInstance()));
+		objects_table.setModel(new InstanceTableModel(new_master));
+		if (new_master == null)
+			hier_tree.setModel(new DefaultTreeModel(null));
+		else
+			hier_tree.setModel(new DefaultTreeModel(new_master.getLibInstance()));
 	}
 	
 	public Floorplanner getGUI() { return gui; }
 	public JTree getHierTree() { return hier_tree; }
 	public JTable getObjectsTable() { return objects_table; }
-	public JComboBox<Master> getMastersBox() { return masters_box; }
+	public JComboBox getMastersBox() { return masters_box; }
+	public JButton getButtonNew() { return button_new; }
+	public JButton getButtonRename() { return button_rename; }
+	public JButton getButtonDelete() { return button_delete; }
+}
+
+class InstanceButtonListener extends EventsHelper<ViewPanel> implements ActionListener
+{
+	InstanceButtonListener(ViewPanel owner) 
+	{
+		super(owner);
+	}
+
+	public void actionPerformed(ActionEvent e) 
+	{
+		Master cur_master = owner.getGUI().getCurMaster();
+		
+		try
+		{
+			if (e.getActionCommand() == "New Instance...")
+			{
+				Vector<MasterInst> new_insts = InstanceDialogBox.showDialog(owner, owner, owner.getGUI().getMasters());
+				for (int i = 0; i < new_insts.size(); ++i)
+					cur_master.addMasterInst(new_insts.get(i));
+				owner.getGUI().updateView();
+			}
+			else if (e.getActionCommand() == "Delete")
+			{
+				JTable table = owner.getObjectsTable();
+				int[] selected_rows = table.getSelectedRows();
+				String[] selected_names = new String[selected_rows.length];
+				for (int i = 0; i < selected_rows.length; ++i)
+					selected_names[i] = (String) table.getValueAt(selected_rows[i],  0);
+				
+				for (int i = 0; i < selected_names.length; ++i)
+					cur_master.deleteMasterInst(selected_names[i]);
+				owner.getGUI().updateView();
+			}
+		}
+		catch (Exception ex)
+		{
+			JOptionPane.showMessageDialog(owner.getGUI(), ex.getMessage(), "Operation failed", JOptionPane.WARNING_MESSAGE);
+		}
+	}
 }
 
 class MasterButtonListener extends EventsHelper<ViewPanel> implements ActionListener
@@ -143,25 +209,33 @@ class MasterButtonListener extends EventsHelper<ViewPanel> implements ActionList
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
+		JComboBox master_box = owner.getMastersBox();
+		Master selected_master = (Master) master_box.getSelectedItem();
+		MasterMap masters = owner.getGUI().getMasters();
+		
 		try
 		{
-			if (e.getActionCommand() == "View")
-				owner.getGUI().updateView((Master) owner.getMastersBox().getSelectedItem());
-			else if (e.getActionCommand() == "New")
+			if (e.getActionCommand() == "New")
 			{
-				
-				owner.getGUI().getMasters().addMaster();
-				Master new_master = owner.getGUI().getMasters().getDefaultMaster();
-				owner.getGUI().updateView(new_master);
-				owner.getMastersBox().setSelectedItem(new_master);
-				// Seems like the only way to get the combobox to show up correctly again...
-				owner.getMastersBox().updateUI();
+				masters.addMaster();
+				owner.getGUI().updateMasters();
 			}
 			else if (e.getActionCommand() == "Rename")
-			{}
+			{
+				String new_name = (String) JOptionPane.showInputDialog(owner.getGUI(),
+	                    "Enter the new name of the master", "Rename master",
+	                    JOptionPane.PLAIN_MESSAGE, null, null,
+	                    selected_master.getName());
+				if (new_name != null)
+				{
+					masters.renameMaster(selected_master.getName(), new_name);
+					owner.getGUI().updateMasters();
+				}
+			}
 			else if (e.getActionCommand() == "Delete")
 			{
-				owner.getGUI().getMasters().removeMaster(((Master) owner.getMastersBox().getSelectedItem()).getName());
+				masters.removeMaster(selected_master);
+				owner.getGUI().updateMasters();
 			}
 			else throw new Error("Internal Error: Button '" + e.toString() + "' is not supported!");
 		}
@@ -181,12 +255,18 @@ class MasterBoxListener extends EventsHelper<ViewPanel> implements ActionListene
 	
 	public void actionPerformed(ActionEvent e) 
 	{
-		
-//		JComboBox<Master> master_box = (JComboBox<Master>) e.getSource();
-//		if (master_box.getSelectedItem() != null)
-//		{
-//			master_box.setEnabled(false);
-//		}
+		JComboBox master_box = (JComboBox) e.getSource();
+		if (master_box.getSelectedItem() == null)
+		{
+			owner.getButtonDelete().setEnabled(false);
+			owner.getButtonRename().setEnabled(false);
+		}
+		else
+		{
+			owner.getButtonDelete().setEnabled(true);
+			owner.getButtonRename().setEnabled(true);
+			owner.getGUI().updateView((Master) master_box.getSelectedItem());
+		}
 	}	
 }
 

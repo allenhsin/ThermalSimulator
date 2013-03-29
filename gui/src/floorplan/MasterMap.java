@@ -1,19 +1,13 @@
 package floorplan;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.MutableComboBoxModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -23,16 +17,14 @@ import javax.swing.tree.TreeNode;
  * @author DrunkenMan
  *
  */
-public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
+public class MasterMap implements ComboBoxModel
 {
 //	
 	// Hashtable containing all the masters
-	public Hashtable<String, Master> masters;
+	private Hashtable<String, Master> masters;
 	// Vector containing all the masters, each instantiated as their own master
 	// library instance
-	Vector<MasterInst> lib_insts;
-	// Default instance to load
-	private Master default_master;
+	private Vector<MasterInst> lib_insts;
 	// The selected master
 	private Master selected;
 	// The current unnamed number count
@@ -42,15 +34,20 @@ public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 	{
 		masters = new Hashtable<String, Master>();
 		lib_insts = new Vector<MasterInst>();
-		default_master = new Master("Unnamed_0");
-		new_master_count = 1;
+		new_master_count = 0;
 	}	
 	
+	/**
+	 * Searches for recursive masters within this master
+	 */
 	public boolean hasRecursiveMasters(Master master)
 	{
 		return hasRecursiveMasters(master, new HashMap<Master, Boolean>());
 	}
 
+	/**
+	 * Searches for recursive masters globally
+	 */
 	public boolean hasRecursiveMasters()
 	{
 		// Check all masters to see if any of them are recursive
@@ -63,6 +60,9 @@ public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 		return false;
 	}
 	
+	/**
+	 * Search for recursive masters helper
+	 */
 	private boolean hasRecursiveMasters(Master master, HashMap<Master, Boolean> parent_masters)
 	{
 		// If I find a master that is already in the list of parent masters, then
@@ -72,7 +72,7 @@ public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 		
 		// Put myself in the list of parent masters
 		parent_masters.put(master, true);
-		Iterator<MasterInst> it = master.getFloorplanInsts().iterator();
+		Iterator<MasterInst> it = master.getInstances().iterator();
 		while (it.hasNext())
 		{
 			if (hasRecursiveMasters(it.next().m, parent_masters))
@@ -105,11 +105,55 @@ public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 		// Add the master and lib instance
 		masters.put(m.getName(), m);		
 		lib_insts.add(lib_instance);
-		// Update the default master to this one
-		default_master = m; 
 	}
 	
+	/**
+	 * Removes a master, will check if the master is used as an
+	 * instance in another master and throw an exception if so
+	 */
+	public void removeMaster(Master m) throws Exception
+	{
+		removeMaster(m.getName(), true);
+	}
+
+	/**
+	 * Removes a master by name, will check if the master is used as an
+	 * instance in another master and throw an exception if so
+	 */
 	public void removeMaster(String name) throws Exception
+	{
+		removeMaster(name, true);
+	}
+
+	/**
+	 * Returns the other masters that instantiates the master
+	 */
+	public Vector<Master> isInstantiated(Master m)
+	{
+		Vector<Master> users = new Vector<Master>();
+		// Iterate through all masters
+		Iterator<Master> it = masters.values().iterator();
+		while(it.hasNext())
+		{
+			Master cur_master = it.next();
+			// Check for whether this instance exists in all instances
+			for (int i = 0; i < cur_master.getInstances().size(); ++i)
+			{
+				if (cur_master.getInstances().get(i).m == m)
+				{
+					users.add(cur_master);
+					break;
+				}
+			}
+		}
+		return users;
+	}
+	
+	/**
+	 * Private removes a master helper, boolean to check if it checks for
+	 * usage in other masters
+	 */
+	private void removeMaster(String name, boolean check) throws Exception
 	{
 		// Check to make sure the master exists
 		if (!hasMaster(name))
@@ -117,7 +161,14 @@ public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 
 		// Get the master
 		Master m = masters.get(name);
-		// remove it fromt he map
+
+		// Get the list of users for this master anywhere
+		Vector<Master> users = isInstantiated(m);
+		if (check && !users.isEmpty())
+			throw new Exception("Master '" + name + "' is instantiated in another master: " +
+					users.firstElement().toString());
+		
+		// remove it from the map
 		masters.remove(name);		
 		// Find it in the list of library instances
 		Iterator<MasterInst> it = lib_insts.iterator();
@@ -160,17 +211,32 @@ public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 		
 		Master m = getMaster(old_name);
 		m.setName(new_name);
-		removeMaster(old_name);
+		// Don't need to check
+		removeMaster(old_name, false);
 		addMaster(m);
 	}
 	
 	/**
-	 * Get the default selected instance
+	 * Get an instance instance
 	 */
 	public Master getDefaultMaster()
 	{
-		return default_master;
+		if (lib_insts.isEmpty())
+			return null;
+		return lib_insts.lastElement().m;
 	}
+	
+	/**
+	 * Returns a nice sorted array of all the masters
+	 */
+	public Master[] toArray()
+	{
+		Master[] arr_masters = masters.values().toArray(new Master[0]);
+		Arrays.sort(arr_masters);
+		return arr_masters;
+	}
+	
+	public Hashtable<String, Master> getMasters() { return masters; }
 	
 	/** 
 	 * Methods that implement ComboBoxModel functionality 
@@ -184,17 +250,6 @@ public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 	public Object getSelectedItem() { return selected; }
 	public void setSelectedItem(Object item) { selected = (Master) item; }
 
-	public void addElement(Master item)
-	{
-		System.out.println("BLAH");
-		try {addMaster((Master) item);} catch (Exception e) {};
-	}
-	
-	public void insertElementAt(Master item, int idx)
-	{
-		System.out.println("BLAH2");
-		try {addMaster((Master) item);} catch (Exception e) {};
-	}
 	/** End ComboBoxModel methods */
 	
 	/** Methods that implement TreeNode functionality
@@ -214,18 +269,6 @@ public class MasterMap implements MutableComboBoxModel<Master>,MutableTreeNode
 	public void removeFromParent() { throw new Error("Should never happen"); }
 	public void setParent(MutableTreeNode arg0) { throw new Error("Should never happen"); }
 	public void setUserObject(Object arg0) { throw new Error("Should never happen"); }
-
-	@Override
-	public void removeElement(Object arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeElementAt(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	/** End TreeNode methods */	
 }

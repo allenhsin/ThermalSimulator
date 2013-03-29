@@ -5,12 +5,6 @@ import temperature.*;
 
 import java.awt.Dimension;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Color;
-
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -21,7 +15,6 @@ import java.util.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.MouseInputAdapter;
 
 /**
  * A render panel holds the floorplan render and some other knobs associated
@@ -45,11 +38,6 @@ public class RenderPanel extends JPanel implements ChangeListener
 	// Remember the mapping between a master and the temperature trace
 	private HashMap<Master, TemperatureTrace> temp_trace_map;
 	
-	// Mouse listener
-	private RenderMouse mouse;
-	// Keyboard listener
-	private RenderKeyboard keyboard;
-
 	public RenderPanel (Dimension image_size) 
 	{
 		super ();		
@@ -59,8 +47,9 @@ public class RenderPanel extends JPanel implements ChangeListener
 		temp_trace_map = new HashMap<Master, TemperatureTrace>();
 		
 		render = new FloorplanRender (image_size);
-		mouse = new RenderMouse(this);
-		keyboard = new RenderKeyboard(this);
+		// Create mouse and keyboard listeners
+		new RenderMouse(this);
+		new RenderKeyboard(this);
 		
 		add(render, BorderLayout.CENTER);
 		createTimeSliderPanel();
@@ -93,20 +82,22 @@ public class RenderPanel extends JPanel implements ChangeListener
 	/**
 	 * Set the master instance to view
 	 */
-	public void setView(MasterInst master_inst)
+	public void setView(Master master)
 	{
 		// Tell the render to load the floorplan
-		render.setRenderTarget(master_inst);
-
-		// Update render name text
-		render_name_text.setText(master_inst.m.getName());
-		
-		// Add to hash map a value for the temperature trace for this floorplan,
-		// if it does not exist yet
-		if (!temp_trace_map.containsKey(master_inst.m))
-			temp_trace_map.put(master_inst.m, null);
-		setTempTrace(temp_trace_map.get(master_inst.m));
-		
+		render.setRenderTarget(master);
+		// If we are setting a non-null master
+		if (master != null)
+		{
+			// Update render name text
+			render_name_text.setText(master.getName());
+			// Add to hash map a value for the temperature trace for this floorplan,
+			// if it does not exist yet
+			if (!temp_trace_map.containsKey(master))
+				temp_trace_map.put(master, null);
+			setTempTrace(temp_trace_map.get(master));
+		}
+		else render_name_text.setText("Not viewing any masters");
 	}
 	
 	public void setTempTrace(TemperatureTrace trace)
