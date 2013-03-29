@@ -43,7 +43,8 @@ namespace Thermal
     {
         map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
 
-        assert(data_temperature.size() == (unsigned int) _floorplan_holder->_n_units);
+        if(data_temperature.size() != (unsigned int) _floorplan_holder->_n_units)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: mismatch between size of temperature data and number of floorplan blocks.\n");
         
         // put temperature back to the data structure
         // (only the silicon layer units)

@@ -1,0 +1,65 @@
+
+// This is an example file of netlist defining the connectivity
+// of devices on an optical link. Primitive devices include the
+// optical ring modulator, ring filter, receiver, laser source, 
+// optical net, etc. Default device properties and parameters 
+// are specified in the physical config file, but can be over-
+// written in the netlist when declaring instances of the device.
+// Modules can be built from primitive device type and bigger
+// modules can be built upon modules
+
+// This is how to include modules from other files. The file path 
+// is relative to the path of the current file.
+`include "relative/path/to/file.netlist"
+
+// Basic devices like rings and optical nets can be instantiated 
+// as follows:
+//
+//     DEVICE_TYPE INSTANCE_NAME #(PARAMETER_LIST) (PORT_CONNECTIVITY_LIST);
+//
+// The parameter list can be omitted if no parameters are being 
+// changed. Only the parameters defined in the config file for
+// that specific type of device can be overwritten. 
+// When connecting the ports of the device or module, please
+// follow the format ".port_name(net_name)" with comma separation.
+// The same format applies to the parameter list.
+// 
+// Net name doesn't need to be declared, and it's possible to 
+// declare bus net using square bracket.
+
+module ModulatorBank8x (bank_in, bank_out, drop[0:7], add[0:7]);
+
+    RingModulator ring_mod[0] #(.q_factor(100e3)) ( .in(bank_in), .thru(net[0]),   .drop(drop[0]), .add(add[0]) );
+    RingModulator ring_mod[1] #(.q_factor(100e3)) ( .in(net[0]),  .thru(net[1]),   .drop(drop[1]), .add(add[1]) );
+    RingModulator ring_mod[2] #(.q_factor(100e3)) ( .in(net[1]),  .thru(net[2]),   .drop(drop[2]), .add(add[2]) );
+    RingModulator ring_mod[3] #(.q_factor(100e3)) ( .in(net[2]),  .thru(net[3]),   .drop(drop[3]), .add(add[3]) );
+    RingModulator ring_mod[4] #(.q_factor(100e3)) ( .in(net[3]),  .thru(net[4]),   .drop(drop[4]), .add(add[4]) );
+    RingModulator ring_mod[5] #(.q_factor(100e3)) ( .in(net[4]),  .thru(net[5]),   .drop(drop[5]), .add(add[5]) );
+    RingModulator ring_mod[6] #(.q_factor(100e3)) ( .in(net[5]),  .thru(net[6]),   .drop(drop[6]), .add(add[6]) );
+    RingModulator ring_mod[7] #(.q_factor(100e3)) ( .in(net[6]),  .thru(bank_out), .drop(drop[7]), .add(add[7]) );
+
+endmodule
+
+module DetectorBank8x (bank_in, bank_out, drop[0:7], add[0:7]);
+
+    RingResonator ring_det[0] ( .in(bank_in), .thru(net[0]),   .drop(drop[0]), .add(add[0]) );
+    RingResonator ring_det[1] ( .in(net[0]),  .thru(net[1]),   .drop(drop[1]), .add(add[1]) );
+    RingResonator ring_det[2] ( .in(net[1]),  .thru(net[2]),   .drop(drop[2]), .add(add[2]) );
+    RingResonator ring_det[3] ( .in(net[2]),  .thru(net[3]),   .drop(drop[3]), .add(add[3]) );
+    RingResonator ring_det[4] ( .in(net[3]),  .thru(net[4]),   .drop(drop[4]), .add(add[4]) );
+    RingResonator ring_det[5] ( .in(net[4]),  .thru(net[5]),   .drop(drop[5]), .add(add[5]) );
+    RingResonator ring_det[6] ( .in(net[5]),  .thru(net[6]),   .drop(drop[6]), .add(add[6]) );
+    RingResonator ring_det[7] ( .in(net[6]),  .thru(bank_out), .drop(drop[7]), .add(add[7]) );
+
+endmodule
+
+module OpticalLink();
+
+    LaserSource     laser_source    (.out(net[0]));
+
+    ModulatorBank8x mod_bank        (.bank_in(net[0]), .bank_out(net[1]), .drop[0:7](), .add[0:7]());
+    LossyOpticalNet onet            (.in(net[1]), .out(net[2]));
+    DetectorBank8x  det_bank        (.bank_in(net[2]), .bank_out(), .drop[0:7](), .add[0:7]());
+
+endmodule
+
