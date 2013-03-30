@@ -96,7 +96,8 @@ public class FloorplanParser
 						AtomicCommand c = new AtomicCommand(cmd);
 						if (cur_master == null)
 							throw new Exception("Instances may only be added inside of a floorplan.");
-						cur_master.addMasterInst(new Master(c.w, c.h), c.name, c.x, c.y);
+						if (!cur_master.addMasterInst(new Master(c.w, c.h), c.name, c.x, c.y))
+							throw new Exception("Instance '" + c.name + "' has a duplicate instance name");
 					}
 					// Non-atomic instantiation
 					else
@@ -104,7 +105,8 @@ public class FloorplanParser
 						InstanceCommand c = new InstanceCommand(cmd);
 						if (!masters.hasMaster(c.master_name))
 							throw new Exception("Undefined floorplan master: " + c.master_name);
-						cur_master.addMasterInst(masters.getMaster(c.master_name), c.name, c.x, c.y);						
+						if(!cur_master.addMasterInst(masters.getMaster(c.master_name), c.name, c.x, c.y))						
+							throw new Exception("Instance '" + c.name + "' has a duplicate instance name");
 					}
 				}
 				catch (Exception e)

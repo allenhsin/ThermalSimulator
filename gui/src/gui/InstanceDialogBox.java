@@ -55,13 +55,18 @@ public class InstanceDialogBox extends JDialog
 	// Masters
 	private MasterMap masters;
 	
+	// Current master
+	private Master cur_master;
+	
 	// New instances to return
 	private Vector<MasterInst> new_insts;
 		
-	private InstanceDialogBox(JFrame frame, JComponent location_comp, MasterMap masters) 
+	private InstanceDialogBox(JFrame frame, JComponent location_comp, MasterMap masters, Master cur_master) 
 	{
 		super(frame, "New Instance", true);
-
+		
+		new_insts = new Vector<MasterInst>();
+		
 		this.masters = masters;
 
 		layoutGUI();
@@ -354,7 +359,7 @@ public class InstanceDialogBox extends JDialog
 		if (!checkInputs())
 			return false;
 		
-		new_insts = new Vector<MasterInst>();
+		new_insts.clear();
 		if(check_array.isSelected())
 		{
 			int num_x = Integer.parseInt(text_num_x.getText());
@@ -404,15 +409,15 @@ public class InstanceDialogBox extends JDialog
 		double y = Double.parseDouble(text_y_position.getText()) + y_offset;
 		
 		// Create the new instance
-		new_insts.add(new MasterInst(new_inst_master, inst_name, x, y));
+		new_insts.add(new MasterInst(cur_master, new_inst_master, inst_name, x, y));
 	}
 	
 	/**
 	 * Show the dialog and returns a vector of the new instances to add
 	 */
-	public static Vector<MasterInst> showDialog(JFrame frame, JComponent location_comp, MasterMap masters)
+	public static Vector<MasterInst> showDialog(JFrame frame, JComponent location_comp, MasterMap masters, Master cur_master)
 	{
-		InstanceDialogBox dialog = new InstanceDialogBox(frame, location_comp, masters);
+		InstanceDialogBox dialog = new InstanceDialogBox(frame, location_comp, masters, cur_master);
 		return dialog.getNewInsts();
 	}
 	
@@ -490,6 +495,8 @@ class InstanceDialogButtonListener extends EventsHelper<InstanceDialogBox> imple
 	{
 		if (e.getActionCommand().equals("Ok"))
 			owner.setVisible(!owner.createInstances());
+		else if (e.getActionCommand().equals("Cancel"))
+			owner.setVisible(false);
 	}
 	
 }

@@ -11,15 +11,18 @@ import javax.swing.tree.TreeNode;
  */
 public class MasterInst implements MutableTreeNode
 {
-	// Instance of the master
+	// Parent master of this instance
+	public Master parent;
+	// This is an instance of the master
 	public Master m;
 	// Instance name
 	public String n;
 	// Instance location (x, y)
 	public double x, y;
 	
-	public MasterInst(Master m, String n, double x, double y)
+	public MasterInst(Master parent, Master m, String n, double x, double y)
 	{
+		this.parent = parent;
 		this.m = m;
 		this.n = n;
 		this.x = x;

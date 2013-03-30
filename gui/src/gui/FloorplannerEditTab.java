@@ -379,10 +379,13 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		// get the selected instance
 		MasterInst edit_master_inst = selected.get(sel_index);
 
-		// Edit the instantiation
+		// Edit the instantiation coordinates
 		edit_master_inst.x = Double.parseDouble(text_x_position.getText());
 		edit_master_inst.y = Double.parseDouble(text_y_position.getText());
-		edit_master_inst.n = text_instance_name.getText();
+		
+		// Edit the instance name (if ncessary)
+		if (!edit_master_inst.n.equals(text_instance_name.getText()))
+			edit_master_inst.parent.renameMaster(edit_master_inst.n, text_instance_name.getText());
 		
 		// If atomic is selected, make the thing a new atomic!
 		if (check_atomic.isSelected())

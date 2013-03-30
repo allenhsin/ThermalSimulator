@@ -48,31 +48,58 @@ public class Master implements Comparable<Master>
 	}
 	
 	/**
-	 * Add an instance
+	 * Add an instance, returns whether it was successful
 	 */
-	public void addMasterInst(MasterInst sub_inst)
+	public boolean addMasterInst(MasterInst sub_inst)
 	{
+		// Unsuccessful if key already exists
+		if (master_map.containsKey(sub_inst.n))
+			return false;
+		// Otherwise, add the instance
 		master_insts.add(sub_inst);
 		master_map.put(sub_inst.n, sub_inst);
+		return true;
 	}
 	
-	public void addMasterInst(Master sub_master, String inst_name, double x, double y)
+	public boolean addMasterInst(Master sub_master, String inst_name, double x, double y)
 	{
-		addMasterInst(new MasterInst(sub_master, inst_name, x, y));
+		return addMasterInst(new MasterInst(this, sub_master, inst_name, x, y));
 	}
 
 	/**
-	 * Delete an instance
+	 * Delete an instance, returns whether it was successful
 	 */
-	public void deleteMasterInst(MasterInst sub_inst)
+	public boolean deleteMasterInst(MasterInst sub_inst)
 	{
+		// Unsuccessful if key does not exist
+		if (!master_map.containsKey(sub_inst.n))
+			return false;
+		// Otherwise, delete the instance
 		master_insts.remove(sub_inst);
 		master_map.remove(sub_inst);
+		return true;
 	}
 	
-	public void deleteMasterInst(String name)
+	public boolean deleteMasterInst(String name)
 	{
-		deleteMasterInst(master_map.get(name));
+		return deleteMasterInst(master_map.get(name));
+	}
+	
+	/**
+	 * Renames a master
+	 */
+	public boolean renameMaster(String old_name, String new_name)
+	{
+		// Unsuccessful if old name does not exist, or new name exists
+		if (!master_map.containsKey(old_name) || master_map.containsKey(new_name))
+			return false;
+		
+		MasterInst inst = master_map.get(old_name);
+		inst.n = new_name;		
+		// Update master map
+		master_map.remove(old_name);
+		master_map.put(new_name, inst);
+		return true;
 	}
 	
 	public String toString()

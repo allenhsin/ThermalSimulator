@@ -100,7 +100,7 @@ public class MasterMap
 			throw new Exception("Duplicate master: " + m.getName());
 
 		// Create new library instance and let the master know about it
-		MasterInst lib_instance = new MasterInst(m, "(Lib)", 0.0, 0.0);
+		MasterInst lib_instance = new MasterInst(null, m, "(Lib)", 0.0, 0.0);
 		m.setLibInstance(lib_instance);
 		// Add the master and lib instance
 		masters.put(m.getName(), m);		

@@ -45,6 +45,8 @@ public class ViewPanel extends JPanel
 	private JComboBox masters_box;
 	// Master control buttons
 	private JButton button_new, button_rename, button_delete;
+	// Instance control buttons
+	private JButton button_new_instance, button_delete_instance;
 	
 	public ViewPanel(Floorplanner gui)
 	{
@@ -112,8 +114,8 @@ public class ViewPanel extends JPanel
 		
 		InstanceButtonListener inst_button_listener = new InstanceButtonListener(this);
 		
-		JButton button_new_instance = new JButton("New Instance...");
-		JButton button_delete_instance = new JButton("Delete");
+		button_new_instance = new JButton("New Instance...");
+		button_delete_instance = new JButton("Delete");
 
 		button_new_instance.addActionListener(inst_button_listener);
 		button_delete_instance.addActionListener(inst_button_listener);
@@ -145,9 +147,17 @@ public class ViewPanel extends JPanel
 	{
 		objects_table.setModel(new InstanceTableModel(new_master));
 		if (new_master == null)
+		{
+			button_new_instance.setEnabled(false);
+			button_delete_instance.setEnabled(false);
 			hier_tree.setModel(new DefaultTreeModel(null));
+		}
 		else
+		{
 			hier_tree.setModel(new DefaultTreeModel(new_master.getLibInstance()));
+			button_new_instance.setEnabled(true);
+			button_delete_instance.setEnabled(true);
+		}
 	}
 	
 	public Floorplanner getGUI() { return gui; }
@@ -168,44 +178,54 @@ class InstanceButtonListener extends EventsHelper<ViewPanel> implements ActionLi
 
 	public void actionPerformed(ActionEvent e) 
 	{
-		// Any changes causes temperature traces to be cleared
-		owner.getGUI().getRenderPanel().unloadTempTraces();		
-
 		Master cur_master = owner.getGUI().getCurMaster();
-		try
+		if (e.getActionCommand() == "New Instance...")
 		{
-			if (e.getActionCommand() == "New Instance...")
+			Vector<MasterInst> new_insts = InstanceDialogBox.showDialog(owner.getGUI(),
+					owner, owner.getGUI().getMasters(), owner.getGUI().getCurMaster());
+			
+			// Add and check to see if the additions succeeded
+			boolean add_success = true;
+			for (int i = 0; i < new_insts.size(); ++i)
+				add_success &= cur_master.addMasterInst(new_insts.get(i));
+			
+			// Warn the user
+			if(!add_success)
+			{				
+				JOptionPane.showMessageDialog(owner.getGUI(), "Some instance(s) were not added: new instance(s) had instance name conflicts!",
+						"Warning", JOptionPane.WARNING_MESSAGE);
+			}
+			
+			// Check for recursive floorplans
+			if (owner.getGUI().getMasters().hasRecursiveMasters(cur_master))
 			{
-				Vector<MasterInst> new_insts = InstanceDialogBox.showDialog(owner.getGUI(), owner, owner.getGUI().getMasters());
+				// If there are recursive floorplans, undo adds and throw exception
 				for (int i = 0; i < new_insts.size(); ++i)
-					cur_master.addMasterInst(new_insts.get(i));
-				// Check for recursive floorplans
-				if (owner.getGUI().getMasters().hasRecursiveMasters(cur_master))
-				{
-					// If there are recursive floorplans, undo adds and throw exception
-					for (int i = 0; i < new_insts.size(); ++i)
-						cur_master.deleteMasterInst(new_insts.get(i));
-					throw new Exception("Failed to add new instance(s): new instance(s) causes recursive floorplans!");
-				}
+					cur_master.deleteMasterInst(new_insts.get(i));
 				
+				JOptionPane.showMessageDialog(owner.getGUI(), "Failed to add new instance(s): new instance(s) causes recursive floorplans!",
+						"Operation failed", JOptionPane.WARNING_MESSAGE);
 			}
-			else if (e.getActionCommand() == "Delete")
-			{
-				JTable table = owner.getObjectsTable();
-				int[] selected_rows = table.getSelectedRows();
-				String[] selected_names = new String[selected_rows.length];
-				for (int i = 0; i < selected_rows.length; ++i)
-					selected_names[i] = (String) table.getValueAt(selected_rows[i],  0);
-				
-				for (int i = 0; i < selected_names.length; ++i)
-					cur_master.deleteMasterInst(selected_names[i]);
-			}
+			
+			// Any changes causes temperature traces to be cleared
+			if (!new_insts.isEmpty())
+				owner.getGUI().getRenderPanel().unloadTempTraces();		
 		}
-		catch (Exception ex)
+		else if (e.getActionCommand() == "Delete")
 		{
-			JOptionPane.showMessageDialog(owner.getGUI(), ex.getMessage(), "Operation failed", JOptionPane.WARNING_MESSAGE);
+			JTable table = owner.getObjectsTable();
+			int[] selected_rows = table.getSelectedRows();
+			String[] selected_names = new String[selected_rows.length];
+			for (int i = 0; i < selected_rows.length; ++i)
+				selected_names[i] = (String) table.getValueAt(selected_rows[i],  0);
+			
+			for (int i = 0; i < selected_names.length; ++i)
+				cur_master.deleteMasterInst(selected_names[i]);
+
+			// Any changes causes temperature traces to be cleared
+			if (selected_names.length > 0)
+				owner.getGUI().getRenderPanel().unloadTempTraces();		
 		}
-		
 		owner.getGUI().updateView();
 	}
 }
