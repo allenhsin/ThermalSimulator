@@ -6,6 +6,7 @@
 #include "source/misc/args_parser.h"
 #include "source/misc/misc.h"
 #include "config_file.hpp"
+#include "libutil/LibUtil.h"
 
 using std::vector;
 using std::string;
@@ -111,6 +112,18 @@ namespace Thermal
         for (i=0; i < nr; i++)
             Misc::printDouble1DVector(m[i], nc, fp);
         fprintf(fp, "\n");
+    }
+
+    void Misc::isEndOfLine(int remaining_token_to_read)
+    {
+        char* token;
+
+        for(int i=0; i<remaining_token_to_read; ++i)
+            strtok(NULL, " \r\t\n");
+
+        token = strtok(NULL, " \r\t\n");
+        if(token)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unrecognized token: " + (string) token + " at end of line\n");
     }
 
 } // namespace Thermal

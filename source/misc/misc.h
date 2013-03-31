@@ -29,6 +29,7 @@ namespace Thermal
         static void printDouble1DVector(std::vector<double>& v, int n, FILE* fp);
         static void printDouble2DVector(std::vector< std::vector<double> >& m, int nr, int nc, FILE* fp);
 
+        static void isEndOfLine(int remaining_token_to_read);
     }; // class Misc
 
 } // namespace Thermal

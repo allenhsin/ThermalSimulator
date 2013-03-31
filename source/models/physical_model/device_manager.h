@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-#include "source/models/physical_model/device_model/device_model.h"
+#include "source/models/physical_model/device_models/device_model.h"
 
 namespace Thermal
 {

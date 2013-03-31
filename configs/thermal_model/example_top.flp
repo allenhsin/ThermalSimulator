@@ -1,5 +1,6 @@
 
 # This is a comment line
+# Does not support inline comment
 
 # Include sub-floorplan objects from other files
 # that can be instantiated. The path is relative

@@ -10,6 +10,8 @@ namespace Thermal
     class Model
     {
     public:
+        virtual ~Model();
+
         static Model* createModel(int model_type);
 
         virtual void startup() = 0;
@@ -18,7 +20,6 @@ namespace Thermal
     protected:
         // Child classes must call this constructor
         Model();
-        virtual ~Model();
 
         double _last_execute_time;
 

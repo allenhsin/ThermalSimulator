@@ -10,6 +10,7 @@
 #include "source/models/thermal_model/thermal_constants.h"
 #include "source/models/thermal_model/thermal_util.h"
 #include "source/models/thermal_model/floorplan.h"
+#include "source/misc/misc.h"
 #include "libutil/LibUtil.h"
 
 using std::vector;
@@ -111,6 +112,8 @@ namespace Thermal
                     LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid init temp file format.\n");
                 idx = Floorplan::getUnitIndexFromName(_floorplan_holder, name);
                 _temperature[idx + layer*_floorplan_holder->_n_units] = val;
+            
+                Misc::isEndOfLine(1);
             }
         }
     
@@ -134,12 +137,23 @@ namespace Thermal
             if (strcmp(str1, name))
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid init temp file format.\n");
             _temperature[i+NL*_floorplan_holder->_n_units] = val;  
+
+            Misc::isEndOfLine(1);
         }
-    
-        fgets(str1, LINE_SIZE, fp);
-        if (!feof(fp))
+        
+        while(!feof(fp))
+        {
+            fgets(str1, LINE_SIZE, fp);
+            if (feof(fp))
+                break;
+            
+            ptr = strtok(str1, " \r\t\n");
+            if (!ptr || ptr[0] == '#') 
+                continue;
+            else
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: too many lines in init temp file.\n");
-                
+        }
+
         fclose(fp); 
     } // readInitTemperatureFromFile
     

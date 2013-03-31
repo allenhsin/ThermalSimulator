@@ -14,6 +14,8 @@ namespace Thermal
     class DeviceModel
     {
     public:
+        virtual ~DeviceModel();
+
         static DeviceModel* createDevice(int device_type, DeviceFloorplanMap* device_floorplan_map);
 
         void setDeviceFloorplanMap(DeviceFloorplanMap* device_floorplan_map)
@@ -43,7 +45,6 @@ namespace Thermal
     protected:
         // derived child classes must call this constructor
         DeviceModel(DeviceFloorplanMap* device_floorplan_map);
-        virtual ~DeviceModel();
 
         std::string _instance_name;
         std::string _floorplan_unit_name;

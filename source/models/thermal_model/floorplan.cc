@@ -220,18 +220,6 @@ namespace Thermal
             temperature[ _floorplan_holder->_flp_units[i]._name ] = 0;
     }
 
-    void isEndOfLine(int remaining_token_to_read)
-    {
-        char* token;
-
-        for(int i=0; i<remaining_token_to_read; ++i)
-            strtok(NULL, " \r\t\n");
-
-        token = strtok(NULL, " \r\t\n");
-        if(token)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unrecognized token: " + (string) token + " at end of line\n");
-    }
-
     void Floorplan::parseFloorplanFile(string flp_file, string top_flp_object_name)
     {
         char    line[LINE_SIZE];
@@ -278,7 +266,7 @@ namespace Thermal
                 new_file_path = flp_file.substr(0, (flp_file.find_last_of("/\\")+1) ) + ((string) line_token);
 
                 parseFloorplanFile( new_file_path, top_flp_object_name );
-                isEndOfLine(0);
+                Misc::isEndOfLine(0);
             }
             // read a sub-floorplan object when keyword "floorplan" is read
             else if (!strcmp(line_token, "floorplan"))
@@ -292,7 +280,7 @@ namespace Thermal
                 // check if there are duplicated floorplan objs names
                 if(_floorplan_objects.count( (string) flp_obj_name ))
                     LibUtil::Log::printFatalLine(std::cerr, "\nERROR: duplicated floorplan object names: " + (string)flp_obj_name + " \n");
-                isEndOfLine(0);
+                Misc::isEndOfLine(0);
 
                 // read floorplan blocks in this object
                 while(!feof(fp))
@@ -310,7 +298,7 @@ namespace Thermal
                     // exit floorplan object definition
                     else if (!strcmp(line_token, "endfloorplan"))
                     {
-                        isEndOfLine(0);
+                        Misc::isEndOfLine(0);
                         break;
                     }
                     // atomic blocks
@@ -329,7 +317,7 @@ namespace Thermal
                         
                         // push atomic block into current object
                         _floorplan_objects[(string) flp_obj_name].push_back(floorplan_unit);
-                        isEndOfLine(5);
+                        Misc::isEndOfLine(5);
                     }
                     // instantiate floorplan object
                     else
@@ -353,7 +341,7 @@ namespace Thermal
                             // push hierarchy block into current object
                             _floorplan_objects[(string) flp_obj_name].push_back(floorplan_unit);
                         }
-                        isEndOfLine(3);
+                        Misc::isEndOfLine(3);
                     }
                 }
                 

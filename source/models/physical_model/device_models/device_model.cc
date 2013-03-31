@@ -1,19 +1,21 @@
 
 #include <cassert>
+#include <stddef.h>
 
 #include "source/models/physical_model/device_models/device_model.h"
 #include "libutil/LibUtil.h"
 
 using std::string;
+using LibUtil::String;
 
 namespace Thermal
 {
     DeviceModel::DeviceModel(DeviceFloorplanMap* device_floorplan_map)
-        : _instance_name            (NULL)
-        , _floorplan_unit_name      (NULL)
+        : _instance_name            ("")
+        , _floorplan_unit_name      ("")
         , _device_floorplan_map     (device_floorplan_map)
-        , _target_parameter_name    (NULL)
-        , _target_port_name         (NULL)
+        , _target_parameter_name    ("")
+        , _target_port_name         ("")
     {
         _device_parameters.clear();
         _device_port_connections.clear();
@@ -50,8 +52,8 @@ namespace Thermal
     void DeviceModel::setDeviceInstanceAndFloorplanUnitName(std::string instance_name)
     {
         assert(_device_floorplan_map);
-        _instnace_name          = instance_name;
-        _floorplan_unit_name    = _device_floorplan_map->getFloorplanUnitName(instnace_name);
+        _instance_name          = instance_name;
+        _floorplan_unit_name    = _device_floorplan_map->getFloorplanUnitNameFromInstanceName(instance_name);
     }
 
     bool DeviceModel::hasParameter(string parameter_name)
@@ -66,7 +68,7 @@ namespace Thermal
 
     void DeviceModel::setTargetParameterValue(double parameter_value)
     {
-        assert(_target_parameter_name);
+        assert(_target_parameter_name != "");
         _device_parameters[_target_parameter_name] = parameter_value;
     }
 
@@ -82,7 +84,7 @@ namespace Thermal
 
     void DeviceModel::setTargetPortConnectedDevice(DeviceModel* device)
     {
-        assert(_target_port_name);
+        assert(_target_port_name != "");
         _device_port_connections[_target_port_name] = device;
     }
 

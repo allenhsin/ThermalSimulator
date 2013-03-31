@@ -77,7 +77,7 @@ namespace Thermal
         // Models
         for (int i=0; i<NUM_MODEL_TYPES; ++i)
         {
-            _model[i] = Model::createModel(i, _event_scheduler, _data);
+            _model[i] = Model::createModel(i);
             _event_scheduler->setModel(i, _model[i]);
         }
 
