@@ -6,11 +6,10 @@ namespace Thermal
 {
     // primitive device types that are
     // used to build optical links
-    enum ModelType
+    enum DeviceType
     {   
         RING_MODULATOR,
-        RING_FILTER,
-        RING_RECEIVER,
+        RING_RESONATOR,
         LASER_SOURCE,
         LOSSY_OPTICAL_NET,
         NUM_DEVICE_TYPES

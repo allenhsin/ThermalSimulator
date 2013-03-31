@@ -4,6 +4,5 @@
 
 #include "source/misc/common_constants.h"
 
-#define MAX_FLP_UNITS   8192
 
 #endif // __THERMAL_PHYSICAL_CONSTANTS_H__

@@ -5,8 +5,8 @@
 namespace Thermal
 {
     // Model types, listed in prioritized order
-    // i.e. The order to run when scheduled to be
-    // executed at the same time.
+    // i.e. The execution order if scheduled at 
+    // the same time.
     enum ModelType
     {   
         //PERFORMANCE_MODEL = 0,

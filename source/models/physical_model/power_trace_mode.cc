@@ -42,13 +42,11 @@ namespace Thermal
         
         assert(_ptrace_flp_units_names.size()==0);
         assert(_ptrace_flp_units_power.size()==0);
-        _ptrace_flp_units_names.resize(MAX_FLP_UNITS);
 
         _ptrace_file = fopen(getPhysicalConfig()->getString("env_setup/ptrace_file").c_str(), "r");
         if (!_ptrace_file) 
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open ptrace file.\n");
 
-        // skip empty lines
         do 
         {
             // read the entire line
@@ -57,27 +55,25 @@ namespace Thermal
                 LibUtil::Log::printFatalLine(std::cerr, "ERROR: no flp names in power trace file");
             strcpy(temp, line);
             src = strtok(temp, " \r\t\n");
+        // skip empty lines
         } while (!src);
     
-        // new line not read yet
+        // if the ptrace name line is too long
         if(line[strlen(line)-1] != '\n')
             LibUtil::Log::printFatalLine(std::cerr, "ERROR: ptrace flp name line too long");
     
         // chop the names from the line read
-        for(i=0,src=line; *src && i < MAX_FLP_UNITS; i++) 
+        for(i=0,src=line; *src; i++) 
         {
             if(!sscanf(src, "%s", name))
                 LibUtil::Log::printFatalLine(std::cerr, "ERROR: invalid flp names format in ptrace file");
             src += strlen(name);
-            _ptrace_flp_units_names[i] = (string) name;
+            _ptrace_flp_units_names.push_back( (string) name );
             while (isspace((int)*src))
                 src++;
         }
-
-        if(*src && i == MAX_FLP_UNITS)
-            LibUtil::Log::printFatalLine(std::cerr, "ERROR: number of units exceeds limit");
-        
-        _ptrace_flp_units_names.resize(i);
+       
+        assert(_ptrace_flp_units_names.size()== (unsigned int) i);
         _ptrace_flp_units_power.resize(i);
         _n_ptrace_flp_units = i;
     } // readFloorplanUnitNamesFromPtrace

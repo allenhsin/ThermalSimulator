@@ -10,10 +10,6 @@ namespace Thermal
     class Model
     {
     public:
-        // Child classes must call this constructor
-        Model(EventScheduler* event_scheduler, Data* data);
-        virtual ~Model();
-
         static Model* createModel(int model_type, EventScheduler* event_scheduler, Data* data);
         void setEventScheduler(EventScheduler* event_scheduler);
         void setData(Data* data);
@@ -25,6 +21,10 @@ namespace Thermal
         virtual void execute(double scheduled_time) = 0;
 
     protected:
+        // Child classes must call this constructor
+        Model(EventScheduler* event_scheduler, Data* data);
+        virtual ~Model();
+
         Data* _data;
         EventScheduler* _event_scheduler;
 

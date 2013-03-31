@@ -7,6 +7,7 @@ DIRS_TO_SOURCE  := source \
                    source/models \
                    source/models/thermal_model \
                    source/models/physical_model \
+                   source/models/physical_model/device_models \
                    include/libutil
 DIRS_TO_CONFIG  := source/misc/config
 
@@ -45,10 +46,10 @@ $(TARGET): $(OBJS)
 	mkdir -p $(dir $@)
 	touch $@
 
-.phony: clean clean-results
+.phony: clean clean_results
 clean:
 	$(RM) -rf $(OBJS) $(TARGET)
 
-clean-results:
+clean_results:
 	$(RM) -rf results/*.out results/*.log
 

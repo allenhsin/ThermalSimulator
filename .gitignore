@@ -22,7 +22,8 @@
 *.out
 
 # vim swap file
-*.swp
+.*.swp
+.*.swo
 
 # eclipse project files
 .project
