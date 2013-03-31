@@ -17,7 +17,7 @@ namespace Thermal
     class PhysicalModel : public Model
     {
     public:
-        PhysicalModel(EventScheduler* event_scheduler, Data* data);
+        PhysicalModel();
         ~PhysicalModel();
 
         void startup();

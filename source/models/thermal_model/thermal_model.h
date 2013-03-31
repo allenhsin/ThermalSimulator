@@ -19,7 +19,7 @@ namespace Thermal
     class ThermalModel : public Model
     {
     public:
-        ThermalModel(EventScheduler* event_scheduler, Data* data);
+        ThermalModel();
         ~ThermalModel();
         
         void startup();

@@ -7,13 +7,17 @@
 #include <vector>
 
 #include "source/models/physical_model/device_models/device_type.h"
+#include "source/models/physical_model/device_floorplan_map.h"
 
 namespace Thermal
 {
     class DeviceModel
     {
     public:
-        static DeviceModel* createDevice(int device_type);
+        static DeviceModel* createDevice(int device_type, DeviceFloorplanMap* device_floorplan_map);
+
+        void setDeviceFloorplanMap(DeviceFloorplanMap* device_floorplan_map)
+        { _device_floorplan_map = device_floorplan_map; }
 
         // load parameters into _device_parameters for specific device
         virtual void loadDeviceParameters() = 0;
@@ -31,18 +35,27 @@ namespace Thermal
         bool hasPort(std::string port_name);
         void setTargetPortName(std::string port_name);
         void setTargetPortConnectedDevice(DeviceModel* device);
+        
+        void setDeviceInstanceAndFloorplanUnitName(std::string instance_name);
+        std::string getInstanceName(){ return _instance_name; }
+        std::string getFloorplanUnitName(){ return _floorplan_unit_name; }
 
     protected:
         // derived child classes must call this constructor
-        DeviceModel();
+        DeviceModel(DeviceFloorplanMap* device_floorplan_map);
         virtual ~DeviceModel();
+
+        std::string _instance_name;
+        std::string _floorplan_unit_name;
         
         // parameter_name -> parameter_value
         std::map<std::string, double>       _device_parameters;
         // port_name -> connected_device_pointer
-        srd::map<std::string, DeviceModel*> _device_port_connections;
+        std::map<std::string, DeviceModel*> _device_port_connections;
 
     private:
+        DeviceFloorplanMap* _device_floorplan_map;
+
         std::string _target_parameter_name;
         std::string _target_port_name;
 

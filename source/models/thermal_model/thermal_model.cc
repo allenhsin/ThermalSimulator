@@ -21,8 +21,8 @@ using std::string;
 
 namespace Thermal
 {
-    ThermalModel::ThermalModel(EventScheduler* event_scheduler, Data* data)
-        : Model(event_scheduler, data)
+    ThermalModel::ThermalModel()
+        : Model()
         , _thermal_config       (NULL)
         , _package              (new Package())
         , _floorplan            (new Floorplan())

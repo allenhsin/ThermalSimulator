@@ -11,22 +11,15 @@ using LibUtil::String;
 
 namespace Thermal
 {
-    Model::Model(EventScheduler* event_scheduler, Data* data)
-        : _data                 (data)
-        , _event_scheduler      (event_scheduler)
-        , _last_execute_time    (0)
+    Model::Model()
+        : _last_execute_time    (0)
     {}
 
     Model::~Model()
-    {
-        // there's no need to free the memory because the
-        // simulator will do that in the end.
-        _event_scheduler = NULL;
-        _data = NULL;
-    }
+    {}
 
     Model*
-    Model::createModel(int model_type, EventScheduler* event_scheduler, Data* data)
+    Model::createModel(int model_type)
     {
         switch (model_type)
         {
@@ -34,10 +27,10 @@ namespace Thermal
         //    return NULL;
 
         case PHYSICAL_MODEL:
-            return new PhysicalModel(event_scheduler, data);
+            return new PhysicalModel();
 
         case THERMAL_MODEL:
-            return new ThermalModel(event_scheduler, data);
+            return new ThermalModel();
 
         //case EVALUATION_MODEL:
         //    return NULL;
@@ -47,13 +40,5 @@ namespace Thermal
             return NULL;
         }
     }
-
-    void Model::setEventScheduler(EventScheduler* event_scheduler)
-    { _event_scheduler = event_scheduler; }
-
-    void Model::setData(Data* data)
-    { _data = data; }
-
-
 
 } // namespace Thermal

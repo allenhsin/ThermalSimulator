@@ -20,8 +20,8 @@ using std::string;
 
 namespace Thermal
 {
-    PhysicalModel::PhysicalModel(EventScheduler* event_scheduler, Data* data)
-        : Model(event_scheduler, data)
+    PhysicalModel::PhysicalModel()
+        : Model()
         , _physical_config          (NULL)
         , _power_trace_mode         (new PowerTraceMode())
         , _ready_to_execute         (false)
