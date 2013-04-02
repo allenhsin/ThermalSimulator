@@ -126,6 +126,18 @@ namespace Thermal
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unrecognized token: " + (string) token + " at end of line\n");
     }
 
+    void Misc::isEndOfLineWithEqual(int remaining_token_to_read)
+    {
+        char* token;
+
+        for(int i=0; i<remaining_token_to_read; ++i)
+            strtok(NULL, "= \r\t\n");
+
+        token = strtok(NULL, " \r\t\n");
+        if(token)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unrecognized token: " + (string) token + " at end of line\n");
+    }
+
 } // namespace Thermal
 
 

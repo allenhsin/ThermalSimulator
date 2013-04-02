@@ -1,0 +1,20 @@
+# gated data-dependent laser
+
+# The name of ports the device has
+[port]
+    out
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+    # P_Laser/P_Electrical
+    efficiency                  = 0.25      
+    # Laser diode loss
+    laser_diode_loss            = 1.00      
+    area                        = 200e-12
+
+# Properties are not editable through the netlist
+# and are only computed in the model.
+[property]
+    out_power
+

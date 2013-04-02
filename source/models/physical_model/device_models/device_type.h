@@ -8,10 +8,13 @@ namespace Thermal
     // used to build optical links
     enum DeviceType
     {   
-        RING_MODULATOR,
-        RING_RESONATOR,
-        LASER_SOURCE,
+        RESONANT_RING,
+        RESONANT_RING_MODULATOR,
         LOSSY_OPTICAL_NET,
+        LASER_SOURCE_OFF_CHIP,
+        LASER_SOURCE_ON_CHIP,
+        PHOTODETECTOR,
+        RECEIVER,
         NUM_DEVICE_TYPES
     };
 

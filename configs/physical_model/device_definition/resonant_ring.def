@@ -1,0 +1,50 @@
+
+# The name of ports the device has
+[port]
+    in
+    out
+    add
+    thru
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+    # m2
+    area                            = 100e-12   
+    # Resonant wavelength range
+    lambda                          = 1300e-9   
+    # Group index
+    group_index                     = 4         
+    # Bend radius of the ring
+    radius                          = 3e-6      
+    # Confinement factor
+    confinement_factor              = 0.3       
+    # [dB]
+    through_loss                    = 0.01     	
+    # [dB]
+    drop_loss                       = 1.0       
+    # quality factor
+    q_factor                        = 150e3     
+    # Ring heating efficiency [K/W]
+    heating_efficiency              = 100000    
+    # Ring tuning efficiency [Hz/K]
+    tuning_efficiency               = 10e9      
+    # Ring resonance frequency local mismatch sigma [Hz]
+    local_variation_sigma           = 40e9      
+    # Ring resonance frequency systematic mismatch sigma [Hz]
+    systematic_variation_sigma      = 200e9     
+    # Maximum temperature that the tuning mechanism must still be able to work at [K]
+    temperature_max                 = 380       
+    # Minimum temperature that the tuning mechanism must still be able to work at [K]
+    temperature_min                 = 280       
+    # Maximum electrically tunable range when allowing for electrically assisted tuning [Hz]
+    max_electrically_tunable_freq   = 50e9      
+
+# Properties are not editable through the netlist
+# and are only computed in the model.
+[property]
+    in_power
+    out_power
+    add_power
+    thru_power
+

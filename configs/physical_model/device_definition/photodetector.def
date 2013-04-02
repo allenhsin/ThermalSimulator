@@ -1,0 +1,29 @@
+
+
+# The name of ports the device has
+[port]
+    in
+    out
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+    #(A/W)
+    responsivity                    = 1.1       
+    # m2
+    area                            = 10e-12    
+    # F
+    capacitance                     = 0         
+    # F
+    parasitic_capacitance           = 5e-15     
+    # dB
+    loss                            = 1.00      
+    # dB
+    min_extinction_ratio            = 3         
+    # avalanche gain
+    avalanche_gain                  = 1         
+
+# Properties are not editable through the netlist
+# and are only computed in the model.
+[property]
+

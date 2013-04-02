@@ -16,10 +16,14 @@ namespace Thermal
         void loadFloorplanMap(std::string floorplan_map_file);
         std::string getFloorplanUnitNameFromInstanceName(std::string instance_name);
 
+        bool isFloorplanMapLoaded(){ return _floorplan_map_loaded; }
+
     protected:
 
 
     private:
+        bool _floorplan_map_loaded;
+
         // instance_name -> floorplan_unit_name
         std::map<std::string, std::string> _floorplan_map;
 

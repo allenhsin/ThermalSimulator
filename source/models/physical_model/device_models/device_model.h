@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_floorplan_map.h"
+#include "config.hpp"
 
 namespace Thermal
 {
@@ -16,13 +16,23 @@ namespace Thermal
     public:
         virtual ~DeviceModel();
 
-        static DeviceModel* createDevice(int device_type, DeviceFloorplanMap* device_floorplan_map);
+        static DeviceModel* createDevice(int device_type, config::Config* physical_config, DeviceFloorplanMap* device_floorplan_map);
 
-        void setDeviceFloorplanMap(DeviceFloorplanMap* device_floorplan_map)
-        { _device_floorplan_map = device_floorplan_map; }
+    // ------------------------------------------------------------------------
+    // derived classes must implement these functions
+    // ------------------------------------------------------------------------
 
-        // load parameters into _device_parameters for specific device
-        virtual void loadDeviceParameters() = 0;
+        // update device properties
+        virtual void updateDeviceProperties() = 0;
+
+        // get device power consumption based on current properties and parameters
+        virtual void getDevicePower() = 0;
+
+    // ------------------------------------------------------------------------
+
+        void setDeviceDefinitionFile(std::string def_file);
+        // load port list/default parameters/properties for the specific device
+        void loadDeviceDefinition();
 
         bool hasParameter(std::string parameter_name);
         // have to separate the setting of name and value because
@@ -33,8 +43,9 @@ namespace Thermal
         // existance of the parameter for the device
         // i.e. can only set for the loaded parameters
         void setTargetParameterValue(double parameter_value);
-
+        
         bool hasPort(std::string port_name);
+        // similar to set parameters
         void setTargetPortName(std::string port_name);
         void setTargetPortConnectedDevice(DeviceModel* device);
         
@@ -44,17 +55,20 @@ namespace Thermal
 
     protected:
         // derived child classes must call this constructor
-        DeviceModel(DeviceFloorplanMap* device_floorplan_map);
+        DeviceModel(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
 
         std::string _instance_name;
         std::string _floorplan_unit_name;
         
-        // parameter_name -> parameter_value
-        std::map<std::string, double>       _device_parameters;
         // port_name -> connected_device_pointer
         std::map<std::string, DeviceModel*> _device_port_connections;
+        // parameter_name -> parameter_value
+        std::map<std::string, double>       _device_parameters;
+        // property_name -> property_value
+        std::map<std::string, double>       _device_properties;
 
     private:
+        std::string         _device_definition_file;
         DeviceFloorplanMap* _device_floorplan_map;
 
         std::string _target_parameter_name;

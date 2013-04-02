@@ -25,8 +25,8 @@ namespace Thermal
     protected:
         void setFloorplanUnitNamesInPowerData();
 
-        void readFloorplanUnitNamesFromPtrace();
-        bool readFloorplanUnitPowerFromPtrace();
+        void loadFloorplanUnitNamesFromPtrace();
+        bool loadFloorplanUnitPowerFromPtrace();
 
     private:
         config::Config*             _physical_config;

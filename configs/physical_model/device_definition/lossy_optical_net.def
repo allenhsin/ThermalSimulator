@@ -1,0 +1,37 @@
+
+# The name of ports the device has
+[port]
+    in
+    out
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+    # m
+    pitch                           = 4e-6      
+
+    # if parameter "loss" is not zero then use 
+    # value below directly instead of calculating 
+    # from "length" and "loss_per_meter"
+    
+    # dB
+    loss                            = 3         
+
+    # only calculate loss from parameters below
+    # when parameter "loss" is zero 
+
+    # m
+    length                          = 100e-6    
+    # dB/m
+    loss_per_meter                  = 100       
+    # dB
+    splitter_loss                   = 1.00      
+    # dB
+    coupler_loss                    = 1.00      
+
+# Properties are not editable through the netlist
+# and are only computed in the model.
+[property]
+    in_power
+    out_power
+

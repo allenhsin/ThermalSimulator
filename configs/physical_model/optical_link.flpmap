@@ -1,6 +1,6 @@
 
 # This is the comment line
-# Bust does not support inline comment
+# In-line comment with command is not allowed
 
 # The floorplan map file provides the mapping between
 # the device instance and the cooresponding floorplan

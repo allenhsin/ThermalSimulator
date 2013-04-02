@@ -55,7 +55,7 @@ namespace Thermal
         assert(data_temperature.size() == (unsigned int) _floorplan_holder->_n_units);
     }
 
-    void Temperature::readInitTemperatureFromFile()
+    void Temperature::loadInitTemperatureFromFile()
     {
         int    i;
         int    layer;
@@ -155,7 +155,7 @@ namespace Thermal
         }
 
         fclose(fp); 
-    } // readInitTemperatureFromFile
+    } // loadInitTemperatureFromFile
     
     double Temperature::getAvgSinkTemperature()
     {
@@ -309,7 +309,7 @@ namespace Thermal
                 _temperature[i] = _thermal_params->init_temp;
         }
         else // read initial temperature values from file
-            readInitTemperatureFromFile();
+            loadInitTemperatureFromFile();
         
         // write temperature back to the main data structure
         updateDataTemperature();

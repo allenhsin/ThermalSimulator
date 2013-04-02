@@ -32,7 +32,7 @@ namespace Thermal
     PowerTraceMode::~PowerTraceMode()
     {}
 
-    void PowerTraceMode::readFloorplanUnitNamesFromPtrace()
+    void PowerTraceMode::loadFloorplanUnitNamesFromPtrace()
     {
         char    line[LINE_SIZE]; 
         char    temp[LINE_SIZE]; 
@@ -56,7 +56,7 @@ namespace Thermal
             strcpy(temp, line);
             src = strtok(temp, " \r\t\n");
         // skip empty lines
-        } while (!src);
+        } while (!src || src[0]=='#');
     
         // if the ptrace name line is too long
         if(line[strlen(line)-1] != '\n')
@@ -76,9 +76,9 @@ namespace Thermal
         assert(_ptrace_flp_units_names.size()== (unsigned int) i);
         _ptrace_flp_units_power.resize(i);
         _n_ptrace_flp_units = i;
-    } // readFloorplanUnitNamesFromPtrace
+    } // loadFloorplanUnitNamesFromPtrace
 
-    bool PowerTraceMode::readFloorplanUnitPowerFromPtrace()
+    bool PowerTraceMode::loadFloorplanUnitPowerFromPtrace()
     {
         char    line[LINE_SIZE];
         char    temp[LINE_SIZE];
@@ -100,7 +100,7 @@ namespace Thermal
             }
             strcpy(temp, line);
             src = strtok(temp, " \r\t\n");
-        } while (!src);
+        } while (!src || src[0]=='#');
     
         // new line not read yet
         if(line[strlen(line)-1] != '\n')
@@ -109,7 +109,7 @@ namespace Thermal
         // chop the power values from the line read
         for(i=0,src=line; *src && i < _n_ptrace_flp_units; i++) {
             if(!sscanf(src, "%s", temp) || !sscanf(src, "%lf", &_ptrace_flp_units_power[i]))
-                LibUtil::Log::printFatalLine(std::cerr, "ERROR: invalid flp names format in ptrace file");
+                LibUtil::Log::printFatalLine(std::cerr, "ERROR: invalid number format in ptrace file");
             src += strlen(temp);
             while (isspace((int)*src))
                 src++;
@@ -119,7 +119,7 @@ namespace Thermal
     
         return true;
 
-    } // readFloorplanUnitPowerFromPtrace
+    } // loadFloorplanUnitPowerFromPtrace
 
     void PowerTraceMode::setFloorplanUnitNamesInPowerData()
     {
@@ -140,7 +140,7 @@ namespace Thermal
 
     // Read floorplan unit names from power trace name ------------------------
         // read ptrace file
-        readFloorplanUnitNamesFromPtrace();
+        loadFloorplanUnitNamesFromPtrace();
         // set power name keys
         setFloorplanUnitNamesInPowerData();
     // ------------------------------------------------------------------------
@@ -158,7 +158,7 @@ namespace Thermal
         
     // Read single line of power trace ----------------------------------------
         bool valid_line = false;
-        valid_line = readFloorplanUnitPowerFromPtrace();
+        valid_line = loadFloorplanUnitPowerFromPtrace();
     // ------------------------------------------------------------------------
 
     // update main power data structure and schedule next event ---------------

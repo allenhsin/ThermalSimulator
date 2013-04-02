@@ -24,13 +24,15 @@ namespace Thermal
         : Model()
         , _physical_config          (NULL)
         , _power_trace_mode         (new PowerTraceMode())
+        , _device_manager           (new DeviceManager())
         , _ready_to_execute         (false)
     {}
 
     PhysicalModel::~PhysicalModel()
     {
         delete _power_trace_mode;
-
+        delete _device_manager;
+        
         if(_physical_config)
             delete _physical_config;
     }
@@ -50,6 +52,11 @@ namespace Thermal
 
         // pass physical config by pointer
         _power_trace_mode->setPhysicalConfig(_physical_config);
+        _device_manager->setPhysicalConfig(_physical_config);
+    // ------------------------------------------------------------------------
+
+    // Startup Device Manager -------------------------------------------------
+        _device_manager->startup();
     // ------------------------------------------------------------------------
 
     // Mode Selection ---------------------------------------------------------

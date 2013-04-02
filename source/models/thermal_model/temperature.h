@@ -26,7 +26,7 @@ namespace Thermal
 
     protected:
         void updateDataTemperature();
-        void readInitTemperatureFromFile();
+        void loadInitTemperatureFromFile();
         void computeTransientTemperatureFromPower();
         void setInternalPower();
 

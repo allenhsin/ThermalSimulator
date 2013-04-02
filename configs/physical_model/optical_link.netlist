@@ -29,37 +29,37 @@
 
 module ModulatorBank8x (bank_in, bank_out, drop[0:7], add[0:7]);
 
-    RingModulator ring_mod[0] #(.q_factor(100e3)) ( .in(bank_in), .thru(net[0]),   .drop(drop[0]), .add(add[0]) );
-    RingModulator ring_mod[1] #(.q_factor(100e3)) ( .in(net[0]),  .thru(net[1]),   .drop(drop[1]), .add(add[1]) );
-    RingModulator ring_mod[2] #(.q_factor(100e3)) ( .in(net[1]),  .thru(net[2]),   .drop(drop[2]), .add(add[2]) );
-    RingModulator ring_mod[3] #(.q_factor(100e3)) ( .in(net[2]),  .thru(net[3]),   .drop(drop[3]), .add(add[3]) );
-    RingModulator ring_mod[4] #(.q_factor(100e3)) ( .in(net[3]),  .thru(net[4]),   .drop(drop[4]), .add(add[4]) );
-    RingModulator ring_mod[5] #(.q_factor(100e3)) ( .in(net[4]),  .thru(net[5]),   .drop(drop[5]), .add(add[5]) );
-    RingModulator ring_mod[6] #(.q_factor(100e3)) ( .in(net[5]),  .thru(net[6]),   .drop(drop[6]), .add(add[6]) );
-    RingModulator ring_mod[7] #(.q_factor(100e3)) ( .in(net[6]),  .thru(bank_out), .drop(drop[7]), .add(add[7]) );
+    ResonantRingModulator ring_mod[0] #(.q_factor(100e3)) ( .in(bank_in), .thru(net[0]),   .drop(drop[0]), .add(add[0]) );
+    ResonantRingModulator ring_mod[1] #(.q_factor(100e3)) ( .in(net[0]),  .thru(net[1]),   .drop(drop[1]), .add(add[1]) );
+    ResonantRingModulator ring_mod[2] #(.q_factor(100e3)) ( .in(net[1]),  .thru(net[2]),   .drop(drop[2]), .add(add[2]) );
+    ResonantRingModulator ring_mod[3] #(.q_factor(100e3)) ( .in(net[2]),  .thru(net[3]),   .drop(drop[3]), .add(add[3]) );
+    ResonantRingModulator ring_mod[4] #(.q_factor(100e3)) ( .in(net[3]),  .thru(net[4]),   .drop(drop[4]), .add(add[4]) );
+    ResonantRingModulator ring_mod[5] #(.q_factor(100e3)) ( .in(net[4]),  .thru(net[5]),   .drop(drop[5]), .add(add[5]) );
+    ResonantRingModulator ring_mod[6] #(.q_factor(100e3)) ( .in(net[5]),  .thru(net[6]),   .drop(drop[6]), .add(add[6]) );
+    ResonantRingModulator ring_mod[7] #(.q_factor(100e3)) ( .in(net[6]),  .thru(bank_out), .drop(drop[7]), .add(add[7]) );
 
 endmodule
 
 module DetectorBank8x (bank_in, bank_out, drop[0:7], add[0:7]);
 
-    RingResonator ring_det[0] ( .in(bank_in), .thru(net[0]),   .drop(drop[0]), .add(add[0]) );
-    RingResonator ring_det[1] ( .in(net[0]),  .thru(net[1]),   .drop(drop[1]), .add(add[1]) );
-    RingResonator ring_det[2] ( .in(net[1]),  .thru(net[2]),   .drop(drop[2]), .add(add[2]) );
-    RingResonator ring_det[3] ( .in(net[2]),  .thru(net[3]),   .drop(drop[3]), .add(add[3]) );
-    RingResonator ring_det[4] ( .in(net[3]),  .thru(net[4]),   .drop(drop[4]), .add(add[4]) );
-    RingResonator ring_det[5] ( .in(net[4]),  .thru(net[5]),   .drop(drop[5]), .add(add[5]) );
-    RingResonator ring_det[6] ( .in(net[5]),  .thru(net[6]),   .drop(drop[6]), .add(add[6]) );
-    RingResonator ring_det[7] ( .in(net[6]),  .thru(bank_out), .drop(drop[7]), .add(add[7]) );
+    ResonantRing ring_det[0] ( .in(bank_in), .thru(net[0]),   .drop(drop[0]), .add(add[0]) );
+    ResonantRing ring_det[1] ( .in(net[0]),  .thru(net[1]),   .drop(drop[1]), .add(add[1]) );
+    ResonantRing ring_det[2] ( .in(net[1]),  .thru(net[2]),   .drop(drop[2]), .add(add[2]) );
+    ResonantRing ring_det[3] ( .in(net[2]),  .thru(net[3]),   .drop(drop[3]), .add(add[3]) );
+    ResonantRing ring_det[4] ( .in(net[3]),  .thru(net[4]),   .drop(drop[4]), .add(add[4]) );
+    ResonantRing ring_det[5] ( .in(net[4]),  .thru(net[5]),   .drop(drop[5]), .add(add[5]) );
+    ResonantRing ring_det[6] ( .in(net[5]),  .thru(net[6]),   .drop(drop[6]), .add(add[6]) );
+    ResonantRing ring_det[7] ( .in(net[6]),  .thru(bank_out), .drop(drop[7]), .add(add[7]) );
 
 endmodule
 
 module OpticalLink();
 
-    LaserSource     laser_source    (.out(net[0]));
+    LaserSourceOffChip  laser_source    (.out(net[0]));
 
-    ModulatorBank8x mod_bank        (.bank_in(net[0]), .bank_out(net[1]), .drop[0:7](), .add[0:7]());
-    LossyOpticalNet onet            (.in(net[1]), .out(net[2]));
-    DetectorBank8x  det_bank        (.bank_in(net[2]), .bank_out(), .drop[0:7](), .add[0:7]());
+    ModulatorBank8x     mod_bank        (.bank_in(net[0]), .bank_out(net[1]), .drop[0:7](), .add[0:7]());
+    LossyOpticalNet     onet            (.in(net[1]), .out(net[2]));
+    DetectorBank8x      det_bank        (.bank_in(net[2]), .bank_out(), .drop[0:7](), .add[0:7]());
 
 endmodule
 

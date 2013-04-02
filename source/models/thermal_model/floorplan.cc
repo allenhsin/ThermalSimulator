@@ -343,7 +343,7 @@ namespace Thermal
                         }
                         Misc::isEndOfLine(3);
                     }
-                }
+                } // while loop in floorplan module block
                 
                 // if this floorplan object is the top level object,
                 // stop reading further objects and copy this object
@@ -362,7 +362,7 @@ namespace Thermal
             else
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong syntax: " + line_copy + 
                                                         "\n       include another floorplan file or define a floorplan object!");
-        }
+        } // while loop
 
         // close floorplan file
         fclose(fp);

@@ -14,6 +14,7 @@ using LibUtil::String;
 namespace Thermal
 {
     DeviceFloorplanMap::DeviceFloorplanMap()
+        : _floorplan_map_loaded     (false)
     {
         _floorplan_map.clear();
     }
@@ -61,10 +62,14 @@ namespace Thermal
         }
 
         fclose(fp);
+        _floorplan_map_loaded = true;
     }
     
     string DeviceFloorplanMap::getFloorplanUnitNameFromInstanceName(std::string instance_name)
     {
+        if(!_floorplan_map_loaded)
+            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Floorplan map not yet loaded");
+
         if(!_floorplan_map.count(instance_name))
             LibUtil::Log::printFatalLine(std::cerr, "ERROR: Unrecognized device instance name: " + (String) instance_name);
 
