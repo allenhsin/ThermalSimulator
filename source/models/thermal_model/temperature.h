@@ -35,14 +35,15 @@ namespace Thermal
 
         FloorplanHolder*    _floorplan_holder;
         RCModelHolder*      _rc_model_holder;
+
+        bool                _is_internal_power_set;
         
         // _temperature is in the floorplan unit order
         // for each layer, plus EXTRA nodes.
         // i.e. within each layer the order is the same
         // with _floorplan_holder->_flp_units[i]
         std::vector<double>      _temperature;
-        // _power is in also in the floorplan unit
-        // order but only with the floorplan unit nodes
+        // _power is in also in the floorplan unit order
         std::vector<double>      _power;
 
     }; // class Temperature

@@ -170,7 +170,7 @@ namespace Thermal
         }
     // ------------------------------------------------------------------------
 
-    // Schedule the first temperature calculation event -----------------------
+    // Schedule the first thermal model execution event -----------------------
         EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, THERMAL_MODEL);
         _last_execute_time = 0;
     // ------------------------------------------------------------------------
@@ -194,6 +194,10 @@ namespace Thermal
             // update r_convec based on avg sink temp
             _package->updateRConvection( avg_sink_temp );
             // update RC model
+            // FIXME:   the direct calling of populateR is actually unnecessary
+            //          since only part of the R values need to be updated.
+            //          but this is not a big problem now because we don't use
+            //          natural convection often. Need to fix later though.
             _rc_model->populateR();
         }
     // ------------------------------------------------------------------------
@@ -216,7 +220,7 @@ namespace Thermal
         }
     // ------------------------------------------------------------------------
 
-    // Schedule next transient temperature calculation event ------------------
+    // Schedule next thermal model execution event ----------------------------
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL);
         _last_execute_time = scheduled_time;
     // ------------------------------------------------------------------------

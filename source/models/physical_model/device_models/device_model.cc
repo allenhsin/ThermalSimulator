@@ -3,19 +3,21 @@
 #include <stddef.h>
 
 #include "source/misc/misc.h"
-#include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_models/resonant_ring_modulator.h"
+#include "source/models/physical_model/device_models/device_definition_parser.h"
 #include "source/models/physical_model/physical_constants.h"
 #include "libutil/LibUtil.h"
 
 using std::string;
+using std::map;
 using LibUtil::String;
 
 namespace Thermal
 {
-    DeviceModel::DeviceModel(DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
-        : _instance_name            ("")
+    DeviceModel::DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
+        : _device_type              (device_type)
+        , _instance_name            ("")
         , _floorplan_unit_name      ("")
         
         , _device_definition_file   (device_definition_file)
@@ -23,23 +25,26 @@ namespace Thermal
         , _target_parameter_name    ("")
         , _target_port_name         ("")
     {
-        _device_port_connections.clear();
+        _device_ports.clear();
         _device_parameters.clear();
-        _device_properties.clear();
         
         // initilize the device's ports/parameters/properties
-        loadDeviceDefinition();
+        DeviceDefinitionParser device_def_parser(this, _device_ports, _device_parameters);
+        device_def_parser.loadDeviceDefinitionFile(_device_definition_file);
     }
 
     DeviceModel::~DeviceModel()
     {
         _device_floorplan_map   = NULL;
+        
+        for(map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
+        { delete (it->second); }
     }
 
     DeviceModel*
-    DeviceModel::createDevice(int device_type, config::Config* physical_config, DeviceFloorplanMap* device_floorplan_map)
+    DeviceModel::createDevice(DeviceType device_type, config::Config* physical_config, DeviceFloorplanMap* device_floorplan_map)
     {
-        DeviceModel* device_model;
+        DeviceModel* device_model = NULL;
 
         switch(device_type)
         {
@@ -63,6 +68,10 @@ namespace Thermal
             //device_model = new LaserSourceOnChip( device_floorplan_map, physical_config->getString("device/laser_source_on-chip/def_file") );
             break;
 
+        case MODULATOR_DRIVER:
+            //device_model = new ModulatorDriver( device_floorplan_map, physical_config->getString("device/modulator_driver/def_file") );
+            break;
+
         case PHOTODETECTOR:
             //device_model = new Photodetector( device_floorplan_map, physical_config->getString("device/photodetector/def_file") );
             break;
@@ -79,98 +88,8 @@ namespace Thermal
         return device_model;
     }
 
-    // TODO: 
-    void DeviceModel::loadDeviceDefinition()
-    {
-        assert(_device_port_connections.size()==0);
-        assert(_device_parameters.size()==0);
-        assert(_device_properties.size()==0);
 
-        char    line[LINE_SIZE];
-        string  line_copy;
-        char*   line_token;
-        int     line_number = 0;
-
-        char    name[STR_SIZE];
-        double  value;
-
-        enum DefType
-        {
-            TYPE_PORT,
-            TYPE_PARAMETER,
-            TYPE_PROPERTY,
-            TYPE_NULL
-        };
-        
-        DefType def_type = TYPE_NULL;
-
-
-        FILE* def_file = fopen(_device_definition_file.c_str(), "r");
-        if (!def_file)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open def file.\n");
-
-        while(!feof(def_file))
-        {
-            // read a line from the file
-            fgets(line, LINE_SIZE, def_file);
-            line_number++;
-            if (feof(def_file))
-                break;
-
-            line_copy = (string) line;
-            line_token = strtok(line, " \r\t\n");
-            
-            // ignore comments and empty lines
-            if      (!line_token || line_token[0] == '#')
-                continue;
-            else if (!strcmp(line_token, "[port]"))
-            {   
-                def_type = TYPE_PORT;
-                Misc::isEndOfLine(0);
-            }
-            else if (!strcmp(line_token, "[parameter]"))
-            {
-                def_type = TYPE_PARAMETER;
-                Misc::isEndOfLine(0);
-            }
-            else if (!strcmp(line_token, "[property]"))
-            {
-                def_type = TYPE_PROPERTY;
-                Misc::isEndOfLine(0);
-            }
-            else
-            {
-                switch(def_type)
-                {
-                case TYPE_PORT:
-                    _device_port_connections[(string) line_token] = NULL;
-                    Misc::isEndOfLine(0);
-                    break;
-                        
-                case TYPE_PROPERTY:
-                    _device_properties[(string) line_token] = 0;
-                    Misc::isEndOfLine(0);
-                    break;
-
-                case TYPE_PARAMETER:
-                    if( sscanf(line_copy.c_str(), " %[^= ]=%lf", name, &value) == 1)
-                        _device_parameters[(string) name] = value;
-                    else
-                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid def file parameter syntax in file: " + _device_definition_file + " at line " + (String) line_number + "\n");
-                    Misc::isEndOfLineWithEqual(1);
-                    break;
-                
-                default: // TYPE_NULL
-                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid def file syntax in file: " + _device_definition_file + " at line " + (String) line_number + " \n");
-                    return;
-                }
-            }
-        } // while
-
-        fclose(def_file);
-    }
-
-    void DeviceModel::setDeviceInstanceAndFloorplanUnitName(string instance_name)
+    void DeviceModel::setDeviceName(string instance_name)
     {
         _instance_name          = instance_name;
         _floorplan_unit_name    = _device_floorplan_map->getFloorplanUnitNameFromInstanceName(instance_name);
@@ -193,7 +112,7 @@ namespace Thermal
     }
 
     bool DeviceModel::hasPort(string port_name)
-    { return _device_port_connections.count(port_name); }
+    { return _device_ports.count(port_name); }
 
     void DeviceModel::setTargetPortName(string port_name)
     { 
@@ -202,12 +121,31 @@ namespace Thermal
         _target_port_name = port_name; 
     }
 
-    void DeviceModel::setTargetPortConnectedDevice(DeviceModel* device)
+    void DeviceModel::setTargetPortConnectedPort(Port* port)
     {
         assert(_target_port_name != "");
-        _device_port_connections[_target_port_name] = device;
+        _device_ports[_target_port_name]->setConnectedPort(port);
     }
 
+    void DeviceModel::printDefinition()
+    {
+        printf("\n\n");
+        printf("Device Type: %d\n", _device_type);
+        printf("Device Instance Name: %s\n", _instance_name.c_str());
+        printf("Device Floorplan Unit Name: %s\n", _floorplan_unit_name.c_str());
+        printf("\n");
+        printf("[port]\n");
+        for(map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
+        {
+            printf("Name: %s, Type: %d, ", (it->first).c_str(), (int) it->second->getPortType());
+            printf("Properties: power: %s, voltage: %s\n",  it->second->hasPortProperty("power")?"Yes":"No", 
+                                                            it->second->hasPortProperty("voltage")?"Yes":"No" );
+        }
+        printf("\n");
+        printf("[parameter]\n");
+        for(map<std::string, double>::iterator it=_device_parameters.begin(); it!=_device_parameters.end(); ++it)
+            printf("%s -> %e\n", (it->first).c_str(), it->second );
+    }
 
 } // namespace Thermal
 

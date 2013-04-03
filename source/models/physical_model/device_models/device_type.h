@@ -13,6 +13,7 @@ namespace Thermal
         LOSSY_OPTICAL_NET,
         LASER_SOURCE_OFF_CHIP,
         LASER_SOURCE_ON_CHIP,
+        MODULATOR_DRIVER,
         PHOTODETECTOR,
         RECEIVER,
         NUM_DEVICE_TYPES

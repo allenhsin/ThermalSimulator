@@ -20,11 +20,13 @@ using std::string;
 namespace Thermal
 {
     Temperature::Temperature()
-        : _thermal_params       (NULL)
-        , _floorplan_holder     (NULL)
-        , _rc_model_holder      (NULL)
+        : _thermal_params           (NULL)
+        , _floorplan_holder         (NULL)
+        , _rc_model_holder          (NULL)
+        , _is_internal_power_set    (false)
     {
         _temperature.clear();
+        _power.clear();
     }
 
 
@@ -237,7 +239,12 @@ namespace Thermal
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: RC model not ready.\n");
     
         // set power numbers for the virtual nodes
-        setInternalPower();
+        // only need to set once unless natural convection is used
+        if( !_is_internal_power_set || (_thermal_params->package_model_used && _thermal_params->natural_convec) )
+        {
+            setInternalPower();
+            _is_internal_power_set = true;
+        }
     
         // keep advancing the time until it reaches time_elapsed.
         // always choose the next appropriate step size that is 
@@ -279,6 +286,9 @@ namespace Thermal
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: mismatch between number of blocks in the floorplan and physical model.\n");
         
         // put main power data information into local _power vector
+        // the main power data only contains the power for silicon layer blocks
+        // so in "computeTransientTemperatureFromPower" function, it will set
+        // the power for nodes in others layers
         for(map<string, double>::iterator it = data_power.begin(); it != data_power.end(); ++it)
             _power[ Floorplan::getUnitIndexFromName(_floorplan_holder, it->first.c_str()) ] = it->second;
         
@@ -316,5 +326,5 @@ namespace Thermal
 
     } // setInitialTemperature
 
-}
+} // namespace Thermal
 

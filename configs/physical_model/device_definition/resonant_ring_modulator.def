@@ -1,10 +1,21 @@
 
-# The name of ports the device has
+# This is a comment line
+# In-line comment is not allowed
+
+# List the ports of the device and the port's corresponding properties.
+#
+# Format: <PortName, PortType, Property1, Property2, Property3, ...>
+#
+# Number of properties is arbitrary.
+# Port Types: INPUT, OUTPUT, INOUT
+
 [port]
-    in
-    out
-    add
-    thru
+    <in, INPUT,  power>
+    <out, OUTPUT, power>
+    <add, INPUT,  power>
+    <thru, OUTPUT, power>
+    <mod_driver, INPUT, voltage>
+    <heater, INPUT, power>
 
 # Parameters are editable through the netlist
 # and also have default values as defined below.
@@ -69,12 +80,4 @@
     # Modulator confinement factor
     confinement_factor              = 0.3       
     # -------------------------------------------------------------------------
-
-# Properties are not editable through the netlist
-# and are only computed in the model.
-[property]
-    in_power
-    out_power
-    add_power
-    thru_power
 

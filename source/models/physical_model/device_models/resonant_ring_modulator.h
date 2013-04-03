@@ -17,9 +17,6 @@ namespace Thermal
         // update device properties
         virtual void updateDeviceProperties();
 
-        // get device power consumption based on current properties and parameters
-        virtual void getDevicePower();
-
     protected:
 
     private:

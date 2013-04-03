@@ -18,6 +18,7 @@ namespace Thermal
         ~DeviceManager();
 
         void startup();
+        void execute();
 
         void loadNetlist(std::string netlist_file);
 
@@ -31,8 +32,18 @@ namespace Thermal
     private:
         config::Config*             _physical_config;
         DeviceFloorplanMap*         _device_floorplan_map;
-        std::vector<DeviceModel*>   _device_instances;
 
+        // _device_instances and _device_root_instances are
+        // data placeholders resposible for device instance
+        // construction and destruction. The creation of the 
+        // device instance is when loading the netlist.
+        std::vector<DeviceModel*>   _device_instances;
+        std::vector<DeviceModel*>   _device_root_instances;
+        
+        // after loading the netlist, device manager will
+        // trace down the device instances connections to
+        // figure out the link sequence and store it
+        
     }; // calss DeviceManager
 
 } // namespace Thermal

@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "source/models/physical_model/device_models/device_type.h"
+#include "source/models/physical_model/device_models/port.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 #include "config.hpp"
 
@@ -16,7 +18,7 @@ namespace Thermal
     public:
         virtual ~DeviceModel();
 
-        static DeviceModel* createDevice(int device_type, config::Config* physical_config, DeviceFloorplanMap* device_floorplan_map);
+        static DeviceModel* createDevice(DeviceType device_type, config::Config* physical_config, DeviceFloorplanMap* device_floorplan_map);
 
     // ------------------------------------------------------------------------
     // derived classes must implement these functions
@@ -25,19 +27,13 @@ namespace Thermal
         // update device properties
         virtual void updateDeviceProperties() = 0;
 
-        // get device power consumption based on current properties and parameters
-        virtual void getDevicePower() = 0;
-
     // ------------------------------------------------------------------------
 
-        void setDeviceDefinitionFile(std::string def_file);
-        // load port list/default parameters/properties for the specific device
-        void loadDeviceDefinition();
-
         bool hasParameter(std::string parameter_name);
-        // have to separate the setting of name and value because
-        // when parsing the netlist it reads the name first and 
-        // then the value
+        // setTargetParameterName is to tell the device which loaded
+        // parameter is going to change its value. Have to separate
+        // this with the set value function because when parsing the 
+        // netlist it reads the name first and then the value
         void setTargetParameterName(std::string parameter_name);
         // when setting the value it will also verify the 
         // existance of the parameter for the device
@@ -47,25 +43,27 @@ namespace Thermal
         bool hasPort(std::string port_name);
         // similar to set parameters
         void setTargetPortName(std::string port_name);
-        void setTargetPortConnectedDevice(DeviceModel* device);
+        void setTargetPortConnectedPort(Port* port);
         
-        void setDeviceInstanceAndFloorplanUnitName(std::string instance_name);
+        void setDeviceName(std::string instance_name);
         std::string getInstanceName(){ return _instance_name; }
         std::string getFloorplanUnitName(){ return _floorplan_unit_name; }
+        
+        // just for debug
+        void printDefinition();
 
     protected:
         // derived child classes must call this constructor
-        DeviceModel(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
-
+        DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+        
+        DeviceType  _device_type;
         std::string _instance_name;
         std::string _floorplan_unit_name;
         
-        // port_name -> connected_device_pointer
-        std::map<std::string, DeviceModel*> _device_port_connections;
+        // port_name -> (port_type, connected_port)
+        std::map<std::string, Port*>    _device_ports;
         // parameter_name -> parameter_value
-        std::map<std::string, double>       _device_parameters;
-        // property_name -> property_value
-        std::map<std::string, double>       _device_properties;
+        std::map<std::string, double>   _device_parameters;
 
     private:
         std::string         _device_definition_file;

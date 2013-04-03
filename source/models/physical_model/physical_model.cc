@@ -46,7 +46,7 @@ namespace Thermal
         std::string physical_config_file =  Simulator::getSingleton()->getConfig()
                                             ->getString("models/physical_model/physical_config_file");
 
-        // parse thermal cfg file into config class
+        // parse physical cfg file into config class
         Misc::setConfig(physical_config_file, _physical_config, 0, NULL);
         assert(_physical_config);
 
@@ -64,7 +64,7 @@ namespace Thermal
             _power_trace_mode->startup();
     // ------------------------------------------------------------------------
 
-    // Schedule the first physical model calculation event --------------------
+    // Schedule the first physical model execution event ----------------------
         EventScheduler::getSingleton()->enqueueEvent(getPhysicalConfig()->getFloat("env_setup/sampling_intvl"), PHYSICAL_MODEL);
         _last_execute_time = 0;
     // ------------------------------------------------------------------------
