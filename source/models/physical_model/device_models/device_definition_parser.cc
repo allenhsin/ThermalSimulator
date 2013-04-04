@@ -3,6 +3,7 @@
 #include <cassert>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "source/misc/misc.h"
 #include "source/models/physical_model/device_models/device_definition_parser.h"
