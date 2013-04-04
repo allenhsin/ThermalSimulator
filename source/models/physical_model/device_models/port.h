@@ -23,28 +23,28 @@ namespace Thermal
         Port(DeviceModel* device, PortType port_type);
         ~Port();
 
-        PortType getPortType()
+        const PortType getPortType() const
         { return _port_type; }
 
-        DeviceModel* getDevice()
+        DeviceModel* getDevice() const
         { return _device; }
 
-        void setConnectedPort(Port* connected_port)
+        void setConnectedPort(const Port* connected_port)
         { _connected_port = connected_port; }
 
-        Port* getConnectedPort()
+        const Port* getConnectedPort() const
         { return _connected_port; }
 
         void addPortProperty(std::string property_name, double default_property_value = 0);
         void setPortProperty(std::string property_name, double property_value);
-        bool   hasPortProperty(std::string property_name);
-        double getPortProperty(std::string property_name);
+        bool   hasPortProperty(std::string property_name) const;
+        double getPortProperty(std::string property_name) const;
 
     protected:
     private:
         const PortType      _port_type;
         DeviceModel* const  _device;
-        Port*               _connected_port;
+        const Port*         _connected_port;
 
         std::map<std::string, double>   _port_properties;
 

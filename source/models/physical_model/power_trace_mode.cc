@@ -163,7 +163,7 @@ namespace Thermal
         assert(_physical_config);
         
         _current_ptrace_line_number++;
-        // only execute power trace when the schduled execution time matches the power trace run time
+        // only execute power trace when the schduled execution time matches the power trace sampling time
         if( !Misc::eqTime(scheduled_time, (_current_ptrace_line_number * _ptrace_sampling_interval)) )
         {
             _current_ptrace_line_number--;

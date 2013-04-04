@@ -125,12 +125,12 @@ namespace Thermal
     bool DeviceModel::hasPort(string port_name)
     { return _device_ports.count(port_name); }
 
-    Port* DeviceModel::getPort(string port_name)
+    const Port* DeviceModel::getPort(string port_name)
     {
         if(!hasPort(port_name))
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized port when getPort: " + (String) port_name + ".\n");
         
-        return _device_ports[port_name];
+        return _device_ports.find(port_name)->second;
     }
 
     void DeviceModel::setTargetPortName(string port_name)
@@ -140,7 +140,7 @@ namespace Thermal
         _target_port_name = port_name; 
     }
 
-    void DeviceModel::setTargetPortConnectedPort(Port* port)
+    void DeviceModel::setTargetPortConnectedPort(const Port* port)
     {
         assert(_target_port_name != "");
         _device_ports[_target_port_name]->setConnectedPort(port);

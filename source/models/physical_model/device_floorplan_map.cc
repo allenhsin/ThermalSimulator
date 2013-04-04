@@ -1,6 +1,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 #include <cassert>
 
 #include "source/models/physical_model/device_floorplan_map.h"

@@ -43,8 +43,8 @@ namespace Thermal
         bool hasPort(std::string port_name);
         // similar to set parameters
         void setTargetPortName(std::string port_name);
-        void setTargetPortConnectedPort(Port* port);
-        Port* getPort(std::string port_name);
+        void setTargetPortConnectedPort(const Port* port);
+        const Port* getPort(std::string port_name);
         
         void getParentDevices(std::vector<DeviceModel*>& parent_devices);
         void getChildDevices(std::vector<DeviceModel*>& child_devices);

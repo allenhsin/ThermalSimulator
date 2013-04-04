@@ -102,7 +102,7 @@ namespace Thermal
     {
         assert(_physical_config);
 
-    // Load Files -------------------------------------------------------------
+    // Load Files and Initialize Devices --------------------------------------
         // load floorplan map file
         _device_floorplan_map->loadFloorplanMap( getPhysicalConfig()->getString("env_setup/flpmap_file") );
 
