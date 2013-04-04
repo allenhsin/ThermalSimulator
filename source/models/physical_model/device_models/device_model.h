@@ -44,10 +44,20 @@ namespace Thermal
         // similar to set parameters
         void setTargetPortName(std::string port_name);
         void setTargetPortConnectedPort(Port* port);
+        Port* getPort(std::string port_name);
         
+        void getParentDevices(std::vector<DeviceModel*>& parent_devices);
+        void getChildDevices(std::vector<DeviceModel*>& child_devices);
+
         void setDeviceName(std::string instance_name);
-        std::string getInstanceName(){ return _instance_name; }
-        std::string getFloorplanUnitName(){ return _floorplan_unit_name; }
+        std::string getInstanceName() { return _instance_name; }
+        std::string getFloorplanUnitName() { return _floorplan_unit_name; }
+
+        void setTraversedInBFS()
+        { _traversed_in_bfs = true; }
+
+        bool getTraversedInBFS()
+        { return _traversed_in_bfs; }
         
         // just for debug
         void printDefinition();
@@ -68,6 +78,8 @@ namespace Thermal
     private:
         std::string         _device_definition_file;
         DeviceFloorplanMap* _device_floorplan_map;
+        
+        bool _traversed_in_bfs;
 
         std::string _target_parameter_name;
         std::string _target_port_name;

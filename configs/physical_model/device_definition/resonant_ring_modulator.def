@@ -11,9 +11,9 @@
 
 [port]
     <in, INPUT,  power>
-    <out, OUTPUT, power>
-    <add, INPUT,  power>
     <thru, OUTPUT, power>
+    <add, INPUT,  power>
+    <drop, OUTPUT, power>
     <mod_driver, INPUT, voltage>
     <heater, INPUT, power>
 

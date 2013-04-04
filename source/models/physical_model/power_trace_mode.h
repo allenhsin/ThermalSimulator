@@ -36,6 +36,9 @@ namespace Thermal
         std::vector<std::string>    _ptrace_flp_units_names;
         std::vector<double>         _ptrace_flp_units_power;
 
+        double                      _ptrace_sampling_interval;
+        int                         _current_ptrace_line_number;
+
     }; // class PowerTraceMode
 
 } // namespace Thermal

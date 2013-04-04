@@ -84,6 +84,9 @@ namespace Thermal
     bool Misc::eq(double x, double y)
     { return (fabs(x-y) <  DELTA); }
 
+    bool Misc::eqTime(double x, double y)
+    { return (fabs(x-y) <  TIME_DELTA); }
+
     void Misc::swapDoubleValue (double *a, double *b)
     {
         double t = *a;
@@ -123,7 +126,7 @@ namespace Thermal
 
         token = strtok(NULL, " \r\t\n");
         if(token)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unrecognized token: " + (string) token + " at end of line\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized token: " + (string) token + " at end of line.\n");
     }
 
     void Misc::isEndOfLineWithEqual(int remaining_token_to_read)
@@ -135,7 +138,7 @@ namespace Thermal
 
         token = strtok(NULL, " \r\t\n");
         if(token)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unrecognized token: " + (string) token + " at end of line\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized token: " + (string) token + " at end of line.\n");
     }
 
 } // namespace Thermal

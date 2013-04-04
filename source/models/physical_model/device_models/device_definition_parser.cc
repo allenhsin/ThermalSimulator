@@ -47,7 +47,7 @@ namespace Thermal
 
         FILE* def_file = fopen(device_definition_file.c_str(), "r");
         if (!def_file)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open def file.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open def file.\n");
 
         while(!feof(def_file))
         {
@@ -80,7 +80,7 @@ namespace Thermal
                 case TYPE_PORT:
                     // check if the beginning is '<'
                     if(line_token[0]!='<')
-                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: not start with '<' in file: " + device_definition_file + " at line " + (String) line_number + "\n");
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Not start with '<' in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
                     
                     // check if the end is '>'
                     do
@@ -90,14 +90,14 @@ namespace Thermal
                     }
                     while(line_token);
                     if(name[strlen(name)-1]!='>')
-                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: not end with '>' in file: " + device_definition_file + " at line " + (String) line_number + "\n");
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Not end with '>' in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
 
                     // get port name
                     line_token = strtok(line_copy, "<>, \r\t\n");
                     if(line_token)
                         strcpy(name, line_token);
                     else
-                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot read port name in file: " + device_definition_file + " at line " + (String) line_number + "\n");
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot read port name in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
 
                     // get port type
                     line_token = strtok(NULL, "<>, \r\t\n");
@@ -110,10 +110,10 @@ namespace Thermal
                         else if (!strcmp(line_token, "INOUT"))
                             port_type = INOUT_PORT;
                         else
-                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid port type in file: " + device_definition_file + " at line " + (String) line_number + "\n");
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid port type in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
                     }
                     else
-                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot read port type in file: " + device_definition_file + " at line " + (String) line_number + "\n");
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot read port type in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
 
                     _device_ports[(string) name] = new Port(_device_model, port_type);
 
@@ -131,12 +131,12 @@ namespace Thermal
                     if( sscanf(line_copy, " %[^= ] =%lf", name, &value) == 2)
                         _device_parameters[(string) name] = value;
                     else
-                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid def file parameter syntax in file: " + device_definition_file + " at line " + (String) line_number + "\n");
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid def file parameter syntax in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
                     Misc::isEndOfLineWithEqual(1);
                     break;
                 
                 default: // TYPE_NULL
-                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid def file syntax in file: " + device_definition_file + " at line " + (String) line_number + " \n");
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid def file syntax in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
                     return;
                 }
             }

@@ -29,7 +29,7 @@ namespace Thermal
     void Port::addPortProperty(string property_name, double default_property_value)
     {
         if(hasPortProperty(property_name))
-            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Port Property \"" + property_name + "\" already exists");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" already exists.\n");
 
         _port_properties[property_name] = default_property_value;
     }
@@ -37,7 +37,7 @@ namespace Thermal
     void Port::setPortProperty(string property_name, double property_value)
     {
         if(!hasPortProperty(property_name))
-            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Port Property \"" + property_name + "\" already does not exist");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" already does not exist.\n");
 
         _port_properties[property_name] = property_value;
     }
@@ -45,7 +45,7 @@ namespace Thermal
     double Port::getPortProperty(string property_name)
     {
         if(!hasPortProperty(property_name))
-            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Port Property \"" + property_name + "\" already does not exist");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" already does not exist.\n");
 
         return _port_properties[property_name];
     }

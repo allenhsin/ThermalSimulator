@@ -36,7 +36,7 @@ namespace Thermal
         //    return NULL;
 
         default:
-            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Unrecognized Model Type: " + (String) model_type);
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized Model Type: " + (String) model_type + ".\n");
             return NULL;
         }
     }

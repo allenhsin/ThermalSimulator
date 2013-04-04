@@ -205,7 +205,7 @@ namespace Thermal
                 return i;
         }
     
-        LibUtil::Log::printFatalLine(std::cerr, "ERROR: block " + (String) name + " not found\n");
+        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Block " + (String) name + " not found.\n");
         return -1;
     } // getUnitIndexFromName
 
@@ -236,7 +236,7 @@ namespace Thermal
 
         FILE* fp = fopen (flp_file.c_str(), "r");
         if(!fp)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open floorplan file: " + flp_file + "\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open floorplan file: " + flp_file + ".\n");
 
         fseek(fp, 0, SEEK_SET);
         while(!feof(fp))
@@ -261,7 +261,7 @@ namespace Thermal
             {
                 line_token = strtok(NULL, " \r\t\n");
                 if(!line_token)
-                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: no file specified for include");
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: No file specified for include.\n");
 
                 new_file_path = flp_file.substr(0, (flp_file.find_last_of("/\\")+1) ) + ((string) line_token);
 
@@ -276,10 +276,10 @@ namespace Thermal
                 strcpy(flp_obj_name, line_token);
                 // check floorplan object name validity
                 if(!flp_obj_name)
-                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: no floorplan object name\n");
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: No floorplan object name.\n");
                 // check if there are duplicated floorplan objs names
                 if(_floorplan_objects.count( (string) flp_obj_name ))
-                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: duplicated floorplan object names: " + (string)flp_obj_name + " \n");
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Duplicated floorplan object names: " + (string)flp_obj_name + ".\n");
                 Misc::isEndOfLine(0);
 
                 // read floorplan blocks in this object
@@ -287,7 +287,7 @@ namespace Thermal
                 {
                     fgets(line, LINE_SIZE, fp);
                     if (feof(fp))
-                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: floorplan object definition not completed\n");
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Floorplan object definition not completed.\n");
                     
                     line_copy = (string) line;
                     line_token = strtok(line, " \r\t\n");
@@ -313,7 +313,7 @@ namespace Thermal
                             floorplan_unit._bottomy = bottomy;
                         }
                         else
-                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong atomic floorplan block format\n");
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong atomic floorplan block format.\n");
                         
                         // push atomic block into current object
                         _floorplan_objects[(string) flp_obj_name].push_back(floorplan_unit);
@@ -324,10 +324,10 @@ namespace Thermal
                     {
                         // check if the instantiated object is in the floorplan object map
                         if(!_floorplan_objects.count( (string) line_token ))
-                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot find floorplan object: " + (string)line_token + " \n");
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot find floorplan object: " + (string)line_token + ".\n");
                         
                         if (sscanf(line_copy.c_str(), "%*s%s%lf%lf", unit_name, &leftx, &bottomy) != 3) 
-                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong floorplan object instantiation format\n");
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong floorplan object instantiation format.\n");
 
                         // put every block in the instantiated object to the new object with new name and new coordinates
                         for(vector<FloorplanUnit>::iterator it = _floorplan_objects[(string) line_token].begin(); it != _floorplan_objects[(string) line_token].end(); ++it)
@@ -360,8 +360,8 @@ namespace Thermal
             }
             // unrecognized syntax
             else
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong syntax: " + line_copy + 
-                                                        "\n       include another floorplan file or define a floorplan object!");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong syntax: " + line_copy + 
+                                                        "\n       include another floorplan file or define a floorplan object!\n");
         } // while loop
 
         // close floorplan file
@@ -372,7 +372,7 @@ namespace Thermal
     {
         parseFloorplanFile(flp_file, top_flp_object_name);
         if(!_top_flp_object_found)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: top level floorplan object not found!\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Top level floorplan object not found!\n");
         
         // print unit name out for convenience
         //printf("\n\n");

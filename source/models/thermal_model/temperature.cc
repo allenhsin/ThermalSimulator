@@ -47,7 +47,7 @@ namespace Thermal
         map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
 
         if(data_temperature.size() != (unsigned int) _floorplan_holder->_n_units)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: mismatch between size of temperature data and number of floorplan blocks.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between size of temperature data and number of floorplan blocks.\n");
         
         // put temperature back to the data structure
         // (only the silicon layer units)
@@ -71,7 +71,7 @@ namespace Thermal
         fp = fopen (_thermal_params->init_temp_file.c_str(), "r");
     
         if (!fp) 
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open init temp file.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open init temp file.\n");
     
         // temperatures of the different layers
         for (layer=0; layer < NL; layer++) 
@@ -91,7 +91,7 @@ namespace Thermal
                 strcpy(format,"hsink_%s%lf");
                 break;
             default:
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: unknown layer type.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unknown layer type.\n");
                 break;
             }
 
@@ -99,7 +99,7 @@ namespace Thermal
             {
                 fgets(str1, LINE_SIZE, fp);
                 if (feof(fp))
-                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: no enough lines in init temp file.\n");
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: There's no enough floorplan units in init temp file.\n");
                 strcpy(str2, str1);
     
                 // ignore comments and empty lines
@@ -111,7 +111,7 @@ namespace Thermal
                 }
     
                 if (sscanf(str2, format, name, &val) != 2)
-                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid init temp file format.\n");
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid init temp file format.\n");
                 idx = Floorplan::getUnitIndexFromName(_floorplan_holder, name);
                 _temperature[idx + layer*_floorplan_holder->_n_units] = val;
             
@@ -124,7 +124,7 @@ namespace Thermal
         {
             fgets(str1, LINE_SIZE, fp);
             if (feof(fp))
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: no enough lines in init temp file.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: There's no enough floorplan units in init temp file.\n");
             strcpy(str2, str1);
             // ignore comments and empty lines
             ptr = strtok(str1, " \r\t\n");
@@ -134,10 +134,10 @@ namespace Thermal
                 continue;
             }
             if (sscanf(str2, "%s%lf", name, &val) != 2)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid init temp file format.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid init temp file format.\n");
             sprintf(str1, "inode_%d", i);
             if (strcmp(str1, name))
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: invalid init temp file format.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid init temp file format.\n");
             _temperature[i+NL*_floorplan_holder->_n_units] = val;  
 
             Misc::isEndOfLine(1);
@@ -153,7 +153,7 @@ namespace Thermal
             if (!ptr || ptr[0] == '#') 
                 continue;
             else
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: too many lines in init temp file.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Too many floorplan units in init temp file.\n");
         }
 
         fclose(fp); 
@@ -176,28 +176,28 @@ namespace Thermal
         /* heatsink temperatures    */
         for (i=0; i < _floorplan_holder->_n_units; i++)
             if (_temperature[HSINK * _floorplan_holder->_n_units + i] < 0)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: negative temperature.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Negative temperature.\n");
             else  /* area-weighted average */
                 sum += _temperature[HSINK * _floorplan_holder->_n_units + i] * 
                        (_floorplan_holder->_flp_units[i]._width * _floorplan_holder->_flp_units[i]._height);
                 
         for(i=SINK_C_W; i <= SINK_C_E; i++)
             if (_temperature[i + NL * _floorplan_holder->_n_units] < 0)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: negative temperature.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Negative temperature.\n");
             else
                 sum += _temperature[i + NL * _floorplan_holder->_n_units] * 0.25 * 
                        (_thermal_params->s_spreader + height) * (_thermal_params->s_spreader - width);
     
         for(i=SINK_C_N; i <= SINK_C_S; i++)
             if (_temperature[i + NL * _floorplan_holder->_n_units] < 0)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: negative temperature.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Negative temperature.\n");
             else
                 sum += _temperature[i + NL * _floorplan_holder->_n_units] * 0.25 * 
                       (_thermal_params->s_spreader + width) * (_thermal_params->s_spreader - height);
     
         for(i=SINK_W; i <= SINK_S; i++)
             if (_temperature[i + NL * _floorplan_holder->_n_units] < 0)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: negative temperature.\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Negative temperature.\n");
             else
                 sum += _temperature[i + NL * _floorplan_holder->_n_units] * 0.25 * 
                        (sink_size - spr_size);
@@ -283,7 +283,7 @@ namespace Thermal
         map<string, double>& data_power = Data::getSingleton()->getPower();
 
         if(data_power.size() != (unsigned int) _floorplan_holder->_n_units)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: mismatch between number of blocks in the floorplan and physical model.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between number of blocks in the floorplan and power data.\n");
         
         // put main power data information into local _power vector
         // the main power data only contains the power for silicon layer blocks

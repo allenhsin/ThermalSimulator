@@ -1,8 +1,17 @@
 
-# The name of ports the device has
+# This is a comment line
+# In-line comment is not allowed
+
+# List the ports of the device and the port's corresponding properties.
+#
+# Format: <PortName, PortType, Property1, Property2, Property3, ...>
+#
+# Number of properties is arbitrary.
+# Port Types: INPUT, OUTPUT, INOUT
+
 [port]
-    in
-    out
+    <in, INPUT, power>
+    <out, OUTPUT, power>
 
 # Parameters are editable through the netlist
 # and also have default values as defined below.
@@ -28,10 +37,4 @@
     splitter_loss                   = 1.00      
     # dB
     coupler_loss                    = 1.00      
-
-# Properties are not editable through the netlist
-# and are only computed in the model.
-[property]
-    in_power
-    out_power
 

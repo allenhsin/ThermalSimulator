@@ -5,7 +5,6 @@
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 
-
 namespace Thermal
 {
     class ResonantRingModulator : public DeviceModel

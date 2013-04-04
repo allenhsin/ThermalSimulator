@@ -41,11 +41,10 @@ namespace Thermal
         double getPortProperty(std::string property_name);
 
     protected:
-
     private:
-        const PortType                  _port_type;
-        DeviceModel* const              _device;
-        Port*                           _connected_port;
+        const PortType      _port_type;
+        DeviceModel* const  _device;
+        Port*               _connected_port;
 
         std::map<std::string, double>   _port_properties;
 

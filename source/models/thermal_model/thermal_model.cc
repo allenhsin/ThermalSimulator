@@ -64,16 +64,16 @@ namespace Thermal
         // check if block model is chosen
         if(thermal_params->model_type.compare(BLOCK)!=0)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Thermal model type not supported\n \
-                                                    (Only \"block\" is supported)\n");
+                                                    (Only \"block\" is supported).\n");
         // check if secondary path is false
         if(thermal_params->model_secondary)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Secondary path not supported\n \
-                                                    (set model_secondary to false)\n");
+                                                    (set model_secondary to false).\n");
         // check if leakage model is false
         if(thermal_params->leakage_used)
         {
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Leakage model not supported\n \
-                                                    (set leakage_used to false)\n");
+                                                    (set leakage_used to false).\n");
             abort();
         }
     }
@@ -159,7 +159,7 @@ namespace Thermal
             _ttrace_file = fopen(thermal_params->debug_ttrace_file.c_str(), "w");
 
             if(!_ttrace_file)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open ttrace file for output\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
 
             map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
             assert(data_temperature.size()!=0);
@@ -176,11 +176,12 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
         _ready_to_execute = true;
-    }
+    } // startup
 
     void ThermalModel::execute(double scheduled_time)
     {
         assert(_ready_to_execute);
+
         LibUtil::Log::printLine("Execute Thermal Model\n");
 
         ThermalParameters* thermal_params = ThermalParameters::getSingleton();
@@ -209,7 +210,7 @@ namespace Thermal
         if(thermal_params->debug_print_enable)
         {
             if(!_ttrace_file)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open ttrace file for output\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
 
             map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
             assert(data_temperature.size()!=0);
@@ -224,7 +225,7 @@ namespace Thermal
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL);
         _last_execute_time = scheduled_time;
     // ------------------------------------------------------------------------
-    }
+    } // execute
 
 
 } // namespace Thermal

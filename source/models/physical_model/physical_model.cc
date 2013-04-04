@@ -59,16 +59,12 @@ namespace Thermal
         _device_manager->startup();
     // ------------------------------------------------------------------------
 
-    // Mode Selection ---------------------------------------------------------
-        if(getPhysicalConfig()->getBool("env_setup/ptrace_mode_enable"))
+    // Startup Power Trace Mode if Enabled ------------------------------------
+        if(getPhysicalConfig()->getBool("ptrace_mode/enable"))
             _power_trace_mode->startup();
     // ------------------------------------------------------------------------
 
-    // Schedule the first physical model execution event ----------------------
-        EventScheduler::getSingleton()->enqueueEvent(getPhysicalConfig()->getFloat("env_setup/sampling_intvl"), PHYSICAL_MODEL);
         _last_execute_time = 0;
-    // ------------------------------------------------------------------------
-
         _ready_to_execute = true;
     } // startup
     
@@ -79,8 +75,8 @@ namespace Thermal
 
         LibUtil::Log::printLine("Execute Physical Model");
 
-    // Mode Selection ---------------------------------------------------------
-        if(getPhysicalConfig()->getBool("env_setup/ptrace_mode_enable"))
+    // Execute Power Trace Mode if Enabled ------------------------------------
+        if(getPhysicalConfig()->getBool("ptrace_mode/enable"))
             _power_trace_mode->execute(scheduled_time);
     // ------------------------------------------------------------------------
         

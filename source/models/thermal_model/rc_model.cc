@@ -320,7 +320,7 @@ namespace Thermal
         
         // sanity check on floorplan sizes   
         if (w_chip > s_sink || l_chip > s_sink || w_chip > s_spreader || l_chip > s_spreader) 
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: inordinate floorplan size!\n");
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Floorplan size larger than heat spreader and heat sink size.\n");
     
         // gx's and gy's of blocks   
         for (i = 0; i < n; i++) {

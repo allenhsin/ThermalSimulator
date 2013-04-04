@@ -34,7 +34,7 @@ namespace Thermal
 
         FILE* fp = fopen (floorplan_map_file.c_str(), "r");
         if(!fp)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open floorplan map file: " + floorplan_map_file + "\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open floorplan map file: " + floorplan_map_file + ".\n");
 
         fseek(fp, 0, SEEK_SET);
         while(!feof(fp))
@@ -55,7 +55,7 @@ namespace Thermal
                 if (sscanf(line_copy.c_str(), "%s%s", instance_name, floorplan_unit_name) == 2) 
                     _floorplan_map[(string) instance_name] = (string) floorplan_unit_name;
                 else
-                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: wrong floorplan map file format.\n");
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong floorplan map file format.\n");
                 
                 Misc::isEndOfLine(1);
             }
@@ -68,10 +68,10 @@ namespace Thermal
     string DeviceFloorplanMap::getFloorplanUnitNameFromInstanceName(std::string instance_name)
     {
         if(!_floorplan_map_loaded)
-            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Floorplan map not yet loaded");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Floorplan map not yet loaded.\n");
 
         if(!_floorplan_map.count(instance_name))
-            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Unrecognized device instance name: " + (String) instance_name);
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized device instance name: " + (String) instance_name + ".\n");
 
         return _floorplan_map[instance_name];
     }

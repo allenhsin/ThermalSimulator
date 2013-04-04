@@ -95,7 +95,7 @@ namespace Thermal
         }
 
         if(!_finished)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Simulation is not properly terminated\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Simulation is not properly terminated.\n");
     }
 
     EventScheduler::EventScheduler()
