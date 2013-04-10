@@ -55,13 +55,14 @@ namespace Thermal
         _device_manager->setPhysicalConfig(_physical_config);
     // ------------------------------------------------------------------------
 
-    // Startup Device Manager -------------------------------------------------
-        _device_manager->startup();
-    // ------------------------------------------------------------------------
-
-    // Startup Power Trace Mode if Enabled ------------------------------------
+    // Startup Power Trace Mode -----------------------------------------------
         if(getPhysicalConfig()->getBool("ptrace_mode/enable"))
             _power_trace_mode->startup();
+    // ------------------------------------------------------------------------
+
+    // Startup Device Manager -------------------------------------------------
+        if(getPhysicalConfig()->getBool("device_manager/enable"))
+            _device_manager->startup();
     // ------------------------------------------------------------------------
 
         _last_execute_time = 0;
@@ -75,11 +76,16 @@ namespace Thermal
 
         LibUtil::Log::printLine("Execute Physical Model");
 
-    // Execute Power Trace Mode if Enabled ------------------------------------
+    // Execute Power Trace Mode -----------------------------------------------
         if(getPhysicalConfig()->getBool("ptrace_mode/enable"))
             _power_trace_mode->execute(scheduled_time);
     // ------------------------------------------------------------------------
         
+    // Execute Device Manager -------------------------------------------------
+        if(getPhysicalConfig()->getBool("device_manager/enable"))
+            _device_manager->execute( (scheduled_time - _last_execute_time) );
+    // ------------------------------------------------------------------------
+
         _last_execute_time = scheduled_time;
     } // execute
 

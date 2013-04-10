@@ -7,18 +7,20 @@
 #
 # Format: <PortName, PortType, Property1, Property2, Property3, ...>
 #
-# Number of properties is arbitrary.
+# Number of properties is arbitrary. Its unit should be SI.
 # Port Types: INPUT, OUTPUT, INOUT
 
 [port]
-    <out, OUTPUT, power>
+    <out, OUTPUT, power, wavelength>
 
 # Parameters are editable through the netlist
 # and also have default values as defined below.
 [parameter]
-    # P_Laser/P_Electrical
+    # Laser power per wavelength [dBm]
+    laser_output_power          = -20.00
+
+    # P_Laser/P_Electrical (OBSOLETE)
     efficiency                  = 0.25      
-    # Laser diode loss
-    laser_diode_loss            = 1.00      
-    area                        = 0
+    # Laser diode loss [dB] (OBSOLETE)
+    laser_diode_loss            = 1.00
 

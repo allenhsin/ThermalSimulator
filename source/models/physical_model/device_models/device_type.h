@@ -9,7 +9,7 @@ namespace Thermal
     enum DeviceType
     {   
         RESONANT_RING,
-        RESONANT_RING_MODULATOR,
+        RESONANT_RING_DEPLETION_MODULATOR,
         LOSSY_OPTICAL_NET,
         LASER_SOURCE_OFF_CHIP,
         LASER_SOURCE_ON_CHIP,

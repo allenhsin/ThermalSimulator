@@ -16,11 +16,13 @@ namespace Thermal
         static void release();
         static Data* getSingleton();
 
+
+
         std::map<std::string, double>& getTemperature()
         { return _temperature; }
 
-        std::map<std::string, double>& getPower()
-        { return _power; }
+        std::map<std::string, double>& getAccumulatedEnergyConsumption()
+        { return _accumulated_energy_consumption; }
 
     protected:
         Data();
@@ -30,7 +32,7 @@ namespace Thermal
         static Data* _data_singleton; 
     
         std::map<std::string, double> _temperature;
-        std::map<std::string, double> _power;
+        std::map<std::string, double> _accumulated_energy_consumption;
         
     }; // class Data
 

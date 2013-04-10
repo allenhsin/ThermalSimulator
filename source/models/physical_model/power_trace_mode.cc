@@ -128,11 +128,11 @@ namespace Thermal
     {
         assert(_n_ptrace_flp_units != 0);
         
-        map<string, double>& power = Data::getSingleton()->getPower();
-        assert(power.size() == 0);
+        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption();
+        assert(data_energy.size() == 0);
 
         for (int i=0; i<(int)_n_ptrace_flp_units; ++i)
-            power[ _ptrace_flp_units_names[i] ] = 0;
+            data_energy[ _ptrace_flp_units_names[i] ] = 0;
     }
     
     void PowerTraceMode::startup()
@@ -174,20 +174,20 @@ namespace Thermal
         LibUtil::Log::printLine("Execute Power Trace\n");
         
         assert(_n_ptrace_flp_units!=0);
-        map<string, double>& power = Data::getSingleton()->getPower();
-        assert(power.size() == (unsigned int) _n_ptrace_flp_units);
+        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption();
+        assert(data_energy.size() == (unsigned int) _n_ptrace_flp_units);
         
     // Read single line of power trace ----------------------------------------
         bool valid_line = false;
         valid_line = loadFloorplanUnitPowerFromPtrace();
     // ------------------------------------------------------------------------
 
-    // update main power data structure and schedule next event ---------------
+    // update main accumulated energy data structure and schedule next event --
         if(valid_line)
         {
             for(int i=0; i<_n_ptrace_flp_units; ++i)
-                power[ _ptrace_flp_units_names[i] ] = _ptrace_flp_units_power[i];
-            assert(power.size() == (unsigned int) _n_ptrace_flp_units);
+                data_energy[ _ptrace_flp_units_names[i] ] += _ptrace_flp_units_power[i] * _ptrace_sampling_interval;
+            assert(data_energy.size() == (unsigned int) _n_ptrace_flp_units);
 
             EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _ptrace_sampling_interval), PHYSICAL_MODEL);
         }
@@ -197,4 +197,5 @@ namespace Thermal
     } // execute
 
 } // namespace Thermal
+
 

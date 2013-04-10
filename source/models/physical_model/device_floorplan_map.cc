@@ -72,9 +72,9 @@ namespace Thermal
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Floorplan map not yet loaded.\n");
 
         if(!_floorplan_map.count(instance_name))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized device instance name: " + (String) instance_name + ".\n");
-
-        return _floorplan_map[instance_name];
+            return NO_MAPPED_NAME;
+        else
+            return _floorplan_map[instance_name];
     }
 }
 

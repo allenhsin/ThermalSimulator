@@ -204,7 +204,7 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Compute Transient Temperature ------------------------------------------
-        _temperature->updateTransientTemperature();
+        _temperature->updateTransientTemperature( (scheduled_time - _last_execute_time) );
 
         // print ttrace to file for debug if specified
         if(thermal_params->debug_print_enable)
@@ -219,6 +219,13 @@ namespace Thermal
                 fprintf(_ttrace_file, "%.2f ", it->second);
             fprintf(_ttrace_file, "\n");
         }
+    // ------------------------------------------------------------------------
+
+    // Clear the accumulated energy in the data structure ---------------------
+        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption();
+        
+        for (map<string, double>::iterator it = data_energy.begin(); it != data_energy.end(); ++it)
+            it->second = 0;
     // ------------------------------------------------------------------------
 
     // Schedule next thermal model execution event ----------------------------

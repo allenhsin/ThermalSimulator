@@ -19,7 +19,7 @@ namespace Thermal
         void setRCModelHolder(RCModelHolder* rc_model_holder);
         
         void setInitialTemperature();
-        void updateTransientTemperature();
+        void updateTransientTemperature(double time_elapsed_since_last_update);
 
         // calculate avg sink temp for natural convection package model
         double getAvgSinkTemperature();

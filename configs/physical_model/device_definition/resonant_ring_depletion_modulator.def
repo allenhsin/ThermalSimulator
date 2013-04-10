@@ -1,0 +1,64 @@
+
+# This is a comment line
+# In-line comment is not allowed
+
+# List the ports of the device and the port's corresponding properties.
+#
+# Format: <PortName, PortType, Property1, Property2, Property3, ...>
+#
+# Number of properties is arbitrary.
+# Port Types: INPUT, OUTPUT, INOUT
+
+[port]
+    <in, INPUT,  power, wavelength>
+    <thru, OUTPUT, power, wavelength>
+    <add, INPUT,  power, wavelength>
+    <drop, OUTPUT, power, wavelength>
+    <mod_driver, INPUT, voltage>
+    <heater, INPUT, power>
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+
+    # coupler -----------------------------------------------------------------
+    
+    # lossless coupling is assumed
+    # in-to-thru self-coupling coefficient [dB]
+    t1                          = 0.995
+    # add-to-drop self-coupling coefficient [dB]
+    t2                          = 0.995
+
+    # waveguide ---------------------------------------------------------------
+    # [dB/m]
+    waveguide_loss              = 1380
+
+    # ring structure ----------------------------------------------------------
+    # radius [m]
+    ring_radius                 = 4.53e-6
+    # width [m] 
+    ring_width                  = 1.2e-6
+    # height [m]
+    ring_height                 = 800e-9
+    # the portion of light mode in the ring
+    confinement_factor          = 0.47
+
+    # modulator parameters ----------------------------------------------------
+    # p-type doping concentration [m^-3]
+    Na                          = 3e24
+    # n-type doping concentration [m^-3]
+    Nd                          = 1e24
+    # number of junctions on the disk for both p and n
+    number_junctions            = 84
+    
+    # the following two parameters are for the free-carrier plasma dispersion 
+    # effect. From Soref's paper, the change in the effective refractive index
+    # is described by: delta_n = -( n_fe * delta_Nd + n_fh * (delta_Na)^0.8 )
+    
+    # free electron parameter n_fe [m^3]
+    fcpd_n_fe                   = 6.0e-28
+    # free hold parameter n_fh [m^3]
+    fcpd_n_fh                   = 5.6e-24
+
+    # -------------------------------------------------------------------------
+

@@ -273,24 +273,24 @@ namespace Thermal
         }
     } // computeTransientTemperatureFromPower
     
-    void Temperature::updateTransientTemperature()
+    void Temperature::updateTransientTemperature(double time_elapsed_since_last_update)
     {
         assert(_thermal_params);
         assert(_floorplan_holder);
         assert(_rc_model_holder);
         assert(_temperature.size() == (unsigned int) _rc_model_holder->n_nodes);
 
-        map<string, double>& data_power = Data::getSingleton()->getPower();
+        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption();
 
-        if(data_power.size() != (unsigned int) _floorplan_holder->_n_units)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between number of blocks in the floorplan and power data.\n");
+        if(data_energy.size() != (unsigned int) _floorplan_holder->_n_units)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between number of blocks in the floorplan and accumulated energy data.\n");
         
         // put main power data information into local _power vector
         // the main power data only contains the power for silicon layer blocks
         // so in "computeTransientTemperatureFromPower" function, it will set
         // the power for nodes in others layers
-        for(map<string, double>::iterator it = data_power.begin(); it != data_power.end(); ++it)
-            _power[ Floorplan::getUnitIndexFromName(_floorplan_holder, it->first.c_str()) ] = it->second;
+        for(map<string, double>::iterator it = data_energy.begin(); it != data_energy.end(); ++it)
+            _power[ Floorplan::getUnitIndexFromName(_floorplan_holder, it->first.c_str()) ] = ((it->second)/time_elapsed_since_last_update);
         
         // compute temp from power
         computeTransientTemperatureFromPower();

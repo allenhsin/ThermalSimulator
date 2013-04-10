@@ -31,7 +31,7 @@ namespace Thermal
     Data::Data()
     {
         _temperature.clear();
-        _power.clear();
+        _accumulated_energy_consumption.clear();
     }
 
     Data::~Data()

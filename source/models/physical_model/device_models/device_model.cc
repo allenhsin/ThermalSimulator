@@ -8,7 +8,7 @@
 #include "source/models/physical_model/physical_constants.h"
 #include "libutil/LibUtil.h"
 
-#include "source/models/physical_model/device_models/resonant_ring_modulator.h"
+#include "source/models/physical_model/device_models/resonant_ring_depletion_modulator.h"
 #include "source/models/physical_model/device_models/laser_source_off_chip.h"
 #include "source/models/physical_model/device_models/lossy_optical_net.h"
 
@@ -26,6 +26,7 @@ namespace Thermal
         
         , _device_definition_file   (device_definition_file)
         , _device_floorplan_map     (device_floorplan_map)
+        , _mapped_in_floorplan      (false)
         , _traversed_in_bfs         (false)
         , _target_parameter_name    ("")
         , _target_port_name         ("")
@@ -57,8 +58,8 @@ namespace Thermal
             //device_model = new ResonantRing( device_floorplan_map, physical_config->getString("device/resonant_ring/def_file") );
             break;
 
-        case RESONANT_RING_MODULATOR:
-            device_model = new ResonantRingModulator( device_floorplan_map, physical_config->getString("device/resonant_ring_modulator/def_file") );
+        case RESONANT_RING_DEPLETION_MODULATOR:
+            device_model = new ResonantRingDepletionModulator( device_floorplan_map, physical_config->getString("device/resonant_ring_depletion_modulator/def_file") );
             break;
 
         case LOSSY_OPTICAL_NET:
@@ -96,8 +97,16 @@ namespace Thermal
     // Device Name ------------------------------------------------------------
     void DeviceModel::setDeviceName(string instance_name)
     {
+        string floorplan_unit_name;
+
         _instance_name          = instance_name;
-        _floorplan_unit_name    = _device_floorplan_map->getFloorplanUnitNameFromInstanceName(instance_name);
+        floorplan_unit_name     = _device_floorplan_map->getFloorplanUnitNameFromInstanceName(instance_name);
+
+        if (floorplan_unit_name != NO_MAPPED_NAME)
+        {
+            _floorplan_unit_name = floorplan_unit_name;
+            _mapped_in_floorplan = true;
+        }
     }
     // ------------------------------------------------------------------------
 
@@ -105,6 +114,13 @@ namespace Thermal
     // Device Parameter -------------------------------------------------------
     bool DeviceModel::hasParameter(string parameter_name)
     { return _device_parameters.count(parameter_name); }
+
+    double DeviceModel::getParameter(string parameter_name)
+    {
+        if(!hasParameter(parameter_name))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized parameter: " + (String) parameter_name + ".\n");
+        return _device_parameters[parameter_name];
+    }
 
     void DeviceModel::setTargetParameterName(string parameter_name)
     { 
@@ -124,6 +140,14 @@ namespace Thermal
     // Device Port ------------------------------------------------------------
     bool DeviceModel::hasPort(string port_name)
     { return _device_ports.count(port_name); }
+
+    Port* DeviceModel::getPortForModification(string port_name)
+    {
+        if(!hasPort(port_name))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized port when getPort: " + (String) port_name + ".\n");
+        
+        return _device_ports.find(port_name)->second;
+    }
 
     const Port* DeviceModel::getPort(string port_name)
     {

@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#define NO_MAPPED_NAME "NO_MAPPED_NAME"
+
 namespace Thermal
 {
     class DeviceFloorplanMap

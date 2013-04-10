@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <math.h>
 
 #include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_models/port.h"
@@ -24,6 +25,9 @@ namespace Thermal
     // derived classes must implement these functions
     // ------------------------------------------------------------------------
 
+        // initialize device
+        virtual void initializeDevice() = 0;
+        
         // update device properties
         virtual void updateDeviceProperties() = 0;
 
@@ -39,6 +43,7 @@ namespace Thermal
         // existance of the parameter for the device
         // i.e. can only set for the loaded parameters
         void setTargetParameterValue(double parameter_value);
+        double getParameter(std::string parameter_name);
         
         bool hasPort(std::string port_name);
         // similar to set parameters
@@ -56,8 +61,11 @@ namespace Thermal
         void setTraversedInBFS()
         { _traversed_in_bfs = true; }
 
-        bool getTraversedInBFS()
+        bool isTraversedInBFS()
         { return _traversed_in_bfs; }
+
+        bool isMappedInFloorplan()
+        { return _mapped_in_floorplan; }
         
         // just for debug
         void printDefinition();
@@ -66,6 +74,8 @@ namespace Thermal
         // derived child classes must call this constructor
         DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
         
+        Port* getPortForModification(std::string port_name);
+
         DeviceType  _device_type;
         std::string _instance_name;
         std::string _floorplan_unit_name;
@@ -79,6 +89,7 @@ namespace Thermal
         std::string         _device_definition_file;
         DeviceFloorplanMap* _device_floorplan_map;
         
+        bool _mapped_in_floorplan;
         bool _traversed_in_bfs;
 
         std::string _target_parameter_name;

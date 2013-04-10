@@ -46,8 +46,14 @@ $(TARGET): $(OBJS)
 	mkdir -p $(dir $@)
 	touch $@
 
-.phony: clean clean_results
+.phony: clean clean_results run
+
+run:
+	make clean_results
+	$(TARGET)
+
 clean:
+	make clean_results
 	$(RM) -rf $(OBJS) $(TARGET)
 
 clean_results:

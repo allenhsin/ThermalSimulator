@@ -18,7 +18,7 @@ namespace Thermal
         ~DeviceManager();
 
         void startup();
-        void execute();
+        void execute(double time_elapsed_since_last_update);
 
         void setPhysicalConfig(config::Config* physical_config) 
         { _physical_config = physical_config; }

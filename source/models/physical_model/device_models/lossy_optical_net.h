@@ -13,6 +13,9 @@ namespace Thermal
         LossyOpticalNet(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
         ~LossyOpticalNet();
 
+        // initialize device
+        virtual void initializeDevice();
+
         // update device properties
         virtual void updateDeviceProperties();
 
@@ -20,6 +23,8 @@ namespace Thermal
     protected:
 
     private:
+        // the laser power ratio between net output and net input
+        double _power_ratio;
 
 
     };

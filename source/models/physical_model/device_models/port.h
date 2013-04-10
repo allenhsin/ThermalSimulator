@@ -35,6 +35,8 @@ namespace Thermal
         const Port* getConnectedPort() const
         { return _connected_port; }
 
+        void updatePortPropertyFromConnectedPort(std::string property_name);
+
         void addPortProperty(std::string property_name, double default_property_value = 0);
         void setPortProperty(std::string property_name, double property_value);
         bool   hasPortProperty(std::string property_name) const;

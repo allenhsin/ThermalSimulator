@@ -37,7 +37,7 @@ namespace Thermal
     void Port::setPortProperty(string property_name, double property_value)
     {
         if(!hasPortProperty(property_name))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" already does not exist.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" does not exist.\n");
 
         _port_properties[property_name] = property_value;
     }
@@ -45,9 +45,19 @@ namespace Thermal
     double Port::getPortProperty(string property_name) const
     {
         if(!hasPortProperty(property_name))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" already does not exist.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" does not exist.\n");
 
         return _port_properties.find(property_name)->second;
+    }
+
+    void Port::updatePortPropertyFromConnectedPort(string property_name)
+    {
+        if(!hasPortProperty(property_name))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" does not exist.\n");
+        if(_port_type != INPUT_PORT)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot update non-input port property from its connected port.\n");
+
+        _port_properties[property_name] = getConnectedPort()->getPortProperty(property_name);
     }
 
 } // namespace Thermal

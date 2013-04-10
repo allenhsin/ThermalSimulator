@@ -80,7 +80,7 @@ namespace Thermal
                     // if any of the parent device of this child
                     // device has not been traversed yet, it 
                     // cannot be put into the search sequence.
-                    if(!parent_device_list[j]->getTraversedInBFS())
+                    if(!parent_device_list[j]->isTraversedInBFS())
                     {   
                         all_parent_traversed = false;
                         break;
@@ -108,13 +108,13 @@ namespace Thermal
 
         // load device netlist
         //FIXME: hardcode device now just for test ------------------------------------------------
-        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING_MODULATOR, _physical_config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING_DEPLETION_MODULATOR, _physical_config, _device_floorplan_map) );
         //_device_instances[0]->printDefinition();
 
         _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _physical_config, _device_floorplan_map) );
         //_device_instances[1]->printDefinition();
 
-        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING_MODULATOR, _physical_config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING_DEPLETION_MODULATOR, _physical_config, _device_floorplan_map) );
         //_device_instances[2]->printDefinition();
 
         _device_root_instances.push_back( DeviceModel::createDevice( LASER_SOURCE_OFF_CHIP, _physical_config, _device_floorplan_map) );
@@ -160,10 +160,15 @@ namespace Thermal
         buildDeviceSequence();
         assert(_device_sequence.size()==_number_devices);
     // ------------------------------------------------------------------------
+
+    // Initialize Devices -----------------------------------------------------
+        for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
+            (*it)->initializeDevice();
+    // ------------------------------------------------------------------------
     }
     
     // TODO: 
-    void DeviceManager::execute()
+    void DeviceManager::execute(double time_elapsed_since_last_update)
     {
     }
 

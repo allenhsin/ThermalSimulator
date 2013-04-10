@@ -110,7 +110,6 @@
 // flow resistance constants
 #define KC                  0.42
 #define KE                  1.0
-#define PI                  3.1416
 
 // fan constants
 #define FAN_ALPHA           1       // 1 for laminar flow, >=2 for turbulent flow
