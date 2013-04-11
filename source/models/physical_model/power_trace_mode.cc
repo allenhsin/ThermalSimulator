@@ -127,12 +127,9 @@ namespace Thermal
     void PowerTraceMode::setFloorplanUnitNamesInPowerData()
     {
         assert(_n_ptrace_flp_units != 0);
-        
-        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption();
-        assert(data_energy.size() == 0);
 
         for (int i=0; i<(int)_n_ptrace_flp_units; ++i)
-            data_energy[ _ptrace_flp_units_names[i] ] = 0;
+            Data::getSingleton()->addData(ACCUMULATED_ENERGY_DATA, _ptrace_flp_units_names[i], 0);
     }
     
     void PowerTraceMode::startup()
@@ -174,8 +171,6 @@ namespace Thermal
         LibUtil::Log::printLine("Execute Power Trace\n");
         
         assert(_n_ptrace_flp_units!=0);
-        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption();
-        assert(data_energy.size() == (unsigned int) _n_ptrace_flp_units);
         
     // Read single line of power trace ----------------------------------------
         bool valid_line = false;
@@ -186,8 +181,10 @@ namespace Thermal
         if(valid_line)
         {
             for(int i=0; i<_n_ptrace_flp_units; ++i)
-                data_energy[ _ptrace_flp_units_names[i] ] += _ptrace_flp_units_power[i] * _ptrace_sampling_interval;
-            assert(data_energy.size() == (unsigned int) _n_ptrace_flp_units);
+                Data::getSingleton()->setData(  ACCUMULATED_ENERGY_DATA, _ptrace_flp_units_names[i],
+                                                (Data::getSingleton()->getData(ACCUMULATED_ENERGY_DATA, _ptrace_flp_units_names[i]) + 
+                                                (_ptrace_flp_units_power[i] * _ptrace_sampling_interval))
+                                             );
 
             EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _ptrace_sampling_interval), PHYSICAL_MODEL);
         }

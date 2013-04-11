@@ -161,11 +161,10 @@ namespace Thermal
             if(!_ttrace_file)
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
 
-            map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
-            assert(data_temperature.size()!=0);
+            assert(Data::getSingleton()->getDataSize(TEMPERATURE_DATA) == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
             // print flp unit names
-            for(map<string, double>::iterator it = data_temperature.begin(); it != data_temperature.end(); ++it)
-                fprintf(_ttrace_file, "%s ", it->first.c_str());
+            for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
+                fprintf(_ttrace_file, "%s ", (_floorplan->getFloorplanHolder()->_flp_units[i]._name).c_str() );
             fprintf(_ttrace_file, "\n");
         }
     // ------------------------------------------------------------------------
@@ -212,24 +211,22 @@ namespace Thermal
             if(!_ttrace_file)
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
 
-            map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
-            assert(data_temperature.size()!=0);
+            assert(Data::getSingleton()->getDataSize(TEMPERATURE_DATA) == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
             // print flp unit names
-            for(map<string, double>::iterator it = data_temperature.begin(); it != data_temperature.end(); ++it)
-                fprintf(_ttrace_file, "%.2f ", it->second);
+            for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
+                fprintf(_ttrace_file, "%.2f ", Data::getSingleton()->getData(TEMPERATURE_DATA, _floorplan->getFloorplanHolder()->_flp_units[i]._name));
             fprintf(_ttrace_file, "\n");
         }
     // ------------------------------------------------------------------------
 
     // Clear the accumulated energy in the data structure ---------------------
-        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption();
-        
-        for (map<string, double>::iterator it = data_energy.begin(); it != data_energy.end(); ++it)
-            it->second = 0;
+        assert(Data::getSingleton()->getDataSize(ACCUMULATED_ENERGY_DATA) == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
+        for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
+            Data::getSingleton()->setData(ACCUMULATED_ENERGY_DATA, _floorplan->getFloorplanHolder()->_flp_units[i]._name, 0);
     // ------------------------------------------------------------------------
 
     // Schedule next thermal model execution event ----------------------------
-        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL);
+        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL );
         _last_execute_time = scheduled_time;
     // ------------------------------------------------------------------------
     } // execute

@@ -17,10 +17,11 @@ namespace Thermal
         virtual void initializeDevice();
 
         // update device properties
-        virtual void updateDeviceProperties();
-
+        virtual void updateDeviceProperties(double time_elapsed_since_last_update);
 
     protected:
+        // check the validity of device parameters
+        virtual void deviceParameterCheck();
 
     private:
         // the laser power ratio between net output and net input

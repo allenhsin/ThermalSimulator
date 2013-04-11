@@ -1,0 +1,28 @@
+
+# This is a comment line
+# In-line comment is not allowed
+
+# List the ports of the device and the port's corresponding properties.
+#
+# Format: <PortName, PortType, Property1, Property2, Property3, ...>
+#
+# Number of properties is arbitrary.
+# Port Types: INPUT, OUTPUT, INOUT
+
+[port]
+    <out, OUTPUT, voltage>
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+    
+    # bit-0 voltage (forward-biased voltage) [V]
+    bit_zero_voltage                    = 0.6
+    # bit-1 voltage (reverse-biased voltage) [V]
+    bit_one_voltage                     = -4.0
+
+    # bit-0 voltage to bit-1 voltage time (10% to 90%) [s]
+    bit_one_transition_time             = 100e-12
+    # bit-1 voltage to bit-0 voltage time (10% to 90%) [s]
+    bit_zero_transition_time            = 100e-12
+

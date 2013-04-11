@@ -31,7 +31,7 @@ namespace Thermal
     }
 
     // The output power won't change
-    void LaserSourceOffChip::updateDeviceProperties()
+    void LaserSourceOffChip::updateDeviceProperties(double time_elapsed_since_last_update)
     {
         getPortForModification("out")->setPortProperty("wavelength", _wavelength);
     }

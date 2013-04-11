@@ -17,14 +17,16 @@ namespace Thermal
         virtual void initializeDevice();
 
         // update device properties
-        virtual void updateDeviceProperties();
+        virtual void updateDeviceProperties(double time_elapsed_since_last_update);
 
     protected:
+        // check the validity of device parameters
+        virtual void deviceParameterCheck();
 
     private:
         // precompute parts of p-n junction built-in voltage
         double _v_bi_partial;
-        // precompute parts of p-n junction width
+        // precompute parts of p-n junction open-circuit depletion width
         double _w_dep_partial;
         // precompute parts of p-n junction open-circuit cap
         double _c_j0_partial;

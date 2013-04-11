@@ -87,7 +87,7 @@ namespace Thermal
         _floorplan_holder->_total_height = (max_y - min_y);
     } // calculateChipTotalHeight
 
-    bool Floorplan::isVertAdj(FloorplanHolder* floorplan_holder, int i, int j)
+    bool Floorplan::isVertAdj(const FloorplanHolder* floorplan_holder, int i, int j)
     {
         assert(floorplan_holder);
 
@@ -125,7 +125,7 @@ namespace Thermal
         return false;
     } // isVertAdj
 
-    bool Floorplan::isHorizAdj(FloorplanHolder* floorplan_holder, int i, int j)
+    bool Floorplan::isHorizAdj(const FloorplanHolder* floorplan_holder, int i, int j)
     {
         assert(floorplan_holder);
 
@@ -163,7 +163,7 @@ namespace Thermal
         return false;
     } // isHorizAdj
 
-    double Floorplan::getSharedLength(FloorplanHolder* floorplan_holder, int i, int j)
+    double Floorplan::getSharedLength(const FloorplanHolder* floorplan_holder, int i, int j)
     {
         assert(floorplan_holder);
 
@@ -193,7 +193,7 @@ namespace Thermal
         
     } // getSharedLength
 
-    int Floorplan::getUnitIndexFromName(FloorplanHolder* floorplan_holder, const char* name)
+    int Floorplan::getUnitIndexFromName(const FloorplanHolder* floorplan_holder, const char* name)
     {
         assert(floorplan_holder);
 
@@ -212,12 +212,10 @@ namespace Thermal
     void Floorplan::setFloorplanUnitNamesInTemperatureData()
     {
         assert(_floorplan_holder);
-        
-        map<string, double>& temperature = Data::getSingleton()->getTemperature();
-        assert(temperature.size() == 0);
+        assert(Data::getSingleton()->getDataSize(TEMPERATURE_DATA) == 0);
 
         for (int i=0; i<_floorplan_holder->_n_units; ++i)
-            temperature[ _floorplan_holder->_flp_units[i]._name ] = 0;
+            Data::getSingleton()->addData(TEMPERATURE_DATA, _floorplan_holder->_flp_units[i]._name, 0);
     }
 
     void Floorplan::parseFloorplanFile(string flp_file, string top_flp_object_name)

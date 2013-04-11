@@ -36,25 +36,21 @@ namespace Thermal
     void Temperature::setThermalParameters(ThermalParameters* thermal_params)
     { _thermal_params = thermal_params; }
 
-    void Temperature::setFloorplanHolder(FloorplanHolder* floorplan_holder)
+    void Temperature::setFloorplanHolder(const FloorplanHolder* floorplan_holder)
     { _floorplan_holder = floorplan_holder; }
 
-    void Temperature::setRCModelHolder(RCModelHolder* rc_model_holder)
+    void Temperature::setRCModelHolder(const RCModelHolder* rc_model_holder)
     { _rc_model_holder = rc_model_holder; }
 
     void Temperature::updateDataTemperature()
     {
-        map<string, double>& data_temperature = Data::getSingleton()->getTemperature();
-
-        if(data_temperature.size() != (unsigned int) _floorplan_holder->_n_units)
+        if(Data::getSingleton()->getDataSize(TEMPERATURE_DATA) != (unsigned int) _floorplan_holder->_n_units)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between size of temperature data and number of floorplan blocks.\n");
         
         // put temperature back to the data structure
         // (only the silicon layer units)
         for(int i=0; i<_floorplan_holder->_n_units; ++i)
-            data_temperature[ _floorplan_holder->_flp_units[i]._name ] = _temperature[i];
-        // check that it doesn't add any new block into the data structure
-        assert(data_temperature.size() == (unsigned int) _floorplan_holder->_n_units);
+            Data::getSingleton()->setData(TEMPERATURE_DATA, _floorplan_holder->_flp_units[i]._name, _temperature[i]);
     }
 
     void Temperature::loadInitTemperatureFromFile()
@@ -223,12 +219,12 @@ namespace Thermal
     void Temperature::computeTransientTemperatureFromPower()
     {
         // shortcuts
-        int n                                       = _rc_model_holder->n_nodes;
-        vector<double>& time_steps                  = _rc_model_holder->time_steps;
-        vector< vector< vector<double> > >& lu_step = _rc_model_holder->lu_step;
-        vector< vector<double> >& geq_step          = _rc_model_holder->geq_step;
-        vector< vector<int> >& p_step               = _rc_model_holder->p_step;
-        double time_elapsed                         = _thermal_params->sampling_intvl;
+        int n                                               = _rc_model_holder->n_nodes;
+        const vector<double>& time_steps                    = _rc_model_holder->time_steps;
+        const vector< vector< vector<double> > >& lu_step   = _rc_model_holder->lu_step;
+        const vector< vector<double> >& geq_step            = _rc_model_holder->geq_step;
+        const vector< vector<int> >& p_step                 = _rc_model_holder->p_step;
+        double time_elapsed                                 = _thermal_params->sampling_intvl;
         
         double  time, residue_time;
         vector<double> power_new (n, 0);
@@ -279,18 +275,17 @@ namespace Thermal
         assert(_floorplan_holder);
         assert(_rc_model_holder);
         assert(_temperature.size() == (unsigned int) _rc_model_holder->n_nodes);
+        assert(_power.size() == (unsigned int) _rc_model_holder->n_nodes);
 
-        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption();
-
-        if(data_energy.size() != (unsigned int) _floorplan_holder->_n_units)
+        if(Data::getSingleton()->getDataSize(ACCUMULATED_ENERGY_DATA) != (unsigned int) _floorplan_holder->_n_units)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between number of blocks in the floorplan and accumulated energy data.\n");
         
         // put main power data information into local _power vector
         // the main power data only contains the power for silicon layer blocks
         // so in "computeTransientTemperatureFromPower" function, it will set
         // the power for nodes in others layers
-        for(map<string, double>::iterator it = data_energy.begin(); it != data_energy.end(); ++it)
-            _power[ Floorplan::getUnitIndexFromName(_floorplan_holder, it->first.c_str()) ] = ((it->second)/time_elapsed_since_last_update);
+        for(int i=0; i<_floorplan_holder->_n_units; ++i)
+            _power[i] = Data::getSingleton()->getData(ACCUMULATED_ENERGY_DATA, _floorplan_holder->_flp_units[i]._name)/time_elapsed_since_last_update;
         
         // compute temp from power
         computeTransientTemperatureFromPower();

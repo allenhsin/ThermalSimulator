@@ -5,7 +5,7 @@
 #
 #       FLOORPLAN_UNIT_NAME INITIAL_TEMPERATURE
 #
-# There are four layers or floorplan: 
+# There are four layers in the floorplan: 
 # 1) silicon, 2) interface material, 3) heat 
 # spreader, and 4) heatsink. The declaration of
 # init temperature must follow this order and
@@ -13,9 +13,22 @@
 # For silicon layer, just use the original
 # floorplan name. For the other layers, add
 # "iface_", "hsp_" and "hsink_" to 2), 3) and 
-# 4) layers, respectively.
+# 4) layers, respectively. Within each layer,
+# the order of the blocks is arbitrary.
 # there are 12 extra node called inode_# that
 # should be defined at the end of the declaration.
+# inode_0:  spreader peripheral west
+# inode_1:  spreader peripheral east
+# inode_2:  spreader peripheral north
+# inode_3:  spreader peripheral south
+# inode_4:  heat sink central west
+# inode_5:  heat sink central east
+# inode_6:  heat sink central north
+# inode_7:  heat sink central south
+# inode_8:  heat sink peripheral west
+# inode_9:  heat sink peripheral east
+# inode_10: heat sink peripheral north
+# inode_11: heat sink peripheral south
 
 tile_0_L2	329.56
 tile_0_Dram_Dir	328.72

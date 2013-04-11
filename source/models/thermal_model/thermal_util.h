@@ -11,8 +11,8 @@ namespace Thermal
     {
     public:
         static void lupDecomposition(std::vector< std::vector<double> >& a, int n, std::vector<int>& p);
-        static void luSolve(std::vector< std::vector<double> >& a, int n, 
-                            std::vector<int>& p, std::vector<double>& b, 
+        static void luSolve(const std::vector< std::vector<double> >& a, int n, 
+                            const std::vector<int>& p, std::vector<double>& b, 
                             std::vector<double>& x);
     }; // class ThermalUtil
 

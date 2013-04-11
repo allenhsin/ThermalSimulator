@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "source/data/data.h"
+#include "source/misc/misc.h"
 #include "source/models/physical_model/device_models/lossy_optical_net.h"
 #include "source/models/physical_model/device_models/device_type.h"
 #include "libutil/LibUtil.h"
@@ -17,36 +18,41 @@ namespace Thermal
     LossyOpticalNet::~LossyOpticalNet()
     {}
 
+    void LossyOpticalNet::deviceParameterCheck()
+    {   
+        if( getParameter("loss") < 0 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Optical net loss cannot be smaller than zero.\n");
+
+    }
+
     void LossyOpticalNet::initializeDevice()
     {
+        deviceParameterCheck();
+
         double loss_in_db = getParameter("loss");
 
-        if      (loss_in_db < 0)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Optical net loss cannot be smaller than zero.\n");
-        else if (loss_in_db == 0)
+        if (Misc::eq(loss_in_db, 0))
             loss_in_db = getParameter("length") * getParameter("loss_per_meter");
 
         _power_ratio = pow( 10.00, (-loss_in_db/10) );
-
-        // initialize device energy consumption to zero if in floorplan
-        if(isMappedInFloorplan())
-        {
-            map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption(); 
-            data_energy[_floorplan_unit_name] = 0;
-        }
     }
 
-    void LossyOpticalNet::updateDeviceProperties()
+    void LossyOpticalNet::updateDeviceProperties(double time_elapsed_since_last_update)
     {
         // update the input ports' device properties from its connected devices
         getPortForModification("in")->updatePortPropertyFromConnectedPort("power");
         getPortForModification("in")->updatePortPropertyFromConnectedPort("wavelength");
 
         // calculate and update output power
-        double output_power = getPort("in")->getPortProperty("power") * _power_ratio;
-        double output_wavelength = getPort("in")->getPortProperty("wavelength");
-        getPortForModification("out")->setPortProperty("power", output_power);
-        getPortForModification("out")->setPortProperty("wavelength", output_wavelength);
+        double in_power         = getPort("in")->getPortProperty("power");
+        double out_power        = in_power * _power_ratio;
+        double out_wavelength   = getPort("in")->getPortProperty("wavelength");
+        getPortForModification("out")->setPortProperty("power", out_power);
+        getPortForModification("out")->setPortProperty("wavelength", out_wavelength);
+
+        // update energy consumption in data structure if the device is in the floorplan
+        if(isMappedInFloorplan())
+            Data::getSingleton()->setData(ACCUMULATED_ENERGY_DATA, _floorplan_unit_name, (time_elapsed_since_last_update * (in_power-out_power)));
     }
-}
+} // namespace Thermal
 

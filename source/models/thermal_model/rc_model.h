@@ -170,9 +170,9 @@ namespace Thermal
         ~RCModel();
 
         void setThermalParameters(ThermalParameters* thermal_params);
-        void setFloorplanHolder(FloorplanHolder* floorplan_holder);
+        void setFloorplanHolder(const FloorplanHolder* floorplan_holder);
 
-        RCModelHolder* getRCModelHolder(){ return _rc_model_holder; }
+        const RCModelHolder* getRCModelHolder(){ return _rc_model_holder; }
 
         void allocateRCModelHolder();
         void populateR();
@@ -190,10 +190,10 @@ namespace Thermal
         
         void printPackageRCModelToFile(FILE* fp);
     private:
-        RCModelHolder*      _rc_model_holder;
+        RCModelHolder*          _rc_model_holder;
 
-        ThermalParameters*  _thermal_params;
-        FloorplanHolder*    _floorplan_holder;
+        ThermalParameters*      _thermal_params;
+        const FloorplanHolder*  _floorplan_holder;
 
 
     }; // class RCModel

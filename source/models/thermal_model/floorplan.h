@@ -59,14 +59,14 @@ namespace Thermal
 
         void loadFloorplan(std::string flp_file, std::string top_flp_object_name);
 
-        FloorplanHolder* getFloorplanHolder() { return _floorplan_holder; }
+        const FloorplanHolder* getFloorplanHolder() { return _floorplan_holder; }
 
         void setFloorplanUnitNamesInTemperatureData();
 
-        static bool isVertAdj(FloorplanHolder* floorplan_holder, int i, int j);
-        static bool isHorizAdj(FloorplanHolder* floorplan_holder, int i, int j);
-        static double getSharedLength(FloorplanHolder* floorplan_holder, int i, int j);
-        static int getUnitIndexFromName(FloorplanHolder* floorplan_holder, const char* name);
+        static bool isVertAdj(const FloorplanHolder* floorplan_holder, int i, int j);
+        static bool isHorizAdj(const FloorplanHolder* floorplan_holder, int i, int j);
+        static double getSharedLength(const FloorplanHolder* floorplan_holder, int i, int j);
+        static int getUnitIndexFromName(const FloorplanHolder* floorplan_holder, const char* name);
 
     protected:
         void parseFloorplanFile(std::string flp_file, std::string top_flp_object_name);

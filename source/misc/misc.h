@@ -7,7 +7,7 @@
 
 #include "config.hpp"
 
-#define DELTA           1e-6
+#define DELTA           1e-9
 #define TIME_DELTA      1e-12
 #define MAX(x,y)        (((x)>(y))?(x):(y))
 #define MIN(x,y)        (((x)<(y))?(x):(y))

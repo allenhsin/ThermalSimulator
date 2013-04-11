@@ -15,8 +15,8 @@ namespace Thermal
         ~Temperature();
 
         void setThermalParameters(ThermalParameters* thermal_params);
-        void setFloorplanHolder(FloorplanHolder* floorplan_holder);
-        void setRCModelHolder(RCModelHolder* rc_model_holder);
+        void setFloorplanHolder(const FloorplanHolder* floorplan_holder);
+        void setRCModelHolder(const RCModelHolder* rc_model_holder);
         
         void setInitialTemperature();
         void updateTransientTemperature(double time_elapsed_since_last_update);
@@ -31,12 +31,12 @@ namespace Thermal
         void setInternalPower();
 
     private:
-        ThermalParameters*  _thermal_params;
+        ThermalParameters*      _thermal_params;
 
-        FloorplanHolder*    _floorplan_holder;
-        RCModelHolder*      _rc_model_holder;
+        const FloorplanHolder*  _floorplan_holder;
+        const RCModelHolder*    _rc_model_holder;
 
-        bool                _is_internal_power_set;
+        bool                    _is_internal_power_set;
         
         // _temperature is in the floorplan unit order
         // for each layer, plus EXTRA nodes.

@@ -17,16 +17,17 @@ namespace Thermal
         virtual void initializeDevice();
 
         // update device properties
-        // Right now once the laser is setup (initialized)
-        // then nothing will change during the operation
-        // but laser power fluctuation model could be added
-        // in the future
-        virtual void updateDeviceProperties();
+        // Right now once the laser is setup (initialized) then nothing 
+        // will change during the operation but laser power fluctuation 
+        // model could be added in the future
+        virtual void updateDeviceProperties(double time_elapsed_since_last_update);
 
         void setLaserWavelength(double wavelength)
         { _wavelength = wavelength; }
 
     protected:
+        // check the validity of device parameters
+        virtual void deviceParameterCheck(){}
 
     private:
         double _wavelength;

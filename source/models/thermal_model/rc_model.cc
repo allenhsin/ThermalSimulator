@@ -34,7 +34,7 @@ namespace Thermal
     void RCModel::setThermalParameters(ThermalParameters* thermal_params)
     { _thermal_params = thermal_params; }
 
-    void RCModel::setFloorplanHolder(FloorplanHolder* floorplan_holder)
+    void RCModel::setFloorplanHolder(const FloorplanHolder* floorplan_holder)
     { _floorplan_holder = floorplan_holder; }
     
     double RCModel::getR(double conductivity, double thickness, double area)
@@ -471,7 +471,8 @@ namespace Thermal
                     // here is why the 2.0 factor comes when calculating g[][]   
                     b[i][j] = b[j][i] = -1.0/((1.0/g[i][j])+(1.0/g[j][i]));
         // diagonal elements               
-        for (i = 0; i < NL*n+EXTRA; i++) {
+        for (i = 0; i < NL*n+EXTRA; i++) 
+        {
             // functional blocks in the heat sink layer  
             if (i >= HSINK*n && i < NL*n) 
                 b[i][i] = g_amb[i%n];

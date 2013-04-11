@@ -3,14 +3,17 @@
 #include <stddef.h>
 
 #include "source/misc/misc.h"
+#include "source/data/data.h"
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_models/device_definition_parser.h"
 #include "source/models/physical_model/physical_constants.h"
 #include "libutil/LibUtil.h"
 
+// device models
 #include "source/models/physical_model/device_models/resonant_ring_depletion_modulator.h"
 #include "source/models/physical_model/device_models/laser_source_off_chip.h"
 #include "source/models/physical_model/device_models/lossy_optical_net.h"
+#include "source/models/physical_model/device_models/modulator_driver.h"
 
 using std::string;
 using std::map;
@@ -62,6 +65,10 @@ namespace Thermal
             device_model = new ResonantRingDepletionModulator( device_floorplan_map, physical_config->getString("device/resonant_ring_depletion_modulator/def_file") );
             break;
 
+        case MODULATOR_DRIVER:
+            device_model = new ModulatorDriver( device_floorplan_map, physical_config->getString("device/modulator_driver/def_file") );
+            break;
+
         case LOSSY_OPTICAL_NET:
             device_model = new LossyOpticalNet( device_floorplan_map, physical_config->getString("device/lossy_optical_net/def_file") );
             break;
@@ -72,10 +79,6 @@ namespace Thermal
 
         case LASER_SOURCE_ON_CHIP:
             //device_model = new LaserSourceOnChip( device_floorplan_map, physical_config->getString("device/laser_source_on_chip/def_file") );
-            break;
-
-        case MODULATOR_DRIVER:
-            //device_model = new ModulatorDriver( device_floorplan_map, physical_config->getString("device/modulator_driver/def_file") );
             break;
 
         case PHOTODETECTOR:
@@ -106,6 +109,8 @@ namespace Thermal
         {
             _floorplan_unit_name = floorplan_unit_name;
             _mapped_in_floorplan = true;
+
+            Data::getSingleton()->addData(ACCUMULATED_ENERGY_DATA, _floorplan_unit_name, 0);
         }
     }
     // ------------------------------------------------------------------------

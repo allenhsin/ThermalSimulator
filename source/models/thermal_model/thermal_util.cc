@@ -60,7 +60,7 @@ namespace Thermal
     // in the CLR 'Introduction to Algorithms' textbook. It solves ax = b
     // where, 'a' is an in-place lower/upper triangular matrix. The vector
     // 'x' carries the solution vector. 'p' is the permutation vector.
-    void ThermalUtil::luSolve(vector< vector<double> >& a, int n, vector<int>& p, vector<double>& b, vector<double>& x)
+    void ThermalUtil::luSolve(const vector< vector<double> >& a, int n, const vector<int>& p, vector<double>& b, vector<double>& x)
     {
         int i, j;
         vector<double> y (n, 0);

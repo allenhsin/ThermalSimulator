@@ -29,7 +29,7 @@ namespace Thermal
         virtual void initializeDevice() = 0;
         
         // update device properties
-        virtual void updateDeviceProperties() = 0;
+        virtual void updateDeviceProperties(double time_elapsed_since_last_update) = 0;
 
     // ------------------------------------------------------------------------
 
@@ -73,6 +73,15 @@ namespace Thermal
     protected:
         // derived child classes must call this constructor
         DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+
+    // ------------------------------------------------------------------------
+    // derived classes must implement these functions
+    // ------------------------------------------------------------------------
+        
+        // check the validity of device parameters
+        virtual void deviceParameterCheck() = 0;
+    
+    // ------------------------------------------------------------------------
         
         Port* getPortForModification(std::string port_name);
 

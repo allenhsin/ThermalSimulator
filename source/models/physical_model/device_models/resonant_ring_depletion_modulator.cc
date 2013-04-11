@@ -30,11 +30,41 @@ namespace Thermal
 
     ResonantRingDepletionModulator::~ResonantRingDepletionModulator()
     {}
+    
+    void ResonantRingDepletionModulator::deviceParameterCheck()
+    {
+        if( getParameter("t1") > 1 || getParameter("t2") > 1 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Coupling coefficients cannot be larger than 1.\n");
+
+        if( getParameter("waveguide_loss") < 0 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Waveguide loss cannot be negative.\n");
+
+        if( getParameter("ring_radius") < 0 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring radius cannot be negative.\n");
+        
+        if( getParameter("ring_height") < 0 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring height cannot be negative.\n");
+        
+        if( getParameter("ring_width") < 0 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring width cannot be negative.\n");
+        
+        if( getParameter("confinement_factor") > 1 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring confinement factor cannot be larger than 1.\n");
+        
+        if( getParameter("Na") < 0 || getParameter("Nd") < 0 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring doping concentration cannot be negative.\n");
+        
+        if( getParameter("number_junctions") < 0 )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Number of ring junctions cannot be negative.\n");
+    }
 
     void ResonantRingDepletionModulator::initializeDevice()
     {
         if(!isMappedInFloorplan())
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: A ring must be mapped on the floorplan.\n");
+
+        // check parameters
+        deviceParameterCheck();
 
         // precompute some partial properties
 
@@ -66,20 +96,12 @@ namespace Thermal
         _two_t1_t2_alpha =              2 * getParameter("t1") * getParameter("t2") * _alpha;
         _one_plus_sq_of_t1_t2_alpha =   1 + (getParameter("t2") * getParameter("t2") * getParameter("t1") * getParameter("t1") * _alpha * _alpha);
         _one_t1_t2_alpha =              (1 - (getParameter("t1")*getParameter("t1"))) * (1 - (getParameter("t2")*getParameter("t2"))) * _alpha;
-
-        // initialize device energy consumption to zero
-        map<string, double>& data_energy = Data::getSingleton()->getAccumulatedEnergyConsumption(); 
-        data_energy[_floorplan_unit_name] = 0;
     }
 
-    void ResonantRingDepletionModulator::updateDeviceProperties()
+    void ResonantRingDepletionModulator::updateDeviceProperties(double time_elapsed_since_last_update)
     {
-        // shortcuts to data structure
-        map<string, double>& data_temperature   = Data::getSingleton()->getTemperature(); 
-        map<string, double>& data_energy        = Data::getSingleton()->getAccumulatedEnergyConsumption(); 
-
         // get temperature from data structure
-        double current_temperature = data_temperature[_floorplan_unit_name];
+        double current_temperature = Data::getSingleton()->getData(TEMPERATURE_DATA, _floorplan_unit_name);
 
         // update input ports properties
         getPortForModification("in")->updatePortPropertyFromConnectedPort("power");
@@ -94,18 +116,30 @@ namespace Thermal
         if(wavelength != getPort("add")->getPortProperty("wavelength"))
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: \"in\" port wavelength does not match \"add\" port wavelength.\n");
 
+        // note that voltage here is forward biasing voltage
+        double voltage = getPort("mod_driver")->getPortProperty("voltage");
+
         // update device properties
         // silicon intrinsic carrier concentration
         double n_i      =   sqrt( SILICON_INT_B * (current_temperature*current_temperature*current_temperature) * 
                             exp(-SILICON_INT_BG_E/(BOLTZMANN_CONST*current_temperature)) );
         // built-in voltage
         double v_bi     =   _v_bi_partial * current_temperature / n_i;
-        // width of depletion region
+        
+        // you cannot sweep in more free carrier into the depletion region than v_bi
+        if(voltage > v_bi)
+            voltage = v_bi;
+        // check if you reach the maximum depletion width
+        double max_w_dep = sqrt(_w_dep_partial * (v_bi - voltage));
+        if(max_w_dep*getParameter("number_junctions") > 2*PI*getParameter("ring_radius"))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Reverse-biased voltage too high.\n");
+
+        // width of the open-circuit depletion region
         double w_dep    =   sqrt(_w_dep_partial * v_bi);
         // open-cricuit depletion region capacitance
         double c_j0     =   _c_j0_partial/w_dep;
         // change of charge in the depletion region of the p-n junction
-        double delta_Q  =   2 * v_bi * c_j0 * (sqrt(1 + (getPort("mod_driver")->getPortProperty("voltage")/v_bi)) - 1);
+        double delta_Q  =   2 * v_bi * c_j0 * (sqrt(1 + (-voltage/v_bi)) - 1);
         // change of free-carrier density (electrons and holes are equal) 
         double delta_N  =   delta_Q / _delta_N_partial;
 
@@ -129,6 +163,11 @@ namespace Thermal
         double drop_to_add_power_ratio  = (_t1_sq_alpha_sq_plus_t2_sq - _two_t1_t2_alpha_cos) / power_ratio_denominator;
         double thru_to_add_power_ratio  = drop_to_in_power_ratio;
         
+        assert(thru_to_in_power_ratio < 1);
+        assert(drop_to_in_power_ratio < 1);
+        assert(drop_to_add_power_ratio < 1);
+        assert(thru_to_add_power_ratio < 1);
+
         double in_power =   getPort("in")->getPortProperty("power");
         double add_power =  getPort("add")->getPortProperty("power");
 
@@ -140,6 +179,12 @@ namespace Thermal
         getPortForModification("thru")->setPortProperty("wavelength", wavelength);
         getPortForModification("drop")->setPortProperty("power", drop_power);
         getPortForModification("drop")->setPortProperty("wavelength", wavelength);
+
+        // update energy data structure for the consumed energy
+        double optical_power_consumption = (in_power + add_power - thru_power - drop_power);
+        assert(optical_power_consumption >= 0);
+        double total_power_consumption = getPort("heater")->getPortProperty("power") + optical_power_consumption;
+        Data::getSingleton()->setData(ACCUMULATED_ENERGY_DATA, _floorplan_unit_name, (time_elapsed_since_last_update*total_power_consumption));
     }
     
 
