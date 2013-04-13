@@ -301,16 +301,16 @@ class EndFloorplanCommand
 class AtomicCommand
 {
 	String name;
-	double x, y, w, h;
+	GridPoint x, y, w, h;
 	AtomicCommand(String[] cmd) throws Exception
 	{
 		if (cmd.length == 6)
 		{
 			this.name = cmd[1];
-			this.w = Double.parseDouble(cmd[2]);
-			this.h = Double.parseDouble(cmd[3]);
-			this.x = Double.parseDouble(cmd[4]);
-			this.y = Double.parseDouble(cmd[5]);
+			this.w = GridPoint.parseGridPoint(cmd[2]);
+			this.h = GridPoint.parseGridPoint(cmd[3]);
+			this.x = GridPoint.parseGridPoint(cmd[4]);
+			this.y = GridPoint.parseGridPoint(cmd[5]);
 		}
 		else
 			throw new Exception("Syntax error: atomic command expects 5 arguments!");
@@ -341,15 +341,15 @@ class InstanceCommand
 {
 	String master_name;
 	String name;
-	double x, y;
+	GridPoint x, y;
 	InstanceCommand(String[] cmd) throws Exception
 	{
 		if (cmd.length == 4)
 		{
 			this.master_name = cmd[0];
 			this.name = cmd[1];
-			this.x = Double.parseDouble(cmd[2]);
-			this.y = Double.parseDouble(cmd[3]);
+			this.x = GridPoint.parseGridPoint(cmd[2]);
+			this.y = GridPoint.parseGridPoint(cmd[3]);
 		}
 		else
 			throw new Exception("Syntax error: instance instantiations requires 3 arguments!");

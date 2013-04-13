@@ -5,7 +5,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
-
 /**
  * A floorplan master is a floorplan with a known layout, but hasn't been
  * instantiated yet. In other words, it is a description of a actual floorplan
@@ -18,8 +17,8 @@ public class Master implements Comparable<Master>
 	public static final String HIER_SEPARATOR = ".";
 	
 	private String name;
-	private double height;
-	private double width;
+	private GridPoint height;
+	private GridPoint width;
 	private boolean atomic;
 	
 	// List of sub floorplans
@@ -36,10 +35,12 @@ public class Master implements Comparable<Master>
 		this.name = name;
 		this.master_insts = new Vector<MasterInst>();
 		this.master_map = new Hashtable<String, MasterInst>();
+		this.height = GridPoint.ZERO;
+		this.width = GridPoint.ZERO;
 	}
 	
 	// Constructor for a leaf master
-	public Master(double width, double height)
+	public Master(GridPoint width, GridPoint height)
 	{
 		this("Atomic");
 		atomic = true;
@@ -61,7 +62,7 @@ public class Master implements Comparable<Master>
 		return true;
 	}
 	
-	public boolean addMasterInst(Master sub_master, String inst_name, double x, double y)
+	public boolean addMasterInst(Master sub_master, String inst_name, GridPoint x, GridPoint y)
 	{
 		return addMasterInst(new MasterInst(this, sub_master, inst_name, x, y));
 	}
@@ -76,7 +77,7 @@ public class Master implements Comparable<Master>
 			return false;
 		// Otherwise, delete the instance
 		master_insts.remove(sub_inst);
-		master_map.remove(sub_inst);
+		master_map.remove(sub_inst.n);
 		return true;
 	}
 	
@@ -135,9 +136,41 @@ public class Master implements Comparable<Master>
 		}		
 	}
 	
+
+	/**
+	 * Get the bounding box of a master instance
+	 */
+	public static Box getBoundingBox(Master m)
+	{
+		return getBoundingBox(m, new Coord(0, 0));
+	}
+	
+	private static Box getBoundingBox(Master m, Coord origin)
+	{
+		if (m.isAtomic())
+			return new Box(origin.x, origin.y,
+					GridPoint.add(origin.x, m.getWidth()), GridPoint.add(origin.y, m.getHeight()));
+		
+		// Create new box instance
+		Box box = new Box(Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
+		// Iterate through all elements
+		Iterator<MasterInst> it = m.getInstances().iterator();
+		while(it.hasNext())
+		{
+			MasterInst next_inst = it.next();
+			Box next_box = getBoundingBox(next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), 
+					GridPoint.add(origin.y, next_inst.y)));
+			box.llx = GridPoint.min(next_box.llx, box.llx);
+			box.lly = GridPoint.min(next_box.lly, box.lly);
+			box.urx = GridPoint.max(next_box.urx, box.urx);
+			box.ury = GridPoint.max(next_box.ury, box.ury);
+		}
+		return box;
+	}
+	
 	public boolean isAtomic() { return atomic; }
-	public double getHeight() { return height;	}	
-	public double getWidth() { return width; }	
+	public GridPoint getHeight() { return height;	}	
+	public GridPoint getWidth() { return width; }	
 	public void setName(String name) { this.name = name; }
 	public String getName() { return name; }
 	public MasterInst getLibInstance() { return lib_instance; }

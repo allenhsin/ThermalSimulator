@@ -28,6 +28,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import floorplan.GridPoint;
 import floorplan.InstanceTableModel;
 import floorplan.Master;
 import floorplan.MasterInst;
@@ -329,13 +330,13 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			check_atomic.setEnabled(true);
 			
 			text_instance_name.setText(cur_inst.n);
-			text_x_position.setText(Double.toString(cur_inst.x));
-			text_y_position.setText(Double.toString(cur_inst.y));
+			text_x_position.setText(cur_inst.x.toString());
+			text_y_position.setText(cur_inst.y.toString());
 			
 			check_atomic.setSelected(cur_inst.m.isAtomic());
 			setEditAtomic(cur_inst.m.isAtomic());
-			text_height.setText(Double.toString(cur_inst.m.getHeight()));
-			text_width.setText(Double.toString(cur_inst.m.getWidth()));
+			text_height.setText(cur_inst.m.getHeight().toString());
+			text_width.setText(cur_inst.m.getWidth().toString());
 			combo_instance_master.setSelectedItem(cur_inst.m);
 		}
 
@@ -380,8 +381,8 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		MasterInst edit_master_inst = selected.get(sel_index);
 
 		// Edit the instantiation coordinates
-		edit_master_inst.x = Double.parseDouble(text_x_position.getText());
-		edit_master_inst.y = Double.parseDouble(text_y_position.getText());
+		edit_master_inst.x = GridPoint.parseGridPoint(text_x_position.getText());
+		edit_master_inst.y = GridPoint.parseGridPoint(text_y_position.getText());
 		
 		// Edit the instance name (if ncessary)
 		if (!edit_master_inst.n.equals(text_instance_name.getText()))
@@ -389,7 +390,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		
 		// If atomic is selected, make the thing a new atomic!
 		if (check_atomic.isSelected())
-			edit_master_inst.m = new Master(Double.parseDouble(text_width.getText()), Double.parseDouble(text_height.getText()));
+			edit_master_inst.m = new Master(GridPoint.parseGridPoint(text_width.getText()), GridPoint.parseGridPoint(text_height.getText()));
 		// If the atomic is not selected then find the master and set it to that
 		else
 		{
@@ -503,12 +504,12 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		// Check number formatting
 		try
 		{
-			Double.parseDouble(text_x_position.getText());
-			Double.parseDouble(text_y_position.getText());
+			GridPoint.parseGridPoint(text_x_position.getText());
+			GridPoint.parseGridPoint(text_y_position.getText());
 			if (check_atomic.isSelected())
 			{
-				Double.parseDouble(text_width.getText());
-				Double.parseDouble(text_height.getText());
+				GridPoint.parseGridPoint(text_width.getText());
+				GridPoint.parseGridPoint(text_height.getText());
 			}
 		}
 		catch (NumberFormatException e)

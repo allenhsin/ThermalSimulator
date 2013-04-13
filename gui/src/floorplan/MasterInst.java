@@ -18,9 +18,9 @@ public class MasterInst implements MutableTreeNode
 	// Instance name
 	public String n;
 	// Instance location (x, y)
-	public double x, y;
+	public GridPoint x, y;
 	
-	public MasterInst(Master parent, Master m, String n, double x, double y)
+	public MasterInst(Master parent, Master m, String n, GridPoint x, GridPoint y)
 	{
 		this.parent = parent;
 		this.m = m;

@@ -149,10 +149,10 @@ public class FloorplanRender extends JComponent
 				MasterInst next_inst = it.next();
 				// Kind of a hack to avoid the extra hierarchical separator
 				if (next_inst.isAtomic())
-					paintTemperatures(g, next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y),
+					paintTemperatures(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)),
 							hier_name + next_inst.n);					
 				else
-					paintTemperatures(g, next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y),
+					paintTemperatures(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)),
 							hier_name + next_inst.n + Master.HIER_SEPARATOR);
 			}
 		}
@@ -172,7 +172,7 @@ public class FloorplanRender extends JComponent
 
 		// Draw top-level border rectangle in cyan
 		g.setColor(Color.cyan);
-		FloorplanRectangle border = new FloorplanRectangle(getBoundingBox(render_target), new Coord(0.0, 0.0),
+		FloorplanRectangle border = new FloorplanRectangle(Master.getBoundingBox(render_target), new Coord(0.0, 0.0),
 				trans_x, trans_y, offset_x, offset_y, scale);
 		g.drawRect(border.x,  border.y, border.w, border.h);
 	}
@@ -198,7 +198,7 @@ public class FloorplanRender extends JComponent
 			while(it.hasNext())
 			{
 				MasterInst next_inst = it.next();
-				paintOutlines(g, next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
+				paintOutlines(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)));
 			}
 		}
 	}
@@ -239,7 +239,7 @@ public class FloorplanRender extends JComponent
 			while(it.hasNext())
 			{
 				MasterInst next_inst = it.next();
-				paintHighlights(g, next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
+				paintHighlights(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)));
 			}
 		}
 	}
@@ -272,45 +272,16 @@ public class FloorplanRender extends JComponent
 	// Centers the zoom
 	public void zoom()
 	{
-		Box b_box = getBoundingBox(render_target);
+		Box b_box = Master.getBoundingBox(render_target);
 		// Set default scale	
-		setScale(0.9 * Math.min(getSize().getWidth() / b_box.getWidth(),
-				getSize().getHeight() / b_box.getHeight()));
+		setScale(0.9 * Math.min(getSize().getWidth() / b_box.getWidth().toDouble(),
+				getSize().getHeight() / b_box.getHeight().toDouble()));
 
 		// Set translates
-		trans_x = -b_box.getWidth() / 2;
-		trans_y = -b_box.getHeight() / 2;
+		trans_x = -b_box.getWidth().toDouble() / 2;
+		trans_y = -b_box.getHeight().toDouble() / 2;
 	}
 
-	/**
-	 * Get the bounding box of a master instance
-	 */
-	public static Box getBoundingBox(Master m)
-	{
-		return getBoundingBox(m, new Coord(0, 0));
-	}
-	
-	private static Box getBoundingBox(Master m, Coord origin)
-	{
-		if (m.isAtomic())
-			return new Box(origin.x, origin.y,
-					origin.x + m.getWidth(), origin.y + m.getHeight());
-		
-		// Create new box instance
-		Box box = new Box(Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
-		// Iterate through all elements
-		Iterator<MasterInst> it = m.getInstances().iterator();
-		while(it.hasNext())
-		{
-			MasterInst next_inst = it.next();
-			Box next_box = getBoundingBox(next_inst.m, new Coord(origin.x + next_inst.x, origin.y + next_inst.y));
-			box.llx = Math.min(next_box.llx, box.llx);
-			box.lly = Math.min(next_box.lly, box.lly);
-			box.urx = Math.max(next_box.urx, box.urx);
-			box.ury = Math.max(next_box.ury, box.ury);
-		}
-		return box;
-	}
 	
 	public void setTime(int time)
 	{
@@ -337,50 +308,4 @@ class RenderComponentListener implements ComponentListener
 		((FloorplanRender) e.getSource()).repaint();
 	}
 	public void componentShown(ComponentEvent e) {}	
-}
-
-/**
- * Simple class with X, Y double coordinates
- */
-class Coord
-{
-	double x, y;
-	Coord(double x, double y)
-	{ 
-		this.x = x; 
-		this.y = y; 
-	}
-}
-
-/**
- * Simple class that represents a box
- */
-class Box
-{
-	double llx, lly, urx, ury;
-	Box(double llx, double lly, double urx, double ury)
-	{
-		this.llx = llx;
-		this.lly = lly;
-		this.urx = urx;
-		this.ury = ury;
-	}
-	
-	double getHeight()
-	{
-		return ury - lly;
-	}
-	double getWidth()
-	{
-		return urx - llx;
-	}
-	
-	boolean isValidBox()
-	{
-		if (llx >= urx)
-			return false;
-		if (lly >= ury)
-			return false;
-		return true;
-	}
 }

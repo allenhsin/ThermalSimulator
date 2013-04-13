@@ -14,6 +14,7 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import floorplan.FillerTree;
+import floorplan.GridPoint;
 import floorplan.Master;
 import floorplan.MasterInst;
 
@@ -181,14 +182,14 @@ class ToolsMenuListener implements ActionListener
 			FillerTree t = new FillerTree();
 			t.calculateFill(m);
 			
-			Master fill_master = new Master("Filler_" + m.getName());
+			Master fill_master = new Master(m.getName() + "_fill");
 			Vector<MasterInst> fillers = t.getFillers();
 			
 			Iterator<MasterInst> it = fillers.iterator();
 			while(it.hasNext())
 				fill_master.addMasterInst(it.next());
 			
-			m.addMasterInst(fill_master, "Filler", 0.0, 0.0);
+			m.addMasterInst(fill_master, "Filler", GridPoint.ZERO, GridPoint.ZERO);
 			
 			try
 			{
@@ -197,9 +198,8 @@ class ToolsMenuListener implements ActionListener
 			catch (Exception ex)
 			{
 				
-			}
-			
-			gui.updateMasters();			
+			}			
+			gui.updateMasters();
 		}
 		else throw new Error("Internal Error: Menu Operation '" + cmd + "' is not supported!");
 		

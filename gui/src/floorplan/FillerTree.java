@@ -1,6 +1,7 @@
 package floorplan;
 
 import java.util.Iterator;
+import java.util.Stack;
 import java.util.Vector;
 
 import display.FloorplanRender;
@@ -17,11 +18,12 @@ public class FillerTree
 	// Calculate the fill for a master
 	public void calculateFill(Master m)
 	{
-		root = new FillerTreeNode(0, 0, 10e-3, 10e-3);	
-		calculateFill(m, 0, 0);
+		Box b_box = Master.getBoundingBox(m);
+		root = new FillerTreeNode(b_box.llx, b_box.lly, b_box.urx, b_box.ury);	
+		calculateFill(m, new GridPoint(0), new GridPoint(0));
 	}
 	
-	private void calculateFill(Master m, double x_coord, double y_coord)
+	private void calculateFill(Master m, GridPoint x_coord, GridPoint y_coord)
 	{
 		// If it is a leaf, subtract it from the fill shape
 		if (m.isAtomic())
@@ -34,7 +36,7 @@ public class FillerTree
 			while(it.hasNext())
 			{
 				MasterInst next_inst = it.next();
-				calculateFill(next_inst.m, x_coord + next_inst.x, y_coord + next_inst.y);
+				calculateFill(next_inst.m, GridPoint.add(x_coord, next_inst.x), GridPoint.add(y_coord, next_inst.y));
 			}
 		}
 		
@@ -47,7 +49,7 @@ public class FillerTree
 	}
 	
 	// Tell the filler tree node to subtract fill
-	private void subtractFill(Master m, double x_coord, double y_coord)
+	private void subtractFill(Master m, GridPoint x_coord, GridPoint y_coord)
 	{
 		// Make sure the master to subtract is atomic
 		if(!m.isAtomic())
@@ -76,53 +78,64 @@ class FillerTreeNode
 	
 	// A leaf tree node essentially becomes a filler instance
 	boolean leaf;
+	// Whether this node has zero area
+	boolean zero_area;
 	
 	// Lower-left and upper-right coordinates
-	double llx, lly, urx, ury;
+	GridPoint llx, lly, urx, ury;
 	
 	// Create tree node
-	FillerTreeNode(double llx, double lly, double urx, double ury)
+	FillerTreeNode(GridPoint llx, GridPoint lly, GridPoint urx, GridPoint ury)
 	{
 		this.llx = llx;
 		this.lly = lly;
 		this.urx = urx;
 		this.ury = ury;
 		this.leaf = true;
+		
+		// Check if this filler has zero area
+		this.zero_area = GridPoint.greaterThanOrEqualsTo(llx, urx) || 
+				GridPoint.greaterThanOrEqualsTo(lly, ury); 
 	}
 	
 	// Tell the filler tree node to subtract fill
-	void subtractFill(Master m, double x_coord, double y_coord)
+	void subtractFill(Master m, GridPoint x_coord, GridPoint y_coord)
 	{
 		// Calculate the bounding box of the subtracted master, with limits
 		// at the bounding box of the current node
-		double m_llx = Math.max(x_coord, llx);
-		double m_lly = Math.max(y_coord, lly);
-		double m_urx = Math.min(x_coord + m.getWidth(), urx);
-		double m_ury = Math.min(y_coord + m.getHeight(), ury);
+		GridPoint m_llx = GridPoint.max(x_coord, llx);
+		GridPoint m_lly = GridPoint.max(y_coord, lly);
+		GridPoint m_urx = GridPoint.min(GridPoint.add(x_coord, m.getWidth()), urx);
+		GridPoint m_ury = GridPoint.min(GridPoint.add(y_coord, m.getHeight()), ury);
 		
-		// First, decide if I need to do anything. If the following isn't true, then the instance
-		// falls outside the node's boundaries and I don't need to do anything
-		if (m_urx >= llx && m_llx <= urx && 
-				m_ury >= lly && m_lly <= ury)
+		// First, decide if I need to do anything
+		// Only need to do things if the size of this filler node is non-zero
+		if (!zero_area)
 		{
-			// If this is a leaf node...split and make sub leafs
-			if(leaf)
+			// If the following isn't true, then the instance falls outside the node's boundaries and
+			// I don't need to do anything
+			if (GridPoint.greaterThanOrEqualsTo(m_urx, llx) && GridPoint.lessThanOrEqualsTo(m_llx, urx) && 
+					GridPoint.greaterThanOrEqualsTo(m_ury, lly) && GridPoint.lessThanOrEqualsTo(m_lly, ury))
 			{
-				// This is no longer a leaf
-				leaf = false;
-				// Create new sub leaf nodes
-				n = new FillerTreeNode(llx, m_ury, urx, ury);
-				s = new FillerTreeNode(llx, lly, urx, m_lly);
-				e = new FillerTreeNode(m_urx, m_lly, urx, m_ury);
-				w = new FillerTreeNode(llx, m_lly, m_llx, m_ury);
-			}
-			// If not, then perform the subtractFill operation on all the children
-			else
-			{
-				n.subtractFill(m, x_coord, y_coord);
-				s.subtractFill(m, x_coord, y_coord);
-				e.subtractFill(m, x_coord, y_coord);
-				w.subtractFill(m, x_coord, y_coord);
+				// If this is a leaf node...split and make sub leafs
+				if(leaf)
+				{
+					// This is no longer a leaf
+					leaf = false;
+					// Create new sub leaf nodes
+					n = new FillerTreeNode(llx, m_ury, urx, ury);
+					s = new FillerTreeNode(llx, lly, urx, m_lly);
+					e = new FillerTreeNode(m_urx, m_lly, urx, m_ury);
+					w = new FillerTreeNode(llx, m_lly, m_llx, m_ury);
+				}
+				// If not, then perform the subtractFill operation on all the children
+				else
+				{
+					n.subtractFill(m, x_coord, y_coord);
+					s.subtractFill(m, x_coord, y_coord);
+					e.subtractFill(m, x_coord, y_coord);
+					w.subtractFill(m, x_coord, y_coord);
+				}
 			}
 		}
 	}
@@ -130,33 +143,46 @@ class FillerTreeNode
 	// Get a vector of all the fillers
 	public Vector<MasterInst> getFillers()
 	{
-		Vector<MasterInst> to_return = new Vector<MasterInst>();
-		addFillers(to_return);
-		return to_return;
+		return addFillers(this);
 	}
 	
 	// Add all the fillers that are hierarchically below this filler tree
-	private void addFillers(Vector<MasterInst> fillers)
+	private static Vector<MasterInst> addFillers(FillerTreeNode root)
 	{
-		if (leaf)
+		Vector<MasterInst> fillers = new Vector<MasterInst>();
+		// Maintain a stack
+		Stack<FillerTreeNode> stack = new Stack<FillerTreeNode>();
+		stack.push(root);
+		
+		// Keep going until stack is empty
+		while(!stack.isEmpty())
 		{
-			double width = urx - llx;
-			double height = ury - lly;
-			// Only need to add it if it is a finitely big fill shape
-			// HACK: This implicitly assumes that the grid size is 1nm
-			if (width >= 1e-9 && height >= 1e-9)
+			FillerTreeNode cur_node = stack.pop();
+			// Only need to care if this has non-zero area
+			if (!cur_node.zero_area)
 			{
-				fillers.add(new MasterInst(null, new Master(width, height), 
-						"Fill_" + fillers.size(), llx, lly));
-			}
+				if (cur_node.leaf)
+				{
+					GridPoint width = GridPoint.sub(cur_node.urx, cur_node.llx);
+					GridPoint height = GridPoint.sub(cur_node.ury, cur_node.lly);
+					// Only need to add it if it is a finitely big fill shape
+					if (!GridPoint.equals(width, GridPoint.ZERO) && 
+							!GridPoint.equals(height,  GridPoint.ZERO))
+					{
+						fillers.add(new MasterInst(null, new Master(width, height), 
+								"Fill_" + fillers.size(), cur_node.llx, cur_node.lly));
+					}
+				}
+				else
+				{
+					stack.push(cur_node.n);
+					stack.push(cur_node.s);
+					stack.push(cur_node.e);
+					stack.push(cur_node.w);
+				}			
+			}			
 		}
-		else
-		{
-			n.addFillers(fillers);
-			s.addFillers(fillers);
-			e.addFillers(fillers);
-			w.addFillers(fillers);
-		}
+		return fillers;
 	}
 }
 

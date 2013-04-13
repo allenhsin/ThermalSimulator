@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.text.DecimalFormat;
 
+import floorplan.Box;
+import floorplan.Coord;
+import floorplan.GridPoint;
 import floorplan.Master;
 
 /** 
@@ -35,10 +38,10 @@ class FloorplanRectangle
 	FloorplanRectangle(Master target, Coord origin, double trans_x, double trans_y,
 			int offset_x, int offset_y, double scale)
 	{
-		double llx = origin.x + trans_x;
-		double lly = origin.y + trans_y;
-		double urx = llx + target.getWidth();
-		double ury = lly + target.getHeight();
+		double llx = origin.x.toDouble() + trans_x;
+		double lly = origin.y.toDouble() + trans_y;
+		double urx = llx + target.getWidth().toDouble();
+		double ury = lly + target.getHeight().toDouble();
 		
 		// Maybe a more efficient way to do this?
 		w = (int) roundSigFigs(urx * scale, 6) - (int) roundSigFigs(llx * scale, 6);
@@ -52,10 +55,10 @@ class FloorplanRectangle
 	{
 		if (b.isValidBox())
 		{
-			double llx = b.llx + origin.x + trans_x;
-			double lly = b.lly + origin.y + trans_y;
-			double urx = llx + b.getWidth();
-			double ury = lly + b.getHeight();
+			double llx = GridPoint.add(b.llx, origin.x).toDouble() + trans_x;
+			double lly = GridPoint.add(b.lly, origin.y).toDouble() + trans_y;
+			double urx = llx + b.getWidth().toDouble();
+			double ury = lly + b.getHeight().toDouble();
 			
 			// Maybe a more efficient way to do this?
 			w = (int) roundSigFigs(urx * scale, 6) - (int) roundSigFigs(llx * scale, 6);
