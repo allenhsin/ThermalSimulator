@@ -27,6 +27,7 @@ namespace Thermal
         , _n_ptrace_flp_units           (0)
         , _ptrace_sampling_interval     (0)
         , _current_ptrace_line_number   (0)
+        , _ready_to_execute             (false)
     {
         _ptrace_flp_units_names.clear();
         _ptrace_flp_units_power.clear();
@@ -153,10 +154,13 @@ namespace Thermal
     // Schedule the first physical model execution event ----------------------
         EventScheduler::getSingleton()->enqueueEvent(_ptrace_sampling_interval, PHYSICAL_MODEL);
     // ------------------------------------------------------------------------
+
+        _ready_to_execute = true;
     } // startup
 
     void PowerTraceMode::execute(double scheduled_time)
     {
+        assert(_ready_to_execute);
         assert(_physical_config);
         
         _current_ptrace_line_number++;

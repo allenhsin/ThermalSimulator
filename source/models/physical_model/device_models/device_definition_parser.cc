@@ -108,13 +108,14 @@ namespace Thermal
                             port_type = INPUT_PORT;
                         else if (!strcmp(line_token, "OUTPUT"))
                             port_type = OUTPUT_PORT;
-                        else if (!strcmp(line_token, "INOUT"))
-                            port_type = INOUT_PORT;
                         else
                             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid port type in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
                     }
                     else
                         LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot read port type in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
+                    
+                    if(_device_ports.count((string) name) != 0)
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port name \"" + (string) name + "\" is already defined.\n");
 
                     _device_ports[(string) name] = new Port(_device_model, port_type);
 

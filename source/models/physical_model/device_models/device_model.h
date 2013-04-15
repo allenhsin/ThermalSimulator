@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include <stdio.h>
 
 #include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_models/port.h"
@@ -30,6 +31,9 @@ namespace Thermal
         
         // update device properties
         virtual void updateDeviceProperties(double time_elapsed_since_last_update) = 0;
+
+        // just for debug
+        virtual void printDefinition(FILE* device_list_file);
 
     // ------------------------------------------------------------------------
 
@@ -57,19 +61,22 @@ namespace Thermal
         void setDeviceName(std::string instance_name);
         std::string getInstanceName() { return _instance_name; }
         std::string getFloorplanUnitName() { return _floorplan_unit_name; }
+        
+        DeviceType getDeviceType() const
+        { return _device_type; }
+
+        bool isRootDevice() const
+        { return _is_root; }
 
         void setTraversedInBFS()
         { _traversed_in_bfs = true; }
 
-        bool isTraversedInBFS()
+        bool isTraversedInBFS() const
         { return _traversed_in_bfs; }
 
-        bool isMappedInFloorplan()
+        bool isMappedInFloorplan() const
         { return _mapped_in_floorplan; }
         
-        // just for debug
-        void printDefinition();
-
     protected:
         // derived child classes must call this constructor
         DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
@@ -85,7 +92,6 @@ namespace Thermal
         
         Port* getPortForModification(std::string port_name);
 
-        DeviceType  _device_type;
         std::string _instance_name;
         std::string _floorplan_unit_name;
         
@@ -95,9 +101,11 @@ namespace Thermal
         std::map<std::string, double>   _device_parameters;
 
     private:
+        DeviceType          _device_type;
         std::string         _device_definition_file;
         DeviceFloorplanMap* _device_floorplan_map;
         
+        bool _is_root;
         bool _mapped_in_floorplan;
         bool _traversed_in_bfs;
 

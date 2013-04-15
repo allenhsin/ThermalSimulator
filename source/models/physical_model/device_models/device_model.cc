@@ -24,9 +24,6 @@ namespace Thermal
 {
     DeviceModel::DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
         : _device_type              (device_type)
-        , _instance_name            ("")
-        , _floorplan_unit_name      ("")
-        
         , _device_definition_file   (device_definition_file)
         , _device_floorplan_map     (device_floorplan_map)
         , _mapped_in_floorplan      (false)
@@ -34,12 +31,23 @@ namespace Thermal
         , _target_parameter_name    ("")
         , _target_port_name         ("")
     {
+        _instance_name = NO_INSTANCE_NAME;
+        _floorplan_unit_name = NO_MAPPED_NAME;
+
         _device_ports.clear();
         _device_parameters.clear();
         
         // initilize the device's ports/parameters/properties
         DeviceDefinitionParser device_def_parser(this, _device_ports, _device_parameters);
         device_def_parser.loadDeviceDefinitionFile(_device_definition_file);
+
+        // check if the device if a root device, i.e. no inputs
+        _is_root = true;
+        for( map<string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
+        {
+            if( it->second->getPortType() == INPUT_PORT ) 
+            { _is_root = false; break; }
+        }
     }
 
     DeviceModel::~DeviceModel()
@@ -186,7 +194,7 @@ namespace Thermal
         for( map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
         {
             port_type = it->second->getPortType();
-            if( (port_type == INPUT_PORT || port_type == INOUT_PORT) && it->second->getConnectedPort() )
+            if( (port_type == INPUT_PORT) && it->second->getConnectedPort() )
                 parent_devices.push_back(it->second->getConnectedPort()->getDevice());
         }
     }
@@ -199,7 +207,7 @@ namespace Thermal
         for( map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
         {
             port_type = it->second->getPortType();
-            if( (port_type == OUTPUT_PORT || port_type == INOUT_PORT) && it->second->getConnectedPort() )
+            if( (port_type == OUTPUT_PORT) && it->second->getConnectedPort() )
                 child_devices.push_back(it->second->getConnectedPort()->getDevice());
         }
     }
@@ -207,24 +215,47 @@ namespace Thermal
 
 
     // Debug ------------------------------------------------------------------
-    void DeviceModel::printDefinition()
+    void DeviceModel::printDefinition(FILE* device_list_file)
     {
-        printf("\n\n");
-        printf("Device Type: %d\n", _device_type);
-        printf("Device Instance Name: %s\n", _instance_name.c_str());
-        printf("Device Floorplan Unit Name: %s\n", _floorplan_unit_name.c_str());
-        printf("\n");
-        printf("[port]\n");
-        for(map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
+        string device_type;
+
+        switch(_device_type)
         {
-            printf("Name: %s, Type: %d, ", (it->first).c_str(), (int) it->second->getPortType());
-            printf("Properties: power: %s, voltage: %s\n",  it->second->hasPortProperty("power")?"Yes":"No", 
-                                                            it->second->hasPortProperty("voltage")?"Yes":"No" );
+        case RESONANT_RING:
+            device_type = "Resonant Ring";
+            break;
+        case RESONANT_RING_DEPLETION_MODULATOR:
+            device_type = "Resonant Ring Depletion Modulator";
+            break;
+        case MODULATOR_DRIVER:
+            device_type = "Modulator Driver";
+            break;
+        case LOSSY_OPTICAL_NET:
+            device_type = "Lossy Optical Net";
+            break;
+        case LASER_SOURCE_OFF_CHIP:
+            device_type = "Off-Chip Laser Source";
+            break;
+        case LASER_SOURCE_ON_CHIP:
+            device_type = "On-Chip Laser Source";
+            break;
+        case PHOTODETECTOR:
+            device_type = "Photodetector";
+            break;
+        case RECEIVER:
+            device_type = "Receiver";
+            break;
+        default:
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized Device Type: " + (String) _device_type + ".\n");
         }
-        printf("\n");
-        printf("[parameter]\n");
+
+        fprintf(device_list_file, "\n");
+        fprintf(device_list_file, "Device Type: %s\n", device_type.c_str());
+        fprintf(device_list_file, "    Instance Name: %s\n", _instance_name.c_str());
+        fprintf(device_list_file, "    Floorplan Unit Name: %s\n", _floorplan_unit_name.c_str());
+        fprintf(device_list_file, "    [parameter]\n");
         for(map<std::string, double>::iterator it=_device_parameters.begin(); it!=_device_parameters.end(); ++it)
-            printf("%s -> %e\n", (it->first).c_str(), it->second );
+            fprintf(device_list_file, "        %s -> %e\n", (it->first).c_str(), it->second );
     }
     // ------------------------------------------------------------------------
 

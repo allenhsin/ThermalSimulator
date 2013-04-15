@@ -3,6 +3,7 @@
 #define __THERMAL_PORT_H__
 
 #include <map>
+#include <vector>
 #include <string>
 
 namespace Thermal
@@ -13,7 +14,6 @@ namespace Thermal
     {
         INPUT_PORT,
         OUTPUT_PORT,
-        INOUT_PORT,
         NULL_PORT
     }; // enum PortType
 
@@ -29,26 +29,31 @@ namespace Thermal
         DeviceModel* getDevice() const
         { return _device; }
 
-        void setConnectedPort(const Port* connected_port)
-        { _connected_port = connected_port; }
-
+        // also hook up the port properties of the two ports
+        void setConnectedPort(const Port* connected_port);
         const Port* getConnectedPort() const
         { return _connected_port; }
 
-        void updatePortPropertyFromConnectedPort(std::string property_name);
+        bool hasPortProperty(std::string property_name) const;
 
-        void addPortProperty(std::string property_name, double default_property_value = 0);
-        void setPortProperty(std::string property_name, double property_value);
-        bool   hasPortProperty(std::string property_name) const;
-        double getPortProperty(std::string property_name) const;
+        void addPortProperty(std::string property_name);
+
+        void setPortPropertySize(std::string property_name, unsigned int size);
+        void setPortPropertyValueByIndex(std::string property_name, unsigned int index, double property_value);
+        
+        unsigned int    getPortPropertySize(std::string property_name) const;
+        double          getPortPropertyValueByIndex(std::string property_name, unsigned int index) const;
 
     protected:
+        std::vector<double>* getPortPropertyPointer(std::string property_name) const;
+        void linkPortPropertyPointer(std::string property_name, std::vector<double>* property_pointer);
+
     private:
         const PortType      _port_type;
         DeviceModel* const  _device;
         const Port*         _connected_port;
 
-        std::map<std::string, double>   _port_properties;
+        std::map< std::string, std::vector<double>* > _port_properties;
 
     }; // class Port
 

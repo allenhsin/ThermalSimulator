@@ -227,10 +227,10 @@ namespace Thermal
 
     // Schedule next thermal model execution event ----------------------------
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL );
-        _last_execute_time = scheduled_time;
     // ------------------------------------------------------------------------
-    } // execute
 
+        _last_execute_time = scheduled_time;
+    } // execute
 
 } // namespace Thermal
 

@@ -22,15 +22,13 @@ namespace Thermal
         // model could be added in the future
         virtual void updateDeviceProperties(double time_elapsed_since_last_update);
 
-        void setLaserWavelength(double wavelength)
-        { _wavelength = wavelength; }
+        virtual void printDefinition(FILE* device_list_file);
 
     protected:
         // check the validity of device parameters
-        virtual void deviceParameterCheck(){}
+        virtual void deviceParameterCheck();
 
     private:
-        double _wavelength;
 
     };
 

@@ -7,7 +7,7 @@
 # Format: <PortName, PortType, Property1, Property2, Property3, ...>
 #
 # Number of properties is arbitrary.
-# Port Types: INPUT, OUTPUT, INOUT
+# Port Types: INPUT, OUTPUT
 
 [port]
     <in, INPUT, power, wavelength>

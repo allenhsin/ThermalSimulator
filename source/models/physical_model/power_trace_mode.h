@@ -39,6 +39,7 @@ namespace Thermal
         double                      _ptrace_sampling_interval;
         int                         _current_ptrace_line_number;
 
+        bool                        _ready_to_execute;
     }; // class PowerTraceMode
 
 } // namespace Thermal

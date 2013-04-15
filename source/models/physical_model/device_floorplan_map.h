@@ -6,6 +6,7 @@
 #include <string>
 
 #define NO_MAPPED_NAME "NO_MAPPED_NAME"
+#define NO_INSTANCE_NAME "NO_INSTANCE_NAME"
 
 namespace Thermal
 {

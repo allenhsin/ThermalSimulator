@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <stdio.h>
 
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
@@ -18,7 +19,7 @@ namespace Thermal
         ~DeviceManager();
 
         void startup();
-        void execute(double time_elapsed_since_last_update);
+        void execute(double scheduled_time);
 
         void setPhysicalConfig(config::Config* physical_config) 
         { _physical_config = physical_config; }
@@ -32,21 +33,24 @@ namespace Thermal
     private:
         config::Config*             _physical_config;
         DeviceFloorplanMap*         _device_floorplan_map;
+
+        double                      _sub_bit_sampling_intvl;
+
+        double                      _last_execute_time;
+        bool                        _ready_to_execute;
         
-        unsigned int                _number_devices;
-        // _device_instances and _device_root_instances are
-        // data placeholders resposible for device instance
-        // construction and destruction. The creation of the 
-        // device instance is when loading the netlist.
+        // _device_instances are data placeholders 
+        // resposible for device instance construction 
+        // and destruction. The creation of the device 
+        // instance is when loading the netlist.
         std::vector<DeviceModel*>   _device_instances;
-        // root includes 1) laser source and 2) modulator driver
-        std::vector<DeviceModel*>   _device_root_instances;
         
         // after loading the netlist, device manager will
         // trace down the device instances connections to
-        // figure out the link sequence and store it
+        // figure out the device sequence along the link
+        // and store it in _device_sequence.
         std::vector<DeviceModel*>   _device_sequence;
-        
+
     }; // calss DeviceManager
 
 } // namespace Thermal

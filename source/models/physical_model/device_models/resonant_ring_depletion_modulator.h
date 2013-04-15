@@ -2,6 +2,8 @@
 #ifndef __THERMAL_RESONANT_RING_DEPLETION_MODULATOR_H__
 #define __THERMAL_RESONANT_RING_DEPLETION_MODULATOR_H__
 
+#include <set>
+
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 
@@ -24,6 +26,11 @@ namespace Thermal
         virtual void deviceParameterCheck();
 
     private:
+        // the set of output wavelengths from in port and add port
+        set<double> _output_wavelengths;
+        // number of output wavelength
+        unsigned int _number_wavelength;
+
         // precompute parts of p-n junction built-in voltage
         double _v_bi_partial;
         // precompute parts of p-n junction open-circuit depletion width
@@ -42,6 +49,17 @@ namespace Thermal
         double _two_t1_t2_alpha;
         double _one_plus_sq_of_t1_t2_alpha;
         double _one_t1_t2_alpha;
+        
+        // temperature from last update -> avoid recomputation
+        double _last_temperature;
+        // voltage from last update -> avoid recomputation
+        double _last_voltage;
+        // p-n junction built-in voltage
+        double _v_bi;
+        // p-n junction open-circuit cap
+        double _c_j0;
+        // effective refractive index
+        double _n_eff;
 
     }; // class ResonantRingDepletionModulator
 

@@ -83,7 +83,7 @@ namespace Thermal
         
     // Execute Device Manager -------------------------------------------------
         if(getPhysicalConfig()->getBool("device_manager/enable"))
-            _device_manager->execute( (scheduled_time - _last_execute_time) );
+            _device_manager->execute(scheduled_time);
     // ------------------------------------------------------------------------
 
         _last_execute_time = scheduled_time;

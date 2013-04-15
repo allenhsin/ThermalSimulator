@@ -35,7 +35,7 @@ namespace Thermal
 
     void ModulatorDriver::initializeDevice()
     {
-        // check parameters
+        // parameter sanity check
         deviceParameterCheck();
 
         _bit_one_time_const = 2.197 * getParameter("bit_one_transition_time");
@@ -48,13 +48,17 @@ namespace Thermal
         _current_bit                = false;
         _transition_elapsed_time    = 0;
         _current_out_voltage        = getParameter("bit_zero_voltage");
-    
+        
+        // set output
+        getPortForModification("out")->setPortPropertySize("voltage", 1);
     }
 
     void ModulatorDriver::updateDeviceProperties(double time_elapsed_since_last_update)
     {
         // check the current bit from the data structure;
-        bool new_bit;
+        bool new_bit = false;
+        if( Data::getSingleton()->getData(MODULATOR_DRIVER_BITS_DATA, _instance_name) > 0 )
+            new_bit = true;
 
         // check if bit changes
         if( new_bit != _current_bit)
@@ -80,14 +84,13 @@ namespace Thermal
         _current_out_voltage = _current_target_voltage + _current_delta_voltage * exp(-_transition_elapsed_time/_current_time_const);
 
         // update port property
-        getPortForModification("out")->setPortProperty("voltage", _current_out_voltage);
+        getPortForModification("out")->setPortPropertyValueByIndex("voltage", 0, _current_out_voltage);
         
-        // TODO: update power consumption if mapped to floorplan
+        // TODO: update energy consumption if mapped to floorplan
         if(isMappedInFloorplan())
         {
 
         }
-
     }
 
 } // namespace Thermal

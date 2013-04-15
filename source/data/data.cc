@@ -89,6 +89,7 @@ namespace Thermal
     {
         _temperature.clear();
         _accumulated_energy_consumption.clear();
+        _modulator_driver_bits.clear();
     }
 
     Data::~Data()

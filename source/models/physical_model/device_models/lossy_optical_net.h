@@ -26,8 +26,7 @@ namespace Thermal
     private:
         // the laser power ratio between net output and net input
         double _power_ratio;
-
-
+        unsigned int _number_wavelength;
     };
 
 } // namespace Thermal

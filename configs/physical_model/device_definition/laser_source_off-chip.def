@@ -8,7 +8,7 @@
 # Format: <PortName, PortType, Property1, Property2, Property3, ...>
 #
 # Number of properties is arbitrary. Its unit should be SI.
-# Port Types: INPUT, OUTPUT, INOUT
+# Port Types: INPUT, OUTPUT
 
 [port]
     <out, OUTPUT, power, wavelength>
@@ -17,10 +17,18 @@
 # and also have default values as defined below.
 [parameter]
     # Laser power per wavelength [dBm]
-    laser_output_power          = -20.00
+    laser_output_power_per_wavelength   = -20.00
+
+    # number of WDM wavelengths
+    number_wavelength                   = 1
+    # beginning of WDM wavelength
+    wavelength_begin                    = 1280.6e-9
+    # end of WDM wavelength
+    wavelength_end                      = 1280.6e-9
+
 
     # P_Laser/P_Electrical (OBSOLETE)
-    efficiency                  = 0.25      
+    efficiency                          = 0.25      
     # Laser diode loss [dB] (OBSOLETE)
-    laser_diode_loss            = 1.00
+    laser_diode_loss                    = 1.00
 
