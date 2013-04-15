@@ -13,7 +13,6 @@ namespace Thermal
     {
         TEMPERATURE_DATA,
         ACCUMULATED_ENERGY_DATA,
-        MODULATOR_DRIVER_BITS_DATA,
         NUMBER_DATA_TYPES
     };
 
@@ -41,7 +40,6 @@ namespace Thermal
     
         std::map<std::string, double> _temperature;
         std::map<std::string, double> _accumulated_energy_consumption;
-        std::map<std::string, double> _modulator_driver_bits;
         
     }; // class Data
 

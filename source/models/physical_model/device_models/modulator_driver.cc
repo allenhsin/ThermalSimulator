@@ -57,8 +57,6 @@ namespace Thermal
     {
         // check the current bit from the data structure;
         bool new_bit = false;
-        if( Data::getSingleton()->getData(MODULATOR_DRIVER_BITS_DATA, _instance_name) > 0 )
-            new_bit = true;
 
         // check if bit changes
         if( new_bit != _current_bit)
