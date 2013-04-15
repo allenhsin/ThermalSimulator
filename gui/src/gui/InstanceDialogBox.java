@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.math.BigDecimal;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -24,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import floorplan.GridPoint;
 import floorplan.Master;
 import floorplan.MasterInst;
 import floorplan.MasterMap;
@@ -365,36 +365,40 @@ public class InstanceDialogBox extends JDialog
 			int num_x = Integer.parseInt(text_num_x.getText());
 			int num_y = Integer.parseInt(text_num_y.getText());
 			
-			BigDecimal d_x = BigDecimal.valueOf(Double.parseDouble(text_dx.getText()));
-			BigDecimal d_y = BigDecimal.valueOf(Double.parseDouble(text_dy.getText()));
+			GridPoint x_offset;
+			GridPoint y_offset;
+			GridPoint d_x = GridPoint.parseGridPoint(text_dx.getText());
+			GridPoint d_y = GridPoint.parseGridPoint(text_dy.getText());
 
 			// Will number horizontally first, then vertically
-			for (int i = 0; i < num_y; ++i)
+			y_offset =GridPoint.ZERO;
+			for (long i = 0; i < num_y; ++i)
 			{
-				for (int j = 0; j < num_x; ++j)
+				x_offset = GridPoint.ZERO;
+				for (long j = 0; j < num_x; ++j)
 				{
-					createInstance("_" + (i * num_x + j), 
-						d_x.multiply(BigDecimal.valueOf(j)).doubleValue(), 
-						d_y.multiply(BigDecimal.valueOf(i)).doubleValue());
+					createInstance("_" + (i * num_x + j), x_offset, y_offset);
+					x_offset = GridPoint.add(x_offset, d_x);
 				}
+				y_offset = GridPoint.add(y_offset, d_y);
 			}
 		}
-		else createInstance("", 0.0, 0.0);
+		else createInstance("", GridPoint.ZERO, GridPoint.ZERO);
 		return true;
 	}
 	
 	/**
 	 * Creates one instance, based on the numbers in the text boxes
 	 */
-	private void createInstance(String name_postpend, double x_offset, double y_offset)
+	private void createInstance(String name_postpend, GridPoint x_offset, GridPoint y_offset)
 	{
 		Master new_inst_master = null;
 		// First check if it is atomic or not
 		if (check_atomic.isSelected())
 		{
 			// Parse height/width
-			double width = Double.parseDouble(text_width.getText());
-			double height = Double.parseDouble(text_height.getText());
+			GridPoint width = GridPoint.parseGridPoint(text_width.getText());
+			GridPoint height = GridPoint.parseGridPoint(text_height.getText());
 			new_inst_master = new Master(width, height);
 		}
 		else
@@ -405,8 +409,8 @@ public class InstanceDialogBox extends JDialog
 		// Get instance name
 		String inst_name = text_instance_name.getText() + name_postpend;
 		// Get X/Y coordinates
-		double x = Double.parseDouble(text_x_position.getText()) + x_offset;
-		double y = Double.parseDouble(text_y_position.getText()) + y_offset;
+		GridPoint x = GridPoint.add(GridPoint.parseGridPoint(text_x_position.getText()), x_offset);
+		GridPoint y = GridPoint.add(GridPoint.parseGridPoint(text_y_position.getText()), y_offset);
 		
 		// Create the new instance
 		new_insts.add(new MasterInst(cur_master, new_inst_master, inst_name, x, y));
@@ -443,12 +447,12 @@ public class InstanceDialogBox extends JDialog
 		// Check number formatting
 		try
 		{
-			Double.parseDouble(text_x_position.getText());
-			Double.parseDouble(text_y_position.getText());
+			GridPoint.parseGridPoint(text_x_position.getText());
+			GridPoint.parseGridPoint(text_y_position.getText());
 			if (check_atomic.isSelected())
 			{
-				Double.parseDouble(text_width.getText());
-				Double.parseDouble(text_height.getText());
+				GridPoint.parseGridPoint(text_width.getText());
+				GridPoint.parseGridPoint(text_height.getText());
 			}
 		}
 		catch (NumberFormatException e)
@@ -463,8 +467,8 @@ public class InstanceDialogBox extends JDialog
 			{
 				Integer.parseInt(text_num_x.getText());
 				Integer.parseInt(text_num_y.getText());
-				Double.parseDouble(text_dx.getText());
-				Double.parseDouble(text_dy.getText());
+				GridPoint.parseGridPoint(text_dx.getText());
+				GridPoint.parseGridPoint(text_dy.getText());
 			}
 		}
 		catch (NumberFormatException e)
