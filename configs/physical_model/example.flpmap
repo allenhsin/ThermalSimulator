@@ -1,0 +1,22 @@
+
+# This is the comment line
+# In-line comment with command is not allowed
+
+# The floorplan map file provides the mapping between
+# the device instance in the netlist fole and its 
+# cooresponding floorplan unit in the floorplan file. 
+#
+# The format of the floorplan map file is
+#       
+#       INSTANCE_NAME FLOORPLAN_UNIT_NAME
+#
+# Note that if hierarchical moule are used to build 
+# the floorplan or netlist, the name is the full 
+# hierarchy name. For example, if device "device_ins" 
+# is instantiated in module instance "ins_b" in module 
+# "ins_a", then the device instance name would be 
+# "ins_a.ins_b.device_ins".
+
+device_instance_1  device_floorplan_1
+device_instance_2  device_floorplan_2
+

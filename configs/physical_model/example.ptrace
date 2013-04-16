@@ -1,0 +1,17 @@
+# This is a comment line
+# In-line comment with command is not allowed
+
+# The first line of the power trace file is the list of floorplan instances
+# The name is the full hierarchy name of the floorplan
+
+device_floorplan_1 device_floorplance_2 device_floorplan_3 device_floorplan_4
+
+# The following lines are the power numbers in the device order of the first line
+# The sampling interval between lines is defined in the physical config file
+# The power unit is [W]
+
+0.05 0.01 0.03 0.08
+0.04 0.01 0.02 0.09
+0.05 0.02 0.02 0.10
+0.05 0.03 0.01 0.09
+

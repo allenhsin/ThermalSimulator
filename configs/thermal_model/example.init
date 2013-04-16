@@ -1,0 +1,54 @@
+# This is a comment line
+# In-line comment with command is not allowed
+
+# The format of the init temperature file is 
+#
+#       FLOORPLAN_UNIT_NAME INITIAL_TEMPERATURE
+#
+# The unit of temperature is [K]
+# There are four layers in the floorplan: 
+# 1) silicon, 2) interface material, 3) heat 
+# spreader, and 4) heatsink. The declaration of
+# init temperature must follow this order and
+# add correct prefix at the floorplan unit name.
+# For silicon layer, just use the original
+# floorplan name. For the other layers, add
+# "iface_", "hsp_" and "hsink_" to 2), 3) and 
+# 4) layers, respectively. Within each layer,
+# the order of the blocks is arbitrary.
+# there are 12 extra node called inode_# that
+# should be defined at the end of the declaration.
+# inode_0:  spreader peripheral west
+# inode_1:  spreader peripheral east
+# inode_2:  spreader peripheral north
+# inode_3:  spreader peripheral south
+# inode_4:  heat sink central west
+# inode_5:  heat sink central east
+# inode_6:  heat sink central north
+# inode_7:  heat sink central south
+# inode_8:  heat sink peripheral west
+# inode_9:  heat sink peripheral east
+# inode_10: heat sink peripheral north
+# inode_11: heat sink peripheral south
+
+device_floorplan_1          329.56
+device_floorplan_2          328.72
+iface_device_floorplan_1    329.32
+iface_device_floorplan_2    328.59
+hsp_device_floorplan_1      328.17
+hsp_device_floorplan_2      327.91
+hsink_device_floorplan_1    327.80
+hsink_device_floorplan_2    327.69
+inode_0	                    327.63
+inode_1	                    327.30
+inode_2	                    327.27
+inode_3	                    327.49
+inode_4	                    327.54
+inode_5	                    327.22
+inode_6	                    327.20
+inode_7                     327.41
+inode_8	                    326.22
+inode_9	                    325.95
+inode_10                    325.92
+inode_11                    326.11
+
