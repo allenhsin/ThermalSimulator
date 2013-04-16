@@ -1,6 +1,6 @@
 
-#ifndef __THERMAL_POWER_TRACE_MODE_H__
-#define __THERMAL_POWER_TRACE_MODE_H__
+#ifndef __THERMAL_POWER_TRACE_MANAGER_H__
+#define __THERMAL_POWER_TRACE_MANAGER_H__
 
 #include <stdio.h>
 
@@ -8,11 +8,11 @@
 
 namespace Thermal
 {
-    class PowerTraceMode
+    class PowerTraceManager
     {
     public:
-        PowerTraceMode();
-        ~PowerTraceMode();
+        PowerTraceManager();
+        ~PowerTraceManager();
 
         void startup();
         void execute(double scheduled_time);
@@ -40,9 +40,10 @@ namespace Thermal
         int                         _current_ptrace_line_number;
 
         bool                        _ready_to_execute;
-    }; // class PowerTraceMode
+        bool                        _ptrace_file_read_over;
+    }; // class PowerTraceManager
 
 } // namespace Thermal
 
-#endif // __THERMAL_POWER_TRACE_MODE_H__
+#endif // __THERMAL_POWER_TRACE_MANAGER_H__
 

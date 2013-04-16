@@ -7,8 +7,6 @@
 #include "source/models/model.h"
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
-#include "source/models/physical_model/power_trace_mode.h"
-#include "source/models/physical_model/device_manager.h"
 #include "config.hpp"
 
 namespace Thermal

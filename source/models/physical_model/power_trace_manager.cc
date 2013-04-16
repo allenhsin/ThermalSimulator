@@ -8,7 +8,7 @@
 #include <math.h>
 #include <map>
 
-#include "source/models/physical_model/power_trace_mode.h"
+#include "source/models/physical_model/power_trace_manager.h"
 #include "source/models/physical_model/physical_constants.h"
 #include "source/system/event_scheduler.h"
 #include "source/models/model_type.h"
@@ -21,22 +21,23 @@ using std::string;
 
 namespace Thermal
 {
-    PowerTraceMode::PowerTraceMode()
+    PowerTraceManager::PowerTraceManager()
         : _physical_config              (NULL)
         , _ptrace_file                  (NULL)
         , _n_ptrace_flp_units           (0)
         , _ptrace_sampling_interval     (0)
         , _current_ptrace_line_number   (0)
         , _ready_to_execute             (false)
+        , _ptrace_file_read_over        (false)
     {
         _ptrace_flp_units_names.clear();
         _ptrace_flp_units_power.clear();
     }
 
-    PowerTraceMode::~PowerTraceMode()
+    PowerTraceManager::~PowerTraceManager()
     {}
 
-    void PowerTraceMode::loadFloorplanUnitNamesFromPtrace()
+    void PowerTraceManager::loadFloorplanUnitNamesFromPtrace()
     {
         char    line[LINE_SIZE]; 
         char    temp[LINE_SIZE]; 
@@ -47,7 +48,7 @@ namespace Thermal
         assert(_ptrace_flp_units_names.size()==0);
         assert(_ptrace_flp_units_power.size()==0);
 
-        _ptrace_file = fopen(getPhysicalConfig()->getString("ptrace_mode/ptrace_file").c_str(), "r");
+        _ptrace_file = fopen(getPhysicalConfig()->getString("ptrace_manager/ptrace_file").c_str(), "r");
         if (!_ptrace_file) 
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open ptrace file.\n");
 
@@ -82,12 +83,15 @@ namespace Thermal
         _n_ptrace_flp_units = i;
     } // loadFloorplanUnitNamesFromPtrace
 
-    bool PowerTraceMode::loadFloorplanUnitPowerFromPtrace()
+    bool PowerTraceManager::loadFloorplanUnitPowerFromPtrace()
     {
         char    line[LINE_SIZE];
         char    temp[LINE_SIZE];
         char*   src;
         int     i;
+        
+        if (_ptrace_file_read_over)
+            return false;
 
         if (!_ptrace_file) 
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ptrace file.\n");
@@ -100,6 +104,7 @@ namespace Thermal
             if (feof(_ptrace_file))
             {
                 fclose(_ptrace_file);
+                _ptrace_file_read_over = true;
                 return false;
             }
             strcpy(temp, line);
@@ -125,7 +130,7 @@ namespace Thermal
 
     } // loadFloorplanUnitPowerFromPtrace
 
-    void PowerTraceMode::setFloorplanUnitNamesInPowerData()
+    void PowerTraceManager::setFloorplanUnitNamesInPowerData()
     {
         assert(_n_ptrace_flp_units != 0);
 
@@ -133,14 +138,14 @@ namespace Thermal
             Data::getSingleton()->addEnergyData(_ptrace_flp_units_names[i], 0);
     }
     
-    void PowerTraceMode::startup()
+    void PowerTraceManager::startup()
     {
         assert(_physical_config);
 
-        LibUtil::Log::printLine("Startup Power Trace Mode");
+        LibUtil::Log::printLine("Startup Power Trace Manager");
 
     // set ptrace constants ---------------------------------------------------
-        _ptrace_sampling_interval = getPhysicalConfig()->getFloat("ptrace_mode/sampling_intvl");
+        _ptrace_sampling_interval = getPhysicalConfig()->getFloat("ptrace_manager/sampling_intvl");
         _current_ptrace_line_number = 0;
     // ------------------------------------------------------------------------
 
@@ -158,7 +163,7 @@ namespace Thermal
         _ready_to_execute = true;
     } // startup
 
-    void PowerTraceMode::execute(double scheduled_time)
+    void PowerTraceManager::execute(double scheduled_time)
     {
         assert(_ready_to_execute);
         assert(_physical_config);
@@ -168,11 +173,11 @@ namespace Thermal
         if( !Misc::eqTime(scheduled_time, (_current_ptrace_line_number * _ptrace_sampling_interval)) )
         {
             _current_ptrace_line_number--;
-            LibUtil::Log::printLine("Power Trace not Executed");
+            LibUtil::Log::printLine("Power Trace Manager not Executed");
             return;
         }
 
-        LibUtil::Log::printLine("Execute Power Trace");
+        LibUtil::Log::printLine("Execute Power Trace Manager");
         
         assert(_n_ptrace_flp_units!=0);
         
@@ -201,5 +206,4 @@ namespace Thermal
     } // execute
 
 } // namespace Thermal
-
 

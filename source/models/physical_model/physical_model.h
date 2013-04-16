@@ -8,7 +8,7 @@
 #include "source/models/model.h"
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
-#include "source/models/physical_model/power_trace_mode.h"
+#include "source/models/physical_model/power_trace_manager.h"
 #include "source/models/physical_model/device_manager.h"
 #include "config.hpp"
 
@@ -30,7 +30,7 @@ namespace Thermal
     private:
         config::Config*             _physical_config;
 
-        PowerTraceMode*             _power_trace_mode;
+        PowerTraceManager*          _power_trace_manager;
         DeviceManager*              _device_manager;
 
         bool                        _ready_to_execute;

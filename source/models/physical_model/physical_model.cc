@@ -23,14 +23,14 @@ namespace Thermal
     PhysicalModel::PhysicalModel()
         : Model()
         , _physical_config          (NULL)
-        , _power_trace_mode         (new PowerTraceMode())
+        , _power_trace_manager      (new PowerTraceManager())
         , _device_manager           (new DeviceManager())
         , _ready_to_execute         (false)
     {}
 
     PhysicalModel::~PhysicalModel()
     {
-        delete _power_trace_mode;
+        delete _power_trace_manager;
         delete _device_manager;
         
         if(_physical_config)
@@ -51,13 +51,13 @@ namespace Thermal
         assert(_physical_config);
 
         // pass physical config by pointer
-        _power_trace_mode->setPhysicalConfig(_physical_config);
+        _power_trace_manager->setPhysicalConfig(_physical_config);
         _device_manager->setPhysicalConfig(_physical_config);
     // ------------------------------------------------------------------------
 
-    // Startup Power Trace Mode -----------------------------------------------
-        if(getPhysicalConfig()->getBool("ptrace_mode/enable"))
-            _power_trace_mode->startup();
+    // Startup Power Trace Manager --------------------------------------------
+        if(getPhysicalConfig()->getBool("ptrace_manager/enable"))
+            _power_trace_manager->startup();
     // ------------------------------------------------------------------------
 
     // Startup Device Manager -------------------------------------------------
@@ -76,9 +76,9 @@ namespace Thermal
 
         LibUtil::Log::printLine("Execute Physical Model");
 
-    // Execute Power Trace Mode -----------------------------------------------
-        if(getPhysicalConfig()->getBool("ptrace_mode/enable"))
-            _power_trace_mode->execute(scheduled_time);
+    // Execute Power Trace Manager --------------------------------------------
+        if(getPhysicalConfig()->getBool("ptrace_manager/enable"))
+            _power_trace_manager->execute(scheduled_time);
     // ------------------------------------------------------------------------
         
     // Execute Device Manager -------------------------------------------------
