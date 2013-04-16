@@ -130,14 +130,14 @@ namespace Thermal
         assert(_n_ptrace_flp_units != 0);
 
         for (int i=0; i<(int)_n_ptrace_flp_units; ++i)
-            Data::getSingleton()->addData(ACCUMULATED_ENERGY_DATA, _ptrace_flp_units_names[i], 0);
+            Data::getSingleton()->addEnergyData(_ptrace_flp_units_names[i], 0);
     }
     
     void PowerTraceMode::startup()
     {
         assert(_physical_config);
 
-        LibUtil::Log::printLine("Startup Power Trace Mode\n");
+        LibUtil::Log::printLine("Startup Power Trace Mode");
 
     // set ptrace constants ---------------------------------------------------
         _ptrace_sampling_interval = getPhysicalConfig()->getFloat("ptrace_mode/sampling_intvl");
@@ -168,11 +168,11 @@ namespace Thermal
         if( !Misc::eqTime(scheduled_time, (_current_ptrace_line_number * _ptrace_sampling_interval)) )
         {
             _current_ptrace_line_number--;
-            LibUtil::Log::printLine("Power Trace not Executed\n");
+            LibUtil::Log::printLine("Power Trace not Executed");
             return;
         }
 
-        LibUtil::Log::printLine("Execute Power Trace\n");
+        LibUtil::Log::printLine("Execute Power Trace");
         
         assert(_n_ptrace_flp_units!=0);
         
@@ -181,19 +181,22 @@ namespace Thermal
         valid_line = loadFloorplanUnitPowerFromPtrace();
     // ------------------------------------------------------------------------
 
-    // update main accumulated energy data structure and schedule next event --
+    // Update accumulated energy data structure -------------------------------
+        // only update when there's a new valid line in the ptrace file
+        // otherwise it will consume no power
         if(valid_line)
         {
             for(int i=0; i<_n_ptrace_flp_units; ++i)
-                Data::getSingleton()->setData(  ACCUMULATED_ENERGY_DATA, _ptrace_flp_units_names[i],
-                                                (Data::getSingleton()->getData(ACCUMULATED_ENERGY_DATA, _ptrace_flp_units_names[i]) + 
-                                                (_ptrace_flp_units_power[i] * _ptrace_sampling_interval))
-                                             );
+                Data::getSingleton()->setEnergyData (   _ptrace_flp_units_names[i],
+                                                        (Data::getSingleton()->getEnergyData(_ptrace_flp_units_names[i]) + 
+                                                        (_ptrace_flp_units_power[i] * _ptrace_sampling_interval))
+                                                    );
 
-            EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _ptrace_sampling_interval), PHYSICAL_MODEL);
         }
-        else
-            EventScheduler::getSingleton()->finish();
+    // ------------------------------------------------------------------------
+        
+    // Schedule the next ptrace event -----------------------------------------
+        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _ptrace_sampling_interval), PHYSICAL_MODEL);
     // ------------------------------------------------------------------------
     } // execute
 

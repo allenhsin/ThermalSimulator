@@ -9,13 +9,6 @@
 
 namespace Thermal
 {
-    enum DataType
-    {
-        TEMPERATURE_DATA,
-        ACCUMULATED_ENERGY_DATA,
-        NUMBER_DATA_TYPES
-    };
-
     class Data
     {
     public:
@@ -23,23 +16,32 @@ namespace Thermal
         static void release();
         static Data* getSingleton();
 
-        void addData(DataType data_type, std::string key, double value=0);
-        void setData(DataType data_type, std::string key, double value);
-        double getData(DataType data_type, std::string key);
-        unsigned int getDataSize(DataType data_type);
+        // temperature data
+        void            addTemperatureData(std::string key, double value=0);
+        void            setTemperatureData(std::string key, double value);
+        double          getTemperatureData(std::string key);
+        unsigned int    getTemperatureDataSize();
+
+        // energy data
+        void            addEnergyData(std::string key, double value=0);
+        void            setEnergyData(std::string key, double value);
+        double          getEnergyData(std::string key);
+        unsigned int    getEnergyDataSize();
 
     protected:
         Data();
         ~Data();
-
-        std::map<std::string, double>* getDataPointer(DataType data_type);
-        bool hasData(std::map<std::string, double>& data, std::string key);
+        
+        // temperature data
+        bool hasTemperatureData(std::string key);
+        // energy data
+        bool hasEnergyData(std::string key);
 
     private:
         static Data* _data_singleton; 
     
         std::map<std::string, double> _temperature;
-        std::map<std::string, double> _accumulated_energy_consumption;
+        std::map<std::string, double> _energy;
         
     }; // class Data
 

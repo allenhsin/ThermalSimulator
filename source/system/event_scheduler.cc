@@ -74,7 +74,7 @@ namespace Thermal
         {   
             assert(_model[i]!=NULL);
 
-            LibUtil::Log::printLine("Time: " + (String) getSimClock() + " - Startup Model[" + (String) i + "]");
+            LibUtil::Log::printLine("\nTime: " + (String) getSimClock() + " - Startup Model[" + (String) i + "]");
             _model[i]->startup();
 
         }
@@ -89,7 +89,7 @@ namespace Thermal
 
             advanceSimClockToAbsTime(next_event._scheduled_time);
 
-            LibUtil::Log::printLine("Time: " + (String) getSimClock() + " - Execute Model[" + (String) next_event._model_type + "]");
+            LibUtil::Log::printLine("\nTime: " + (String) getSimClock() + " - Execute Model[" + (String) next_event._model_type + "]");
             _model[next_event._model_type]->execute(next_event._scheduled_time);
 
         }

@@ -1,6 +1,7 @@
 
 #include "source/models/model.h"
 #include "source/models/thermal_model/thermal_model.h"
+#include "source/models/performance_model/performance_model.h"
 #include "source/models/physical_model/physical_model.h"
 #include "libutil/LibUtil.h"
 
@@ -23,8 +24,8 @@ namespace Thermal
     {
         switch (model_type)
         {
-        //case PERFORMANCE_MODEL:
-        //    return NULL;
+        case PERFORMANCE_MODEL:
+            return new PerformanceModel();
 
         case PHYSICAL_MODEL:
             return new PhysicalModel();

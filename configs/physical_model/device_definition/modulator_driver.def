@@ -10,6 +10,7 @@
 # Port Types: INPUT, OUTPUT
 
 [port]
+    <in, INPUT, bit>
     <out, OUTPUT, voltage>
 
 # Parameters are editable through the netlist

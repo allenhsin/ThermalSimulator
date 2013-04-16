@@ -75,10 +75,10 @@ namespace Thermal
         // update energy consumption in data structure if the device is in the floorplan
         if(isMappedInFloorplan())
         {
-            double previous_accumulated_energy = Data::getSingleton()->getData(ACCUMULATED_ENERGY_DATA, _floorplan_unit_name);
-            Data::getSingleton()->setData(  ACCUMULATED_ENERGY_DATA, _floorplan_unit_name, 
-                                            (previous_accumulated_energy+(time_elapsed_since_last_update * accumulated_power))
-                                         );
+            double previous_accumulated_energy = Data::getSingleton()->getEnergyData(_floorplan_unit_name);
+            Data::getSingleton()->setEnergyData (   _floorplan_unit_name, 
+                                                    (previous_accumulated_energy+(time_elapsed_since_last_update * accumulated_power))
+                                                );
         }
     }
 } // namespace Thermal

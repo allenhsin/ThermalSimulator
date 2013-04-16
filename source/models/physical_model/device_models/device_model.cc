@@ -118,7 +118,7 @@ namespace Thermal
             _floorplan_unit_name = floorplan_unit_name;
             _mapped_in_floorplan = true;
 
-            Data::getSingleton()->addData(ACCUMULATED_ENERGY_DATA, _floorplan_unit_name, 0);
+            Data::getSingleton()->addEnergyData(_floorplan_unit_name, 0);
         }
     }
     // ------------------------------------------------------------------------

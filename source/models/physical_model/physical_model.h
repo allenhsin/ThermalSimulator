@@ -24,9 +24,8 @@ namespace Thermal
         void startup();
         void execute(double scheduled_time);
 
-        config::Config* getPhysicalConfig(){ return _physical_config; }
-
     protected:
+        config::Config* getPhysicalConfig(){ return _physical_config; }
 
     private:
         config::Config*             _physical_config;

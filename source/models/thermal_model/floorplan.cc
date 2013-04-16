@@ -212,10 +212,10 @@ namespace Thermal
     void Floorplan::setFloorplanUnitNamesInTemperatureData()
     {
         assert(_floorplan_holder);
-        assert(Data::getSingleton()->getDataSize(TEMPERATURE_DATA) == 0);
+        assert(Data::getSingleton()->getTemperatureDataSize() == 0);
 
         for (int i=0; i<_floorplan_holder->_n_units; ++i)
-            Data::getSingleton()->addData(TEMPERATURE_DATA, _floorplan_holder->_flp_units[i]._name, 0);
+            Data::getSingleton()->addTemperatureData(_floorplan_holder->_flp_units[i]._name, 0);
     }
 
     void Floorplan::parseFloorplanFile(string flp_file, string top_flp_object_name)

@@ -5,6 +5,7 @@ DIRS_TO_SOURCE  := source \
                    source/misc \
                    source/system \
                    source/models \
+                   source/models/performance_model \
                    source/models/thermal_model \
                    source/models/physical_model \
                    source/models/physical_model/device_models \

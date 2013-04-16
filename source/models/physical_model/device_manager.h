@@ -24,9 +24,9 @@ namespace Thermal
         void setPhysicalConfig(config::Config* physical_config) 
         { _physical_config = physical_config; }
 
+    protected:
         config::Config* getPhysicalConfig(){ return _physical_config; }
 
-    protected:
         // Breadth-First Search to build device sequence
         void buildDeviceSequence();
 

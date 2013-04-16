@@ -25,9 +25,8 @@ namespace Thermal
         void startup();
         void execute(double scheduled_time);
 
-        config::Config* getThermalConfig(){ return _thermal_config; }
-
     protected:
+        config::Config* getThermalConfig(){ return _thermal_config; }
         void checkVadilityOfThermalParameters();
 
     private:

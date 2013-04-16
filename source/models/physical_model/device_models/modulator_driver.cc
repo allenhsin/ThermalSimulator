@@ -56,7 +56,7 @@ namespace Thermal
     void ModulatorDriver::updateDeviceProperties(double time_elapsed_since_last_update)
     {
         // check the current bit from the data structure;
-        bool new_bit = false;
+        bool new_bit = (getPort("in")->getPortPropertyValueByIndex("bit", 0)==0)? false : true ;
 
         // check if bit changes
         if( new_bit != _current_bit)
@@ -92,14 +92,5 @@ namespace Thermal
     }
 
 } // namespace Thermal
-
-
-
-
-
-
-
-
-
 
 

@@ -80,7 +80,7 @@ namespace Thermal
 
     void ThermalModel::startup()
     {
-        LibUtil::Log::printLine("Startup Thermal Model\n");
+        LibUtil::Log::printLine("Startup Thermal Model");
 
     // Configure Thermal Model ------------------------------------------------
         ThermalParameters* thermal_params;
@@ -161,7 +161,7 @@ namespace Thermal
             if(!_ttrace_file)
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
 
-            assert(Data::getSingleton()->getDataSize(TEMPERATURE_DATA) == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
+            assert(Data::getSingleton()->getTemperatureDataSize() == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
             // print flp unit names
             for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
                 fprintf(_ttrace_file, "%s ", (_floorplan->getFloorplanHolder()->_flp_units[i]._name).c_str() );
@@ -181,7 +181,7 @@ namespace Thermal
     {
         assert(_ready_to_execute);
 
-        LibUtil::Log::printLine("Execute Thermal Model\n");
+        LibUtil::Log::printLine("Execute Thermal Model");
 
         ThermalParameters* thermal_params = ThermalParameters::getSingleton();
         
@@ -211,18 +211,18 @@ namespace Thermal
             if(!_ttrace_file)
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
 
-            assert(Data::getSingleton()->getDataSize(TEMPERATURE_DATA) == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
+            assert(Data::getSingleton()->getTemperatureDataSize() == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
             // print flp unit names
             for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
-                fprintf(_ttrace_file, "%.2f ", Data::getSingleton()->getData(TEMPERATURE_DATA, _floorplan->getFloorplanHolder()->_flp_units[i]._name));
+                fprintf(_ttrace_file, "%.2f ", Data::getSingleton()->getTemperatureData(_floorplan->getFloorplanHolder()->_flp_units[i]._name));
             fprintf(_ttrace_file, "\n");
         }
     // ------------------------------------------------------------------------
 
     // Clear the accumulated energy in the data structure ---------------------
-        assert(Data::getSingleton()->getDataSize(ACCUMULATED_ENERGY_DATA) == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
+        assert(Data::getSingleton()->getEnergyDataSize() == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
         for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
-            Data::getSingleton()->setData(ACCUMULATED_ENERGY_DATA, _floorplan->getFloorplanHolder()->_flp_units[i]._name, 0);
+            Data::getSingleton()->setEnergyData(_floorplan->getFloorplanHolder()->_flp_units[i]._name, 0);
     // ------------------------------------------------------------------------
 
     // Schedule next thermal model execution event ----------------------------

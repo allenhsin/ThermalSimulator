@@ -32,70 +32,77 @@ namespace Thermal
         return _data_singleton;
     }
 
-    map<string, double>* Data::getDataPointer(DataType data_type)
+    // temperature data -------------------------------------------------------
+
+    bool Data::hasTemperatureData(string key)
+    { return _temperature.count(key); }
+
+    void Data::addTemperatureData(string key, double value)
     {
-        switch (data_type)
-        {
-        case TEMPERATURE_DATA:
-            return &_temperature;
-        case ACCUMULATED_ENERGY_DATA:
-            return &_accumulated_energy_consumption;
-        default:
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized data type.\n");
-            return NULL;
-        }
+        if(hasTemperatureData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the temperature data.\n");
+        _temperature[key] = value;
     }
 
-    bool Data::hasData(map<string, double>& data, string key)
-    { return data.count(key); }
-
-    void Data::addData(DataType data_type, string key, double value)
+    void Data::setTemperatureData(string key, double value)
     {
-        map<string, double>* data = getDataPointer(data_type);
-        
-        if(hasData(*data, key))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the data.\n");
-
-        (*data)[key] = value;
+        if(!hasTemperatureData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the temperature data.\n");
+        _temperature[key] = value;
     }
 
-    void Data::setData(DataType data_type, string key, double value)
+    double Data::getTemperatureData(string key)
     {
-        map<string, double>* data = getDataPointer(data_type);
-        
-        if(!hasData(*data, key))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" does not exist in the data.\n");
-
-        (*data)[key] = value;
+        if(!hasTemperatureData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" does not exist in the temperature data.\n");
+        return _temperature[key];
     }
 
-    double Data::getData(DataType data_type, string key)
-    {
-        map<string, double>* data = getDataPointer(data_type);
-        
-        if(!hasData(*data, key))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" does not exist in the data.\n");
+    unsigned int Data::getTemperatureDataSize()
+    { return _temperature.size(); }
 
-        return (*data)[key];
+    // ------------------------------------------------------------------------
+
+
+    // energy data ------------------------------------------------------------
+
+    bool Data::hasEnergyData(string key)
+    { return _energy.count(key); }
+
+    void Data::addEnergyData(string key, double value)
+    {
+        if(hasEnergyData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the energy data.\n");
+        _energy[key] = value;
     }
 
-    unsigned int Data::getDataSize(DataType data_type)
+    void Data::setEnergyData(string key, double value)
     {
-        map<string, double>* data = getDataPointer(data_type);
-        return data->size();
+        if(!hasEnergyData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the energy data.\n");
+        _energy[key] = value;
     }
+
+    double Data::getEnergyData(string key)
+    {
+        if(!hasEnergyData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the energy data.\n");
+        return _energy[key];
+    }
+
+    unsigned int Data::getEnergyDataSize()
+    { return _energy.size(); }
+
+    // ------------------------------------------------------------------------
 
     Data::Data()
     {
         _temperature.clear();
-        _accumulated_energy_consumption.clear();
-        _modulator_driver_bits.clear();
+        _energy.clear();
     }
 
     Data::~Data()
     {}
-
-
 
 } // namespace Thermal
 

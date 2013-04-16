@@ -20,9 +20,9 @@ namespace Thermal
         void setPhysicalConfig(config::Config* physical_config) 
         { _physical_config = physical_config; }
 
+    protected:
         config::Config* getPhysicalConfig(){ return _physical_config; }
 
-    protected:
         void setFloorplanUnitNamesInPowerData();
 
         void loadFloorplanUnitNamesFromPtrace();

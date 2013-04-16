@@ -103,7 +103,7 @@ namespace Thermal
     {
         assert(_physical_config);
 
-        LibUtil::Log::printLine("Startup Device Manager\n");
+        LibUtil::Log::printLine("Startup Device Manager");
 
     // set device manager constants -------------------------------------------
         // sampling interval
@@ -117,10 +117,7 @@ namespace Thermal
         // load device netlist
         //FIXME: hardcode device now just for test ------------------------------------------------
         _device_instances.push_back( DeviceModel::createDevice( LASER_SOURCE_OFF_CHIP, _physical_config, _device_floorplan_map) );
-        //_device_instances[0]->printDefinition();
-
         _device_instances.push_back( DeviceModel::createDevice( LASER_SOURCE_OFF_CHIP, _physical_config, _device_floorplan_map) );
-        //_device_instances[1]->printDefinition();
 
         //_device_instances[0]->setTargetPortName("in");
         //_device_instances[0]->setTargetPortConnectedPort( _device_instances[1]->getPort("out") );
@@ -158,12 +155,12 @@ namespace Thermal
 
         _last_execute_time = 0;
         _ready_to_execute = true;
-    }
+    } // startup
 
     void DeviceManager::execute(double scheduled_time)
     {
         assert(_ready_to_execute);
-        LibUtil::Log::printLine("Execute Device Manager\n");
+        LibUtil::Log::printLine("Execute Device Manager");
 
         double time_since_last_update = scheduled_time - _last_execute_time;
         
@@ -180,7 +177,7 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
         _last_execute_time = scheduled_time;
-    }
+    } // execute
 
 } // namespace Thermal
 

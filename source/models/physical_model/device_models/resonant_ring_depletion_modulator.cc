@@ -137,7 +137,7 @@ namespace Thermal
     void ResonantRingDepletionModulator::updateDeviceProperties(double time_elapsed_since_last_update)
     {
         // get temperature from data structure
-        double current_temperature = Data::getSingleton()->getData(TEMPERATURE_DATA, _floorplan_unit_name);
+        double current_temperature = Data::getSingleton()->getTemperatureData(_floorplan_unit_name);
 
         // update device properties
         // only update when temperature changes
@@ -283,10 +283,10 @@ namespace Thermal
 
         // update energy data structure for the consumed energy
         double total_power_consumption = getPort("heater")->getPortPropertyValueByIndex("power", 0) + accumulated_dissipated_power;
-        double previous_accumulated_energy = Data::getSingleton()->getData(ACCUMULATED_ENERGY_DATA, _floorplan_unit_name);
-        Data::getSingleton()->setData(  ACCUMULATED_ENERGY_DATA, _floorplan_unit_name, 
-                                        (previous_accumulated_energy+(time_elapsed_since_last_update*total_power_consumption))
-                                     );
+        double previous_accumulated_energy = Data::getSingleton()->getEnergyData(_floorplan_unit_name);
+        Data::getSingleton()->setEnergyData (   _floorplan_unit_name, 
+                                                (previous_accumulated_energy+(time_elapsed_since_last_update*total_power_consumption))
+                                            );
 
         _last_temperature = current_temperature;
         _last_voltage = current_voltage;

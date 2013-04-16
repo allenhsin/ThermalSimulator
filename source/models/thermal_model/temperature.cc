@@ -44,13 +44,13 @@ namespace Thermal
 
     void Temperature::updateDataTemperature()
     {
-        if(Data::getSingleton()->getDataSize(TEMPERATURE_DATA) != (unsigned int) _floorplan_holder->_n_units)
+        if(Data::getSingleton()->getTemperatureDataSize() != (unsigned int) _floorplan_holder->_n_units)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between size of temperature data and number of floorplan blocks.\n");
         
         // put temperature back to the data structure
         // (only the silicon layer units)
         for(int i=0; i<_floorplan_holder->_n_units; ++i)
-            Data::getSingleton()->setData(TEMPERATURE_DATA, _floorplan_holder->_flp_units[i]._name, _temperature[i]);
+            Data::getSingleton()->setTemperatureData(_floorplan_holder->_flp_units[i]._name, _temperature[i]);
     }
 
     void Temperature::loadInitTemperatureFromFile()
@@ -277,7 +277,7 @@ namespace Thermal
         assert(_temperature.size() == (unsigned int) _rc_model_holder->n_nodes);
         assert(_power.size() == (unsigned int) _rc_model_holder->n_nodes);
 
-        if(Data::getSingleton()->getDataSize(ACCUMULATED_ENERGY_DATA) != (unsigned int) _floorplan_holder->_n_units)
+        if(Data::getSingleton()->getEnergyDataSize() != (unsigned int) _floorplan_holder->_n_units)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between number of blocks in the floorplan and accumulated energy data.\n");
         
         // put main power data information into local _power vector
@@ -285,7 +285,7 @@ namespace Thermal
         // so in "computeTransientTemperatureFromPower" function, it will set
         // the power for nodes in others layers
         for(int i=0; i<_floorplan_holder->_n_units; ++i)
-            _power[i] = Data::getSingleton()->getData(ACCUMULATED_ENERGY_DATA, _floorplan_holder->_flp_units[i]._name)/time_elapsed_since_last_update;
+            _power[i] = Data::getSingleton()->getEnergyData(_floorplan_holder->_flp_units[i]._name)/time_elapsed_since_last_update;
         
         // compute temp from power
         computeTransientTemperatureFromPower();
