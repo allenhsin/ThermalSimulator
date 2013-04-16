@@ -9,6 +9,8 @@
 
 namespace Thermal
 {
+    class BitSequence;
+
     class Data
     {
     public:
@@ -28,6 +30,12 @@ namespace Thermal
         double          getEnergyData(std::string key);
         unsigned int    getEnergyDataSize();
 
+        // bit sequence data
+        void            addBitSequenceData(std::string key, BitSequence* value);
+        void            setBitSequenceData(std::string key, BitSequence* value);
+        BitSequence*    getBitSequenceData(std::string key);
+        unsigned int    getBitSequenceDataSize();
+        
     protected:
         Data();
         ~Data();
@@ -36,12 +44,15 @@ namespace Thermal
         bool hasTemperatureData(std::string key);
         // energy data
         bool hasEnergyData(std::string key);
-
+        // bitsquence data
+        bool hasBitSequenceData(std::string key);
+        
     private:
         static Data* _data_singleton; 
     
         std::map<std::string, double> _temperature;
         std::map<std::string, double> _energy;
+        std::map<std::string, BitSequence*> _bit_sequence;
         
     }; // class Data
 

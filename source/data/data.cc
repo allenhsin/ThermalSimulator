@@ -95,10 +95,42 @@ namespace Thermal
 
     // ------------------------------------------------------------------------
 
+    
+    // bit sequence data ------------------------------------------------------
+    bool Data::hasBitSequenceData(string key)
+    { return _bit_sequence.count(key); }
+
+    void Data::addBitSequenceData(string key, BitSequence* value)
+    {
+        if(hasBitSequenceData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the bit sequence data.\n");
+        _bit_sequence[key] = value;
+    }
+
+    void Data::setBitSequenceData(string key, BitSequence* value)
+    {
+        if(!hasBitSequenceData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the bit sequence data.\n");
+        _bit_sequence[key] = value;
+    }
+
+    BitSequence* Data::getBitSequenceData(string key)
+    {
+        if(!hasBitSequenceData(key))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the bit sequence data.\n");
+        return _bit_sequence[key];
+    }
+
+    unsigned int Data::getBitSequenceDataSize()
+    { return _bit_sequence.size(); }
+
+    // ------------------------------------------------------------------------
+    
     Data::Data()
     {
         _temperature.clear();
         _energy.clear();
+        _bit_sequence.clear();
     }
 
     Data::~Data()
