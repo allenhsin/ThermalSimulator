@@ -390,7 +390,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		
 		// If atomic is selected, make the thing a new atomic!
 		if (check_atomic.isSelected())
-			edit_master_inst.m = new Master(GridPoint.parseGridPoint(text_width.getText()), GridPoint.parseGridPoint(text_height.getText()));
+			edit_master_inst.m = new Master(GridPoint.parseGridPoint(text_width.getText()), GridPoint.parseGridPoint(text_height.getText()), false);
 		// If the atomic is not selected then find the master and set it to that
 		else
 		{

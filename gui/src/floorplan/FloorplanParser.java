@@ -23,6 +23,7 @@ public class FloorplanParser
 	public static final String CMD_FLOORPLAN = "floorplan";
 	public static final String CMD_ENDFLOORPLAN = "endfloorplan";
 	public static final String CMD_ATOMIC = "atomic";
+	public static final String CMD_FILLER = "filler";
 	
 	// Private constructor
 	private FloorplanParser() {}	
@@ -96,8 +97,17 @@ public class FloorplanParser
 						AtomicCommand c = new AtomicCommand(cmd);
 						if (cur_master == null)
 							throw new Exception("Instances may only be added inside of a floorplan.");
-						if (!cur_master.addMasterInst(new Master(c.w, c.h), c.name, c.x, c.y))
+						if (!cur_master.addMasterInst(new Master(c.w, c.h, false), c.name, c.x, c.y))
 							throw new Exception("Instance '" + c.name + "' has a duplicate instance name");
+					}
+					// Atomic filler instantiation
+					else if (cmd[0].equals(CMD_FILLER))
+					{
+						FillerCommand c = new FillerCommand(cmd);
+						if (cur_master == null)
+							throw new Exception("Instances may only be added inside of a floorplan.");
+						if (!cur_master.addMasterInst(new Master(c.w, c.h, true), c.name, c.x, c.y))
+							throw new Exception("Instance '" + c.name + "' has a duplicate instance name");						
 					}
 					// Non-atomic instantiation
 					else
@@ -223,7 +233,12 @@ public class FloorplanParser
 		{
 			MasterInst inst = it.next();
 			if(inst.isAtomic())
-				writer.write(new AtomicCommand(inst).getCommand("    ") + "\n");
+			{
+				if (inst.isFiller())
+					writer.write(new FillerCommand(inst).getCommand("    ") + "\n");
+				else
+					writer.write(new AtomicCommand(inst).getCommand("    ") + "\n");
+			}
 			else
 				writer.write(new InstanceCommand(inst).getCommand("    ") + "\n");
 		}
@@ -318,7 +333,7 @@ class AtomicCommand
 	
 	AtomicCommand(MasterInst m) throws Exception
 	{
-		if (m.isLeaf())
+		if (m.isAtomic())
 		{
 			this.name = m.n;
 			this.x = m.x;
@@ -328,6 +343,45 @@ class AtomicCommand
 		}
 		else
 			throw new Exception("Master instance was not atomic!");
+	}
+	
+	String getCommand(String indent)
+	{
+		return String.format("%satomic %s %f %f %f %f", indent, 
+				name, w, h, x, y);
+	}
+}
+
+class FillerCommand
+{
+	String name;
+	GridPoint x, y, w, h;
+	FillerCommand(String[] cmd) throws Exception
+	{
+		if (cmd.length == 6)
+		{
+			this.name = cmd[1];
+			this.w = GridPoint.parseGridPoint(cmd[2]);
+			this.h = GridPoint.parseGridPoint(cmd[3]);
+			this.x = GridPoint.parseGridPoint(cmd[4]);
+			this.y = GridPoint.parseGridPoint(cmd[5]);
+		}
+		else
+			throw new Exception("Syntax error: filler command expects 5 arguments!");
+	}
+	
+	FillerCommand(MasterInst m) throws Exception
+	{
+		if (m.isAtomic() && m.isFiller())
+		{
+			this.name = m.n;
+			this.x = m.x;
+			this.y = m.y;
+			this.w = m.m.getWidth();
+			this.h = m.m.getHeight();
+		}
+		else
+			throw new Exception("Master instance was not an atomic filler!");
 	}
 	
 	String getCommand(String indent)
@@ -357,7 +411,7 @@ class InstanceCommand
 	
 	InstanceCommand(MasterInst m) throws Exception
 	{
-		if (!m.isLeaf())
+		if (!m.isAtomic())
 		{
 			this.master_name = m.m.getName();
 			this.name = m.n;

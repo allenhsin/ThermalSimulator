@@ -12,6 +12,10 @@ import display.FloorplanRender;
  */
 public class FillerTree 
 {
+	// Constants
+	public final double MIN_ASPECT_RATIO = 0.333;
+	public final double MAX_ASPECT_RATIO = 3.000;
+	
 	// Root filler tree node
 	private FillerTreeNode root;
 	
@@ -45,7 +49,64 @@ public class FillerTree
 	// Get a list of filler instance for a master
 	public Vector<MasterInst> getFillers()
 	{
-		return root.getFillers();
+		Vector<MasterInst> fillers = new Vector<MasterInst>();
+		Vector<MasterInst> raw_fillers = root.getFillers();
+		
+		// A very shady for loop, but it should work
+		for (int i = 0; i < raw_fillers.size(); ++i)
+		{
+			MasterInst raw_filler = raw_fillers.get(i);
+			// Check aspect ratio
+			GridPoint width = raw_filler.m.getWidth();
+			GridPoint height = raw_filler.m.getHeight();
+			double aspect_ratio = GridPoint.div(width, height).toDouble();			
+			// If too wide
+			if (aspect_ratio > MAX_ASPECT_RATIO)
+			{
+				GridPoint half_width_0 = GridPoint.div(width, new GridPoint(2));
+				GridPoint half_width_1 = GridPoint.sub(width, half_width_0);
+				
+				// Split into two fillers, horizontal with each other
+				// Create and add the fillers if their dimensions are non-zero
+				if (!half_width_0.equals(GridPoint.ZERO))
+				{
+					MasterInst filler_0 = new MasterInst(null, new Master(half_width_0, height, true), 
+							raw_filler.n + "_w0", raw_filler.x, raw_filler.y);
+					raw_fillers.add(filler_0);
+				}
+				if (!half_width_1.equals(GridPoint.ZERO))
+				{
+					MasterInst filler_1 = new MasterInst(null, new Master(half_width_1, height, true), 
+							raw_filler.n + "_w1", GridPoint.add(raw_filler.x, half_width_0), raw_filler.y);
+					raw_fillers.add(filler_1);
+				}
+				
+			}
+			else if (aspect_ratio < MIN_ASPECT_RATIO)
+			{
+				GridPoint half_height_0 = GridPoint.div(height, new GridPoint(2));
+				GridPoint half_height_1 = GridPoint.sub(height, half_height_0);
+				
+				// Split into two fillers, vertical with each other
+				// Create and add the fillers if their dimensions are non-zero
+				if (!half_height_0.equals(GridPoint.ZERO))
+				{
+					MasterInst filler_0 = new MasterInst(null, new Master(width, half_height_0, true), 
+							raw_filler.n + "_h0" + fillers.size(), raw_filler.x, raw_filler.y);
+					raw_fillers.add(filler_0);
+				}				
+				if (!half_height_1.equals(GridPoint.ZERO))
+				{
+					MasterInst filler_1 = new MasterInst(null, new Master(width, half_height_1, true), 
+							raw_filler.n + "_h1" + fillers.size(), raw_filler.x, GridPoint.add(raw_filler.y, half_height_0));					
+					raw_fillers.add(filler_1);				
+				}				
+			}
+			else
+				fillers.add(raw_filler);
+		}
+		
+		return fillers;
 	}
 	
 	// Tell the filler tree node to subtract fill
@@ -169,7 +230,7 @@ class FillerTreeNode
 					if (!GridPoint.equals(width, GridPoint.ZERO) && 
 							!GridPoint.equals(height,  GridPoint.ZERO))
 					{
-						fillers.add(new MasterInst(null, new Master(width, height), 
+						fillers.add(new MasterInst(null, new Master(width, height, true), 
 								"Fill_" + fillers.size(), cur_node.llx, cur_node.lly));
 					}
 				}

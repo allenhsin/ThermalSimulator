@@ -64,7 +64,7 @@ public class GridPoint
 	
 	public static GridPoint div(GridPoint a, GridPoint b) 
 	{
-		return new GridPoint((long) (a.val / b.val) * GRID_SCALE);
+		return new GridPoint((long) ((a.val * GRID_SCALE) / b.val));
 	}
 	
 	public static GridPoint max(GridPoint a, GridPoint b)

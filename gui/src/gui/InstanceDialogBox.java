@@ -399,7 +399,7 @@ public class InstanceDialogBox extends JDialog
 			// Parse height/width
 			GridPoint width = GridPoint.parseGridPoint(text_width.getText());
 			GridPoint height = GridPoint.parseGridPoint(text_height.getText());
-			new_inst_master = new Master(width, height);
+			new_inst_master = new Master(width, height, false);
 		}
 		else
 		{

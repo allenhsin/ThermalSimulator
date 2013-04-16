@@ -34,6 +34,11 @@ public class MasterInst implements MutableTreeNode
 		return n + " : " + m.getName();
 	}
 	
+	public boolean isFiller()
+	{
+		return m.isFiller();
+	}
+	
 	public boolean isAtomic()
 	{
 		return m.isAtomic();

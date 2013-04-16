@@ -20,6 +20,7 @@ public class Master implements Comparable<Master>
 	private GridPoint height;
 	private GridPoint width;
 	private boolean atomic;
+	private boolean filler;
 	
 	// List of sub floorplans
 	private Vector<MasterInst> master_insts;
@@ -39,11 +40,12 @@ public class Master implements Comparable<Master>
 		this.width = GridPoint.ZERO;
 	}
 	
-	// Constructor for a leaf master
-	public Master(GridPoint width, GridPoint height)
+	// Constructor for an atomic master
+	public Master(GridPoint width, GridPoint height, boolean filler)
 	{
 		this("Atomic");
-		atomic = true;
+		this.atomic = true;
+		this.filler = filler;
 		this.width = width;
 		this.height = height;
 	}
@@ -168,6 +170,7 @@ public class Master implements Comparable<Master>
 		return box;
 	}
 	
+	public boolean isFiller() { return filler; }
 	public boolean isAtomic() { return atomic; }
 	public GridPoint getHeight() { return height;	}	
 	public GridPoint getWidth() { return width; }	
