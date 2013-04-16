@@ -11,7 +11,7 @@ namespace Thermal
     
     public:
         RandomBitSequence(double ratio_of_ones, double activity);
-        ~RandomBitSequence();
+        virtual ~RandomBitSequence();
 
         // Get next bit in the sequence
         bool getNextBit();

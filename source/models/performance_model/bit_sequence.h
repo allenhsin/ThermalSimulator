@@ -17,7 +17,7 @@ namespace Thermal
         BitSequence(BitSequenceType type);
 
     public:
-        ~BitSequence();
+        virtual ~BitSequence();
 
         // Get the type of bit sequence
         BitSequenceType getType();
