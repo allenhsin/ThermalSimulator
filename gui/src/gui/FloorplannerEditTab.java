@@ -280,8 +280,11 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 					if (lsm.isSelectedIndex(i))
 					{
 						// Get the floorplan that is being edited
-						MasterInst edit_inst = cur_master.getInstances().get(i);
+						MasterInst edit_inst = cur_master.getInstanceMap().get(gui.getObjectsTable().getValueAt(i, 0));
 						selected.add(edit_inst);
+//
+//						MasterInst edit_inst = cur_master.getInstances().get(i);
+//						selected.add(edit_inst);
 					}
 				}			
 			}

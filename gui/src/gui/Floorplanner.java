@@ -66,6 +66,9 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 		setVisible (true);
 		
 		createNewFloorplan();
+				
+		// Set render image to have the default focus
+		render_panel.getRender().requestFocus();
 	}
 	
 	public void createNewFloorplan()

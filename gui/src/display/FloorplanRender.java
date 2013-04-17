@@ -4,12 +4,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 
 import java.awt.AlphaComposite;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -24,9 +23,24 @@ import temperature.*;
 public class FloorplanRender extends JComponent
 {	
 	// Min/Max scale (essentially sets maximum zoom levels)
-	public static final double MAX_SCALE = 10e9;
-	public static final double MIN_SCALE = 1e-6;
+	public static final double MAX_SCALE = 100e9;
+	public static final double MIN_SCALE = 1;
 	
+	// Some painting styles
+	public static final Paint COLOR_BACKGROUND = Color.BLACK;
+	public static final Paint COLOR_BORDER = Color.CYAN;
+	public static final Paint COLOR_OUTLINE = Color.WHITE;
+	public static final Paint COLOR_ATOMIC = Color.GRAY;
+	public static final Paint COLOR_FILLER = Color.GRAY;
+	public static final Paint COLOR_HIGHLIGHTS = Color.YELLOW;
+	
+	public static final float ALPHA_BACKGROUND = 1.0f;	
+	public static final float ALPHA_BORDER = 1.0f;	
+	public static final float ALPHA_OUTLINE = 1.0f;	
+	public static final float ALPHA_ATOMIC = 0.6f;	
+	public static final float ALPHA_FILLER = 0.3f;	
+	public static final float ALPHA_HIGHLIGHTS = 0.5f;	
+
 	// The master to render
 	private Master render_target;
 	// The temperature trace to follow
@@ -60,7 +74,6 @@ public class FloorplanRender extends JComponent
 		time = 0;
 		
 		addComponentListener(new RenderComponentListener());
-		
 	}
 	
 	/**
@@ -101,9 +114,10 @@ public class FloorplanRender extends JComponent
 		g.scale(1, -1);
 		g.translate(0, -getHeight());		
 
-		g.setPaintMode ();
-		g.setColor(Color.black);
-		// Fill background with black
+		g.setPaintMode();
+		// Fill background with some color
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_BACKGROUND));
+		g.setPaint(COLOR_BACKGROUND);
 		g.fillRect(0, 0, (int) getSize().getWidth(), (int) getSize().getHeight());
 		
 		// If there is stuff to render
@@ -135,7 +149,7 @@ public class FloorplanRender extends JComponent
 			TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
 			
 			// Set the painting color based on the temperature
-			g.setColor(TemperatureColor.getColor(temp_step.getTemperatures()[idx], max_temp, min_temp));
+			g.setPaint(TemperatureColor.getColor(temp_step.getTemperatures()[idx], max_temp, min_temp));
 			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
 					trans_x, trans_y, offset_x, offset_y, scale);			
 			g.fillRect(rect.x, rect.y, rect.w, rect.h);
@@ -163,15 +177,12 @@ public class FloorplanRender extends JComponent
 	 */
 	public synchronized void paintOutlines(Graphics2D g)
 	{	
-		// Draw block outlines in white
-		g.setColor(Color.white);		
-		// Set alpha blending
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 1.0));
 		// Paint outlines, starting with the top floorplan instance at origin 0, 0
 		paintOutlines(g, render_target, new Coord(0.0, 0.0));
 
-		// Draw top-level border rectangle in cyan
-		g.setColor(Color.cyan);
+		// Draw top-level border rectangle
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_BORDER));
+		g.setPaint(COLOR_BORDER);
 		FloorplanRectangle border = new FloorplanRectangle(Master.getBoundingBox(render_target), new Coord(0.0, 0.0),
 				trans_x, trans_y, offset_x, offset_y, scale);
 		g.drawRect(border.x,  border.y, border.w, border.h);
@@ -186,9 +197,26 @@ public class FloorplanRender extends JComponent
 		// If it is a leaf, paint it
 		if (target.isAtomic())
 		{
+			// Find the bounding rectangle
 			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
 					trans_x, trans_y, offset_x, offset_y, scale);			
-			g.drawRect(rect.x, rect.y, rect.w, rect.h);
+			// Fill the rectangle
+			if (target.isFiller())
+			{
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_FILLER));
+				g.setPaint(COLOR_FILLER);		
+				g.fillRect(rect.x, rect.y, rect.w, rect.h);				
+			}
+			else
+			{
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_ATOMIC));
+				g.setPaint(COLOR_ATOMIC);		
+				g.fillRect(rect.x, rect.y, rect.w, rect.h);
+			}
+			// Draw outline around rectangle
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_OUTLINE));
+			g.setPaint(COLOR_OUTLINE);		
+			g.drawRect(rect.x, rect.y, rect.w, rect.h);			
 		}
 		// Otherwise recursively call and paint
 		else
@@ -206,8 +234,8 @@ public class FloorplanRender extends JComponent
 	public synchronized void paintHighlights(Graphics2D g)
 	{
 		// Set alpha blending
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5));
-		g.setColor(Color.white);
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_HIGHLIGHTS));
+		g.setPaint(COLOR_HIGHLIGHTS);
 
 		// Iterate through all sub-instances, see if any of them need to be highlighted
 		Iterator<MasterInst> it = render_target.getInstances().iterator();		
@@ -292,6 +320,19 @@ public class FloorplanRender extends JComponent
 	{ 
 		offset_x = (int) getSize().getWidth() / 2;
 		offset_y = (int) getSize().getHeight() / 2;
+	}
+	
+	/**
+	 * Translates a image pixel coordinate to a grid point coordinate
+	 */
+	public Coord pixelToCoord(int x, int y)
+	{
+		int x_off = x - offset_x;
+		int y_off = ((int) getSize().getHeight() - y) - offset_y;
+		double x_cd = x_off / scale;
+		double y_cd = y_off / scale;
+		
+		return new Coord(x_cd - trans_x, y_cd - trans_y);
 	}
 	
 	public Master getRenderTarget() { return render_target; }

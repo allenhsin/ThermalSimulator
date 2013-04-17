@@ -2,6 +2,7 @@ package display;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.Cursor;
 import java.awt.Point;
 
 import javax.swing.event.MouseInputAdapter;
@@ -19,8 +20,31 @@ public class RenderMouse extends MouseInputAdapter
 		this.panel = panel;
 		panel.getRender().addMouseListener(this);
 		panel.getRender().addMouseWheelListener(this);
+		panel.getRender().addMouseMotionListener(this);
+	}
+	
+	/**
+	 * Turn the mouse into a crosshair when entering the render image
+	 */
+	public void mouseEntered(MouseEvent e)
+	{
+		panel.getRender().setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 	}
 
+	/**
+	 * Turn the mouse into the default mouse when exiting the render image
+	 */
+	public void mouseExited(MouseEvent e)
+	{
+		panel.getRender().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+	}
+	
+	public void mouseMoved(MouseEvent e)
+	{
+		Point p = e.getPoint();
+		panel.setMouseCoord(p.x, p.y);
+	}
+	
 	
 	public void mouseClicked(MouseEvent e)
 	{

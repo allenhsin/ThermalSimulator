@@ -4,6 +4,7 @@ import floorplan.*;
 import temperature.*;
 
 import java.awt.Dimension;
+import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -32,6 +33,9 @@ public class RenderPanel extends JPanel implements ChangeListener
 
 	// Render labels
 	private JLabel render_name_text;
+	
+	// Mouse coordinates
+	private JLabel mouse_coord_text;
 	
 	// Time slider labels
 	private JLabel time_slider_file_text;
@@ -68,16 +72,24 @@ public class RenderPanel extends JPanel implements ChangeListener
 		time_slider.setToolTipText("Time Tick");
 		time_slider.addChangeListener(this);
 
-		render_name_text = new JLabel("No floorplan loaded");
-		add(render_name_text, BorderLayout.NORTH);
-		
 		time_slider_file_text = new JLabel("No Temperature Trace Loaded", JLabel.CENTER);
+		time_slider_file_text.setFont(new Font("Courier New", Font.PLAIN, 12));
 		time_slider_time_text = new JLabel("Time tick: 0", JLabel.CENTER);
 		time_slider_panel.add(time_slider, BorderLayout.CENTER);
 		time_slider_panel.add(time_slider_time_text,  BorderLayout.NORTH);
 		time_slider_panel.add(time_slider_file_text, BorderLayout.SOUTH);
 		add(time_slider_panel, BorderLayout.SOUTH);
 		
+		JPanel info_panel = new JPanel();
+		info_panel.setLayout(new BorderLayout());
+		
+		render_name_text = new JLabel("No floorplan loaded");
+		render_name_text.setFont(new Font("Courier New", Font.PLAIN, 12));
+		mouse_coord_text = new JLabel("");
+		mouse_coord_text.setFont(new Font("Courier New", Font.PLAIN, 12));
+		info_panel.add(mouse_coord_text, BorderLayout.EAST);
+		info_panel.add(render_name_text, BorderLayout.WEST);
+		add(info_panel, BorderLayout.NORTH);
 	}
 
 	/**
@@ -132,6 +144,15 @@ public class RenderPanel extends JPanel implements ChangeListener
 			JOptionPane.showMessageDialog(this, "Temperature trace not compatible" +
 					" with currently viewed master.", "Failed to load", JOptionPane.WARNING_MESSAGE);
 		}
+	}
+	
+	public void setMouseCoord(int x, int y)
+	{
+		Coord coord = render.pixelToCoord(x, y);
+		// Convert to um
+		double x_um = coord.x.toDouble() * 1e6;
+		double y_um = coord.y.toDouble() * 1e6;
+		mouse_coord_text.setText(String.format("X: %+13.3f um    Y: %+13.3f um", x_um, y_um));
 	}
 	
 	/**

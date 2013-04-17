@@ -43,9 +43,12 @@ public class Master implements Comparable<Master>
 	// Constructor for an atomic master
 	public Master(GridPoint width, GridPoint height, boolean filler)
 	{
-		this("Atomic");
-		this.atomic = true;
+		atomic = true;
 		this.filler = filler;
+		if (filler) name = "Filler";
+		else name = "Atomic";		
+		this.master_insts = new Vector<MasterInst>();
+		this.master_map = new Hashtable<String, MasterInst>();
 		this.width = width;
 		this.height = height;
 	}
@@ -139,6 +142,23 @@ public class Master implements Comparable<Master>
 	}
 	
 
+	public boolean isFiller() { return filler; }
+	public boolean isAtomic() { return atomic; }
+	public GridPoint getHeight() { return height;	}	
+	public GridPoint getWidth() { return width; }	
+	public void setName(String name) { this.name = name; }
+	public String getName() { return name; }
+	public MasterInst getLibInstance() { return lib_instance; }
+	public void setLibInstance(MasterInst lib_instance) { this.lib_instance = lib_instance; }
+	
+	public Vector<MasterInst> getInstances() { return master_insts; }	
+	public Hashtable<String, MasterInst> getInstanceMap() { return master_map; }
+
+	public int compareTo(Master other_obj)
+	{
+		return name.compareTo(other_obj.name);		
+	}
+
 	/**
 	 * Get the bounding box of a master instance
 	 */
@@ -170,22 +190,24 @@ public class Master implements Comparable<Master>
 		return box;
 	}
 	
-	public boolean isFiller() { return filler; }
-	public boolean isAtomic() { return atomic; }
-	public GridPoint getHeight() { return height;	}	
-	public GridPoint getWidth() { return width; }	
-	public void setName(String name) { this.name = name; }
-	public String getName() { return name; }
-	public MasterInst getLibInstance() { return lib_instance; }
-	public void setLibInstance(MasterInst lib_instance) { this.lib_instance = lib_instance; }
-	
-	public Vector<MasterInst> getInstances() { return master_insts; }	
-	public Hashtable<String, MasterInst> getInstanceMap() { return master_map; }
-
-	public int compareTo(Master other_obj)
+	/**
+	 * Create a filler master for a master instance
+	 */
+	public static Master createFillerMaster(Master m)
 	{
-		return name.compareTo(other_obj.name);		
+		FillerTree t = new FillerTree();
+		t.calculateFill(m);
+		
+		Master fill_master = new Master(m.getName() + "_fill");
+		Vector<MasterInst> fillers = t.getFillers();
+		
+		Iterator<MasterInst> it = fillers.iterator();
+		while(it.hasNext())
+			fill_master.addMasterInst(it.next());
+		
+		return fill_master;
 	}
+	
 	
 }
 
