@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "source/models/performance_model/bit_sequence.h"
+
 namespace Thermal
 {
     class BitSequence;

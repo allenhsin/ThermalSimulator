@@ -46,8 +46,9 @@ namespace Thermal
         // pass physical config by pointer
     // ------------------------------------------------------------------------
 
-    // Activity trace manager -------------------------------------------------
-
+    // Link activity trace manager --------------------------------------------
+        if(getPerformanceConfig()->getBool("latrace_manager/enable"))
+            _link_activity_trace_manager->startup();
     // ------------------------------------------------------------------------
 
         _last_execute_time = 0;
@@ -61,8 +62,9 @@ namespace Thermal
         
         LibUtil::Log::printLine("Execute Performance Model");
 
-    // Activity trace manager -------------------------------------------------
-
+    // Link activity trace manager --------------------------------------------
+        if(getPerformanceConfig()->getBool("latrace_manager/enable"))
+            _link_activity_trace_manager->execute(scheduled_time);
     // ------------------------------------------------------------------------
 
         _last_execute_time = scheduled_time;

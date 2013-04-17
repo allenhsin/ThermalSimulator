@@ -47,7 +47,7 @@ namespace Thermal
     void Data::setTemperatureData(string key, double value)
     {
         if(!hasTemperatureData(key))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the temperature data.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" does not exist in the temperature data.\n");
         _temperature[key] = value;
     }
 
@@ -79,14 +79,14 @@ namespace Thermal
     void Data::setEnergyData(string key, double value)
     {
         if(!hasEnergyData(key))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the energy data.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" does not exist in the temperature data.\n");
         _energy[key] = value;
     }
 
     double Data::getEnergyData(string key)
     {
         if(!hasEnergyData(key))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the energy data.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" does not exist in the temperature data.\n");
         return _energy[key];
     }
 
@@ -110,14 +110,14 @@ namespace Thermal
     void Data::setBitSequenceData(string key, BitSequence* value)
     {
         if(!hasBitSequenceData(key))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the bit sequence data.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" does not exist in the temperature data.\n");
         _bit_sequence[key] = value;
     }
 
     BitSequence* Data::getBitSequenceData(string key)
     {
         if(!hasBitSequenceData(key))
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" already exists in the bit sequence data.\n");
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Key \"" + key + "\" does not exist in the temperature data.\n");
         return _bit_sequence[key];
     }
 

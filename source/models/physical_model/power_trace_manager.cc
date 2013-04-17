@@ -1,12 +1,10 @@
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <cassert>
 #include <cstring>
 #include <ctype.h>
 #include <string>
 #include <math.h>
-#include <map>
 
 #include "source/models/physical_model/power_trace_manager.h"
 #include "source/models/physical_model/physical_constants.h"
@@ -16,7 +14,6 @@
 #include "source/data/data.h"
 #include "libutil/LibUtil.h"
 
-using std::map;
 using std::string;
 
 namespace Thermal
@@ -31,6 +28,7 @@ namespace Thermal
         , _ptrace_file_read_over        (false)
     {
         _ptrace_flp_units_names.clear();
+        _ptrace_flp_units_names_set.clear();
         _ptrace_flp_units_power.clear();
     }
 
@@ -46,6 +44,7 @@ namespace Thermal
         int     i;
         
         assert(_ptrace_flp_units_names.size()==0);
+        assert(_ptrace_flp_units_names_set.size()==0);
         assert(_ptrace_flp_units_power.size()==0);
 
         _ptrace_file = fopen(getPhysicalConfig()->getString("ptrace_manager/ptrace_file").c_str(), "r");
@@ -73,7 +72,12 @@ namespace Thermal
             if(!sscanf(src, "%s", name))
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid flp names format in ptrace file.\n");
             src += strlen(name);
+
+            if(_ptrace_flp_units_names_set.count( (string) name ))
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Duplicated flp names in ptrace file.\n");
+            
             _ptrace_flp_units_names.push_back( (string) name );
+            _ptrace_flp_units_names_set.insert( (string) name );
             while (isspace((int)*src))
                 src++;
         }

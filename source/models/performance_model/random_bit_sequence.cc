@@ -12,10 +12,8 @@ namespace Thermal
 {
     const double RandomBitSequence::RAND_MAX_INV = 1.0 / (double) RAND_MAX;
 
-    RandomBitSequence::RandomBitSequence(double ratio_of_ones, double activity)
-        : BitSequence(RANDOM),
-        _ratio_of_ones(ratio_of_ones),
-        _activity(activity)
+    RandomBitSequence::RandomBitSequence()
+        : BitSequence(RANDOM)
     {}
 
     RandomBitSequence::~RandomBitSequence()

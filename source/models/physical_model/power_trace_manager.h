@@ -3,6 +3,8 @@
 #define __THERMAL_POWER_TRACE_MANAGER_H__
 
 #include <stdio.h>
+#include <vector>
+#include <set>
 
 #include "config.hpp"
 #include "source/misc/common_types.h"
@@ -35,6 +37,7 @@ namespace Thermal
         FILE*                       _ptrace_file;
         int                         _n_ptrace_flp_units;
         std::vector<std::string>    _ptrace_flp_units_names;
+        std::set<std::string>       _ptrace_flp_units_names_set;
         std::vector<double>         _ptrace_flp_units_power;
 
         Time                        _ptrace_sampling_interval;

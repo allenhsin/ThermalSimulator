@@ -9,7 +9,10 @@
 namespace Thermal
 {
     BitSequence::BitSequence(BitSequenceType type)
-        : _type                     (type)
+        : _ratio_of_ones    (0.5)
+        , _activity         (0)
+        , _cur_bit          (false)
+        , _type             (type)
     {}
 
     BitSequence::~BitSequence()

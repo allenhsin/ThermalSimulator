@@ -9,6 +9,7 @@
 #include "source/misc/common_types.h"
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
+#include "source/models/performance_model/link_activity_trace_manager.h"
 #include "config.hpp"
 
 namespace Thermal
@@ -30,6 +31,8 @@ namespace Thermal
 
     private:
         config::Config*             _performance_config;
+
+        LinkActivityTraceManager*   _link_activity_trace_manager;
 
         bool                        _ready_to_execute;
 
