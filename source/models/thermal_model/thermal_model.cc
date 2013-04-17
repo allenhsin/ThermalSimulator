@@ -130,8 +130,10 @@ namespace Thermal
         if(thermal_params->debug_print_enable)
             _floorplan->printParsedFloorplan(thermal_params->debug_flp_file);
 
-        // setup power and temperature floorplan unit names in data
+        // setup floorplan unit names in temperature data
         _floorplan->setFloorplanUnitNamesInTemperatureData();
+        // setup filler floorplan unit names in energy data
+        _floorplan->setFillerFloorplanUnitNamesInEnergyData();
 
         // allocate the RC model
         _rc_model->setFloorplanHolder(_floorplan->getFloorplanHolder());

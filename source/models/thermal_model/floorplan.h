@@ -73,6 +73,7 @@ namespace Thermal
         const FloorplanHolder* getFloorplanHolder() { return _floorplan_holder; }
 
         void setFloorplanUnitNamesInTemperatureData();
+        void setFillerFloorplanUnitNamesInEnergyData();
 
         static bool isVertAdj(const FloorplanHolder* floorplan_holder, int i, int j);
         static bool isHorizAdj(const FloorplanHolder* floorplan_holder, int i, int j);

@@ -209,6 +209,17 @@ namespace Thermal
         return -1;
     } // getUnitIndexFromName
 
+    void Floorplan::setFillerFloorplanUnitNamesInEnergyData()
+    {
+        assert(_floorplan_holder);
+
+        for (int i=0; i<_floorplan_holder->_n_units; ++i)
+        {
+            if(_floorplan_holder->_flp_units[i]._filler)
+                Data::getSingleton()->addEnergyData(_floorplan_holder->_flp_units[i]._name, 0);
+        }
+    }
+
     void Floorplan::setFloorplanUnitNamesInTemperatureData()
     {
         assert(_floorplan_holder);
