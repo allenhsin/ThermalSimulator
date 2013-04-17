@@ -213,7 +213,7 @@ public class FloorplanParser
 		catch (Exception e)
 		{
 			writer.close();
-			throw new Exception("All remaining masters have unresolved dependencies");
+			throw new Exception(e.getMessage());
 		}
 		
 		writer.close();
@@ -347,7 +347,7 @@ class AtomicCommand
 	
 	String getCommand(String indent)
 	{
-		return String.format("%satomic %s %f %f %f %f", indent, 
+		return String.format("%satomic %s %s %s %s %s", indent, 
 				name, w, h, x, y);
 	}
 }
@@ -386,7 +386,7 @@ class FillerCommand
 	
 	String getCommand(String indent)
 	{
-		return String.format("%satomic %s %f %f %f %f", indent, 
+		return String.format("%sfiller %s %s %s %s %s", indent, 
 				name, w, h, x, y);
 	}
 }
@@ -424,7 +424,7 @@ class InstanceCommand
 
 	String getCommand(String indent)
 	{
-		return String.format("%s%s %s %f %f", indent, 
+		return String.format("%s%s %s %s %s", indent, 
 				master_name, name, x, y);
 	}
 }
