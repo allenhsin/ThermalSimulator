@@ -50,7 +50,7 @@ endfloorplan
 # the top level floorplan name
 floorplan TheChip
     
-    atomic tile_6   0.0010 0.0001 0.0000 0.0009
+    atomic tile_6   0.0010 0.0001 0.0000 0.0010
 
     TileA tile_1    0.0000 0.0000
     TileA tile_2    0.0005 0.0000

@@ -8,6 +8,7 @@
 
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
+#include "source/misc/common_types.h"
 #include "config.hpp"
 
 namespace Thermal
@@ -19,7 +20,7 @@ namespace Thermal
         ~DeviceManager();
 
         void startup();
-        void execute(double scheduled_time);
+        void execute(Time scheduled_time);
 
         void setPhysicalConfig(config::Config* physical_config) 
         { _physical_config = physical_config; }
@@ -34,9 +35,9 @@ namespace Thermal
         config::Config*             _physical_config;
         DeviceFloorplanMap*         _device_floorplan_map;
 
-        double                      _sub_bit_sampling_intvl;
+        Time                        _sub_bit_sampling_intvl;
+        Time                        _last_execute_time;
 
-        double                      _last_execute_time;
         bool                        _ready_to_execute;
         
         // _device_instances are data placeholders 

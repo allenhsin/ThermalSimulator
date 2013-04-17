@@ -3,6 +3,7 @@
 #define __THERMAL_PHYSICAL_MODEL_H__
 
 #include <vector>
+#include <string>
 #include <stdio.h>
 
 #include "source/models/model.h"
@@ -10,6 +11,7 @@
 #include "source/system/event_scheduler.h"
 #include "source/models/physical_model/power_trace_manager.h"
 #include "source/models/physical_model/device_manager.h"
+#include "source/misc/common_types.h"
 #include "config.hpp"
 
 namespace Thermal
@@ -21,8 +23,10 @@ namespace Thermal
         PhysicalModel();
         ~PhysicalModel();
 
-        void startup();
-        void execute(double scheduled_time);
+        virtual void startup();
+        virtual void execute(Time scheduled_time);
+
+        virtual std::string getModelName() { return "Physical Model"; }
 
     protected:
         config::Config* getPhysicalConfig(){ return _physical_config; }

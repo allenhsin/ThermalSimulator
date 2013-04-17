@@ -24,7 +24,7 @@ namespace Thermal
         _name = name;
     }
     
-    void DataGenerator::setBitPeriod(double bit_period)
+    void DataGenerator::setBitPeriod(Time bit_period)
     {
         if( bit_period < 0.0 )
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Bit period cannot be negative.\n");
@@ -32,9 +32,9 @@ namespace Thermal
         _bit_period = bit_period;
     }
 
-    bool DataGenerator::getBit(Time elapsed_time)
+    bool DataGenerator::getBit(Time elapsed_time_since_last_update)
     {
-        _time_since_last_bit += elapsed_time;
+        _time_since_last_bit += elapsed_time_since_last_update;
         
         if (_time_since_last_bit >= _bit_period)
         {

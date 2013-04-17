@@ -75,6 +75,9 @@ namespace config
         template <typename ScannerT>
             struct definition {
                 definition(config_parser const& self) { 
+
+                    (void)self;
+
                     //Grammar Definition
 
                     // Complex rules

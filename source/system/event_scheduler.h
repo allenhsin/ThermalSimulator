@@ -6,6 +6,7 @@
 #include <queue>
 
 #include "source/models/model_type.h"
+#include "source/misc/common_types.h"
 
 namespace Thermal
 {
@@ -16,8 +17,8 @@ namespace Thermal
     private:
         struct Event
         {
-            double  _scheduled_time;
-            int     _model_type;
+            Time        _scheduled_time;
+            ModelType   _model_type;
         }; // struct Event
 
     public:
@@ -25,15 +26,12 @@ namespace Thermal
         static void release();
         static EventScheduler* getSingleton();
         
-        void setModel(int model_type, Model* model);
-        void setSimClock(double* sim_clock);
+        void setModel(ModelType model_type, Model* model);
 
-        double getSimClock(){ return (*_sim_clock); }
+        void        setSimClock(Time* sim_clock);
+        const Time  getSimClock(){ return (*_sim_clock); }
 
-        void advanceSimClockByInterval(double time_interval);
-        void advanceSimClockToAbsTime(double abs_time);
-
-        void enqueueEvent(double schduled_time, int model_type);
+        void enqueueEvent(Time schduled_time, ModelType model_type);
 
         void startScheduler();
 
@@ -45,13 +43,16 @@ namespace Thermal
 
         Event dequeueEvent();
 
+        void advanceSimClockByInterval(Time time_interval);
+        void advanceSimClockToAbsTime(Time abs_time);
+
     private:
         static EventScheduler* _event_scheduler_singleton; 
         
         bool _finished;
 
         std::vector< Model* > _model;
-        double* _sim_clock;
+        Time* _sim_clock;
 
         class SortEvent
         {
@@ -59,7 +60,7 @@ namespace Thermal
             bool operator()(const Event& event_lhs, const Event& event_rhs)
             {
                 if (event_rhs._scheduled_time == event_lhs._scheduled_time)
-                    return (event_rhs._model_type < event_lhs._model_type);
+                    return (static_cast<int>(event_rhs._model_type) < static_cast<int>(event_lhs._model_type));
                 else
                     return (event_rhs._scheduled_time < event_lhs._scheduled_time); 
             }
@@ -72,6 +73,4 @@ namespace Thermal
 } // namespace Thermal
 
 #endif // __THERMAL_EVENT_SCHEDULER_H__
-
-
 

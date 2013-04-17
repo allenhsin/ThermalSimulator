@@ -57,7 +57,7 @@ namespace Thermal
 
     }
 
-    void LossyOpticalNet::updateDeviceProperties(double time_elapsed_since_last_update)
+    void LossyOpticalNet::updateDeviceProperties(Time time_elapsed_since_last_update)
     {
         // calculate and update output power for each wavelength
         double in_power;

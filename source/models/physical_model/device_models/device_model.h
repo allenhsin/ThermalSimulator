@@ -11,6 +11,7 @@
 #include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_models/port.h"
 #include "source/models/physical_model/device_floorplan_map.h"
+#include "source/misc/common_types.h"
 #include "config.hpp"
 
 namespace Thermal
@@ -30,7 +31,7 @@ namespace Thermal
         virtual void initializeDevice() = 0;
         
         // update device properties
-        virtual void updateDeviceProperties(double time_elapsed_since_last_update) = 0;
+        virtual void updateDeviceProperties(Time time_elapsed_since_last_update) = 0;
 
         // just for debug
         virtual void printDefinition(FILE* device_list_file);

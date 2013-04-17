@@ -132,8 +132,6 @@ namespace Thermal
 
     void PowerTraceManager::setFloorplanUnitNamesInPowerData()
     {
-        assert(_n_ptrace_flp_units != 0);
-
         for (int i=0; i<(int)_n_ptrace_flp_units; ++i)
             Data::getSingleton()->addEnergyData(_ptrace_flp_units_names[i], 0);
     }
@@ -163,7 +161,7 @@ namespace Thermal
         _ready_to_execute = true;
     } // startup
 
-    void PowerTraceManager::execute(double scheduled_time)
+    void PowerTraceManager::execute(Time scheduled_time)
     {
         assert(_ready_to_execute);
         assert(_physical_config);
@@ -178,8 +176,6 @@ namespace Thermal
         }
 
         LibUtil::Log::printLine("Execute Power Trace Manager");
-        
-        assert(_n_ptrace_flp_units!=0);
         
     // Read single line of power trace ----------------------------------------
         bool valid_line = false;

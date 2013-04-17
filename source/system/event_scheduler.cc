@@ -33,13 +33,13 @@ namespace Thermal
         return _event_scheduler_singleton;
     }
 
-    void EventScheduler::setModel(int model_type, Model* model)
-    { _model[model_type] = model; }
+    void EventScheduler::setModel(ModelType model_type, Model* model)
+    { _model[static_cast<int>(model_type)] = model; }
 
-    void EventScheduler::setSimClock(double* sim_clock)
+    void EventScheduler::setSimClock(Time* sim_clock)
     { _sim_clock = sim_clock; }
 
-    void EventScheduler::enqueueEvent(double scheduled_time, int model_type)
+    void EventScheduler::enqueueEvent(Time scheduled_time, ModelType model_type)
     {
         Event new_event;
         new_event._model_type = model_type;
@@ -57,10 +57,10 @@ namespace Thermal
         return next_event;
     }
 
-    void EventScheduler::advanceSimClockByInterval(double time_interval)
+    void EventScheduler::advanceSimClockByInterval(Time time_interval)
     { (*_sim_clock) += time_interval; }
 
-    void EventScheduler::advanceSimClockToAbsTime(double abs_time)
+    void EventScheduler::advanceSimClockToAbsTime(Time abs_time)
     { (*_sim_clock) = abs_time; }
 
     void EventScheduler::startScheduler()
@@ -74,7 +74,9 @@ namespace Thermal
         {   
             assert(_model[i]!=NULL);
 
-            LibUtil::Log::printLine("\nTime: " + (String) getSimClock() + " - Startup Model[" + (String) i + "]");
+            LibUtil::Log::printLine (   "\nTime: " + (String) getSimClock() + 
+                                        " - Startup: " + _model[i]->getModelName()
+                                    );
             _model[i]->startup();
 
         }
@@ -89,8 +91,10 @@ namespace Thermal
 
             advanceSimClockToAbsTime(next_event._scheduled_time);
 
-            LibUtil::Log::printLine("\nTime: " + (String) getSimClock() + " - Execute Model[" + (String) next_event._model_type + "]");
-            _model[next_event._model_type]->execute(next_event._scheduled_time);
+            LibUtil::Log::printLine (   "\nTime: " + (String) getSimClock() + 
+                                        " - Execute: " + _model[static_cast<int>(next_event._model_type)]->getModelName()
+                                    );
+            _model[static_cast<int>(next_event._model_type)]->execute(next_event._scheduled_time);
 
         }
 

@@ -85,7 +85,7 @@ namespace Thermal
     }
 
     // The output power won't change
-    void LaserSourceOffChip::updateDeviceProperties(double time_elapsed_since_last_update)
+    void LaserSourceOffChip::updateDeviceProperties(Time time_elapsed_since_last_update)
     {
         // just to suppress the unused warning
         (void)time_elapsed_since_last_update;

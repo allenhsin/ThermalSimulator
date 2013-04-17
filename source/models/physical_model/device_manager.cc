@@ -157,12 +157,12 @@ namespace Thermal
         _ready_to_execute = true;
     } // startup
 
-    void DeviceManager::execute(double scheduled_time)
+    void DeviceManager::execute(Time scheduled_time)
     {
         assert(_ready_to_execute);
         LibUtil::Log::printLine("Execute Device Manager");
 
-        double time_since_last_update = scheduled_time - _last_execute_time;
+        Time time_since_last_update = scheduled_time - _last_execute_time;
         
     // Execute devices --------------------------------------------------------
         for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
@@ -170,10 +170,7 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Schedule the next event ------------------------------------------------
-    if(scheduled_time < 100*_sub_bit_sampling_intvl )
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _sub_bit_sampling_intvl), PHYSICAL_MODEL);
-    else
-        EventScheduler::getSingleton()->finish();
     // ------------------------------------------------------------------------
 
         _last_execute_time = scheduled_time;

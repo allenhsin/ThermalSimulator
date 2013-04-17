@@ -84,7 +84,7 @@ namespace Thermal
     bool Misc::eq(double x, double y)
     { return (fabs(x-y) <  DELTA); }
 
-    bool Misc::eqTime(double x, double y)
+    bool Misc::eqTime(Time x, Time y)
     { return (fabs(x-y) <  TIME_DELTA); }
 
     void Misc::swapDoubleValue (double *a, double *b)

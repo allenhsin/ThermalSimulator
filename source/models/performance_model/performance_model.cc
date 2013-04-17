@@ -54,16 +54,16 @@ namespace Thermal
         _ready_to_execute = true;
     }
 
-    void PerformanceModel::execute(double scheduled_time)
+    void PerformanceModel::execute(Time scheduled_time)
     {
         assert(_ready_to_execute);
         assert(_performance_config);
         
         LibUtil::Log::printLine("Execute Performance Model");
 
+    // Activity trace manager -------------------------------------------------
 
-
-
+    // ------------------------------------------------------------------------
 
         _last_execute_time = scheduled_time;
     }

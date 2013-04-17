@@ -220,6 +220,7 @@ namespace Thermal
 
     void Floorplan::parseFloorplanFile(string flp_file, string top_flp_object_name)
     {
+        int     i = 0;
         char    line[LINE_SIZE];
         string  line_copy;
         char*   line_token;
@@ -309,12 +310,40 @@ namespace Thermal
                             floorplan_unit._height  = height;
                             floorplan_unit._leftx   = leftx;
                             floorplan_unit._bottomy = bottomy;
+                            floorplan_unit._filler  = false;
                         }
                         else
                             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong atomic floorplan block format.\n");
                         
+                        // check if the instance name is duplicated
+                        if(_floorplan_objects[(string) flp_obj_name].count(floorplan_unit))
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Duplicated floorplan instance names: " + floorplan_unit._name + ".\n");
+
                         // push atomic block into current object
-                        _floorplan_objects[(string) flp_obj_name].push_back(floorplan_unit);
+                        _floorplan_objects[(string) flp_obj_name].insert(floorplan_unit);
+                        Misc::isEndOfLine(5);
+                    }
+                    // filler blocks
+                    else if (!strcmp(line_token, "filler"))
+                    {
+                        if (sscanf(line_copy.c_str(), "%*s%s%lf%lf%lf%lf", unit_name, &width, &height, &leftx, &bottomy) == 5) 
+                        {
+                            floorplan_unit._name    = (string) unit_name;
+                            floorplan_unit._width   = width;
+                            floorplan_unit._height  = height;
+                            floorplan_unit._leftx   = leftx;
+                            floorplan_unit._bottomy = bottomy;
+                            floorplan_unit._filler  = true;
+                        }
+                        else
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong filler floorplan block format.\n");
+                        
+                        // check if the instance name is duplicated
+                        if(_floorplan_objects[(string) flp_obj_name].count(floorplan_unit))
+                            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Duplicated floorplan instance names: " + floorplan_unit._name + ".\n");
+
+                        // push filler block into current object
+                        _floorplan_objects[(string) flp_obj_name].insert(floorplan_unit);
                         Misc::isEndOfLine(5);
                     }
                     // instantiate floorplan object
@@ -328,16 +357,17 @@ namespace Thermal
                             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong floorplan object instantiation format.\n");
 
                         // put every block in the instantiated object to the new object with new name and new coordinates
-                        for(vector<FloorplanUnit>::iterator it = _floorplan_objects[(string) line_token].begin(); it != _floorplan_objects[(string) line_token].end(); ++it)
+                        for(set<FloorplanUnit>::iterator it = _floorplan_objects[(string) line_token].begin(); it != _floorplan_objects[(string) line_token].end(); ++it)
                         {
                             floorplan_unit._name    = ((string) unit_name) + "." + (*it)._name;
                             floorplan_unit._width   = (*it)._width;
                             floorplan_unit._height  = (*it)._height;
                             floorplan_unit._leftx   = (*it)._leftx + leftx;
                             floorplan_unit._bottomy = (*it)._bottomy + bottomy;
+                            floorplan_unit._filler  = (*it)._filler;
                             
                             // push hierarchy block into current object
-                            _floorplan_objects[(string) flp_obj_name].push_back(floorplan_unit);
+                            _floorplan_objects[(string) flp_obj_name].insert(floorplan_unit);
                         }
                         Misc::isEndOfLine(3);
                     }
@@ -349,7 +379,13 @@ namespace Thermal
                 if( ((string) flp_obj_name) == top_flp_object_name )
                 {
                     _floorplan_holder = new FloorplanHolder( _floorplan_objects[top_flp_object_name].size() );
-                    _floorplan_holder->_flp_units = _floorplan_objects[top_flp_object_name];
+                    
+                    i = 0;
+                    for(set<FloorplanUnit>::iterator it = _floorplan_objects[top_flp_object_name].begin(); it != _floorplan_objects[top_flp_object_name].end(); ++it)
+                    {
+                        _floorplan_holder->_flp_units[i] = (*it);
+                        ++i;
+                    }
                     
                     _top_flp_object_found = true;
 
@@ -373,10 +409,10 @@ namespace Thermal
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Top level floorplan object not found!\n");
         
         // print unit name out for convenience
-        //printf("\n\n");
-        //for(int i=0; i<_floorplan_holder->_n_units; ++i)
-        //    printf("%s\n", _floorplan_holder->_flp_units[i]._name.c_str());
-        //printf("\n\n");
+        printf("\n\n");
+        for(int i=0; i<_floorplan_holder->_n_units; ++i)
+            printf("%s\n", _floorplan_holder->_flp_units[i]._name.c_str());
+        printf("\n\n");
 
         // make sure the origin is (0,0)
         offsetFloorplanCoordinate(0, 0);   

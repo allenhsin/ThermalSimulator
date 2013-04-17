@@ -4,6 +4,7 @@
 
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
+#include "source/misc/common_types.h"
 
 namespace Thermal
 {
@@ -17,7 +18,7 @@ namespace Thermal
         virtual void initializeDevice();
 
         // update device properties
-        virtual void updateDeviceProperties(double time_elapsed_since_last_update);
+        virtual void updateDeviceProperties(Time time_elapsed_since_last_update);
 
     protected:
         // check the validity of device parameters

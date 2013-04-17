@@ -77,8 +77,8 @@ namespace Thermal
         // Models
         for (int i=0; i<NUM_MODEL_TYPES; ++i)
         {
-            _model[i] = Model::createModel(i);
-            _event_scheduler->setModel(i, _model[i]);
+            _model[i] = Model::createModel(static_cast<ModelType>(i));
+            _event_scheduler->setModel(static_cast<ModelType>(i), _model[i]);
         }
 
         _event_scheduler->setSimClock(&_sim_clock);

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "source/models/thermal_model/rc_model.h"
+#include "source/misc/common_types.h"
 
 namespace Thermal
 {
@@ -19,7 +20,7 @@ namespace Thermal
         void setRCModelHolder(const RCModelHolder* rc_model_holder);
         
         void setInitialTemperature();
-        void updateTransientTemperature(double time_elapsed_since_last_update);
+        void updateTransientTemperature(Time time_elapsed_since_last_update);
 
         // calculate avg sink temp for natural convection package model
         double getAvgSinkTemperature();

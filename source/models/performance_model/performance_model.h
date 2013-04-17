@@ -3,8 +3,10 @@
 #define __THERMAL_PERFORMANCE_MODEL_H__
 
 #include <stdio.h>
+#include <string>
 
 #include "source/models/model.h"
+#include "source/misc/common_types.h"
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
 #include "config.hpp"
@@ -18,8 +20,10 @@ namespace Thermal
         PerformanceModel();
         ~PerformanceModel();
 
-        void startup();
-        void execute(double scheduled_time);
+        virtual void startup();
+        virtual void execute(Time scheduled_time);
+
+        virtual std::string getModelName() { return "Performance Model"; }
 
     protected:
         config::Config* getPerformanceConfig(){ return _performance_config; }

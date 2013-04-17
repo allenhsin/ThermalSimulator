@@ -4,8 +4,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
 #include "source/models/model.h"
+#include "source/misc/common_types.h"
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
 #include "source/models/thermal_model/package.h"
@@ -22,8 +24,10 @@ namespace Thermal
         ThermalModel();
         ~ThermalModel();
         
-        void startup();
-        void execute(double scheduled_time);
+        virtual void startup();
+        virtual void execute(Time scheduled_time);
+
+        virtual std::string getModelName() { return "Thermal Model"; }
 
     protected:
         config::Config* getThermalConfig(){ return _thermal_config; }

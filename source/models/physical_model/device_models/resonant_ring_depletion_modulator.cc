@@ -134,7 +134,7 @@ namespace Thermal
         _one_t1_t2_alpha =              (1 - (getParameter("t1")*getParameter("t1"))) * (1 - (getParameter("t2")*getParameter("t2"))) * _alpha;
     }
 
-    void ResonantRingDepletionModulator::updateDeviceProperties(double time_elapsed_since_last_update)
+    void ResonantRingDepletionModulator::updateDeviceProperties(Time time_elapsed_since_last_update)
     {
         // get temperature from data structure
         double current_temperature = Data::getSingleton()->getTemperatureData(_floorplan_unit_name);

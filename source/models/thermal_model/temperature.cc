@@ -220,13 +220,13 @@ namespace Thermal
     {
         // shortcuts
         int n                                               = _rc_model_holder->n_nodes;
-        const vector<double>& time_steps                    = _rc_model_holder->time_steps;
+        const vector<Time>& time_steps                      = _rc_model_holder->time_steps;
         const vector< vector< vector<double> > >& lu_step   = _rc_model_holder->lu_step;
         const vector< vector<double> >& geq_step            = _rc_model_holder->geq_step;
         const vector< vector<int> >& p_step                 = _rc_model_holder->p_step;
-        double time_elapsed                                 = _thermal_params->sampling_intvl;
+        Time  sampling_intvl                                = _thermal_params->sampling_intvl;
         
-        double  time, residue_time;
+        Time time, residue_time;
         vector<double> power_new (n, 0);
         int     time_step_index;
         int     i = 0;
@@ -242,14 +242,14 @@ namespace Thermal
             _is_internal_power_set = true;
         }
     
-        // keep advancing the time until it reaches time_elapsed.
+        // keep advancing the time until it reaches sampling_intvl.
         // always choose the next appropriate step size that is 
-        // not greater than the residue time toward time_elapsed.
+        // not greater than the residue time toward sampling_intvl.
         time = 0.0;
         time_step_index = -1;
-        while (time < time_elapsed)
+        while (time < sampling_intvl)
         {
-            residue_time = time_elapsed - time;
+            residue_time = sampling_intvl - time;
             for (i=0; i<N_TIME_STEPS; ++i)
             {
                 if (time_steps[i] <= residue_time)
@@ -269,7 +269,7 @@ namespace Thermal
         }
     } // computeTransientTemperatureFromPower
     
-    void Temperature::updateTransientTemperature(double time_elapsed_since_last_update)
+    void Temperature::updateTransientTemperature(Time time_elapsed_since_last_update)
     {
         assert(_thermal_params);
         assert(_floorplan_holder);

@@ -4,8 +4,9 @@
 
 #include <string>
 #include <stdio.h>
-#include <vector>
 #include <string>
+#include <vector>
+#include <set>
 #include <map>
 
 #include "source/models/thermal_model/thermal_constants.h"
@@ -21,8 +22,16 @@ namespace Thermal
         double      _height;
         double      _leftx;
         double      _bottomy;
+        bool        _filler;
     };
 
+    class CompareFloorplanUnit
+    {
+    public:
+        bool operator()(const FloorplanUnit& floorplan_unit_lhs, const FloorplanUnit& floorplan_unit_rhs) const
+        { return (floorplan_unit_lhs._name < floorplan_unit_rhs._name); }
+    }; // class CompareFloorplanUnit
+    
     class FloorplanHolder
     {
     public:
@@ -77,7 +86,9 @@ namespace Thermal
 
     private:
        FloorplanHolder* _floorplan_holder; 
-       std::map<std::string, std::vector<FloorplanUnit> > _floorplan_objects;
+       
+       // data holder for floorplan file parsing
+       std::map<std::string, std::set<FloorplanUnit, CompareFloorplanUnit> > _floorplan_objects;
 
        bool _top_flp_object_found;
 

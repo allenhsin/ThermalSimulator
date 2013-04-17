@@ -117,7 +117,8 @@ namespace Thermal
         {
             _floorplan_unit_name = floorplan_unit_name;
             _mapped_in_floorplan = true;
-
+            
+            // put device into the energy data since it's in the floorplan
             Data::getSingleton()->addEnergyData(_floorplan_unit_name, 0);
         }
     }

@@ -5,12 +5,14 @@
 #include "source/data/data.h"
 #include "source/models/physical_model/device_models/modulator_driver.h"
 #include "source/models/physical_model/device_models/device_type.h"
+#include "source/models/physical_model/device_floorplan_map.h"
 #include "libutil/LibUtil.h"
 
 namespace Thermal
 {
     ModulatorDriver::ModulatorDriver(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
         : DeviceModel( MODULATOR_DRIVER, device_floorplan_map, device_definition_file)
+        , _data_generator           ( new DataGenerator() )
         , _bit_one_time_const       (0)
         , _bit_zero_time_const      (0)
         , _current_bit              (false)
@@ -22,7 +24,10 @@ namespace Thermal
     {}
 
     ModulatorDriver::~ModulatorDriver()
-    {}
+    {
+        delete _data_generator;
+        _data_generator = NULL;
+    }
 
     void ModulatorDriver::deviceParameterCheck()
     {
@@ -37,9 +42,13 @@ namespace Thermal
     {
         // parameter sanity check
         deviceParameterCheck();
+        assert(_instance_name != NO_INSTANCE_NAME);
 
-        _bit_one_time_const = 2.197 * getParameter("bit_one_transition_time");
-        _bit_zero_time_const = 2.197 * getParameter("bit_zero_transition_time");
+        _data_generator->setName(_instance_name);
+        _data_generator->setBitPeriod(getParameter("bit_period"));
+
+        _bit_one_time_const =   2.197 * getParameter("bit_one_transition_time");
+        _bit_zero_time_const =  2.197 * getParameter("bit_zero_transition_time");
 
         // preset the driver to bit 0
         _current_target_voltage     = getParameter("bit_zero_voltage");
@@ -53,10 +62,10 @@ namespace Thermal
         getPortForModification("out")->setPortPropertySize("voltage", 1);
     }
 
-    void ModulatorDriver::updateDeviceProperties(double time_elapsed_since_last_update)
+    void ModulatorDriver::updateDeviceProperties(Time time_elapsed_since_last_update)
     {
         // check the current bit from the data structure;
-        bool new_bit = (getPort("in")->getPortPropertyValueByIndex("bit", 0)==0)? false : true ;
+        bool new_bit = _data_generator->getBit(time_elapsed_since_last_update);
 
         // check if bit changes
         if( new_bit != _current_bit)

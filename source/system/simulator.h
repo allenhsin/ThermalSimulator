@@ -8,6 +8,7 @@
 #include "source/models/model.h"
 #include "source/models/model_type.h"
 #include "source/system/event_scheduler.h"
+#include "source/misc/common_types.h"
 #include "config.hpp"
 
 namespace Thermal
@@ -28,7 +29,7 @@ namespace Thermal
         config::Config* getConfig()         { return _config; }
         Data*           getData()           { return _data; }
         EventScheduler* getEventScheduler() { return _event_scheduler; }
-        Model*          getModel(int i)     { return _model[i]; }
+        Model*          getModel(ModelType i) { return _model[static_cast<int>(i)]; }
 
     
     protected:
@@ -44,7 +45,7 @@ namespace Thermal
         EventScheduler*         _event_scheduler;
         std::vector< Model* >   _model;
         
-        double                  _sim_clock; // in second
+        Time                    _sim_clock; // in second
 
     }; // class Simualtor
 

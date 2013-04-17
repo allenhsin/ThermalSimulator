@@ -69,7 +69,7 @@ namespace Thermal
         _ready_to_execute = true;
     } // startup
     
-    void PhysicalModel::execute(double scheduled_time)
+    void PhysicalModel::execute(Time scheduled_time)
     {
         assert(_ready_to_execute);
         assert(_physical_config);

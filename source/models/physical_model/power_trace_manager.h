@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "config.hpp"
+#include "source/misc/common_types.h"
 
 namespace Thermal
 {
@@ -15,7 +16,7 @@ namespace Thermal
         ~PowerTraceManager();
 
         void startup();
-        void execute(double scheduled_time);
+        void execute(Time scheduled_time);
 
         void setPhysicalConfig(config::Config* physical_config) 
         { _physical_config = physical_config; }
@@ -36,7 +37,7 @@ namespace Thermal
         std::vector<std::string>    _ptrace_flp_units_names;
         std::vector<double>         _ptrace_flp_units_power;
 
-        double                      _ptrace_sampling_interval;
+        Time                        _ptrace_sampling_interval;
         int                         _current_ptrace_line_number;
 
         bool                        _ready_to_execute;

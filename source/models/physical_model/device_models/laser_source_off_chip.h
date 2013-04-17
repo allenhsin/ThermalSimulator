@@ -4,6 +4,7 @@
 
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
+#include "source/misc/common_types.h"
 
 namespace Thermal
 {
@@ -20,7 +21,7 @@ namespace Thermal
         // Right now once the laser is setup (initialized) then nothing 
         // will change during the operation but laser power fluctuation 
         // model could be added in the future
-        virtual void updateDeviceProperties(double time_elapsed_since_last_update);
+        virtual void updateDeviceProperties(Time time_elapsed_since_last_update);
 
         virtual void printDefinition(FILE* device_list_file);
 

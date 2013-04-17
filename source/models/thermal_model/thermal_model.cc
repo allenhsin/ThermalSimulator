@@ -177,7 +177,7 @@ namespace Thermal
         _ready_to_execute = true;
     } // startup
 
-    void ThermalModel::execute(double scheduled_time)
+    void ThermalModel::execute(Time scheduled_time)
     {
         assert(_ready_to_execute);
 

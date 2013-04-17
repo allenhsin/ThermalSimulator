@@ -20,7 +20,7 @@ namespace Thermal
     {}
 
     Model*
-    Model::createModel(int model_type)
+    Model::createModel(ModelType model_type)
     {
         switch (model_type)
         {
