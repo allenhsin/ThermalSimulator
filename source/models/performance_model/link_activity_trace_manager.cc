@@ -163,7 +163,7 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Schedule the first physical model execution event ----------------------
-        EventScheduler::getSingleton()->enqueueEvent(_latrace_sampling_interval, PERFORMANCE_MODEL);
+        EventScheduler::getSingleton()->enqueueEvent(0, PERFORMANCE_MODEL);
     // ------------------------------------------------------------------------
 
         _ready_to_execute = true;
@@ -174,9 +174,9 @@ namespace Thermal
         assert(_ready_to_execute);
         assert(_performance_config);
         
-        _current_latrace_line_number++;
         // only execute latrace when the schduled execution time matches the latrace sampling time
-        if( !Misc::eqTime(scheduled_time, (_current_latrace_line_number * _latrace_sampling_interval)) )
+        _current_latrace_line_number++;
+        if( !Misc::eqTime(scheduled_time, ((_current_latrace_line_number-1) * _latrace_sampling_interval) ) )
         {
             _current_latrace_line_number--;
             LibUtil::Log::printLine("Link Activity Trace Manager not Executed");
@@ -200,20 +200,15 @@ namespace Thermal
                 Data::getSingleton()->getBitSequenceData(_bit_sequence_driver_names[i])->setActivityFactor(_bit_sequence_drver_activity_factor[i]);
                 Data::getSingleton()->getBitSequenceData(_bit_sequence_driver_names[i])->setBitRatio(_bit_sequence_drver_bit_ratio[i]);
             }
+
+            // schedule the next event
+            EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _latrace_sampling_interval), PERFORMANCE_MODEL);
         }
         else
-        {
-            for(int i=0; i<_n_bit_sequence_drivers; ++i)
-            {
-                Data::getSingleton()->getBitSequenceData(_bit_sequence_driver_names[i])->setActivityFactor(0);
-                Data::getSingleton()->getBitSequenceData(_bit_sequence_driver_names[i])->setBitRatio(0.5);
-            }
-        }
+            // schedule the next event
+            EventScheduler::getSingleton()->finish();
     // ------------------------------------------------------------------------
         
-    // Schedule the next latrace event -----------------------------------------
-        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _latrace_sampling_interval), PERFORMANCE_MODEL);
-    // ------------------------------------------------------------------------
     }
 
 

@@ -11,6 +11,7 @@
 
 // device models
 #include "source/models/physical_model/device_models/resonant_ring_depletion_modulator.h"
+#include "source/models/physical_model/device_models/resonant_ring.h"
 #include "source/models/physical_model/device_models/laser_source_off_chip.h"
 #include "source/models/physical_model/device_models/lossy_optical_net.h"
 #include "source/models/physical_model/device_models/modulator_driver.h"
@@ -66,7 +67,7 @@ namespace Thermal
         switch(device_type)
         {
         case RESONANT_RING:
-            //device_model = new ResonantRing( device_floorplan_map, physical_config->getString("device/resonant_ring/def_file") );
+            device_model = new ResonantRing( device_floorplan_map, physical_config->getString("device/resonant_ring/def_file") );
             break;
 
         case RESONANT_RING_DEPLETION_MODULATOR:

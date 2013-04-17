@@ -16,7 +16,7 @@
 # and also have default values as defined below.
 [parameter]
     
-    # Bit period (Data rate) [s]
+    # Bit period - Data rate of the input bit sequence [s]
     bit_period                          = 1e-9
 
     # bit-0 voltage (forward-biased voltage) [V]

@@ -39,7 +39,7 @@ namespace Thermal
         if (_time_since_last_bit >= _bit_period)
         {
             _current_bit = Data::getSingleton()->getBitSequenceData(_name)->getNextBit();
-            _time_since_last_bit = _time_since_last_bit - _bit_period;
+            _time_since_last_bit -= _bit_period;
         }
         
         return _current_bit;

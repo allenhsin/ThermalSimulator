@@ -1,50 +1,44 @@
 
-# The name of ports the device has
+# This is a comment line
+# In-line comment is not allowed
+
+# List the ports of the device and the port's corresponding properties.
+#
+# Format: <PortName, PortType, Property1, Property2, Property3, ...>
+#
+# Number of properties is arbitrary.
+# Port Types: INPUT, OUTPUT
+
 [port]
-    in
-    out
-    add
-    thru
+    <in, INPUT,  power, wavelength>
+    <thru, OUTPUT, power, wavelength>
+    <add, INPUT,  power, wavelength>
+    <drop, OUTPUT, power, wavelength>
+    <heater, INPUT, power>
 
 # Parameters are editable through the netlist
 # and also have default values as defined below.
 [parameter]
-    # m2
-    area                            = 100e-12   
-    # Resonant wavelength range
-    lambda                          = 1300e-9   
-    # Group index
-    group_index                     = 4         
-    # Bend radius of the ring
-    radius                          = 3e-6      
-    # Confinement factor
-    confinement_factor              = 0.3       
-    # [dB]
-    through_loss                    = 0.01     	
-    # [dB]
-    drop_loss                       = 1.0       
-    # quality factor
-    q_factor                        = 150e3     
-    # Ring heating efficiency [K/W]
-    heating_efficiency              = 100000    
-    # Ring tuning efficiency [Hz/K]
-    tuning_efficiency               = 10e9      
-    # Ring resonance frequency local mismatch sigma [Hz]
-    local_variation_sigma           = 40e9      
-    # Ring resonance frequency systematic mismatch sigma [Hz]
-    systematic_variation_sigma      = 200e9     
-    # Maximum temperature that the tuning mechanism must still be able to work at [K]
-    temperature_max                 = 380       
-    # Minimum temperature that the tuning mechanism must still be able to work at [K]
-    temperature_min                 = 280       
-    # Maximum electrically tunable range when allowing for electrically assisted tuning [Hz]
-    max_electrically_tunable_freq   = 50e9      
 
-# Properties are not editable through the netlist
-# and are only computed in the model.
-[property]
-    in_power
-    out_power
-    add_power
-    thru_power
+    # coupler -----------------------------------------------------------------
+    
+    # lossless coupling is assumed
+    # in-to-thru self-coupling coefficient [dB]
+    t1                          = 0.995
+    # add-to-drop self-coupling coefficient [dB]
+    t2                          = 0.995
+
+    # waveguide ---------------------------------------------------------------
+    # [dB/m]
+    waveguide_loss              = 1380
+
+    # ring structure ----------------------------------------------------------
+    # radius [m]
+    ring_radius                 = 4.53e-6
+    # width [m] 
+    ring_width                  = 1.2e-6
+    # height [m]
+    ring_height                 = 800e-9
+    # the portion of light mode in the ring
+    confinement_factor          = 0.47
 

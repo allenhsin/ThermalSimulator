@@ -4,7 +4,6 @@
 
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
-#include "source/models/physical_model/device_models/data_generator.h"
 #include "source/misc/common_types.h"
 
 namespace Thermal
@@ -26,17 +25,19 @@ namespace Thermal
         virtual void deviceParameterCheck();
 
     private:
-        DataGenerator* _data_generator;
+        Time    _bit_period;
 
         double  _bit_one_time_const;
         double  _bit_zero_time_const;
+        
         // true: 1, false: 0
         bool    _current_bit;
+
         double  _current_out_voltage;
         double  _current_delta_voltage;
         double  _current_target_voltage;
         double  _current_time_const;
-        Time    _transition_elapsed_time;
+        Time    _current_bit_elapsed_time;
 
     };
 

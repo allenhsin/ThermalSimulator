@@ -57,7 +57,7 @@
     
     # free electron parameter n_fe [m^3]
     fcpd_n_fe                   = 6.0e-28
-    # free hold parameter n_fh [m^3]
+    # free hole parameter n_fh [m^3]
     fcpd_n_fh                   = 5.6e-24
 
     # -------------------------------------------------------------------------
