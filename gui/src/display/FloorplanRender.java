@@ -278,8 +278,8 @@ public class FloorplanRender extends JComponent
 				getSize().getHeight() / b_box.getHeight().toDouble()));
 
 		// Set translates
-		trans_x = -b_box.getWidth().toDouble() / 2;
-		trans_y = -b_box.getHeight().toDouble() / 2;
+		trans_x = -b_box.llx.toDouble() - b_box.getWidth().toDouble() / 2;
+		trans_y = -b_box.lly.toDouble() - b_box.getHeight().toDouble() / 2;
 	}
 
 	

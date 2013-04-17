@@ -19,12 +19,12 @@ public class GridPoint
 	
 	public GridPoint(double a)
 	{
-		this.val = (long) (a * GRID_SCALE);
+		this.val = (long) Math.round(a * GRID_SCALE);
 	}
 	
 	public GridPoint(int a)
 	{
-		this.val = (long) (a * GRID_SCALE);
+		this.val = (long) Math.round(a * GRID_SCALE);
 	}
 	
 	private GridPoint(long num)
