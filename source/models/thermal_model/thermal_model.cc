@@ -126,6 +126,10 @@ namespace Thermal
         _floorplan->loadFloorplan(thermal_params->floorplan_file, thermal_params->top_flp_object);
         assert(_floorplan->getFloorplanHolder());
 
+        // print parsed floorplan to file for debug if specified
+        if(thermal_params->debug_print_enable)
+            _floorplan->printParsedFloorplan(thermal_params->debug_flp_file);
+
         // setup power and temperature floorplan unit names in data
         _floorplan->setFloorplanUnitNamesInTemperatureData();
 

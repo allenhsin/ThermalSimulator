@@ -43,6 +43,7 @@ namespace Thermal
         std::string     model_type;
         bool            debug_print_enable;
         std::string     debug_model_file;
+        std::string     debug_flp_file;
         std::string     debug_ttrace_file;
         // [chip]
         double          t_chip;

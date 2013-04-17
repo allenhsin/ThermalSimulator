@@ -45,6 +45,7 @@ namespace Thermal
         model_type          = getThermalConfig()->getString("env_setup/model_type");
         debug_print_enable  = getThermalConfig()->getBool("env_setup/debug_print_enable");
         debug_model_file    = getThermalConfig()->getString("env_setup/debug_model_file");
+        debug_flp_file      = getThermalConfig()->getString("env_setup/debug_flp_file");
         debug_ttrace_file   = getThermalConfig()->getString("env_setup/debug_ttrace_file");
         // [chip]
         t_chip              = getThermalConfig()->getFloat("chip/t_chip");

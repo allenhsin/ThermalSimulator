@@ -402,18 +402,34 @@ namespace Thermal
         fclose(fp);
     } // parseFloorplanFile
 
+    void Floorplan::printParsedFloorplan(string debug_flp_file)
+    {
+        assert(_floorplan_holder);
+
+        FILE* fp = fopen(debug_flp_file.c_str(), "w");
+
+        if(!fp)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open debug floorplan file for output.\n");
+
+        for(int i=0; i<_floorplan_holder->_n_units; ++i)
+            fprintf (fp, "Instance: %s\n    W: %.9f, H: %.9f, X: %.9f, Y: %.9f, Filler: %s\n", 
+                        _floorplan_holder->_flp_units[i]._name.c_str(),
+                        _floorplan_holder->_flp_units[i]._width,
+                        _floorplan_holder->_flp_units[i]._height,
+                        _floorplan_holder->_flp_units[i]._leftx,
+                        _floorplan_holder->_flp_units[i]._bottomy,
+                        (_floorplan_holder->_flp_units[i]._filler)? "TRUE": "FALSE"
+                    );
+
+        fclose(fp);
+    }
+
     void Floorplan::loadFloorplan(string flp_file, string top_flp_object_name)
     {
         parseFloorplanFile(flp_file, top_flp_object_name);
         if(!_top_flp_object_found)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Top level floorplan object not found!\n");
         
-        // print unit name out for convenience
-        printf("\n\n");
-        for(int i=0; i<_floorplan_holder->_n_units; ++i)
-            printf("%s\n", _floorplan_holder->_flp_units[i]._name.c_str());
-        printf("\n\n");
-
         // make sure the origin is (0,0)
         offsetFloorplanCoordinate(0, 0);   
         // calculate total chip dimension

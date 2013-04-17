@@ -68,6 +68,8 @@ namespace Thermal
 
         void loadFloorplan(std::string flp_file, std::string top_flp_object_name);
 
+        void printParsedFloorplan(std::string debug_flp_file);
+
         const FloorplanHolder* getFloorplanHolder() { return _floorplan_holder; }
 
         void setFloorplanUnitNamesInTemperatureData();
