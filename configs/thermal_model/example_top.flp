@@ -50,15 +50,22 @@ endfloorplan
 # the top level floorplan name
 floorplan TheChip
     
-    atomic tile_6   0.0010 0.0001 0.0000 0.0010
+    atomic tile_6   0.0010 0.0001 0.0000 0.0011
+    
+    # Filler blocks are empty blocks, just to avoid gaps between 
+    # floorplan blocks since gaps block the heat transfer. The
+    # syntax is the same with atomic blocks just change "atomic"
+    # to "filler". Filler blocks cannot have power consumption,
+    # and thus cannot be in the power trace.
+    filler fill_1   0.0010 0.0001 0.0000 0.0010
 
     TileA tile_1    0.0000 0.0000
     TileA tile_2    0.0005 0.0000
     
-    TileD tile_3    0.0000 0.0004
+    TileD tile_3    0.0000 0.0005
     
-    TileB tile_4    0.0000 0.0005
-    TileB tile_5    0.0005 0.0005
+    TileB tile_4    0.0000 0.0006
+    TileB tile_5    0.0005 0.0006
 
 endfloorplan
 
