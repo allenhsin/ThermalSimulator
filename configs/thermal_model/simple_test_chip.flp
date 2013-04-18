@@ -1,0 +1,40 @@
+# Floorplan SimpleTestChip_fill, 16 instances
+floorplan SimpleTestChip_fill
+    filler Fill_1 2.0E-5 1.0E-5 0.0 7.9E-5
+    filler Fill_3 2.0E-5 1.0E-5 1.3E-4 7.9E-5
+    filler Fill_0_w0 5.0E-5 2.5E-5 0.0 5.0E-5
+    filler Fill_0_w1 5.0E-5 2.5E-5 5.0E-5 5.0E-5
+    filler Fill_0_w2 5.0E-5 2.5E-5 1.0E-4 5.0E-5
+    filler Fill_2_w0_w0 2.25E-5 1.0E-5 3.0E-5 7.9E-5
+    filler Fill_2_w0_w1 2.25E-5 1.0E-5 5.25E-5 7.9E-5
+    filler Fill_2_w1_w0 2.25E-5 1.0E-5 7.5E-5 7.9E-5
+    filler Fill_2_w1_w1 2.25E-5 1.0E-5 9.75E-5 7.9E-5
+    filler Fill_4_w0_w0_w0 1.875E-5 1.1E-5 0.0 8.9E-5
+    filler Fill_4_w0_w0_w1 1.875E-5 1.1E-5 1.875E-5 8.9E-5
+    filler Fill_4_w0_w1_w0 1.875E-5 1.1E-5 3.75E-5 8.9E-5
+    filler Fill_4_w0_w1_w1 1.875E-5 1.1E-5 5.625E-5 8.9E-5
+    filler Fill_4_w1_w0_w0 1.875E-5 1.1E-5 7.5E-5 8.9E-5
+    filler Fill_4_w1_w0_w1 1.875E-5 1.1E-5 9.375E-5 8.9E-5
+    filler Fill_4_w1_w1_w0 1.875E-5 1.1E-5 1.125E-4 8.9E-5
+    filler Fill_4_w1_w1_w1 1.875E-5 1.1E-5 1.3125E-4 8.9E-5
+endfloorplan
+
+# Floorplan SimpleTestChip, 15 instances
+floorplan SimpleTestChip
+    atomic circuit_0 5.0E-5 5.0E-5 0.0 0.0
+    atomic circuit_1 5.0E-5 5.0E-5 5.0E-5 0.0
+    atomic circuit_2 5.0E-5 5.0E-5 1.0E-4 0.0
+    atomic circuit_3 5.0E-5 5.0E-5 0.0 1.0E-4
+    atomic circuit_4 5.0E-5 5.0E-5 5.0E-5 1.0E-4
+    atomic circuit_5 5.0E-5 5.0E-5 1.0E-4 1.0E-4
+    atomic waveguide_0 2.5E-5 4.0E-6 0.0 7.5E-5
+    atomic waveguide_1 2.5E-5 4.0E-6 2.5E-5 7.5E-5
+    atomic waveguide_2 2.5E-5 4.0E-6 5.0E-5 7.5E-5
+    atomic waveguide_3 2.5E-5 4.0E-6 7.5E-5 7.5E-5
+    atomic waveguide_4 2.5E-5 4.0E-6 1.0E-4 7.5E-5
+    atomic waveguide_5 2.5E-5 4.0E-6 1.25E-4 7.5E-5
+    atomic modulator 1.0E-5 1.0E-5 2.0E-5 7.9E-5
+    atomic receiver_ring 1.0E-5 1.0E-5 1.2E-4 7.9E-5
+    SimpleTestChip_fill Filler 0.0 0.0
+endfloorplan
+
