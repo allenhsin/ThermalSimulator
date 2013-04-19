@@ -54,8 +54,7 @@ namespace Thermal
 
         _power_ratio = pow( 10.00, (-loss_in_db/10) );
 
-
-    }
+    } // initializeDevice
 
     void LossyOpticalNet::updateDeviceProperties(Time time_elapsed_since_last_update)
     {
@@ -81,5 +80,19 @@ namespace Thermal
                                                 );
         }
     }
+
+    void LossyOpticalNet::printDefinition(FILE* device_list_file)
+    {
+        DeviceModel::printDefinition(device_list_file);
+
+        fprintf(device_list_file, "    [port]\n");
+        fprintf(device_list_file, "        Name: in, Type: %s, Property: power(%d), wavlength(%d)\n", 
+                ((int)getPort("in")->getPortType()==0)?"INPUT":"OUTPUT", getPort("in")->getPortPropertySize("power"), getPort("in")->getPortPropertySize("wavelength"));
+        fprintf(device_list_file, "        Name: out, Type: %s, Property: power(%d), wavlength(%d)\n", 
+                ((int)getPort("out")->getPortType()==0)?"INPUT":"OUTPUT", getPort("out")->getPortPropertySize("power"), getPort("out")->getPortPropertySize("wavelength"));
+        fprintf(device_list_file, "\n");
+
+    }
+
 } // namespace Thermal
 

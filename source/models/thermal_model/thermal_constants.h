@@ -71,11 +71,11 @@
 #define C_FACTOR    0.333       // fitting factor to match floworks (due to lumping)
 
 // number time step sizes
-#define N_TIME_STEPS    1
+#define N_TIME_STEPS    4
 #define TIME_STEP_0     2.5e-6
 #define TIME_STEP_1     1.0e-6
-#define TIME_STEP_2     250e-9
-#define TIME_STEP_3     100e-9
+#define TIME_STEP_2     500e-9
+#define TIME_STEP_3     200e-9
 
 // ------------------------------------------------------------------------------------------------
 

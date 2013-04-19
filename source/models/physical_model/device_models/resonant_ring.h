@@ -22,6 +22,8 @@ namespace Thermal
         // update device properties
         virtual void updateDeviceProperties(Time time_elapsed_since_last_update);
 
+        virtual void printDefinition(FILE* device_list_file);
+
     protected:
         // check the validity of device parameters
         virtual void deviceParameterCheck();

@@ -132,7 +132,8 @@ namespace Thermal
         _two_t1_t2_alpha =              2 * getParameter("t1") * getParameter("t2") * _alpha;
         _one_plus_sq_of_t1_t2_alpha =   1 + (getParameter("t2") * getParameter("t2") * getParameter("t1") * getParameter("t1") * _alpha * _alpha);
         _one_t1_t2_alpha =              (1 - (getParameter("t1")*getParameter("t1"))) * (1 - (getParameter("t2")*getParameter("t2"))) * _alpha;
-    }
+
+    } // initializeDevice
 
     void ResonantRingDepletionModulator::updateDeviceProperties(Time time_elapsed_since_last_update)
     {
@@ -291,6 +292,27 @@ namespace Thermal
         _last_temperature = current_temperature;
         _last_voltage = current_voltage;
     } // updateDeviceProperties
+
+    void ResonantRingDepletionModulator::printDefinition(FILE* device_list_file)
+    {
+        DeviceModel::printDefinition(device_list_file);
+
+        fprintf(device_list_file, "    [port]\n");
+        fprintf(device_list_file, "        Name: in, Type: %s, Property: power(%d), wavlength(%d)\n", 
+                ((int)getPort("in")->getPortType()==0)?"INPUT":"OUTPUT", getPort("in")->getPortPropertySize("power"), getPort("in")->getPortPropertySize("wavelength"));
+        fprintf(device_list_file, "        Name: add, Type: %s, Property: power(%d), wavlength(%d)\n", 
+                ((int)getPort("add")->getPortType()==0)?"INPUT":"OUTPUT", getPort("add")->getPortPropertySize("power"), getPort("add")->getPortPropertySize("wavelength"));
+        fprintf(device_list_file, "        Name: mod_driver, Type: %s, Property: voltage(%d)\n", 
+                ((int)getPort("mod_driver")->getPortType()==0)?"INPUT":"OUTPUT", getPort("mod_driver")->getPortPropertySize("voltage"));
+        fprintf(device_list_file, "        Name: heater, Type: %s, Property: power(%d)\n", 
+                ((int)getPort("heater")->getPortType()==0)?"INPUT":"OUTPUT", getPort("heater")->getPortPropertySize("power"));
+        fprintf(device_list_file, "        Name: thru, Type: %s, Property: power(%d), wavlength(%d)\n", 
+                ((int)getPort("thru")->getPortType()==0)?"INPUT":"OUTPUT", getPort("thru")->getPortPropertySize("power"), getPort("thru")->getPortPropertySize("wavelength"));
+        fprintf(device_list_file, "        Name: drop, Type: %s, Property: power(%d), wavlength(%d)\n", 
+                ((int)getPort("drop")->getPortType()==0)?"INPUT":"OUTPUT", getPort("drop")->getPortPropertySize("power"), getPort("drop")->getPortPropertySize("wavelength"));
+        fprintf(device_list_file, "\n");
+
+    }
 
 } // namespace Thermal
 

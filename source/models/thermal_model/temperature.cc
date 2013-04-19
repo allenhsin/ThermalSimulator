@@ -252,7 +252,7 @@ namespace Thermal
             residue_time = sampling_intvl - time;
             for (i=0; i<N_TIME_STEPS; ++i)
             {
-                if (time_steps[i] <= residue_time)
+                if (time_steps[i] < residue_time)
                 {
                     time_step_index = i;
                     break;

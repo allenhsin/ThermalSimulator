@@ -82,7 +82,8 @@ namespace Thermal
                 getPortForModification("out")->setPortPropertyValueByIndex("power", i, power_in_watt);
             }
         }
-    }
+
+    } // initializeDevice
 
     // The output power won't change
     void LaserSourceOffChip::updateDeviceProperties(Time time_elapsed_since_last_update)

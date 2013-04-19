@@ -20,14 +20,17 @@ namespace Thermal
 {
     PerformanceModel::PerformanceModel()
         : Model()
-        , _performance_config       (NULL)
-        , _ready_to_execute         (false)
+        , _performance_config           (NULL)
+        , _link_activity_trace_manager  ( new LinkActivityTraceManager() )
+        , _ready_to_execute             (false)
     {}
 
     PerformanceModel::~PerformanceModel()
     { 
         if(_performance_config)
             delete _performance_config;
+
+        delete _link_activity_trace_manager;
     }
     
     void PerformanceModel::startup()
@@ -44,6 +47,7 @@ namespace Thermal
         assert(_performance_config);
 
         // pass physical config by pointer
+        _link_activity_trace_manager->setPerformanceConfig(_performance_config);
     // ------------------------------------------------------------------------
 
     // Link activity trace manager --------------------------------------------

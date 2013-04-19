@@ -25,7 +25,7 @@
     bit_one_voltage                     = -4.0
 
     # bit-0 voltage to bit-1 voltage time (10% to 90%) [s]
-    bit_one_transition_time             = 100e-12
+    bit_one_transition_time             = 200e-12
     # bit-1 voltage to bit-0 voltage time (10% to 90%) [s]
-    bit_zero_transition_time            = 100e-12
+    bit_zero_transition_time            = 200e-12
     

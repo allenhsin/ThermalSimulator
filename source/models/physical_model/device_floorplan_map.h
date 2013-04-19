@@ -5,8 +5,8 @@
 #include <map>
 #include <string>
 
-#define NO_MAPPED_NAME "NO_MAPPED_NAME"
-#define NO_INSTANCE_NAME "NO_INSTANCE_NAME"
+#define NO_MAPPED_NAME "NO MAPPED NAME"
+#define NO_INSTANCE_NAME "NO INSTANCE NAME"
 
 namespace Thermal
 {

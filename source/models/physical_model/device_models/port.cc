@@ -23,14 +23,9 @@ namespace Thermal
 
     Port::~Port()
     {
-        for (map< std::string, std::vector<double>* >::iterator it = _port_properties.begin(); it != _port_properties.end(); ++it)
-        {    
-            if(it->second) 
-            { 
-                delete it->second; 
-                it->second = NULL;
-            }
-        }
+        if(_port_type == OUTPUT_PORT)
+            for (map< std::string, std::vector<double>* >::iterator it = _port_properties.begin(); it != _port_properties.end(); ++it)
+            { if(it->second) delete it->second; }
     }
     
     void Port::setConnectedPort(const Port* connected_port)
@@ -80,8 +75,11 @@ namespace Thermal
     {
         if(!hasPortProperty(property_name))
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" does not exist.\n");
-
-        return _port_properties.find(property_name)->second->size();
+        
+        if(!_port_properties.find(property_name)->second)
+            return 0;
+        else
+            return _port_properties.find(property_name)->second->size();
     }
 
     double Port::getPortPropertyValueByIndex(string property_name, unsigned int index) const
@@ -89,7 +87,10 @@ namespace Thermal
         if(!hasPortProperty(property_name))
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port Property \"" + property_name + "\" does not exist.\n");
 
-        return (*_port_properties.find(property_name)->second)[index];
+        if(!_port_properties.find(property_name)->second)
+            return 0;
+        else
+            return (*_port_properties.find(property_name)->second)[index];
     }
 
 

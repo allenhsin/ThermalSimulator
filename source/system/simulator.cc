@@ -91,7 +91,7 @@ namespace Thermal
 
 
     // Finalize ---------------------------------------------------------------
-
+        
         // release models
         for (int i=0; i<NUM_MODEL_TYPES; ++i)
         {

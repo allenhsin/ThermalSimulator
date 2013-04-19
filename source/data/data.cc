@@ -134,7 +134,13 @@ namespace Thermal
     }
 
     Data::~Data()
-    {}
+    {
+        for (map<string, BitSequence*>::iterator it = _bit_sequence.begin(); it != _bit_sequence.end(); it++)
+        {
+            if( (it->second) )
+                delete (it->second);
+        }
+    }
 
 } // namespace Thermal
 

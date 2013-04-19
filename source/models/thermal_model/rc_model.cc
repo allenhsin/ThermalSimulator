@@ -72,6 +72,9 @@ namespace Thermal
         Misc::initDouble2DVector(   _rc_model_holder->geq_step,     N_TIME_STEPS, m);
         Misc::initDouble1DVector(   _rc_model_holder->time_steps,   N_TIME_STEPS);
         _rc_model_holder->time_steps[0] = TIME_STEP_0;
+        _rc_model_holder->time_steps[1] = TIME_STEP_1;
+        _rc_model_holder->time_steps[2] = TIME_STEP_2;
+        _rc_model_holder->time_steps[3] = TIME_STEP_3;
 
         Misc::initDouble1DVector(   _rc_model_holder->a,            m); // vertical Cs - diagonal matrix stored as a 1-d vector
         Misc::initDouble1DVector(   _rc_model_holder->inva,         m); // inverse of a
