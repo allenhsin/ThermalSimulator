@@ -1,5 +1,5 @@
-#ifndef __MATH_H__
-#define __MATH_H__
+#ifndef __MATHUTIL_H__
+#define __MATHUTIL_H__
 
 #include <cmath>
 
@@ -17,5 +17,5 @@ namespace LibUtil
     };
 } // namespace LibUtil
 
-#endif // __MATH_H__
+#endif // __MATHUTIL_H__
 

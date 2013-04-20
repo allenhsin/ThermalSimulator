@@ -23,7 +23,7 @@ namespace Thermal
         Port(DeviceModel* device, PortType port_type);
         ~Port();
 
-        const PortType getPortType() const
+        PortType getPortType() const
         { return _port_type; }
 
         DeviceModel* getDevice() const

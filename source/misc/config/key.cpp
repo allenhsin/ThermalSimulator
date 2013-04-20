@@ -48,7 +48,7 @@ namespace config
 
     //Determine the type of a given key by trying to cast it to different types
     //and catching the error.
-    const unsigned short Key::DetermineType(std::string value)
+    unsigned short Key::DetermineType(std::string value)
     {
         //strings are always valid
         unsigned short valid = TYPE_STRING_VALID;

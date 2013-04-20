@@ -54,7 +54,7 @@ namespace config
             const std::string getName() const { return m_name; }
 
         private:
-            const unsigned short DetermineType(std::string);
+            unsigned short DetermineType(std::string);
             std::string m_name;
 
             std::string m_value;

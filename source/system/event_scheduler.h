@@ -28,8 +28,8 @@ namespace Thermal
         
         void setModel(ModelType model_type, Model* model);
 
-        void        setSimClock(Time* sim_clock);
-        const Time  getSimClock(){ return (*_sim_clock); }
+        void  setSimClock(Time* sim_clock);
+        Time  getSimClock(){ return (*_sim_clock); }
 
         void enqueueEvent(Time schduled_time, ModelType model_type);
 
