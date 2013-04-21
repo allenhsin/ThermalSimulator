@@ -7,7 +7,6 @@
 // models & managers
 #include "source/models/thermal_model/thermal_model.h"
 #include "source/models/performance_model/link_activity_trace_manager.h"
-#include "source/models/performance_model/performance_model.h"
 #include "source/models/physical_model/power_trace_manager.h"
 #include "source/models/physical_model/device_manager.h"
 
@@ -32,10 +31,8 @@ namespace Thermal
     {
         switch (model_type)
         {
-        //case LINK_ACTIVITY_TRACE_MANAGER:
-        //    return new LinkActivityTraceManager();
-        case PERFORMANCE_MODEL:
-            return new PerformanceModel();
+        case LINK_ACTIVITY_TRACE_MANAGER:
+            return new LinkActivityTraceManager();
 
         case DEVICE_MANAGER:
             return new DeviceManager();

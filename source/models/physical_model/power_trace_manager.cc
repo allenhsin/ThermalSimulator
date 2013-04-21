@@ -133,7 +133,10 @@ namespace Thermal
 
     // check if manager is enabled --------------------------------------------
         if(!_config->getBool("ptrace_manager/enable"))
+        {
+            LibUtil::Log::printLine( "    Power Trace Manager not enabled" );
             return false;
+        }
     // ------------------------------------------------------------------------
 
     // set ptrace constants ---------------------------------------------------

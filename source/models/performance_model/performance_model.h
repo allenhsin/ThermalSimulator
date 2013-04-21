@@ -9,7 +9,6 @@
 #include "source/misc/common_types.h"
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
-#include "source/models/performance_model/link_activity_trace_manager.h"
 
 namespace Thermal
 {
@@ -17,18 +16,21 @@ namespace Thermal
     class PerformanceModel : public Model
     {
     public:
-        PerformanceModel();
-        ~PerformanceModel();
+        virtual ~PerformanceModel();
 
-        virtual void startup();
-        virtual void execute(Time scheduled_time);
+        void startup();
+        void execute(Time scheduled_time);
 
+        virtual bool startupManager() = 0;
+        virtual void executeManager(Time scheduled_time) = 0;
         virtual std::string getModelName() { return "Performance Model"; }
 
     protected:
+        PerformanceModel();
+
+        void loadConfig();
 
     private:
-        LinkActivityTraceManager*   _link_activity_trace_manager;
 
     }; // class PerformanceModel
 

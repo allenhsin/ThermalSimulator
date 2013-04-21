@@ -1,10 +1,7 @@
 
-#include <stdlib.h>
 #include <cassert>
 #include <cstring>
-#include <ctype.h>
 #include <string>
-#include <math.h>
 
 #include "source/models/performance_model/link_activity_trace_manager.h"
 #include "source/models/performance_model/performance_constants.h"
@@ -21,13 +18,11 @@ using std::string;
 namespace Thermal
 {
     LinkActivityTraceManager::LinkActivityTraceManager()
-        : _performance_config           (NULL)
+        : PerformanceModel()
         , _latrace_file                 (NULL)
-        , _n_bit_sequence_drivers       (0)
+        , _latrace_file_read_over       (false)
         , _latrace_sampling_interval    (0)
         , _current_latrace_line_number  (0)
-        , _ready_to_execute             (false)
-        , _latrace_file_read_over       (false)
     {
         _bit_sequence_driver_names.clear();
         _bit_sequence_driver_names_set.clear();
@@ -51,7 +46,7 @@ namespace Thermal
         assert(_bit_sequence_drver_activity_factor.size()==0);
         assert(_bit_sequence_drver_bit_ratio.size()==0);
 
-        _latrace_file = fopen(getPerformanceConfig()->getString("latrace_manager/latrace_file").c_str(), "r");
+        _latrace_file = fopen(_config->getString("latrace_manager/latrace_file").c_str(), "r");
         if (!_latrace_file) 
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: cannot open latrace file.\n");
 
@@ -89,7 +84,6 @@ namespace Thermal
         assert(_bit_sequence_driver_names.size()== (unsigned int) i);
         _bit_sequence_drver_activity_factor.resize(i);
         _bit_sequence_drver_bit_ratio.resize(i);
-        _n_bit_sequence_drivers = i;
     } // loadBitSequenceDriverNamesFromLatrace
 
     bool LinkActivityTraceManager::loadBitSequenceDriverActivityFromLatrace()
@@ -97,8 +91,10 @@ namespace Thermal
         char    line[LINE_SIZE];
         char    temp[LINE_SIZE];
         char*   src;
-        int     i;
-        
+
+        unsigned int     i;
+        const unsigned int number_drivers = _bit_sequence_driver_names.size();
+
         if (_latrace_file_read_over)
             return false;
 
@@ -125,14 +121,14 @@ namespace Thermal
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: latrace bit sequence driver name line too long.\n");
     
         // chop the activity values from the line read
-        for(i=0,src=line; *src && i < _n_bit_sequence_drivers; i++) {
+        for(i=0,src=line; *src && i < number_drivers; i++) {
             if(!sscanf(src, "%s", temp) || !sscanf(src, "%lf-%lf", &_bit_sequence_drver_activity_factor[i], &_bit_sequence_drver_bit_ratio[i]))
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid activity format in latrace file.\n");
             src += strlen(temp);
             while (isspace((int)*src))
                 src++;
         }
-        if( (i != _n_bit_sequence_drivers) || *src )
+        if( (i != number_drivers) || *src )
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Number of units exceeds limit.\n");
     
         return true;
@@ -140,18 +136,25 @@ namespace Thermal
 
     void LinkActivityTraceManager::setBitSequenceDriverNamesInBitSequenceData()
     {
-        for(int i=0; i<_n_bit_sequence_drivers; ++i)
+        const unsigned int number_drivers = _bit_sequence_driver_names.size();
+        for(unsigned int i=0; i<number_drivers; ++i)
             Data::getSingleton()->addBitSequenceData( _bit_sequence_driver_names[i], new RandomBitSequence() );
     }
 
-    void LinkActivityTraceManager::startup()
+    bool LinkActivityTraceManager::startupManager()
     {
-        assert(_performance_config);
+        assert(_config);
 
-        LibUtil::Log::printLine("Startup Link Activity Trace Manager");
+    // check if manager is enabled --------------------------------------------
+        if(!_config->getBool("latrace_manager/enable"))
+        {
+            LibUtil::Log::printLine( "    Link Activity Trace Manager not enabled" );
+            return false;
+        }
+    // ------------------------------------------------------------------------
 
     // set latrace constants --------------------------------------------------
-        _latrace_sampling_interval = getPerformanceConfig()->getFloat("latrace_manager/sampling_intvl");
+        _latrace_sampling_interval = _config->getFloat("latrace_manager/sampling_intvl");
         _current_latrace_line_number = 0;
     // ------------------------------------------------------------------------
 
@@ -163,28 +166,23 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Schedule the first physical model execution event ----------------------
-        EventScheduler::getSingleton()->enqueueEvent(0, PERFORMANCE_MODEL);
+        EventScheduler::getSingleton()->enqueueEvent(0, LINK_ACTIVITY_TRACE_MANAGER);
     // ------------------------------------------------------------------------
-
-        _ready_to_execute = true;
+        
+        return true;
     }
 
-    void LinkActivityTraceManager::execute(Time scheduled_time)
+    void LinkActivityTraceManager::executeManager(Time scheduled_time)
     {
-        assert(_ready_to_execute);
-        assert(_performance_config);
-        
         // only execute latrace when the schduled execution time matches the latrace sampling time
         _current_latrace_line_number++;
         if( !Misc::eqTime(scheduled_time, ((_current_latrace_line_number-1) * _latrace_sampling_interval) ) )
         {
             _current_latrace_line_number--;
-            LibUtil::Log::printLine("Link Activity Trace Manager not Executed");
+            LibUtil::Log::printLine("    Link Activity Trace new line not read");
             return;
         }
 
-        LibUtil::Log::printLine("Execute Link Activity Trace Manager");
-        
     // Read single line of power trace ----------------------------------------
         bool valid_line = false;
         valid_line = loadBitSequenceDriverActivityFromLatrace();
@@ -195,14 +193,15 @@ namespace Thermal
         // otherwise it will set activity to zero
         if(valid_line)
         {
-            for(int i=0; i<_n_bit_sequence_drivers; ++i)
+            const unsigned int number_drivers = _bit_sequence_driver_names.size();
+            for(unsigned int i=0; i<number_drivers; ++i)
             {
                 Data::getSingleton()->getBitSequenceData(_bit_sequence_driver_names[i])->setActivityFactor(_bit_sequence_drver_activity_factor[i]);
                 Data::getSingleton()->getBitSequenceData(_bit_sequence_driver_names[i])->setBitRatio(_bit_sequence_drver_bit_ratio[i]);
             }
 
             // schedule the next event
-            EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _latrace_sampling_interval), PERFORMANCE_MODEL);
+            EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _latrace_sampling_interval), LINK_ACTIVITY_TRACE_MANAGER);
         }
         else
             // schedule the next event

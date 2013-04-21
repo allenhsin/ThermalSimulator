@@ -98,7 +98,10 @@ namespace Thermal
 
     // check if manager is enabled --------------------------------------------
         if(!_config->getBool("device_manager/enable"))
+        {
+            LibUtil::Log::printLine( "    Device Manager not enabled" );
             return false;
+        }
     // ------------------------------------------------------------------------
 
     // set device manager constants -------------------------------------------

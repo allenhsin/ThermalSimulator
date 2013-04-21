@@ -85,7 +85,6 @@ namespace Thermal
 
         // parse thermal cfg file into config class
         Misc::setConfig(thermal_config_file, _config, 0, NULL);
-        assert(_config);
         
         // read in all config parameters
         ThermalParameters::allocate(_config);

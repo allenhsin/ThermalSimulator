@@ -24,12 +24,11 @@ namespace Thermal
     void PhysicalModel::loadConfig()
     {
         // get physical cfg file name
-        std::string physical_config_file =  Simulator::getSingleton()->getConfig()
+        string physical_config_file =  Simulator::getSingleton()->getConfig()
                                             ->getString("models/physical_model/physical_config_file");
 
         // parse physical cfg file into config class
         Misc::setConfig(physical_config_file, _config, 0, NULL);
-        assert(_config);
     }
     
     void PhysicalModel::addEnergyData()
@@ -44,10 +43,10 @@ namespace Thermal
             Data::getSingleton()->setEnergyData( it->first, ((time_elapsed_since_last_update * it->second) + Data::getSingleton()->getEnergyData(it->first)) );
     }
 
-    bool PhysicalModel::hasFloorplanUnit(std::string floorplan_unit_name)
+    bool PhysicalModel::hasFloorplanUnit(string floorplan_unit_name)
     { return _floorplan_unit_power.count(floorplan_unit_name); }
 
-    void PhysicalModel::addFloorplanUnit(std::string floorplan_unit_name)
+    void PhysicalModel::addFloorplanUnit(string floorplan_unit_name)
     {   
         if(hasFloorplanUnit(floorplan_unit_name))
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Floorplan unit \"" + floorplan_unit_name + "\" already exists.\n");
@@ -55,7 +54,7 @@ namespace Thermal
         _floorplan_unit_power[floorplan_unit_name] = 0;
     }
 
-    void PhysicalModel::setFloorplanUnitPower(std::string floorplan_unit_name, double floorplan_unit_power)
+    void PhysicalModel::setFloorplanUnitPower(string floorplan_unit_name, double floorplan_unit_power)
     {
         if(!hasFloorplanUnit(floorplan_unit_name))
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Floorplan unit \"" + floorplan_unit_name + "\" does not exist.\n");
