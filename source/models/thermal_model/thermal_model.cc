@@ -170,8 +170,10 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Schedule the first thermal model execution event -----------------------
+        // first update any accumulated energy if necessary
         EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, DEVICE_MANAGER);
         EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, POWER_TRACE_MANAGER);
+        // then execute thermal model
         EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, THERMAL_MODEL);
     // ------------------------------------------------------------------------
 
@@ -184,11 +186,12 @@ namespace Thermal
         if(!_ready_to_execute)
             return;
 
-        if( scheduled_time==_last_execute_time )
+        if( Misc::eqTime(scheduled_time,_last_execute_time) )
             return;
 
         LibUtil::Log::printLine( "Execute " + getModelName() );
-
+        
+        assert(_config);
         ThermalParameters* thermal_params = ThermalParameters::getSingleton();
         
     // Update RC Model if using Natural Convection ----------------------------
@@ -232,8 +235,10 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Schedule next thermal model execution event ----------------------------
+        // first update any accumulated energy if necessary
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), DEVICE_MANAGER );
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), POWER_TRACE_MANAGER );
+        // then execute thermal model
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL );
     // ------------------------------------------------------------------------
 

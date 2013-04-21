@@ -108,7 +108,7 @@ namespace Thermal
         DeviceModel::printDefinition(device_list_file);
 
         fprintf(device_list_file, "    [port]\n");
-        fprintf(device_list_file, "        Name: out, Type: %s, Property: voltage(%d)", 
+        fprintf(device_list_file, "        Name: out, Type: %s, Property: voltage(%d)\n", 
                 ((int)getPort("out")->getPortType()==0)?"INPUT":"OUTPUT", getPort("out")->getPortPropertySize("voltage"));
         fprintf(device_list_file, "\n");
 

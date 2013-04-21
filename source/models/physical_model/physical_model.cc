@@ -32,48 +32,6 @@ namespace Thermal
         assert(_config);
     }
     
-    void PhysicalModel::startup()
-    {
-        LibUtil::Log::printLine( "Startup " + getModelName() );
-        
-        loadConfig();
-
-        // startup manager and initialize floorplan units
-        // controlled by this manager
-        bool manager_enabled = startupManager();
-        if(!manager_enabled)
-            return;
-        
-        // put floorplan unit names into energy data
-        addEnergyData();
-
-        _ready_to_execute = true;
-        _last_execute_time = 0;
-    }
-
-    void PhysicalModel::execute(Time scheduled_time)
-    {
-        assert(_config);
-
-        if(!_ready_to_execute)
-            return;
-        
-        if( (scheduled_time==_last_execute_time) && (_last_execute_time!=0) )
-            return;
-
-        LibUtil::Log::printLine( "Execute " + getModelName() );
-    
-        // update the accumulated energy with the power values
-        // since the last update
-        setEnergyData( (scheduled_time - _last_execute_time) );
-        
-        // then execute the physical model manager to update
-        // power to its current values
-        executeManager(scheduled_time);
-
-        _last_execute_time = scheduled_time;
-    } // execute
-    
     void PhysicalModel::addEnergyData()
     {
         for( map<string, double>::iterator it = _floorplan_unit_power.begin(); it != _floorplan_unit_power.end(); ++it )
@@ -105,5 +63,46 @@ namespace Thermal
         _floorplan_unit_power[floorplan_unit_name] = floorplan_unit_power;
     }
 
+    void PhysicalModel::startup()
+    {
+        LibUtil::Log::printLine( "Startup " + getModelName() );
+        
+        loadConfig();
+
+        // startup manager and initialize floorplan units
+        // controlled by this manager
+        bool manager_enabled = startupManager();
+        if(!manager_enabled)
+            return;
+        
+        // put floorplan unit names into energy data
+        addEnergyData();
+
+        _ready_to_execute = true;
+        _last_execute_time = 0;
+    }
+
+    void PhysicalModel::execute(Time scheduled_time)
+    {
+        if(!_ready_to_execute)
+            return;
+        
+        if( Misc::eqTime(scheduled_time,_last_execute_time) && (_last_execute_time!=0) )
+            return;
+
+        assert(_config);
+        LibUtil::Log::printLine( "Execute " + getModelName() );
+    
+        // update the accumulated energy with the power values
+        // since the last update
+        setEnergyData( (scheduled_time - _last_execute_time) );
+        
+        // then execute the physical model manager to update
+        // power to its current values
+        executeManager(scheduled_time);
+
+        _last_execute_time = scheduled_time;
+    } // execute
+    
 } // namespace Thermal
 
