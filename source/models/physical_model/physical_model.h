@@ -2,17 +2,11 @@
 #ifndef __THERMAL_PHYSICAL_MODEL_H__
 #define __THERMAL_PHYSICAL_MODEL_H__
 
-#include <vector>
 #include <string>
-#include <stdio.h>
+#include <map>
 
 #include "source/models/model.h"
-#include "source/data/data.h"
-#include "source/system/event_scheduler.h"
-#include "source/models/physical_model/power_trace_manager.h"
-#include "source/models/physical_model/device_manager.h"
 #include "source/misc/common_types.h"
-#include "config.hpp"
 
 namespace Thermal
 {
@@ -20,24 +14,35 @@ namespace Thermal
     class PhysicalModel : public Model
     {
     public:
-        PhysicalModel();
-        ~PhysicalModel();
+        virtual ~PhysicalModel();
 
-        virtual void startup();
-        virtual void execute(Time scheduled_time);
-
+        void startup();
+        void execute(Time scheduled_time);
+        
+        virtual void startupManager() = 0;
+        virtual void executeManager(Time scheduled_time) = 0;
         virtual std::string getModelName() { return "Physical Model"; }
 
     protected:
-        config::Config* getPhysicalConfig(){ return _physical_config; }
+        PhysicalModel();
+        void loadConfig(); 
+        
+        // update the accumulated energy in data by taking
+        // the power from the previous time and the elapsed
+        // time since last update
+        void addEnergyData();
+        void setEnergyData(Time time_elapsed_since_last_update);
+        
+        bool hasFloorplanUnit(std::string floorplan_unit_name);
+        void addFloorplanUnit(std::string floorplan_unit_name);
+        unsigned int getFloorplanUnitSize(){ return _floorplan_unit_power.size(); }
+        void setFloorplanUnitPower(std::string floorplan_unit_name, double floorplan_unit_power);
 
     private:
-        config::Config*             _physical_config;
-
-        PowerTraceManager*          _power_trace_manager;
-        DeviceManager*              _device_manager;
-
-        bool                        _ready_to_execute;
+        // store the power for floorplan units at current time
+        // the units must be mapped to the floorplan
+        map<std::string, double> _floorplan_unit_power;
+        
 
     }; // class PhysicalModel
 

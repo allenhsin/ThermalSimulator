@@ -4,42 +4,33 @@
 
 #include <vector>
 #include <string>
-#include <stdio.h>
 
+#include "source/models/physical_model/physical_model.h"
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 #include "source/misc/common_types.h"
-#include "config.hpp"
 
 namespace Thermal
 {
-    class DeviceManager
+    class DeviceManager : public PhysicalModel
     {
     public:
         DeviceManager();
         ~DeviceManager();
 
-        void startup();
-        void execute(Time scheduled_time);
-
-        void setPhysicalConfig(config::Config* physical_config) 
-        { _physical_config = physical_config; }
+        void startupManager();
+        void executeManager(Time scheduled_time);
+        std::string getModelName() { return "Device Manager"; }
 
     protected:
-        config::Config* getPhysicalConfig(){ return _physical_config; }
-
         // Breadth-First Search to build device sequence
         void buildDeviceSequence();
 
     private:
-        config::Config*             _physical_config;
         DeviceFloorplanMap*         _device_floorplan_map;
 
         Time                        _sub_bit_sampling_intvl;
-        Time                        _last_execute_time;
 
-        bool                        _ready_to_execute;
-        
         // _device_instances are data placeholders 
         // resposible for device instance construction 
         // and destruction. The creation of the device 

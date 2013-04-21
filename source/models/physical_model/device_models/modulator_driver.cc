@@ -101,12 +101,6 @@ namespace Thermal
 
         // update port property
         getPortForModification("out")->setPortPropertyValueByIndex("voltage", 0, _current_out_voltage);
-        
-        // TODO: update energy consumption if mapped to floorplan
-        if(isMappedInFloorplan())
-        {
-
-        }
     }
 
     void ModulatorDriver::printDefinition(FILE* device_list_file)

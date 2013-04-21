@@ -2,8 +2,6 @@
 #include <cassert>
 #include <stdio.h>
 
-#include "source/data/data.h"
-#include "source/misc/misc.h"
 #include "source/models/physical_model/device_models/lossy_optical_net.h"
 #include "source/models/physical_model/device_models/device_type.h"
 #include "libutil/LibUtil.h"
@@ -58,26 +56,19 @@ namespace Thermal
 
     void LossyOpticalNet::updateDeviceProperties(Time time_elapsed_since_last_update)
     {
+        (void)time_elapsed_since_last_update;
+
         // calculate and update output power for each wavelength
         double in_power;
         double out_power;
-        double accumulated_power = 0;
+        _device_power = 0;
         for(unsigned int i=0; i<_number_wavelength; ++i)
         {
             in_power         = getPort("in")->getPortPropertyValueByIndex("power", i);
             out_power        = in_power * _power_ratio;
             getPortForModification("out")->setPortPropertyValueByIndex("power", i, out_power);
 
-            accumulated_power += out_power - in_power;
-        }
-
-        // update energy consumption in data structure if the device is in the floorplan
-        if(isMappedInFloorplan())
-        {
-            double previous_accumulated_energy = Data::getSingleton()->getEnergyData(_floorplan_unit_name);
-            Data::getSingleton()->setEnergyData (   _floorplan_unit_name, 
-                                                    (previous_accumulated_energy+(time_elapsed_since_last_update * accumulated_power))
-                                                );
+            _device_power += out_power - in_power;
         }
     }
 

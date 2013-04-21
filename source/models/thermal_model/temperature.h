@@ -26,7 +26,7 @@ namespace Thermal
         double getAvgSinkTemperature();
 
     protected:
-        void updateDataTemperature();
+        void updateTemperatureData();
         void loadInitTemperatureFromFile();
         void computeTransientTemperatureFromPower();
         void setInternalPower();

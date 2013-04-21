@@ -42,7 +42,7 @@ namespace Thermal
     void Temperature::setRCModelHolder(const RCModelHolder* rc_model_holder)
     { _rc_model_holder = rc_model_holder; }
 
-    void Temperature::updateDataTemperature()
+    void Temperature::updateTemperatureData()
     {
         if(Data::getSingleton()->getTemperatureDataSize() != (unsigned int) _floorplan_holder->_n_units)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Mismatch between size of temperature data and number of floorplan blocks.\n");
@@ -291,7 +291,7 @@ namespace Thermal
         computeTransientTemperatureFromPower();
 
         // write temperature back to the main data structure
-        updateDataTemperature();
+        updateTemperatureData();
 
     } // updateTransientTemperature
 
@@ -317,7 +317,7 @@ namespace Thermal
             loadInitTemperatureFromFile();
         
         // write temperature back to the main data structure
-        updateDataTemperature();
+        updateTemperatureData();
 
     } // setInitialTemperature
 

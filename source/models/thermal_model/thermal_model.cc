@@ -23,12 +23,10 @@ namespace Thermal
 {
     ThermalModel::ThermalModel()
         : Model()
-        , _thermal_config       (NULL)
         , _package              (new Package())
         , _floorplan            (new Floorplan())
         , _rc_model             (new RCModel())
         , _temperature          (new Temperature())
-        , _ready_to_execute     (false)
         , _parameter_ready      (false)
         , _ttrace_file          (NULL)
     {}
@@ -52,9 +50,6 @@ namespace Thermal
 
         if(_parameter_ready)
             ThermalParameters::release();
-
-        if(_thermal_config)
-            delete _thermal_config;
     }
 
     void ThermalModel::checkVadilityOfThermalParameters()
@@ -80,22 +75,21 @@ namespace Thermal
 
     void ThermalModel::startup()
     {
-        LibUtil::Log::printLine("Startup Thermal Model");
+        LibUtil::Log::printLine( "Startup " + getModelName() );
 
     // Configure Thermal Model ------------------------------------------------
-        ThermalParameters* thermal_params;
         
         // get thermal cfg file name
         std::string thermal_config_file =   Simulator::getSingleton()->getConfig()
                                             ->getString("models/thermal_model/thermal_config_file");
 
         // parse thermal cfg file into config class
-        Misc::setConfig(thermal_config_file, _thermal_config, 0, NULL);
-        assert(_thermal_config);
+        Misc::setConfig(thermal_config_file, _config, 0, NULL);
+        assert(_config);
         
         // read in all config parameters
-        ThermalParameters::allocate(_thermal_config);
-        thermal_params = ThermalParameters::getSingleton();
+        ThermalParameters::allocate(_config);
+        ThermalParameters* thermal_params = ThermalParameters::getSingleton();
         assert(thermal_params);
         _parameter_ready = true;
         
@@ -120,8 +114,7 @@ namespace Thermal
         }
     // ------------------------------------------------------------------------
     
-    // Construct floorplan and RC models --------------------------------------
-        
+    // Load floorplan ---------------------------------------------------------
         // read in floorplan from flp file
         _floorplan->loadFloorplan(thermal_params->floorplan_file, thermal_params->top_flp_object);
         assert(_floorplan->getFloorplanHolder());
@@ -134,7 +127,9 @@ namespace Thermal
         _floorplan->setFloorplanUnitNamesInTemperatureData();
         // setup filler floorplan unit names in energy data
         _floorplan->setFillerFloorplanUnitNamesInEnergyData();
+    // ------------------------------------------------------------------------
 
+    // Construct RC Model -----------------------------------------------------
         // allocate the RC model
         _rc_model->setFloorplanHolder(_floorplan->getFloorplanHolder());
         _rc_model->allocateRCModelHolder();
@@ -151,7 +146,6 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Setup initial temperature ----------------------------------------------
-        
         // set related data holders
         _temperature->setFloorplanHolder(_floorplan->getFloorplanHolder());
         _temperature->setRCModelHolder(_rc_model->getRCModelHolder());
@@ -177,17 +171,16 @@ namespace Thermal
 
     // Schedule the first thermal model execution event -----------------------
         EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, THERMAL_MODEL);
-        _last_execute_time = 0;
     // ------------------------------------------------------------------------
 
+        _last_execute_time = 0;
         _ready_to_execute = true;
     } // startup
 
     void ThermalModel::execute(Time scheduled_time)
     {
         assert(_ready_to_execute);
-
-        LibUtil::Log::printLine("Execute Thermal Model");
+        LibUtil::Log::printLine( "Execute " + getModelName() );
 
         ThermalParameters* thermal_params = ThermalParameters::getSingleton();
         

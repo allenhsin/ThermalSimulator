@@ -4,8 +4,6 @@
 
 #include "source/models/physical_model/device_models/laser_source_off_chip.h"
 #include "source/models/physical_model/device_models/device_type.h"
-#include "source/data/data.h"
-#include "source/misc/misc.h"
 #include "libutil/LibUtil.h"
 
 namespace Thermal
@@ -52,7 +50,7 @@ namespace Thermal
         // there's no need to update energy consumption 
         // number cuz this is a off-chip laser
         // if this device is in the floorplan it's an error
-        if(isMappedInFloorplan())
+        if(isMappedOnFloorplan())
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Off-chip laser source cannot be on the floorplan.\n");
 
         assert(getPort("out")->getPortPropertySize("wavelength")==0);

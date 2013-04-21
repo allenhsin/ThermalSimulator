@@ -4,47 +4,38 @@
 
 #include <stdio.h>
 #include <vector>
-#include <set>
 
-#include "config.hpp"
+#include "source/models/physical_model/physical_model.h"
 #include "source/misc/common_types.h"
 
 namespace Thermal
 {
-    class PowerTraceManager
+    class PowerTraceManager : public PhysicalModel
     {
     public:
         PowerTraceManager();
         ~PowerTraceManager();
 
-        void startup();
-        void execute(Time scheduled_time);
+        void startupManager();
+        void executeManager(Time scheduled_time);
 
-        void setPhysicalConfig(config::Config* physical_config) 
-        { _physical_config = physical_config; }
+        std::string getModelName() { return "Power Trace Manager"; }
 
     protected:
-        config::Config* getPhysicalConfig(){ return _physical_config; }
-
-        void setFloorplanUnitNamesInPowerData();
-
         void loadFloorplanUnitNamesFromPtrace();
-        bool loadFloorplanUnitPowerFromPtrace();
+        void loadFloorplanUnitPowerFromPtrace();
 
     private:
-        config::Config*             _physical_config;
-
         FILE*                       _ptrace_file;
-        int                         _n_ptrace_flp_units;
-        std::vector<std::string>    _ptrace_flp_units_names;
-        std::set<std::string>       _ptrace_flp_units_names_set;
-        std::vector<double>         _ptrace_flp_units_power;
-
+        bool                        _ptrace_file_read_over;
         Time                        _ptrace_sampling_interval;
         int                         _current_ptrace_line_number;
+        
+        // need to keep another vector structure since
+        // the map won't keep the insertion order
+        std::vector<std::string>    _ptrace_flp_units_names;
 
-        bool                        _ready_to_execute;
-        bool                        _ptrace_file_read_over;
+
     }; // class PowerTraceManager
 
 } // namespace Thermal

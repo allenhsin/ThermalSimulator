@@ -75,8 +75,11 @@ namespace Thermal
         bool isTraversedInBFS() const
         { return _traversed_in_bfs; }
 
-        bool isMappedInFloorplan() const
-        { return _mapped_in_floorplan; }
+        bool isMappedOnFloorplan() const
+        { return _mapped_on_floorplan; }
+
+        double getDevicePower() const
+        { return _device_power; }
         
     protected:
         // derived child classes must call this constructor
@@ -95,6 +98,7 @@ namespace Thermal
 
         std::string _instance_name;
         std::string _floorplan_unit_name;
+        double      _device_power;
         
         // port_name -> (port_type, connected_port)
         std::map<std::string, Port*>    _device_ports;
@@ -105,9 +109,9 @@ namespace Thermal
         DeviceType          _device_type;
         std::string         _device_definition_file;
         DeviceFloorplanMap* _device_floorplan_map;
-        
+
         bool _is_root;
-        bool _mapped_in_floorplan;
+        bool _mapped_on_floorplan;
         bool _traversed_in_bfs;
 
         std::string _target_parameter_name;

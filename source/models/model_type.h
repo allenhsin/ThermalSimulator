@@ -9,9 +9,17 @@ namespace Thermal
     // the same time.
     enum ModelType
     {   
-        THERMAL_MODEL,
+        // performance model
         PERFORMANCE_MODEL,
-        PHYSICAL_MODEL,
+        //LINK_ACTIVITY_TRACE_MANAGER,
+
+        // physical model
+        DEVICE_MANAGER,
+        POWER_TRACE_MANAGER,
+
+        // thermal model
+        THERMAL_MODEL,
+
         NUM_MODEL_TYPES
     };
 

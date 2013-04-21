@@ -72,7 +72,7 @@ namespace Thermal
 
     void ResonantRingDepletionModulator::initializeDevice()
     {
-        if(!isMappedInFloorplan())
+        if(!isMappedOnFloorplan())
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: A ring must be mapped on the floorplan.\n");
 
         // parameter sanity check
@@ -137,6 +137,8 @@ namespace Thermal
 
     void ResonantRingDepletionModulator::updateDeviceProperties(Time time_elapsed_since_last_update)
     {
+        (void)time_elapsed_since_last_update;
+
         // get temperature from data structure
         double current_temperature = Data::getSingleton()->getTemperatureData(_floorplan_unit_name);
 
@@ -283,11 +285,7 @@ namespace Thermal
         }
 
         // update energy data structure for the consumed energy
-        double total_power_consumption = getPort("heater")->getPortPropertyValueByIndex("power", 0) + accumulated_dissipated_power;
-        double previous_accumulated_energy = Data::getSingleton()->getEnergyData(_floorplan_unit_name);
-        Data::getSingleton()->setEnergyData (   _floorplan_unit_name, 
-                                                (previous_accumulated_energy+(time_elapsed_since_last_update*total_power_consumption))
-                                            );
+        _device_power = getPort("heater")->getPortPropertyValueByIndex("power", 0) + accumulated_dissipated_power;
 
         _last_temperature = current_temperature;
         _last_voltage = current_voltage;

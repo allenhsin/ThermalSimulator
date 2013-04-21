@@ -17,9 +17,9 @@ namespace Thermal
         ~DeviceFloorplanMap();
         
         void loadFloorplanMap(std::string floorplan_map_file);
-        std::string getFloorplanUnitNameFromInstanceName(std::string instance_name);
+        std::string getFloorplanUnitNameFromInstanceName(std::string instance_name) const;
 
-        bool isFloorplanMapLoaded(){ return _floorplan_map_loaded; }
+        bool isFloorplanMapLoaded() const { return _floorplan_map_loaded; }
 
     protected:
 

@@ -28,9 +28,6 @@ namespace Thermal
         
         void setModel(ModelType model_type, Model* model);
 
-        void  setSimClock(Time* sim_clock);
-        Time  getSimClock(){ return (*_sim_clock); }
-
         void enqueueEvent(Time schduled_time, ModelType model_type);
 
         void startScheduler();
@@ -52,7 +49,7 @@ namespace Thermal
         bool _finished;
 
         std::vector< Model* > _model;
-        Time* _sim_clock;
+        Time _sim_clock;
 
         class SortEvent
         {

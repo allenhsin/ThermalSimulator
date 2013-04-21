@@ -20,22 +20,17 @@ namespace Thermal
 {
     PerformanceModel::PerformanceModel()
         : Model()
-        , _performance_config           (NULL)
         , _link_activity_trace_manager  ( new LinkActivityTraceManager() )
-        , _ready_to_execute             (false)
     {}
 
     PerformanceModel::~PerformanceModel()
     { 
-        if(_performance_config)
-            delete _performance_config;
-
         delete _link_activity_trace_manager;
     }
     
     void PerformanceModel::startup()
     {
-        LibUtil::Log::printLine("Startup Performance Model");
+        LibUtil::Log::printLine( "Startup " + getModelName() );
 
     // Configure Performance Model --------------------------------------------
         // get performance cfg file name
@@ -43,15 +38,15 @@ namespace Thermal
                                                 ->getString("models/performance_model/performance_config_file");
 
         // parse performance cfg file into config class
-        Misc::setConfig(performance_config_file, _performance_config, 0, NULL);
-        assert(_performance_config);
+        Misc::setConfig(performance_config_file, _config, 0, NULL);
+        assert(_config);
 
         // pass physical config by pointer
-        _link_activity_trace_manager->setPerformanceConfig(_performance_config);
+        _link_activity_trace_manager->setPerformanceConfig(_config);
     // ------------------------------------------------------------------------
 
     // Link activity trace manager --------------------------------------------
-        if(getPerformanceConfig()->getBool("latrace_manager/enable"))
+        if(_config->getBool("latrace_manager/enable"))
             _link_activity_trace_manager->startup();
     // ------------------------------------------------------------------------
 
@@ -62,18 +57,17 @@ namespace Thermal
     void PerformanceModel::execute(Time scheduled_time)
     {
         assert(_ready_to_execute);
-        assert(_performance_config);
+        assert(_config);
         
-        LibUtil::Log::printLine("Execute Performance Model");
+        LibUtil::Log::printLine( "Execute " + getModelName() );
 
     // Link activity trace manager --------------------------------------------
-        if(getPerformanceConfig()->getBool("latrace_manager/enable"))
+        if(_config->getBool("latrace_manager/enable"))
             _link_activity_trace_manager->execute(scheduled_time);
     // ------------------------------------------------------------------------
 
         _last_execute_time = scheduled_time;
     }
-
 
 } // namespace Thermal
 

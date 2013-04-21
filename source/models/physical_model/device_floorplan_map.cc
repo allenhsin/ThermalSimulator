@@ -66,7 +66,7 @@ namespace Thermal
         _floorplan_map_loaded = true;
     }
     
-    string DeviceFloorplanMap::getFloorplanUnitNameFromInstanceName(std::string instance_name)
+    string DeviceFloorplanMap::getFloorplanUnitNameFromInstanceName(std::string instance_name) const
     {
         if(!_floorplan_map_loaded)
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Floorplan map not yet loaded.\n");
@@ -74,7 +74,7 @@ namespace Thermal
         if(!_floorplan_map.count(instance_name))
             return NO_MAPPED_NAME;
         else
-            return _floorplan_map[instance_name];
+            return _floorplan_map.find(instance_name)->second;
     }
 }
 

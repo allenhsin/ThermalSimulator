@@ -27,13 +27,14 @@ namespace Thermal
         : _device_type              (device_type)
         , _device_definition_file   (device_definition_file)
         , _device_floorplan_map     (device_floorplan_map)
-        , _mapped_in_floorplan      (false)
+        , _mapped_on_floorplan      (false)
         , _traversed_in_bfs         (false)
         , _target_parameter_name    ("")
         , _target_port_name         ("")
     {
         _instance_name = NO_INSTANCE_NAME;
         _floorplan_unit_name = NO_MAPPED_NAME;
+        _device_power = 0;
 
         _device_ports.clear();
         _device_parameters.clear();
@@ -53,8 +54,6 @@ namespace Thermal
 
     DeviceModel::~DeviceModel()
     {
-        _device_floorplan_map   = NULL;
-        
         for(map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
         { delete (it->second); }
     }
@@ -117,10 +116,7 @@ namespace Thermal
         if (floorplan_unit_name != NO_MAPPED_NAME)
         {
             _floorplan_unit_name = floorplan_unit_name;
-            _mapped_in_floorplan = true;
-            
-            // put device into the energy data since it's in the floorplan
-            Data::getSingleton()->addEnergyData(_floorplan_unit_name, 0);
+            _mapped_on_floorplan = true;
         }
     }
     // ------------------------------------------------------------------------

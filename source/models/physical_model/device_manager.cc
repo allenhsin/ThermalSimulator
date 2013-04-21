@@ -3,11 +3,8 @@
 #include <cassert>
 #include <queue>
 
-#include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_manager.h"
 #include "source/system/event_scheduler.h"
-#include "source/misc/misc.h"
-#include "source/data/data.h"
 #include "libutil/LibUtil.h"
 
 using std::vector;
@@ -16,11 +13,9 @@ using std::queue;
 namespace Thermal
 {
     DeviceManager::DeviceManager()
-        : _physical_config          (NULL)
+        : PhysicalModel()
         , _device_floorplan_map     ( new DeviceFloorplanMap() )
         , _sub_bit_sampling_intvl   (0)
-        , _last_execute_time        (0)
-        , _ready_to_execute         (false)
     {
         _device_instances.clear();
         _device_sequence.clear();
@@ -30,8 +25,6 @@ namespace Thermal
     {   
         delete _device_floorplan_map;
         _device_floorplan_map = NULL;
-        
-        _physical_config = NULL;
         
         // delete device instance
         for (vector<DeviceModel*>::iterator it = _device_instances.begin() ; it != _device_instances.end(); ++it)
@@ -99,35 +92,33 @@ namespace Thermal
         }
     }
 
-    void DeviceManager::startup()
+    void DeviceManager::startupManager()
     {
-        assert(_physical_config);
-
-        LibUtil::Log::printLine("Startup Device Manager");
+        assert(_config);
 
     // set device manager constants -------------------------------------------
         // sampling interval
-        _sub_bit_sampling_intvl = getPhysicalConfig()->getFloat("device_manager/sub_bit_sampling_intvl");
+        _sub_bit_sampling_intvl = _config->getFloat("device_manager/sub_bit_sampling_intvl");
     // ------------------------------------------------------------------------
 
     // Load Files and Initialize Devices --------------------------------------
         // load floorplan map file
-        _device_floorplan_map->loadFloorplanMap( getPhysicalConfig()->getString("device_manager/flpmap_file") );
+        _device_floorplan_map->loadFloorplanMap( _config->getString("device_manager/flpmap_file") );
 
         // load device netlist
         //FIXME: hardcode device now just for test ------------------------------------------------
 
         // waveguide x 6, laser, modulator, modulator driver, receiver ring.
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING_DEPLETION_MODULATOR, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LASER_SOURCE_OFF_CHIP, _physical_config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( MODULATOR_DRIVER, _physical_config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING_DEPLETION_MODULATOR, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LASER_SOURCE_OFF_CHIP, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( MODULATOR_DRIVER, _config, _device_floorplan_map) );
         
         _device_instances[0]->setDeviceName("waveguide_0");
         _device_instances[1]->setDeviceName("waveguide_1");
@@ -207,13 +198,18 @@ namespace Thermal
 
     // Initialize Devices -----------------------------------------------------
         for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
+        {
             (*it)->initializeDevice();
+            // add mapped devices to the floorplan unit power map
+            if( (*it)->isMappedOnFloorplan() )
+                addFloorplanUnit( (*it)->getFloorplanUnitName() );
+        }
     // ------------------------------------------------------------------------
 
     // Print Device list if debug enabled -------------------------------------
-        if( getPhysicalConfig()->getBool("device_manager/debug_print_enable") )
+        if( _config->getBool("device_manager/debug_print_enable") )
         {
-            FILE* device_list_file = fopen(getPhysicalConfig()->getString("device_manager/debug_print_device_file").c_str(), "w");
+            FILE* device_list_file = fopen(_config->getString("device_manager/debug_print_device_file").c_str(), "w");
             
             for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
                 (*it)->printDefinition(device_list_file);
@@ -223,30 +219,27 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Schedule the first event -----------------------------------------------
-        EventScheduler::getSingleton()->enqueueEvent(_sub_bit_sampling_intvl, PHYSICAL_MODEL);
+        EventScheduler::getSingleton()->enqueueEvent(0, DEVICE_MANAGER);
     // ------------------------------------------------------------------------
-
-        _last_execute_time = 0;
-        _ready_to_execute = true;
     } // startup
 
-    void DeviceManager::execute(Time scheduled_time)
+    void DeviceManager::executeManager(Time scheduled_time)
     {
-        assert(_ready_to_execute);
-        LibUtil::Log::printLine("Execute Device Manager");
-
         Time time_since_last_update = scheduled_time - _last_execute_time;
         
     // Execute devices --------------------------------------------------------
         for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
+        {
             (*it)->updateDeviceProperties(time_since_last_update);
+            // update the mapped device power numbers to the floorplan unit power map
+            if( (*it)->isMappedOnFloorplan() )
+                setFloorplanUnitPower( (*it)->getFloorplanUnitName(), (*it)->getDevicePower() );
+        }
     // ------------------------------------------------------------------------
 
     // Schedule the next event ------------------------------------------------
-        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _sub_bit_sampling_intvl), PHYSICAL_MODEL);
+        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _sub_bit_sampling_intvl), DEVICE_MANAGER);
     // ------------------------------------------------------------------------
-
-        _last_execute_time = scheduled_time;
     } // execute
 
 } // namespace Thermal

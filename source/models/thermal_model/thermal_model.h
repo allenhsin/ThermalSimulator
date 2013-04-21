@@ -14,7 +14,6 @@
 #include "source/models/thermal_model/floorplan.h"
 #include "source/models/thermal_model/temperature.h"
 #include "source/models/thermal_model/rc_model.h"
-#include "config.hpp"
 
 namespace Thermal
 {
@@ -30,12 +29,9 @@ namespace Thermal
         virtual std::string getModelName() { return "Thermal Model"; }
 
     protected:
-        config::Config* getThermalConfig(){ return _thermal_config; }
         void checkVadilityOfThermalParameters();
 
     private:
-        config::Config*     _thermal_config;
-
         // model packaing (heat sink and fan) parameters
         Package*            _package;
         // construct floorplan data structure
@@ -45,7 +41,6 @@ namespace Thermal
         // temperature handler class
         Temperature*        _temperature;
 
-        bool                _ready_to_execute;
         bool                _parameter_ready;
         FILE*               _ttrace_file;
 

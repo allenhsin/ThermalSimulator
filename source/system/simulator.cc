@@ -15,7 +15,6 @@ namespace Thermal
         : _config           (NULL)
         , _data             (NULL)
         , _event_scheduler  (NULL)
-        , _sim_clock        (0)
     {
         _model.resize(NUM_MODEL_TYPES);
     }
@@ -43,10 +42,27 @@ namespace Thermal
         return _simulator_singleton; 
     }
 
-    //FIXME: this giant piece of code will be cleaned up later XD
+    void Simulator::finalize()
+    {
+        // release models
+        for (int i=0; i<NUM_MODEL_TYPES; ++i)
+            delete _model[i];
+
+        // release data structure
+        Data::release();
+
+        // release even scheduler
+        EventScheduler::release();
+
+        // release log system
+        LibUtil::Log::release();
+
+        // release config
+        delete _config;
+    }
+
     void Simulator::run(int argc_, char** argv_)
     {
-
     // Configure Simulator ----------------------------------------------------
         
         // default config file if not overridden by command line arguments
@@ -57,15 +73,12 @@ namespace Thermal
         assert(_config);
     // ------------------------------------------------------------------------
 
-
     // Create Log System ------------------------------------------------------
-        LibUtil::Log::allocate( getConfig()->getString("log/log_file"),
-                                getConfig()->getBool("log/log_enabled") );
+        LibUtil::Log::allocate( _config->getString("log/log_file"),
+                                _config->getBool("log/log_enabled") );
     // ------------------------------------------------------------------------
 
-
     // Allocate and Link System Modules ---------------------------------------
-       
         // Event Scheduler
         EventScheduler::allocate();
         _event_scheduler = EventScheduler::getSingleton();
@@ -80,43 +93,16 @@ namespace Thermal
             _model[i] = Model::createModel(static_cast<ModelType>(i));
             _event_scheduler->setModel(static_cast<ModelType>(i), _model[i]);
         }
-
-        _event_scheduler->setSimClock(&_sim_clock);
     // ------------------------------------------------------------------------
-
 
     // Start Scheduler --------------------------------------------------------
         _event_scheduler->startScheduler();
     // ------------------------------------------------------------------------
 
-
     // Finalize ---------------------------------------------------------------
-        
-        // release models
-        for (int i=0; i<NUM_MODEL_TYPES; ++i)
-        {
-            delete _model[i];
-            _model[i] = NULL;
-        }
-
-        // release data structure
-        Data::release();
-        _data = NULL;
-
-        // release even scheduler
-        EventScheduler::release();
-        _event_scheduler = NULL;
-
-        // release log system
-        LibUtil::Log::release();
-
-        // release config
-        delete _config;
-        _config = NULL;
-
+        finalize();
     // ------------------------------------------------------------------------
-
     }
     
-
 } // namespace Thermal
+
