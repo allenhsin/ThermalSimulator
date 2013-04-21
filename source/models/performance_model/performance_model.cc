@@ -56,9 +56,14 @@ namespace Thermal
 
     void PerformanceModel::execute(Time scheduled_time)
     {
-        assert(_ready_to_execute);
         assert(_config);
+
+        if(!_ready_to_execute)
+            return;
         
+        if( (scheduled_time==_last_execute_time) && (_last_execute_time!=0) )
+            return;
+
         LibUtil::Log::printLine( "Execute " + getModelName() );
 
     // Link activity trace manager --------------------------------------------

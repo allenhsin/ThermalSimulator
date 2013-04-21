@@ -170,6 +170,8 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Schedule the first thermal model execution event -----------------------
+        EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, DEVICE_MANAGER);
+        EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, POWER_TRACE_MANAGER);
         EventScheduler::getSingleton()->enqueueEvent(thermal_params->sampling_intvl, THERMAL_MODEL);
     // ------------------------------------------------------------------------
 
@@ -179,7 +181,12 @@ namespace Thermal
 
     void ThermalModel::execute(Time scheduled_time)
     {
-        assert(_ready_to_execute);
+        if(!_ready_to_execute)
+            return;
+
+        if( scheduled_time==_last_execute_time )
+            return;
+
         LibUtil::Log::printLine( "Execute " + getModelName() );
 
         ThermalParameters* thermal_params = ThermalParameters::getSingleton();
@@ -225,6 +232,8 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Schedule next thermal model execution event ----------------------------
+        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), DEVICE_MANAGER );
+        EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), POWER_TRACE_MANAGER );
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + thermal_params->sampling_intvl), THERMAL_MODEL );
     // ------------------------------------------------------------------------
 

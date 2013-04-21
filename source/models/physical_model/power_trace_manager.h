@@ -16,7 +16,7 @@ namespace Thermal
         PowerTraceManager();
         ~PowerTraceManager();
 
-        void startupManager();
+        bool startupManager();
         void executeManager(Time scheduled_time);
 
         std::string getModelName() { return "Power Trace Manager"; }

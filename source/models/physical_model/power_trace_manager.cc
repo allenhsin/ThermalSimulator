@@ -127,9 +127,14 @@ namespace Thermal
 
     } // loadFloorplanUnitPowerFromPtrace
 
-    void PowerTraceManager::startupManager()
+    bool PowerTraceManager::startupManager()
     {
         assert(_config);
+
+    // check if manager is enabled --------------------------------------------
+        if(!_config->getBool("ptrace_manager/enable"))
+            return false;
+    // ------------------------------------------------------------------------
 
     // set ptrace constants ---------------------------------------------------
         _ptrace_sampling_interval = _config->getFloat("ptrace_manager/sampling_intvl");
@@ -144,7 +149,8 @@ namespace Thermal
     // Schedule the first physical model execution event ----------------------
         EventScheduler::getSingleton()->enqueueEvent(0, POWER_TRACE_MANAGER);
     // ------------------------------------------------------------------------
-
+        
+        return true;
     } // startup
 
     void PowerTraceManager::executeManager(Time scheduled_time)

@@ -40,7 +40,9 @@ namespace Thermal
 
         // startup manager and initialize floorplan units
         // controlled by this manager
-        startupManager();
+        bool manager_enabled = startupManager();
+        if(!manager_enabled)
+            return;
         
         // put floorplan unit names into energy data
         addEnergyData();
@@ -51,9 +53,14 @@ namespace Thermal
 
     void PhysicalModel::execute(Time scheduled_time)
     {
-        assert(_ready_to_execute);
         assert(_config);
+
+        if(!_ready_to_execute)
+            return;
         
+        if( (scheduled_time==_last_execute_time) && (_last_execute_time!=0) )
+            return;
+
         LibUtil::Log::printLine( "Execute " + getModelName() );
     
         // update the accumulated energy with the power values

@@ -92,9 +92,14 @@ namespace Thermal
         }
     }
 
-    void DeviceManager::startupManager()
+    bool DeviceManager::startupManager()
     {
         assert(_config);
+
+    // check if manager is enabled --------------------------------------------
+        if(!_config->getBool("device_manager/enable"))
+            return false;
+    // ------------------------------------------------------------------------
 
     // set device manager constants -------------------------------------------
         // sampling interval
@@ -221,6 +226,8 @@ namespace Thermal
     // Schedule the first event -----------------------------------------------
         EventScheduler::getSingleton()->enqueueEvent(0, DEVICE_MANAGER);
     // ------------------------------------------------------------------------
+
+        return true;
     } // startup
 
     void DeviceManager::executeManager(Time scheduled_time)

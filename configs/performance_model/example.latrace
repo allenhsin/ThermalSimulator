@@ -1,0 +1,24 @@
+# The Link Activity Trace defines the bit sequence patterns
+# for each of the modulator driver within the system.
+# The format is similar to the power trace with the first line
+# instantiate all the full-hierarchy netlist instance name
+# of the modulator drivers
+
+mod_driver_0 mod_driver_1 mod_driver_2 mod_driver_3
+
+# The following lines are the traces of the activities of the
+# above devices in order. The sampling period between traces
+# (lines) is defined in the performance config. The trace 
+# format is:
+#
+#       ACTIVITY_FACTOR-RATIO_OF_ONES
+#
+# The activity factor defines the ratio of time during that 
+# sampling period when the bit sequence is ON. Otherwise, the
+# bit sequence will send zero (nothing) all the time. The 
+# ratio of ones defines when the bit sequence is ON, the ratio
+# of 1s to 0s being sent.
+
+1.0-0.5 1.0-0.3 1.0-0.2 1.0-0.7
+0.5-0.5 0.2-0.8 0.5-0.2 0.9-0.9
+
