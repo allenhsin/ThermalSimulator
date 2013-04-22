@@ -32,6 +32,7 @@ namespace Thermal
         double                      _current_monitoring_time_start;
         double                      _current_monitoring_time_end;
         bool                        _is_monitoring;
+        bool                        _end_of_monitoring;
 
     }; // class DeviceMonitor
 

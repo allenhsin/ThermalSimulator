@@ -19,6 +19,7 @@ namespace Thermal
         , _current_monitoring_time_start(0)
         , _current_monitoring_time_end  (0)
         , _is_monitoring                (false)
+        , _end_of_monitoring            (false)
     {
         _monitored_devices.clear();
         _monitoring_time_duration.clear();
@@ -160,15 +161,23 @@ namespace Thermal
     void DeviceMonitor::startup(string device_monitor_list_file, vector<DeviceModel*>& device_references, string output_dir)
     {
         loadMonitoredDevices(device_monitor_list_file, device_references, output_dir);
-        _current_monitoring_step = 0;
-        _current_monitoring_time_start   = _monitoring_time_point[_current_monitoring_step];
-        _current_monitoring_time_end     = _monitoring_time_point[_current_monitoring_step] + _monitoring_time_duration[_current_monitoring_step];
+
+        if(_monitoring_time_point.size() > 0)
+        {
+            _current_monitoring_step = 0;
+            _current_monitoring_time_start   = _monitoring_time_point[_current_monitoring_step];
+            _current_monitoring_time_end     = _monitoring_time_point[_current_monitoring_step] + _monitoring_time_duration[_current_monitoring_step];
+        }
+        else
+            _end_of_monitoring = true;
 
         _is_monitoring = false;
     }
 
     void DeviceMonitor::execute(Time scheduled_time)
     {
+        if(_end_of_monitoring)
+            return;
         
         if(_is_monitoring)
         {
@@ -185,9 +194,15 @@ namespace Thermal
                     (*it)->printSeparation();
 
                 _is_monitoring = false;
-                _current_monitoring_step++;
-                _current_monitoring_time_start   = _monitoring_time_point[_current_monitoring_step];
-                _current_monitoring_time_end     = _monitoring_time_point[_current_monitoring_step] + _monitoring_time_duration[_current_monitoring_step];
+
+                if( _current_monitoring_step < (_monitoring_time_point.size() - 1) )
+                {
+                    _current_monitoring_step++;
+                    _current_monitoring_time_start   = _monitoring_time_point[_current_monitoring_step];
+                    _current_monitoring_time_end     = _monitoring_time_point[_current_monitoring_step] + _monitoring_time_duration[_current_monitoring_step];
+                }
+                else
+                    _end_of_monitoring = true;
             }
         }
         else
