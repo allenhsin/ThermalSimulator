@@ -53,8 +53,8 @@ namespace Thermal
         _bit_period = getParameter("bit_period");
         
         // 2.197 converts the 10%-90% transition time to time constant 
-        _bit_one_time_const =   2.197 * getParameter("bit_one_transition_time");
-        _bit_zero_time_const =  2.197 * getParameter("bit_zero_transition_time");
+        _bit_one_time_const     = getParameter("bit_one_transition_time")/2.197;
+        _bit_zero_time_const    = getParameter("bit_zero_transition_time")/2.197;
 
         // preset the driver to bit 0
         _current_target_voltage     = getParameter("bit_zero_voltage");
