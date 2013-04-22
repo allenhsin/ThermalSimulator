@@ -1,12 +1,17 @@
 
 #include <cassert>
 #include <stdio.h>
+#include <string>
+#include <map>
 
 #include "source/data/data.h"
 #include "source/models/physical_model/device_models/modulator_driver.h"
 #include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 #include "libutil/LibUtil.h"
+
+using std::map;
+using std::string;
 
 namespace Thermal
 {
@@ -48,8 +53,8 @@ namespace Thermal
         _bit_period = getParameter("bit_period");
         
         // 2.197 converts the 10%-90% transition time to time constant 
-        _bit_one_time_const =   2.197 * getParameter("bit_one_transition_time");
-        _bit_zero_time_const =  2.197 * getParameter("bit_zero_transition_time");
+        _bit_one_time_const     = getParameter("bit_one_transition_time")/2.197;
+        _bit_zero_time_const    = getParameter("bit_zero_transition_time")/2.197;
 
         // preset the driver to bit 0
         _current_target_voltage     = getParameter("bit_zero_voltage");
@@ -104,6 +109,20 @@ namespace Thermal
         // update port property
         getPortForModification("out")->setPortPropertyValueByIndex("voltage", 0, _current_out_voltage);
         getPortForModification("ref")->setPortPropertyValueByIndex("bit", 0, (_current_bit? 1:0) );
+    }
+    
+    void ModulatorDriver::printMonitoredResult()
+    {
+        double value = 0;
+        for(map<string, FILE*>::iterator it = _monitored_device_ports.begin(); it != _monitored_device_ports.end(); ++it)
+        {
+            if(it->first == "out")
+                value = getPort("out")->getPortPropertyValueByIndex("voltage", 0);
+            else if(it->first == "ref")
+                value = getPort("ref")->getPortPropertyValueByIndex("bit", 0);
+            
+            fprintf(it->second, "%.2f\n", value);
+        }
     }
 
     void ModulatorDriver::printDefinition(FILE* device_list_file)

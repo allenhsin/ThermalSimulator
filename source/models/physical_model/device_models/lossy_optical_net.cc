@@ -43,7 +43,10 @@ namespace Thermal
         
         // set the output wavelengths
         for(unsigned int i=0; i<_number_wavelength; ++i)
+        {
             getPortForModification("out")->setPortPropertyValueByIndex("wavelength", i, getPort("in")->getPortPropertyValueByIndex("wavelength", i));
+            getPortForModification("out")->setPortPropertyValueByIndex("power", i, 0);
+        }
 
         // compute the power ratio between input and out (the same for all wavelengths)
         double loss_in_db = getParameter("loss");

@@ -1,6 +1,7 @@
 
 #include <cassert>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "source/misc/misc.h"
 #include "source/data/data.h"
@@ -38,6 +39,7 @@ namespace Thermal
 
         _device_ports.clear();
         _device_parameters.clear();
+        _monitored_device_ports.clear();
         
         // initilize the device's ports/parameters/properties
         DeviceDefinitionParser device_def_parser(this, _device_ports, _device_parameters);
@@ -54,8 +56,11 @@ namespace Thermal
 
     DeviceModel::~DeviceModel()
     {
-        for(map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
+        for(map<string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
         { delete (it->second); }
+
+        for(map<string, FILE*>::iterator it=_monitored_device_ports.begin(); it!=_monitored_device_ports.end(); ++it)
+        { fclose(it->second); }
     }
 
     DeviceModel*
@@ -189,7 +194,7 @@ namespace Thermal
         PortType port_type = NULL_PORT;
         parent_devices.clear();
 
-        for( map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
+        for( map<string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
         {
             port_type = it->second->getPortType();
             if( (port_type == INPUT_PORT) && it->second->getConnectedPort() )
@@ -202,7 +207,7 @@ namespace Thermal
         PortType port_type = NULL_PORT;
         child_devices.clear();
 
-        for( map<std::string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
+        for( map<string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
         {
             port_type = it->second->getPortType();
             if( (port_type == OUTPUT_PORT) && it->second->getConnectedPort() )
@@ -211,6 +216,24 @@ namespace Thermal
     }
     // ------------------------------------------------------------------------
 
+    // Monitoring -------------------------------------------------------------
+    void DeviceModel::addMonitoredPort(string port_name, string output_dir)
+    {
+        if(!hasPort(port_name))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized port when setMonitoredPort: " + (String) port_name + ".\n");
+        if(_monitored_device_ports.count(port_name))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Port \"" + (String) port_name + "\" is already being monitored.\n");
+        
+        string file_name = output_dir + "/" + getInstanceName() + "_" + port_name + ".out";
+        _monitored_device_ports[port_name] = fopen(file_name.c_str(), "w");
+    }
+
+    void DeviceModel::printSeparation()
+    {
+        for(map<string, FILE*>::iterator it = _monitored_device_ports.begin(); it != _monitored_device_ports.end(); ++it)
+            fprintf(it->second, "\n\n");
+    }
+    // ------------------------------------------------------------------------
 
     // Debug ------------------------------------------------------------------
     void DeviceModel::printDefinition(FILE* device_list_file)
@@ -252,7 +275,7 @@ namespace Thermal
         fprintf(device_list_file, "    Instance Name: %s\n", _instance_name.c_str());
         fprintf(device_list_file, "    Floorplan Unit Name: %s\n", _floorplan_unit_name.c_str());
         fprintf(device_list_file, "    [parameter]\n");
-        for(map<std::string, double>::iterator it=_device_parameters.begin(); it!=_device_parameters.end(); ++it)
+        for(map<string, double>::iterator it=_device_parameters.begin(); it!=_device_parameters.end(); ++it)
             fprintf(device_list_file, "        %s -> %e\n", (it->first).c_str(), it->second );
     }
     // ------------------------------------------------------------------------

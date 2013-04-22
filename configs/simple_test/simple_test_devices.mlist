@@ -1,0 +1,6 @@
+[device_list]
+<modulator_driver, out, ref>
+
+[time]
+0-5e-9
+

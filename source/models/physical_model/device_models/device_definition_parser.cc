@@ -139,7 +139,7 @@ namespace Thermal
                 
                 default: // TYPE_NULL
                     LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid def file syntax in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
-                    return;
+                    break;
                 }
             }
         } // while

@@ -15,6 +15,7 @@ namespace Thermal
     DeviceManager::DeviceManager()
         : PhysicalModel()
         , _device_floorplan_map     ( new DeviceFloorplanMap() )
+        , _device_monitor           ( new DeviceMonitor() )
         , _sub_bit_sampling_intvl   (0)
     {
         _device_instances.clear();
@@ -24,7 +25,7 @@ namespace Thermal
     DeviceManager::~DeviceManager()
     {   
         delete _device_floorplan_map;
-        _device_floorplan_map = NULL;
+        delete _device_monitor;
         
         // delete device instance
         for (vector<DeviceModel*>::iterator it = _device_instances.begin() ; it != _device_instances.end(); ++it)
@@ -208,10 +209,15 @@ namespace Thermal
         for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
         {
             (*it)->initializeDevice();
+
             // add mapped devices to the floorplan unit power map
             if( (*it)->isMappedOnFloorplan() )
                 addFloorplanUnit( (*it)->getFloorplanUnitName() );
         }
+    // ------------------------------------------------------------------------
+
+    // Start device monitoring ------------------------------------------------
+        _device_monitor->startup( _config->getString("device_monitor/device_monitor_list"), _device_instances, _config->getString("device_monitor/results_dir") );
     // ------------------------------------------------------------------------
 
     // Print Device list if debug enabled -------------------------------------
@@ -241,10 +247,15 @@ namespace Thermal
         for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
         {
             (*it)->updateDeviceProperties(time_since_last_update);
+
             // update the mapped device power numbers to the floorplan unit power map
             if( (*it)->isMappedOnFloorplan() )
                 setFloorplanUnitPower( (*it)->getFloorplanUnitName(), (*it)->getDevicePower() );
         }
+    // ------------------------------------------------------------------------
+
+    // Execute device monitor -------------------------------------------------
+        _device_monitor->execute(scheduled_time);
     // ------------------------------------------------------------------------
 
     // Schedule the next event ------------------------------------------------
