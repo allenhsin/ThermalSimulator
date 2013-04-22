@@ -1,12 +1,14 @@
 
+%option prefix="verilog"
 %option noyywrap
+%option nounput
 
 %{
 #include <iostream>
-#include "snazzle.tab.h"
+#include "yacc.verilog.hh"
 using namespace std;
-#define YY_DECL extern "C" int yylex()
 
+#define YY_DECL extern "C++" int yylex()
 #define yylval veriloglval
 
 int line_num = 1;

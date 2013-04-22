@@ -1,18 +1,50 @@
 
-parser := verilog
-class := verilog
+parser          := verilog
 
-all: snazzle
+generated       := $(CURDIR)/generated
 
-snazzle.tab.c snazzle.tab.h: snazzle.y
-	bison -p $(parser) -d snazzle.y
+DIRS_TO_SOURCE  := .
 
-lex.$(parser).c: snazzle.l snazzle.tab.h
-	flex -P$(parser) snazzle.l
+YACC            = bison
+LEX             = flex
 
-snazzle: lex.$(parser).c snazzle.tab.c snazzle.tab.h
-	g++ snazzle.tab.c lex.$(parser).c -lfl -o snazzle
+DIRS            = $(patsubst %,$(CURDIR)/%,$(DIRS_TO_SOURCE))
+SRCS            = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cc)) \
+                    $(LEX_OUT) $(YACC_OUT)
+                    
+OBJS            = $(patsubst %.cpp,%.opp, $(patsubst %.cc,%.o, $(patsubst %.c,%.o,$(SRCS))))
+
+DEBUG_FLAGS     = -g
+OPT_FLAGS       = -O2 -fPIC
+WARN_FLAGS      = -Wall -W # -pedantic
+CXXFLAGS        = $(DEBUG_FLAGS) $(OPT_FLAGS) $(WARN_FLAGS) $(INCLUDE_FLAGS)
+
+TARGET          = $(CURDIR)/snazzle
+
+YACC_OUT        = $(generated)/yacc.$(parser).cc $(generated)/yacc.$(parser).hh
+LEX_OUT         = $(generated)/lex.$(parser).cc
+
+all: $(TARGET)
+
+$(TARGET): $(YACC_OUT) $(LEX_OUT) $(OBJS) 
+	$(CXX) $(CXXFLAGS) $(LD_FLAGS) $(OBJS) -lfl -o $(TARGET)
+    
+# For general c++ compilation
+%.o: %.cc 
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.c
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+    
+$(YACC_OUT): snazzle.y $(generated)
+	$(YACC) -o $(generated)/yacc.$(parser).cc -d snazzle.y
+
+$(LEX_OUT): snazzle.l $(generated) $(YACC_OUT)
+	$(LEX) -o $@ snazzle.l
+    
+$(generated):
+	mkdir -p $(generated)
     
 clean:
-	rm -rf snazzle.exe location.h stack.h position.h \
-        snazzle.tab.c snazzle.tab.h lex.$(parser).c
+	rm -rf $(TARGET) $(OBJS) $(LEX_OUT) $(YACC_OUT)
+    
