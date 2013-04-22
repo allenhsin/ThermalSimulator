@@ -1,17 +1,20 @@
 
+// This will be a verilog parser, so prefix everything with verilog
+%define api.prefix "verilog"
+
 %{
 #include <cstdio>
 #include <iostream>
 
 using namespace std;
 
-// #include "y.tab.h"  // to get the token types that we return
+//#include "snazzle.tab.h"  // to get the token types that we return
 #define yyin verilogin
 
 // stuff from flex that bison needs to know about:
-extern "C" int yylex();
-extern "C" int yyparse();
-extern "C" FILE *yyin;
+int yylex();
+int yyparse();
+
 extern int line_num;
 
 string awesome; 
@@ -83,26 +86,6 @@ ENDLS:
     ;
 
 %%
-
-main() {
-	// open a file handle to a particular file:
-	FILE *myfile = fopen("a.snazzle.file", "r");
-	// make sure it's valid:
-	if (!myfile) {
-		cout << "I can't open a.snazzle.file!" << endl;
-		return -1;
-	}
-	// set flex to read from it instead of defaulting to STDIN:
-	yyin = myfile;
-
-	// parse through the input until there is no more:
-	// do {
-		yyparse();
-	// } while (!feof(yyin));
-    
-    cout << awesome << endl;
-	
-}
 
 void yyerror(const char *s) {
 	cout << "EEK, parse error on line " << line_num << "!  Message: " << s << endl;
