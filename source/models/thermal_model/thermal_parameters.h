@@ -41,10 +41,10 @@ namespace Thermal
         double          init_temp;
         double          sampling_intvl;
         std::string     model_type;
+        std::string     ttrace_file;
         bool            debug_print_enable;
         std::string     debug_model_file;
         std::string     debug_flp_file;
-        std::string     debug_ttrace_file;
         // [chip]
         double          t_chip;
         double          k_chip;

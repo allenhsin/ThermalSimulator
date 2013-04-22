@@ -29,6 +29,7 @@ namespace Thermal
         virtual std::string getModelName() { return "Thermal Model"; }
 
     protected:
+        void loadConfig();
         void checkVadilityOfThermalParameters();
 
     private:

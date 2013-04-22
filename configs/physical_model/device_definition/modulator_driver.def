@@ -11,6 +11,7 @@
 
 [port]
     <out, OUTPUT, voltage>
+    <ref, OUTPUT, bit>
 
 # Parameters are editable through the netlist
 # and also have default values as defined below.

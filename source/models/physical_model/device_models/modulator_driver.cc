@@ -62,6 +62,8 @@ namespace Thermal
         // set output
         getPortForModification("out")->setPortPropertySize("voltage", 1);
         getPortForModification("out")->setPortPropertyValueByIndex("voltage", 0, _current_out_voltage);
+        getPortForModification("ref")->setPortPropertySize("bit", 1);
+        getPortForModification("ref")->setPortPropertyValueByIndex("bit", 0, (_current_bit? 1:0) );
 
     } // initializeDevice
 
@@ -101,6 +103,7 @@ namespace Thermal
 
         // update port property
         getPortForModification("out")->setPortPropertyValueByIndex("voltage", 0, _current_out_voltage);
+        getPortForModification("ref")->setPortPropertyValueByIndex("bit", 0, (_current_bit? 1:0) );
     }
 
     void ModulatorDriver::printDefinition(FILE* device_list_file)
@@ -110,6 +113,8 @@ namespace Thermal
         fprintf(device_list_file, "    [port]\n");
         fprintf(device_list_file, "        Name: out, Type: %s, Property: voltage(%d)\n", 
                 ((int)getPort("out")->getPortType()==0)?"INPUT":"OUTPUT", getPort("out")->getPortPropertySize("voltage"));
+        fprintf(device_list_file, "        Name: ref, Type: %s, Property: bit(%d)\n", 
+                ((int)getPort("ref")->getPortType()==0)?"INPUT":"OUTPUT", getPort("ref")->getPortPropertySize("bit"));
         fprintf(device_list_file, "\n");
 
     }

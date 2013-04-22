@@ -73,15 +73,11 @@ namespace Thermal
         }
     }
 
-    void ThermalModel::startup()
+    void ThermalModel::loadConfig()
     {
-        LibUtil::Log::printLine( "Startup " + getModelName() );
-
-    // Configure Thermal Model ------------------------------------------------
-        
         // get thermal cfg file name
-        std::string thermal_config_file =   Simulator::getSingleton()->getConfig()
-                                            ->getString("models/thermal_model/thermal_config_file");
+        std::string thermal_config_file = Simulator::getSingleton()->getConfig()
+                                          ->getString("models/thermal_model/thermal_config_file");
 
         // parse thermal cfg file into config class
         Misc::setConfig(thermal_config_file, _config, 0, NULL);
@@ -99,6 +95,15 @@ namespace Thermal
         _package->setThermalParameters(thermal_params);
         _rc_model->setThermalParameters(thermal_params);
         _temperature->setThermalParameters(thermal_params);
+    }
+
+    void ThermalModel::startup()
+    {
+        LibUtil::Log::printLine( "Startup " + getModelName() );
+
+    // Configure Thermal Model ------------------------------------------------
+        loadConfig();
+        ThermalParameters* thermal_params = ThermalParameters::getSingleton();
     // ------------------------------------------------------------------------
 
     // Run Package Model if used ----------------------------------------------
@@ -151,21 +156,23 @@ namespace Thermal
 
         // set initial temp based on init temp value or init temp file (in config)
         _temperature->setInitialTemperature();
+    // ------------------------------------------------------------------------
         
-        // print ttrace to file for debug if specified
-        if(thermal_params->debug_print_enable)
-        {
-            _ttrace_file = fopen(thermal_params->debug_ttrace_file.c_str(), "w");
+    // Print temperature trace file -------------------------------------------
+        _ttrace_file = fopen(thermal_params->ttrace_file.c_str(), "w");
 
-            if(!_ttrace_file)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
+        if(!_ttrace_file)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
 
-            assert(Data::getSingleton()->getTemperatureDataSize() == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
-            // print flp unit names
-            for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
-                fprintf(_ttrace_file, "%s ", (_floorplan->getFloorplanHolder()->_flp_units[i]._name).c_str() );
-            fprintf(_ttrace_file, "\n");
-        }
+        assert(Data::getSingleton()->getTemperatureDataSize() == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
+        // print flp unit names
+        for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
+            fprintf(_ttrace_file, "%s ", (_floorplan->getFloorplanHolder()->_flp_units[i]._name).c_str() );
+        fprintf(_ttrace_file, "\n");
+        // print init temp values
+        for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
+            fprintf(_ttrace_file, "%.2f ", Data::getSingleton()->getTemperatureData(_floorplan->getFloorplanHolder()->_flp_units[i]._name));
+        fprintf(_ttrace_file, "\n");
     // ------------------------------------------------------------------------
 
     // Schedule the first thermal model execution event -----------------------
@@ -212,19 +219,17 @@ namespace Thermal
 
     // Compute Transient Temperature ------------------------------------------
         _temperature->updateTransientTemperature( (scheduled_time - _last_execute_time) );
+    // ------------------------------------------------------------------------
 
-        // print ttrace to file for debug if specified
-        if(thermal_params->debug_print_enable)
-        {
-            if(!_ttrace_file)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
+    // Print temperature trace file -------------------------------------------
+        if(!_ttrace_file)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
 
-            assert(Data::getSingleton()->getTemperatureDataSize() == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
-            // print flp unit names
-            for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
-                fprintf(_ttrace_file, "%.2f ", Data::getSingleton()->getTemperatureData(_floorplan->getFloorplanHolder()->_flp_units[i]._name));
-            fprintf(_ttrace_file, "\n");
-        }
+        assert(Data::getSingleton()->getTemperatureDataSize() == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
+        // print flp unit names
+        for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
+            fprintf(_ttrace_file, "%.2f ", Data::getSingleton()->getTemperatureData(_floorplan->getFloorplanHolder()->_flp_units[i]._name));
+        fprintf(_ttrace_file, "\n");
     // ------------------------------------------------------------------------
 
     // Clear the accumulated energy in the data structure ---------------------

@@ -58,5 +58,5 @@ clean:
 	$(RM) -rf $(OBJS) $(TARGET)
 
 clean_results:
-	$(RM) -rf results/*.out results/*.log
+	$(RM) -rf results/*.out results/*.log results/*.dbg
 
