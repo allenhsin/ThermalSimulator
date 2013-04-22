@@ -38,6 +38,7 @@ namespace Thermal
 
         _device_ports.clear();
         _device_parameters.clear();
+        _monitored_device_ports.clear();
         
         // initilize the device's ports/parameters/properties
         DeviceDefinitionParser device_def_parser(this, _device_ports, _device_parameters);
@@ -211,6 +212,15 @@ namespace Thermal
     }
     // ------------------------------------------------------------------------
 
+    // Monitoring -------------------------------------------------------------
+    void DeviceModel::setMonitoredPort(string port_name)
+    {
+        if(!hasPort(port_name))
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized port when setMonitoredPort: " + (String) port_name + ".\n");
+        
+        _monitored_device_ports.insert(port_name);
+    }
+    // ------------------------------------------------------------------------
 
     // Debug ------------------------------------------------------------------
     void DeviceModel::printDefinition(FILE* device_list_file)

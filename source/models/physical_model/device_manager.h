@@ -8,6 +8,7 @@
 #include "source/models/physical_model/physical_model.h"
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
+#include "source/models/physical_model/device_monitor.h"
 #include "source/misc/common_types.h"
 
 namespace Thermal
@@ -28,6 +29,7 @@ namespace Thermal
 
     private:
         DeviceFloorplanMap*         _device_floorplan_map;
+        DeviceMonitor*              _device_monitor;
 
         Time                        _sub_bit_sampling_intvl;
 

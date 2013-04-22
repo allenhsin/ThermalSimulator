@@ -4,6 +4,7 @@
 
 #include <map>
 #include <string>
+#include <set>
 #include <vector>
 #include <math.h>
 #include <stdio.h>
@@ -55,6 +56,8 @@ namespace Thermal
         void setTargetPortName(std::string port_name);
         void setTargetPortConnectedPort(const Port* port);
         const Port* getPort(std::string port_name);
+
+        void setMonitoredPort(std::string port_name);
         
         void getParentDevices(std::vector<DeviceModel*>& parent_devices);
         void getChildDevices(std::vector<DeviceModel*>& child_devices);
@@ -104,6 +107,9 @@ namespace Thermal
         std::map<std::string, Port*>    _device_ports;
         // parameter_name -> parameter_value
         std::map<std::string, double>   _device_parameters;
+
+        // port name
+        std::set<std::string>           _monitored_device_ports;
 
     private:
         DeviceType          _device_type;
