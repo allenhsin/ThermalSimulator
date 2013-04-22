@@ -22,9 +22,9 @@
     # number of WDM wavelengths
     number_wavelength                   = 1
     # beginning of WDM wavelength
-    wavelength_begin                    = 1280.6e-9
+    wavelength_begin                    = 1281.54e-9
     # end of WDM wavelength
-    wavelength_end                      = 1280.6e-9
+    wavelength_end                      = 1281.54e-9
 
 
     # P_Laser/P_Electrical (OBSOLETE)
