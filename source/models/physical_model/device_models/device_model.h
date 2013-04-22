@@ -4,7 +4,6 @@
 
 #include <map>
 #include <string>
-#include <set>
 #include <vector>
 #include <math.h>
 #include <stdio.h>
@@ -36,6 +35,12 @@ namespace Thermal
 
         // just for debug
         virtual void printDefinition(FILE* device_list_file);
+        
+        // initialize the monitoring of the device
+        virtual void initializeMonitoring() = 0;
+        
+        // get the monitoring results at the time instant
+        virtual void printMonitoredResult() = 0;
 
     // ------------------------------------------------------------------------
 
@@ -57,7 +62,8 @@ namespace Thermal
         void setTargetPortConnectedPort(const Port* port);
         const Port* getPort(std::string port_name);
 
-        void setMonitoredPort(std::string port_name);
+        void addMonitoredPort(std::string port_name, std::string output_dir);
+        void printSeparation();
         
         void getParentDevices(std::vector<DeviceModel*>& parent_devices);
         void getChildDevices(std::vector<DeviceModel*>& child_devices);
@@ -109,7 +115,7 @@ namespace Thermal
         std::map<std::string, double>   _device_parameters;
 
         // port name
-        std::set<std::string>           _monitored_device_ports;
+        std::map<std::string, FILE*>    _monitored_device_ports;
 
     private:
         DeviceType          _device_type;

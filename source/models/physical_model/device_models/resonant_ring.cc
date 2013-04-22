@@ -86,6 +86,8 @@ namespace Thermal
         {
             getPortForModification("thru")->setPortPropertyValueByIndex("wavelength", i, (*it));
             getPortForModification("drop")->setPortPropertyValueByIndex("wavelength", i, (*it));
+            getPortForModification("thru")->setPortPropertyValueByIndex("power", i, 0);
+            getPortForModification("drop")->setPortPropertyValueByIndex("power", i, 0);
             i += 1;
         }
 

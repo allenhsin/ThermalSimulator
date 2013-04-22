@@ -15,6 +15,10 @@ using LibUtil::String;
 namespace Thermal
 {
     DeviceMonitor::DeviceMonitor()
+        : _current_monitoring_step      (0)
+        , _current_monitoring_time_start(0)
+        , _current_monitoring_time_end  (0)
+        , _is_monitoring                (false)
     {
         _monitored_devices.clear();
         _monitoring_time_duration.clear();
@@ -24,7 +28,7 @@ namespace Thermal
     DeviceMonitor::~DeviceMonitor()
     {}
 
-    void DeviceMonitor::loadMonitoredDevices(string device_monitor_list_file, vector<DeviceModel*>& device_references)
+    void DeviceMonitor::loadMonitoredDevices(string device_monitor_list_file, vector<DeviceModel*>& device_references, string output_dir)
     {
         assert(_monitored_devices.size()==0);
         assert(_monitoring_time_point.size()==0);
@@ -114,11 +118,12 @@ namespace Thermal
                     line_token = strtok(NULL, "<>, \r\t\n");
                     while(line_token)
                     {
-                        monitored_device->setMonitoredPort( (string) line_token );
+                        monitored_device->addMonitoredPort( (string) line_token, output_dir );
                         line_token = strtok(NULL, "<>, \r\t\n");
                     }
                     // --------------------------------------------------------
                     
+                    monitored_device->initializeMonitoring();
                     _monitored_devices.push_back(monitored_device);
 
                     break;
@@ -152,9 +157,50 @@ namespace Thermal
         fclose(fp);
     }
 
-    void DeviceMonitor::startup(string device_monitor_list_file, vector<DeviceModel*>& device_references)
+    void DeviceMonitor::startup(string device_monitor_list_file, vector<DeviceModel*>& device_references, string output_dir)
     {
-        loadMonitoredDevices(device_monitor_list_file, device_references);
+        loadMonitoredDevices(device_monitor_list_file, device_references, output_dir);
+        _current_monitoring_step = 0;
+        _current_monitoring_time_start   = _monitoring_time_point[_current_monitoring_step];
+        _current_monitoring_time_end     = _monitoring_time_point[_current_monitoring_step] + _monitoring_time_duration[_current_monitoring_step];
+
+        _is_monitoring = false;
+    }
+
+    void DeviceMonitor::execute(Time scheduled_time)
+    {
+        
+        if(_is_monitoring)
+        {
+            // continue monitoring
+            if ( scheduled_time <= _current_monitoring_time_end )
+            {
+                for(vector<DeviceModel*>::iterator it = _monitored_devices.begin(); it != _monitored_devices.end(); ++it)
+                    (*it)->printMonitoredResult();
+            }
+            // stop monitoring
+            else
+            {
+                for(vector<DeviceModel*>::iterator it = _monitored_devices.begin(); it != _monitored_devices.end(); ++it)
+                    (*it)->printSeparation();
+
+                _is_monitoring = false;
+                _current_monitoring_step++;
+                _current_monitoring_time_start   = _monitoring_time_point[_current_monitoring_step];
+                _current_monitoring_time_end     = _monitoring_time_point[_current_monitoring_step] + _monitoring_time_duration[_current_monitoring_step];
+            }
+        }
+        else
+        {   
+            // start monitoring
+            if ( scheduled_time >= _current_monitoring_time_start )
+            {
+                for(vector<DeviceModel*>::iterator it = _monitored_devices.begin(); it != _monitored_devices.end(); ++it)
+                    (*it)->printMonitoredResult();
+
+                _is_monitoring = true;
+            }
+        }
     }
     
 

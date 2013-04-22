@@ -217,7 +217,7 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Start device monitoring ------------------------------------------------
-        _device_monitor->startup( _config->getString("device_monitor/device_monitor_list"), _device_instances );
+        _device_monitor->startup( _config->getString("device_monitor/device_monitor_list"), _device_instances, _config->getString("device_monitor/results_dir") );
     // ------------------------------------------------------------------------
 
     // Print Device list if debug enabled -------------------------------------
@@ -255,7 +255,7 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Execute device monitor -------------------------------------------------
-        //_device_monitor->execute();
+        _device_monitor->execute(scheduled_time);
     // ------------------------------------------------------------------------
 
     // Schedule the next event ------------------------------------------------
