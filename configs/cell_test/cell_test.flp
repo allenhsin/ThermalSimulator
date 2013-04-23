@@ -183,6 +183,6 @@ floorplan CellTest
     atomic waveguide_6 9.0E-5 4.0E-6 5.4E-4 3.26E-4
     atomic waveguide_7 9.0E-5 4.0E-6 6.3E-4 3.26E-4
     atomic waveguide_8 9.0E-5 4.0E-6 7.2E-4 3.26E-4
-    CellTestChip_fill Filler 0.0 0.0
+    CellTest_fill Filler 0.0 0.0
 endfloorplan
 
