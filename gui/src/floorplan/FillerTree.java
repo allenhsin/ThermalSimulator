@@ -13,8 +13,7 @@ import display.FloorplanRender;
 public class FillerTree 
 {
 	// Constants
-	public final double MIN_ASPECT_RATIO = 0.333;
-	public final double MAX_ASPECT_RATIO = 3.000;
+	public static final double MINIMUM_MAX_ASPECT_RATIO = 2.100;
 	
 	// Root filler tree node
 	private FillerTreeNode root;
@@ -47,8 +46,11 @@ public class FillerTree
 	}
 	
 	// Get a list of filler instance for a master
-	public Vector<MasterInst> getFillers()
+	public Vector<MasterInst> getFillers(double max_aspect_ratio)
 	{
+		max_aspect_ratio = Math.max(MINIMUM_MAX_ASPECT_RATIO, max_aspect_ratio);
+		double min_aspect_ratio = 1.0 / max_aspect_ratio;
+		
 		Vector<MasterInst> fillers = new Vector<MasterInst>();
 		Vector<MasterInst> raw_fillers = root.getFillers();
 		
@@ -61,7 +63,7 @@ public class FillerTree
 			GridPoint height = raw_filler.m.getHeight();
 			double aspect_ratio = GridPoint.div(width, height).toDouble();			
 			// If too wide
-			if (aspect_ratio > MAX_ASPECT_RATIO)
+			if (aspect_ratio > max_aspect_ratio)
 			{
 				GridPoint half_width_0 = GridPoint.div(width, new GridPoint(2));
 				GridPoint half_width_1 = GridPoint.sub(width, half_width_0);
@@ -82,7 +84,7 @@ public class FillerTree
 				}
 				
 			}
-			else if (aspect_ratio < MIN_ASPECT_RATIO)
+			else if (aspect_ratio < min_aspect_ratio)
 			{
 				GridPoint half_height_0 = GridPoint.div(height, new GridPoint(2));
 				GridPoint half_height_1 = GridPoint.sub(height, half_height_0);

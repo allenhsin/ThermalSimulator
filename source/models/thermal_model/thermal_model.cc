@@ -218,7 +218,8 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Compute Transient Temperature ------------------------------------------
-        _temperature->updateTransientTemperature( (scheduled_time - _last_execute_time) );
+        Time time_since_last_update = scheduled_time - _last_execute_time;
+        _temperature->updateTransientTemperature(time_since_last_update);
     // ------------------------------------------------------------------------
 
     // Print temperature trace file -------------------------------------------

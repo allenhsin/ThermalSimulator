@@ -74,8 +74,8 @@
 #define N_TIME_STEPS    4
 #define TIME_STEP_0     2.5e-6
 #define TIME_STEP_1     1.0e-6
-#define TIME_STEP_2     500e-9
-#define TIME_STEP_3     200e-9
+#define TIME_STEP_2     200e-9
+#define TIME_STEP_3     50e-9
 
 // ------------------------------------------------------------------------------------------------
 

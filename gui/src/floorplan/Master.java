@@ -194,13 +194,13 @@ public class Master implements Comparable<Master>
 	/**
 	 * Create a filler master for a master instance
 	 */
-	public static Master createFillerMaster(Master m)
+	public static Master createFillerMaster(Master m, double max_aspect_ratio, String master_name)
 	{
 		FillerTree t = new FillerTree();
 		t.calculateFill(m);
 		
-		Master fill_master = new Master(m.getName() + "_fill");
-		Vector<MasterInst> fillers = t.getFillers();
+		Master fill_master = new Master(master_name);
+		Vector<MasterInst> fillers = t.getFillers(max_aspect_ratio);
 		
 		Iterator<MasterInst> it = fillers.iterator();
 		while(it.hasNext())

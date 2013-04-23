@@ -182,7 +182,7 @@ class InstanceButtonListener extends EventsHelper<ViewPanel> implements ActionLi
 		if (e.getActionCommand() == "New Instance...")
 		{
 			Vector<MasterInst> new_insts = InstanceDialogBox.showDialog(owner.getGUI(),
-					owner, owner.getGUI().getMasters(), owner.getGUI().getCurMaster());
+					owner.getGUI().getMasters(), owner.getGUI().getCurMaster());
 			
 			// Add and check to see if the additions succeeded
 			boolean add_success = true;

@@ -72,7 +72,7 @@ class FloorplannerMenu extends JMenuBar
 		addMenuItem(file_menu, file_menu_listener, new JMenuItem("Exit"),
 				KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
 				
-		addMenuItem(tools_menu, tools_menu_listener, new JMenuItem("Generate Fill"),
+		addMenuItem(tools_menu, tools_menu_listener, new JMenuItem("Generate fill..."),
 				KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
 		
 		addMenuItem(view_menu, view_menu_listener, new JMenuItem("Zoom in"),
@@ -208,22 +208,8 @@ class ToolsMenuListener extends EventsHelper<Floorplanner> implements ActionList
 	public void actionPerformed(ActionEvent e)
 	{
 		String cmd = e.getActionCommand();
-		if (cmd.equals("Generate Fill"))
-		{
-			Master m = owner.getCurMaster();
-			Master fill_master = Master.createFillerMaster(m);
-			try
-			{
-				owner.getMasters().addMaster(fill_master);
-				m.addMasterInst(fill_master, "Filler", GridPoint.ZERO, GridPoint.ZERO);			
-				owner.updateMasters();
-			}
-			catch (Exception ex)
-			{
-				JOptionPane.showMessageDialog(owner, "Fill generation failed: " + ex.getMessage(),
-						"Filler generation", JOptionPane.WARNING_MESSAGE);
-			}						
-		}
+		if (cmd.equals("Generate fill..."))
+			FillerDialogBox.showDialog(owner, owner.getMasters(), owner.getCurMaster());
 		else throw new Error("Internal Error: Menu Operation '" + cmd + "' is not supported!");
 		
 	}	

@@ -22,8 +22,8 @@ namespace Thermal
 
         virtual void printDefinition(FILE* device_list_file);
 
-        virtual void initializeMonitoring(){}
-        virtual void printMonitoredResult(){}
+        virtual void initializeMonitoring();
+        virtual void printMonitoredResult();
 
     protected:
         // check the validity of device parameters

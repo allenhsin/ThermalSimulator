@@ -98,9 +98,10 @@ namespace Thermal
         
         // then execute the physical model manager to update
         // power to its current values
-        executeManager(scheduled_time);
-
-        _last_execute_time = scheduled_time;
+        bool manager_executed = executeManager(scheduled_time);
+        
+        if(manager_executed)
+            _last_execute_time = scheduled_time;
     } // execute
     
 } // namespace Thermal
