@@ -209,7 +209,13 @@ class ToolsMenuListener extends EventsHelper<Floorplanner> implements ActionList
 	{
 		String cmd = e.getActionCommand();
 		if (cmd.equals("Generate fill..."))
-			FillerDialogBox.showDialog(owner, owner.getMasters(), owner.getCurMaster());
+		{
+			if (owner.getCurMaster() == null)
+				JOptionPane.showMessageDialog(owner, "Cannot generate fillers: Not viewing any floorplans",
+						"Error", JOptionPane.WARNING_MESSAGE);
+			else
+				FillerDialogBox.showDialog(owner, owner.getMasters(), owner.getCurMaster());
+		}
 		else throw new Error("Internal Error: Menu Operation '" + cmd + "' is not supported!");
 		
 	}	

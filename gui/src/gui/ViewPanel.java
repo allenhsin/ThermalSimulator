@@ -264,8 +264,13 @@ class MasterButtonListener extends EventsHelper<ViewPanel> implements ActionList
 			}
 			else if (e.getActionCommand() == "Delete")
 			{
-				masters.removeMaster(selected_master);
-				owner.getGUI().updateMasters();
+				int decision = JOptionPane.showConfirmDialog(owner.getGUI(), "Confirm deletion of floorplan master '" +
+						selected_master.getName() + "' ?", "Confirm deletion", JOptionPane.YES_NO_OPTION);
+				if (decision == JOptionPane.YES_OPTION)
+				{
+					masters.removeMaster(selected_master);
+					owner.getGUI().updateMasters();
+				}
 			}
 			else throw new Error("Internal Error: Button '" + e.toString() + "' is not supported!");
 		}
