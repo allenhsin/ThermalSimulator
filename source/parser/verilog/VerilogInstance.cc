@@ -9,13 +9,12 @@ namespace Thermal
 {
     using namespace LibUtil;
 
-    VerilogInstance::VerilogInstance()
-    {
-    }
+    VerilogInstance::VerilogInstance(const string& name_) 
+        : VerilogItem(ITEM_INSTANCE), m_name_(name_)
+    {}
 
     VerilogInstance::~VerilogInstance()
-    {
-    }
+    {}
 
     
 } // namespace Thermal

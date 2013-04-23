@@ -13,9 +13,15 @@
 
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
+
 #include "VerilogModule.h"
+#include "VerilogItem.h"
+#include "VerilogMisc.h"
+
+#include "VerilogParameter.h"
 #include "VerilogNet.h"
 #include "VerilogInstance.h"
+
 #include "yacc.verilog.hh"
 
 using namespace std;
@@ -76,7 +82,7 @@ void yyerror(VerilogFile* file_, const char *s);
 [0-9]+                      { yylval.ival = atoi(yytext); return INT; }
 
  /* identifiers */
-[a-zA-Z][_a-zA-Z0-9]*       { yylval.sval = strdup(yytext); return STRING; }
+[a-zA-Z][_a-zA-Z0-9]*       { yylval.sval = strdup(yytext); return IDENTIFIER; }
 
  /* ignore white spaces */
 [ \t]                                   { ; }

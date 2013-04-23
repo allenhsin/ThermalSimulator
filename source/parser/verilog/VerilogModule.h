@@ -3,37 +3,35 @@
 
 #include <string>
 #include <vector>
+#include "VerilogMisc.h"
 
 // A class representing a verilog module
 namespace Thermal
 {
     class VerilogNet;
     class VerilogInstance;
-
+    
     class VerilogModule
     {
         public:
-            VerilogModule();
+            VerilogModule(const std::string& name_, const VerilogItems* items_);
             virtual ~VerilogModule();
 
-            // Get the file name of this file
-            
-            // Set/get the module name
-            void setModuleName(std::string name_) { m_name_ = name_; }
-            const std::string getModuleName() { return m_name_; }
-            
-            // Add a net and get nets
-            void addNet(VerilogNet* net_) { m_nets_->push_back(net_); }
-            const std::vector<VerilogNet*>* getNets() { return m_nets_; }
-            
-            // add an instance and get instances
-            void addInstance(VerilogInstance* instance_) { m_instances_->push_back(instance_); }
-            const std::vector<VerilogInstance*>* getInstances() { return m_instances_; }
+            // Get the module name
+            const std::string getName() const { return m_name_; }            
+            // Get a net
+            const VerilogNets* getNets() const { return m_nets_; }            
+            // Get an instance
+            const VerilogInstances* getInstances() const { return m_instances_; }
             
         private:
-            std::vector<VerilogNet*>* m_nets_;
-            std::vector<VerilogInstance*>* m_instances_;            
-            std::string m_name_;
+            // Initialize the the module based on the module items
+            void initializeItems(const VerilogItems* items_);
+            
+        private:
+            VerilogNets* m_nets_;
+            VerilogInstances* m_instances_;            
+            const std::string m_name_;
     };
 }
 #endif
