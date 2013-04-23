@@ -61,7 +61,7 @@ public class InstanceDialogBox extends JDialog
 	// New instances to return
 	private Vector<MasterInst> new_insts;
 		
-	private InstanceDialogBox(JFrame frame, JComponent location_comp, MasterMap masters, Master cur_master) 
+	private InstanceDialogBox(JFrame frame, MasterMap masters, Master cur_master) 
 	{
 		super(frame, "New Instance", true);
 		
@@ -76,7 +76,7 @@ public class InstanceDialogBox extends JDialog
 		setEditArray(false);
 		
 		pack();
-		setLocationRelativeTo(location_comp);
+		setLocationRelativeTo(frame.getContentPane());
 		setVisible(true);
 	}
 	
@@ -419,9 +419,9 @@ public class InstanceDialogBox extends JDialog
 	/**
 	 * Show the dialog and returns a vector of the new instances to add
 	 */
-	public static Vector<MasterInst> showDialog(JFrame frame, JComponent location_comp, MasterMap masters, Master cur_master)
+	public static Vector<MasterInst> showDialog(JFrame frame, MasterMap masters, Master cur_master)
 	{
-		InstanceDialogBox dialog = new InstanceDialogBox(frame, location_comp, masters, cur_master);
+		InstanceDialogBox dialog = new InstanceDialogBox(frame, masters, cur_master);
 		return dialog.getNewInsts();
 	}
 	
