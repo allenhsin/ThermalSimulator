@@ -20,7 +20,7 @@ namespace Thermal
         ~DeviceManager();
 
         bool startupManager();
-        void executeManager(Time scheduled_time);
+        bool executeManager(Time scheduled_time);
         std::string getModelName() { return "Device Manager"; }
 
     protected:

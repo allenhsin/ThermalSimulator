@@ -51,7 +51,7 @@ $(TARGET): $(OBJS)
 
 run:
 	make clean_results
-	$(TARGET)
+	$(TARGET) &
 
 clean:
 	make clean_results

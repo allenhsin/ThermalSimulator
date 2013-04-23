@@ -5,6 +5,7 @@
 
 #include "source/models/physical_model/device_manager.h"
 #include "source/system/event_scheduler.h"
+#include "source/misc/misc.h"
 #include "libutil/LibUtil.h"
 
 using std::vector;
@@ -263,9 +264,14 @@ namespace Thermal
         return true;
     } // startup
 
-    void DeviceManager::executeManager(Time scheduled_time)
+    bool DeviceManager::executeManager(Time scheduled_time)
     {
         Time time_since_last_update = scheduled_time - _last_execute_time;
+        if( (scheduled_time != 0) && !Misc::eqTime(scheduled_time,(_last_execute_time + _sub_bit_sampling_intvl)) )
+        {
+            LibUtil::Log::printLine("    Device properties not updated");
+            return false;
+        }
         
     // Execute devices --------------------------------------------------------
         for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
@@ -285,6 +291,8 @@ namespace Thermal
     // Schedule the next event ------------------------------------------------
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _sub_bit_sampling_intvl), DEVICE_MANAGER);
     // ------------------------------------------------------------------------
+
+        return true;
     } // execute
 
 } // namespace Thermal

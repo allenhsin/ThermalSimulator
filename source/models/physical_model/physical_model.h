@@ -20,7 +20,7 @@ namespace Thermal
         void execute(Time scheduled_time);
         
         virtual bool startupManager() = 0;
-        virtual void executeManager(Time scheduled_time) = 0;
+        virtual bool executeManager(Time scheduled_time) = 0;
         virtual std::string getModelName() { return "Physical Model"; }
 
     protected:

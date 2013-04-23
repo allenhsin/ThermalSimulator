@@ -156,7 +156,7 @@ namespace Thermal
         return true;
     } // startup
 
-    void PowerTraceManager::executeManager(Time scheduled_time)
+    bool PowerTraceManager::executeManager(Time scheduled_time)
     {
         _current_ptrace_line_number++;
         // only execute power trace when the schduled execution time matches the power trace sampling time
@@ -164,7 +164,7 @@ namespace Thermal
         {
             _current_ptrace_line_number--;
             LibUtil::Log::printLine("    Power Trace new line not read");
-            return;
+            return false;
         }
         
     // Read single line of power trace ----------------------------------------
@@ -174,6 +174,8 @@ namespace Thermal
     // Schedule the next ptrace event -----------------------------------------
         EventScheduler::getSingleton()->enqueueEvent( (scheduled_time + _ptrace_sampling_interval), POWER_TRACE_MANAGER);
     // ------------------------------------------------------------------------
+        
+        return true;
     } // execute
 
 } // namespace Thermal
