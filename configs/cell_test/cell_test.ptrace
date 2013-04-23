@@ -1,3 +1,3 @@
 # Test for Cell Circuit, sampling period = 1s
 cell_btm_0 cell_btm_1 cell_btm_2 cell_btm_3 cell_btm_4 cell_btm_5 cell_btm_6 cell_btm_7 cell_btm_8 cell_btm_9 cell_btm_10 cell_btm_11 cell_top_0 cell_top_1 cell_top_2 cell_top_3 cell_top_4 cell_top_5 cell_top_6 cell_top_7 cell_top_8 cell_top_9 cell_top_10 cell_top_11
-0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025 0.025
+0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
