@@ -13,8 +13,8 @@ import display.FloorplanRender;
 public class FillerTree 
 {
 	// Constants
-	public final double MIN_ASPECT_RATIO = 0.333;
-	public final double MAX_ASPECT_RATIO = 3.000;
+	public final double MAX_ASPECT_RATIO = 2.100;
+	public final double MIN_ASPECT_RATIO = 1.0 / MAX_ASPECT_RATIO;
 	
 	// Root filler tree node
 	private FillerTreeNode root;

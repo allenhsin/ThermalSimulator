@@ -124,8 +124,12 @@ public class FloorplanRender extends JComponent
 		if (render_target != null)
 		{
 			if (temp_trace != null)
+			{
 				paintTemperatures(g);
-			paintOutlines(g);
+				paintOutlines(g, false);
+			}
+			else
+				paintOutlines(g, true);
 			paintHighlights(g);
 		}
 	}
@@ -175,10 +179,10 @@ public class FloorplanRender extends JComponent
 	/**
 	 * Draw all the outlines of blocks
 	 */
-	public synchronized void paintOutlines(Graphics2D g)
+	public synchronized void paintOutlines(Graphics2D g, boolean fill)
 	{	
 		// Paint outlines, starting with the top floorplan instance at origin 0, 0
-		paintOutlines(g, render_target, new Coord(0.0, 0.0));
+		paintOutlines(g, fill, render_target, new Coord(0.0, 0.0));
 
 		// Draw top-level border rectangle
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_BORDER));
@@ -192,7 +196,7 @@ public class FloorplanRender extends JComponent
 	 * Paint a master instance at a specific location, returns the upper right
 	 * coordinates
 	 */
-	private synchronized void paintOutlines(Graphics2D g, Master target, Coord origin)
+	private synchronized void paintOutlines(Graphics2D g, boolean fill, Master target, Coord origin)
 	{
 		// If it is a leaf, paint it
 		if (target.isAtomic())
@@ -200,18 +204,21 @@ public class FloorplanRender extends JComponent
 			// Find the bounding rectangle
 			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
 					trans_x, trans_y, offset_x, offset_y, scale);			
-			// Fill the rectangle
-			if (target.isFiller())
+			// Fill the rectangle if we are asked to
+			if (fill)
 			{
-				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_FILLER));
-				g.setPaint(COLOR_FILLER);		
-				g.fillRect(rect.x, rect.y, rect.w, rect.h);				
-			}
-			else
-			{
-				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_ATOMIC));
-				g.setPaint(COLOR_ATOMIC);		
-				g.fillRect(rect.x, rect.y, rect.w, rect.h);
+				if (target.isFiller())
+				{
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_FILLER));
+					g.setPaint(COLOR_FILLER);		
+					g.fillRect(rect.x, rect.y, rect.w, rect.h);				
+				}
+				else
+				{
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_ATOMIC));
+					g.setPaint(COLOR_ATOMIC);		
+					g.fillRect(rect.x, rect.y, rect.w, rect.h);
+				}
 			}
 			// Draw outline around rectangle
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_OUTLINE));
@@ -226,7 +233,7 @@ public class FloorplanRender extends JComponent
 			while(it.hasNext())
 			{
 				MasterInst next_inst = it.next();
-				paintOutlines(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)));
+				paintOutlines(g, fill, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)));
 			}
 		}
 	}

@@ -99,7 +99,7 @@ public class TemperatureTrace
 			TemperatureStep step = TemperatureStep.parseTemperatureStep(elements, s.nextLine());
 			temp.temp_steps[i++] = step;
 			if (step.getMaxTemp() > temp.max_temp) temp.max_temp = step.getMaxTemp();
-			else if (step.getMinTemp() < temp.min_temp) temp.min_temp = step.getMinTemp();
+			if (step.getMinTemp() < temp.min_temp) temp.min_temp = step.getMinTemp();
 		}
 		
 		// Check

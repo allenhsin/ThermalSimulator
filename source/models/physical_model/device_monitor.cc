@@ -2,6 +2,7 @@
 #include <cassert>
 #include <stddef.h>
 #include <stdio.h>
+#include <cstring>
 
 #include "source/models/physical_model/device_monitor.h"
 #include "source/models/physical_model/physical_constants.h"
