@@ -117,7 +117,10 @@ namespace Thermal
         // load device netlist
         //FIXME: hardcode device now just for test ------------------------------------------------
 
-        // waveguide x 6, laser, modulator, modulator driver, receiver ring.
+        // waveguide x 9, laser, modulator, modulator driver, receiver ring.
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
+        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
         _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
         _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
         _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
@@ -135,40 +138,43 @@ namespace Thermal
         _device_instances[3]->setDeviceName("waveguide_3");
         _device_instances[4]->setDeviceName("waveguide_4");
         _device_instances[5]->setDeviceName("waveguide_5");
-        _device_instances[6]->setDeviceName("receiver_ring");
-        _device_instances[7]->setDeviceName("modulator");
-        _device_instances[8]->setDeviceName("laser_source");
-        _device_instances[9]->setDeviceName("modulator_driver");
+        _device_instances[6]->setDeviceName("waveguide_6");
+        _device_instances[7]->setDeviceName("waveguide_7");
+        _device_instances[8]->setDeviceName("waveguide_8");
+        _device_instances[9]->setDeviceName("receiver_ring");
+        _device_instances[10]->setDeviceName("modulator");
+        _device_instances[11]->setDeviceName("laser_source");
+        _device_instances[12]->setDeviceName("modulator_driver");
         
         // laser -> waveguide_0
-        _device_instances[8]->setTargetPortName("out");
-        _device_instances[8]->setTargetPortConnectedPort( _device_instances[0]->getPort("in") );
+        _device_instances[11]->setTargetPortName("out");
+        _device_instances[11]->setTargetPortConnectedPort( _device_instances[0]->getPort("in") );
         _device_instances[0]->setTargetPortName("in");
-        _device_instances[0]->setTargetPortConnectedPort( _device_instances[8]->getPort("out") );
+        _device_instances[0]->setTargetPortConnectedPort( _device_instances[11]->getPort("out") );
 
         // modulator driver -> modulator
-        _device_instances[9]->setTargetPortName("out");
-        _device_instances[9]->setTargetPortConnectedPort( _device_instances[7]->getPort("mod_driver") );
-        _device_instances[7]->setTargetPortName("mod_driver");
-        _device_instances[7]->setTargetPortConnectedPort( _device_instances[9]->getPort("out") );
+        _device_instances[12]->setTargetPortName("out");
+        _device_instances[12]->setTargetPortConnectedPort( _device_instances[10]->getPort("mod_driver") );
+        _device_instances[10]->setTargetPortName("mod_driver");
+        _device_instances[10]->setTargetPortConnectedPort( _device_instances[12]->getPort("out") );
 
-        // waveguide_0 -> modulator
+        // waveguide_0 -> waveguide_1
         _device_instances[0]->setTargetPortName("out");
-        _device_instances[0]->setTargetPortConnectedPort( _device_instances[7]->getPort("in") );
-        _device_instances[7]->setTargetPortName("in");
-        _device_instances[7]->setTargetPortConnectedPort( _device_instances[0]->getPort("out") );
-        
-        // modulator -> waveguide_1
-        _device_instances[7]->setTargetPortName("thru");
-        _device_instances[7]->setTargetPortConnectedPort( _device_instances[1]->getPort("in") );
+        _device_instances[0]->setTargetPortConnectedPort( _device_instances[1]->getPort("in") );
         _device_instances[1]->setTargetPortName("in");
-        _device_instances[1]->setTargetPortConnectedPort( _device_instances[7]->getPort("thru") );
+        _device_instances[1]->setTargetPortConnectedPort( _device_instances[0]->getPort("out") );
         
-        // waveguide_1 -> waveguide_2
+        // waveguide_1 -> modulator
         _device_instances[1]->setTargetPortName("out");
-        _device_instances[1]->setTargetPortConnectedPort( _device_instances[2]->getPort("in") );
+        _device_instances[1]->setTargetPortConnectedPort( _device_instances[10]->getPort("in") );
+        _device_instances[10]->setTargetPortName("in");
+        _device_instances[10]->setTargetPortConnectedPort( _device_instances[1]->getPort("out") );
+        
+        // modulator -> waveguide_2
+        _device_instances[10]->setTargetPortName("thru");
+        _device_instances[10]->setTargetPortConnectedPort( _device_instances[2]->getPort("in") );
         _device_instances[2]->setTargetPortName("in");
-        _device_instances[2]->setTargetPortConnectedPort( _device_instances[1]->getPort("out") );
+        _device_instances[2]->setTargetPortConnectedPort( _device_instances[10]->getPort("thru") );
         
         // waveguide_2 -> waveguide_3
         _device_instances[2]->setTargetPortName("out");
@@ -182,18 +188,36 @@ namespace Thermal
         _device_instances[4]->setTargetPortName("in");
         _device_instances[4]->setTargetPortConnectedPort( _device_instances[3]->getPort("out") );
         
-        // waveguide_4 -> receiver ring
+        // waveguide_4 -> waveguide_5
         _device_instances[4]->setTargetPortName("out");
-        _device_instances[4]->setTargetPortConnectedPort( _device_instances[6]->getPort("in") );
-        _device_instances[6]->setTargetPortName("in");
-        _device_instances[6]->setTargetPortConnectedPort( _device_instances[4]->getPort("out") );
-        
-        // receiver_ring -> waveguide_5
-        _device_instances[6]->setTargetPortName("thru");
-        _device_instances[6]->setTargetPortConnectedPort( _device_instances[5]->getPort("in") );
+        _device_instances[4]->setTargetPortConnectedPort( _device_instances[5]->getPort("in") );
         _device_instances[5]->setTargetPortName("in");
-        _device_instances[5]->setTargetPortConnectedPort( _device_instances[6]->getPort("thru") );
+        _device_instances[5]->setTargetPortConnectedPort( _device_instances[4]->getPort("out") );
+        
+        // waveguide_5 -> waveguide_6
+        _device_instances[5]->setTargetPortName("out");
+        _device_instances[5]->setTargetPortConnectedPort( _device_instances[6]->getPort("in") );
+        _device_instances[6]->setTargetPortName("in");
+        _device_instances[6]->setTargetPortConnectedPort( _device_instances[5]->getPort("out") );
+        
+        // waveguide_6 -> receiver ring
+        _device_instances[6]->setTargetPortName("out");
+        _device_instances[6]->setTargetPortConnectedPort( _device_instances[9]->getPort("in") );
+        _device_instances[9]->setTargetPortName("in");
+        _device_instances[9]->setTargetPortConnectedPort( _device_instances[6]->getPort("out") );
+        
+        // receiver_ring -> waveguide_7
+        _device_instances[9]->setTargetPortName("thru");
+        _device_instances[9]->setTargetPortConnectedPort( _device_instances[7]->getPort("in") );
+        _device_instances[7]->setTargetPortName("in");
+        _device_instances[7]->setTargetPortConnectedPort( _device_instances[9]->getPort("thru") );
 
+        // waveguide_7 -> waveguide_8
+        _device_instances[7]->setTargetPortName("out");
+        _device_instances[7]->setTargetPortConnectedPort( _device_instances[8]->getPort("in") );
+        _device_instances[8]->setTargetPortName("in");
+        _device_instances[8]->setTargetPortConnectedPort( _device_instances[7]->getPort("out") );
+        
         //END FIXME -------------------------------------------------------------------------------
 
     // ------------------------------------------------------------------------
