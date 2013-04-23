@@ -62,6 +62,7 @@ public class Master implements Comparable<Master>
 		if (master_map.containsKey(sub_inst.n))
 			return false;
 		// Otherwise, add the instance
+		sub_inst.parent = this;
 		master_insts.add(sub_inst);
 		master_map.put(sub_inst.n, sub_inst);
 		return true;
@@ -92,9 +93,9 @@ public class Master implements Comparable<Master>
 	}
 	
 	/**
-	 * Renames a master
+	 * Renames a master instance
 	 */
-	public boolean renameMaster(String old_name, String new_name)
+	public boolean renameMasterInst(String old_name, String new_name)
 	{
 		// Unsuccessful if old name does not exist, or new name exists
 		if (!master_map.containsKey(old_name) || master_map.containsKey(new_name))

@@ -47,12 +47,15 @@ class FloorplannerMenu extends JMenuBar
 	{
 		// Create Menus
 		JMenu file_menu = new JMenu("File");
+		JMenu view_menu = new JMenu("View");
 		JMenu tools_menu = new JMenu("Tools");		
 		
 		FileMenuListener file_menu_listener = new FileMenuListener(gui);
+		ViewMenuListener view_menu_listener = new ViewMenuListener(gui);		
 		ToolsMenuListener tools_menu_listener = new ToolsMenuListener(gui);
 		
 		add(file_menu);
+		add(view_menu);
 		add(tools_menu);
 		
 		// Create items in file menu
@@ -71,6 +74,13 @@ class FloorplannerMenu extends JMenuBar
 				
 		addMenuItem(tools_menu, tools_menu_listener, new JMenuItem("Generate Fill"),
 				KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
+		
+		addMenuItem(view_menu, view_menu_listener, new JMenuItem("Zoom in"),
+				KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0));
+		addMenuItem(view_menu, view_menu_listener, new JMenuItem("Zoom out"),
+				KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.SHIFT_MASK));
+		addMenuItem(view_menu, view_menu_listener, new JMenuItem("Zoom fit"),
+				KeyStroke.getKeyStroke(KeyEvent.VK_F, 0));
 	}
 
 	/**
@@ -144,6 +154,36 @@ class FileMenuListener extends EventsHelper<Floorplanner> implements ActionListe
 		{
 			System.exit(0);
 		}
+		else throw new Error("Internal Error: Menu Operation '" + cmd + "' is not supported!");
+		
+	}	
+}
+
+/**
+ * Helper class for handling all the listener events from the view menu
+ */
+class ViewMenuListener extends EventsHelper<Floorplanner> implements ActionListener
+{
+	/**
+	 * Floorplanner listener
+	 */
+	ViewMenuListener(Floorplanner gui)
+	{
+		super(gui);
+	}
+
+	/**
+	 * Listen for menu actions
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		String cmd = e.getActionCommand();
+		if (cmd.equals("Zoom in"))
+			owner.getRenderPanel().getRender().zoom(1.5);
+		else if (cmd.equals("Zoom out"))
+			owner.getRenderPanel().getRender().zoom(1.0 / 1.5);
+		else if (cmd.equals("Zoom fit"))
+			owner.getRenderPanel().getRender().zoom();
 		else throw new Error("Internal Error: Menu Operation '" + cmd + "' is not supported!");
 		
 	}	

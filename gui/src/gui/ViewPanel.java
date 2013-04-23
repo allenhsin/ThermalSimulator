@@ -95,15 +95,6 @@ public class ViewPanel extends JPanel
 		view_tabbed_pane.setPreferredSize(new Dimension(300, 550));
 		add(view_tabbed_pane, BorderLayout.CENTER);
 		
-		hier_tree = new JTree();
-		hier_tree.setShowsRootHandles(true);
-		hier_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);		
-//		hier_tree.getSelectionModel().addTreeSelectionListener(this);
-//		new HierMouse(hier_tree);
-		view_tabbed_pane.addTab("Hierarchy", null, hier_tree, null);
-		JScrollPane hier_scroller = new JScrollPane(hier_tree);
-		view_tabbed_pane.addTab("Hierarchy", null, hier_scroller, null);
-		
 		JPanel panel_3 = new JPanel();
 		panel_3.setLayout(new BorderLayout(0, 5));
 		view_tabbed_pane.addTab("Instances", null, panel_3, null);
@@ -129,6 +120,15 @@ public class ViewPanel extends JPanel
 		panel_3.add(objects_table, BorderLayout.CENTER);
 		JScrollPane objects_scroller = new JScrollPane(objects_table);
 		panel_3.add(objects_scroller, BorderLayout.CENTER);	
+		
+		hier_tree = new JTree();
+		hier_tree.setShowsRootHandles(true);
+		hier_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);		
+//		hier_tree.getSelectionModel().addTreeSelectionListener(this);
+//		new HierMouse(hier_tree);
+		view_tabbed_pane.addTab("Hierarchy", null, hier_tree, null);
+		JScrollPane hier_scroller = new JScrollPane(hier_tree);
+		view_tabbed_pane.addTab("Hierarchy", null, hier_scroller, null);
 	}
 	
 	/**

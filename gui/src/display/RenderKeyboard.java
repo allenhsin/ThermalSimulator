@@ -23,16 +23,16 @@ public class RenderKeyboard implements KeyListener
 		switch(e.getKeyCode())
 		{
 			// Left Arrow
-			case 37: panel.getRender().translate(100, 0); 
+			case 37: panel.getRender().translate(panel.getRender().getSize().width / 6, 0); 
 				break;
 			// Up Arrow
-			case 38: panel.getRender().translate(0, -100); 
+			case 38: panel.getRender().translate(0, -panel.getRender().getSize().height / 6); 
 				break;
 			// Right Arrow
-			case 39: panel.getRender().translate(-100, 0); 
+			case 39: panel.getRender().translate(-panel.getRender().getSize().width / 6, 0); 
 				break;
 			// Down Arrow
-			case 40: panel.getRender().translate(0, 100); 
+			case 40: panel.getRender().translate(0, panel.getRender().getSize().height / 6); 
 				break;
 			// Pg Up
 			case 33: panel.getRender().zoom(1.2);
