@@ -70,10 +70,6 @@
 #define SPEC_HEAT_SOLDER        2.1e6       // specific heat of the interface material in J/(m^3K)
 #define SPEC_HEAT_PCB           1.32e6  
 
-// model specific constants
-// changed from 1/2 to 1/3 due to the difference from traditional Elmore Delay scenario
-#define C_FACTOR    0.333       // fitting factor to match floworks (due to lumping)
-
 // number time step sizes
 #define N_TIME_STEPS    3
 #define MAX_TIME_STEP   2.0e-6

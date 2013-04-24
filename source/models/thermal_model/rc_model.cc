@@ -41,7 +41,7 @@ namespace Thermal
     { return thickness / (conductivity * area); }
 
     double RCModel::getCap(double sp_heat, double thickness, double area)
-    { return C_FACTOR * sp_heat * thickness * area; }
+    { return sp_heat * thickness * area; }
 
     void RCModel::allocateRCModelHolder()
     {
@@ -198,9 +198,9 @@ namespace Thermal
         _rc_model_holder->pack.c_hs_per = getCap(p_sink, t_sink, (s_sink*s_sink - s_spreader*s_spreader) / 4.0);
     
         // vertical C's to ambient (divide c_convec proportional to area)  
-        _rc_model_holder->pack.c_amb_c_per_x = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_spreader+chip_height) * (s_spreader-chip_width) / 4.0);
-        _rc_model_holder->pack.c_amb_c_per_y = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_spreader+chip_width) * (s_spreader-chip_height) / 4.0);
-        _rc_model_holder->pack.c_amb_per = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_sink*s_sink - s_spreader*s_spreader) / 4.0);
+        _rc_model_holder->pack.c_amb_c_per_x = c_convec / (s_sink * s_sink) * ((s_spreader+chip_height) * (s_spreader-chip_width) / 4.0);
+        _rc_model_holder->pack.c_amb_c_per_y = c_convec / (s_sink * s_sink) * ((s_spreader+chip_width) * (s_spreader-chip_height) / 4.0);
+        _rc_model_holder->pack.c_amb_per = c_convec / (s_sink * s_sink) * ((s_sink*s_sink - s_spreader*s_spreader) / 4.0);
         
         // vertical C's of package substrate, solder balls, and PCB  
         _rc_model_holder->pack.c_sub_per_x = getCap(SPEC_HEAT_SUB, t_sub, (s_sub+chip_height) * (s_sub-chip_width) / 4.0);
@@ -212,9 +212,9 @@ namespace Thermal
         _rc_model_holder->pack.c_pcb_per = getCap(SPEC_HEAT_PCB, t_pcb, (s_pcb*s_pcb - s_solder*s_solder) / 4.0);
     
         // vertical C's to ambient at PCB (divide c_convec_sec proportional to area)  
-        _rc_model_holder->pack.c_amb_sec_c_per_x = C_FACTOR * c_convec_sec / (s_pcb * s_pcb) * ((s_solder+chip_height) * (s_solder-chip_width) / 4.0);
-        _rc_model_holder->pack.c_amb_sec_c_per_y = C_FACTOR * c_convec_sec / (s_pcb * s_pcb) * ((s_solder+chip_width) * (s_solder-chip_height) / 4.0);
-        _rc_model_holder->pack.c_amb_sec_per = C_FACTOR * c_convec_sec / (s_pcb * s_pcb) * ((s_pcb*s_pcb - s_solder*s_solder) / 4.0);
+        _rc_model_holder->pack.c_amb_sec_c_per_x = c_convec_sec / (s_pcb * s_pcb) * ((s_solder+chip_height) * (s_solder-chip_width) / 4.0);
+        _rc_model_holder->pack.c_amb_sec_c_per_y = c_convec_sec / (s_pcb * s_pcb) * ((s_solder+chip_width) * (s_solder-chip_height) / 4.0);
+        _rc_model_holder->pack.c_amb_sec_per = c_convec_sec / (s_pcb * s_pcb) * ((s_pcb*s_pcb - s_solder*s_solder) / 4.0);
 
     } // populatePackageC
 
@@ -600,7 +600,7 @@ namespace Thermal
             a[HSP*n+    i] = getCap(p_spreader, t_spreader, area);
             // C's from heatsink portion of the functional units to ground   
             // vertical C to ambient: divide c_convec proportional to area   
-            c_amb = C_FACTOR * c_convec / (s_sink * s_sink) * area;
+            c_amb = c_convec / (s_sink * s_sink) * area;
             a[HSINK*n+i] = getCap(p_sink, t_sink, area) + c_amb;
         }
     
