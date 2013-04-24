@@ -350,13 +350,17 @@ namespace Thermal
                 gx[i] = gy[i] = 0;
             }
             else {
-                gx[i] = 1.0/getR(k_chip, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_chip);
-                gy[i] = 1.0/getR(k_chip, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_chip);
+                gx[i] = 1.0/getR(k_device, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_device);
+                gy[i] = 1.0/getR(k_device, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_device);
             }
     
             // at the chip substrate layer
-            gx_csub[i] = 1.0/getR(k_chip, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_csub);
-            gy_csub[i] = 1.0/getR(k_chip, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_csub);
+            gx_box[i] = 1.0/getR(k_box, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_box);
+            gy_box[i] = 1.0/getR(k_box, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_box);
+            
+            // at the chip substrate layer
+            gx_csub[i] = 1.0/getR(k_csub, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_csub);
+            gy_csub[i] = 1.0/getR(k_csub, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_csub);
             
             // at the interface layer    
             gx_int[i] = 1.0/getR(k_interface, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_interface);
@@ -417,35 +421,45 @@ namespace Thermal
             // amongst functional units in the various layers    
             for (j = 0; j < n; j++) 
             {
-                double part = 0, part_csub = 0, part_int = 0, part_sp = 0, part_hs = 0;
+                double part = 0, part_box = 0, part_csub = 0, part_int = 0, part_sp = 0, part_hs = 0;
                 if (Floorplan::isHorizAdj(_floorplan_holder, i, j)) 
                 {
-                    part = gx[i] / _floorplan_holder->_flp_units[i]._height;
-                    part_int = gx_int[i] / _floorplan_holder->_flp_units[i]._height;
-                    part_sp = gx_sp[i] / _floorplan_holder->_flp_units[i]._height;
-                    part_hs = gx_hs[i] / _floorplan_holder->_flp_units[i]._height;
+                    part        = gx[i]     / _floorplan_holder->_flp_units[i]._height;
+                    part_box    = gx_box[i] / _floorplan_holder->_flp_units[i]._height;
+                    part_csub   = gx_csub[i]/ _floorplan_holder->_flp_units[i]._height;
+                    part_int    = gx_int[i] / _floorplan_holder->_flp_units[i]._height;
+                    part_sp     = gx_sp[i]  / _floorplan_holder->_flp_units[i]._height;
+                    part_hs     = gx_hs[i]  / _floorplan_holder->_flp_units[i]._height;
                 }
                 else if (Floorplan::isVertAdj(_floorplan_holder, i,j))  
                 {
-                    part = gy[i] / _floorplan_holder->_flp_units[i]._width;
-                    part_int = gy_int[i] / _floorplan_holder->_flp_units[i]._width;
-                    part_sp = gy_sp[i] / _floorplan_holder->_flp_units[i]._width;
-                    part_hs = gy_hs[i] / _floorplan_holder->_flp_units[i]._width;
+                    part        = gy[i]     / _floorplan_holder->_flp_units[i]._width;
+                    part_box    = gy_box[i] / _floorplan_holder->_flp_units[i]._width;
+                    part_csub   = gy_csub[i]/ _floorplan_holder->_flp_units[i]._width;
+                    part_int    = gy_int[i] / _floorplan_holder->_flp_units[i]._width;
+                    part_sp     = gy_sp[i]  / _floorplan_holder->_flp_units[i]._width;
+                    part_hs     = gy_hs[i]  / _floorplan_holder->_flp_units[i]._width;
                 }
-                g[i][j] = part * len[i][j];
-                g[IFACE*n+i][IFACE*n+j] = part_int * len[i][j];
-                g[HSP*n+i][HSP*n+j] = part_sp * len[i][j];
-                g[HSINK*n+i][HSINK*n+j] = part_hs * len[i][j];
+                g[          i][         j] = part       * len[i][j];
+                g[BOX*n+    i][BOX*n+   j] = part_box   * len[i][j];
+                g[CSUB*n+   i][CSUB*n+  j] = part_csub  * len[i][j];
+                g[IFACE*n+  i][IFACE*n+ j] = part_int   * len[i][j];
+                g[HSP*n+    i][HSP*n+   j] = part_sp    * len[i][j];
+                g[HSINK*n+  i][HSINK*n+ j] = part_hs    * len[i][j];
             }
             // the 2.0 factor in the following equations is 
             // explained during the calculation of the B matrix
               
-            // vertical g's in the silicon layer     
-            g[i][IFACE*n+i]=g[IFACE*n+i][i]=2.0/getR(k_chip, t_chip, area);
+            // vertical g's in the device layer
+            g[i][BOX*n+i]=g[BOX*n+i][i]                     = 2.0/getR(k_device, t_device, area);
+            // vertical g's in the BOX layer
+            g[BOX*n+i][CSUB*n+i]=g[CSUB*n+i][BOX*n+i]       = 2.0/getR(k_box, t_box, area);
+            // vertical g's in the chip substrate layer
+            g[CSUB*n+i][IFACE*n+i]=g[IFACE*n+i][CSUB*n+i]   = 2.0/getR(k_csub, t_csub, area);
             // vertical g's in the interface layer   
-            g[IFACE*n+i][HSP*n+i]=g[HSP*n+i][IFACE*n+i]=2.0/getR(k_interface, t_interface, area);
+            g[IFACE*n+i][HSP*n+i]=g[HSP*n+i][IFACE*n+i]     = 2.0/getR(k_interface, t_interface, area);
             // vertical g's in the spreader layer    
-            g[HSP*n+i][HSINK*n+i]=g[HSINK*n+i][HSP*n+i]=2.0/getR(k_spreader, t_spreader, area);
+            g[HSP*n+i][HSINK*n+i]=g[HSINK*n+i][HSP*n+i]     = 2.0/getR(k_spreader, t_spreader, area);
             // vertical g's in the heatsink core layer   
             // vertical R to ambient: divide r_convec proportional to area   
             r_amb = r_convec * (s_sink * s_sink) / area;
@@ -539,18 +553,24 @@ namespace Thermal
         assert(_rc_model_holder);
 
         vector<double>& a           = _rc_model_holder->a;
-        double t_chip               = _thermal_params->t_chip;
+
+        double t_device             = _thermal_params->t_device;
+        double t_box                = _thermal_params->t_box;
         double t_csub               = _thermal_params->t_csub;
-        double c_convec             = _thermal_params->c_convec;
-        double s_sink               = _thermal_params->s_sink;
-        double t_sink               = _thermal_params->t_sink;
-        double t_spreader           = _thermal_params->t_spreader;
         double t_interface          = _thermal_params->t_interface;
-        double p_chip               = _thermal_params->p_chip;
-        double p_sink               = _thermal_params->p_sink;
-        double p_spreader           = _thermal_params->p_spreader;
-        double p_interface          = _thermal_params->p_interface;
+        double t_spreader           = _thermal_params->t_spreader;
+        double t_sink               = _thermal_params->t_sink;
+
+        double c_convec             = _thermal_params->c_convec;
         double c_amb;
+        double s_sink               = _thermal_params->s_sink;
+        
+        double p_device             = _thermal_params->p_device;
+        double p_box                = _thermal_params->p_box;
+        double p_csub               = _thermal_params->p_csub;
+        double p_interface          = _thermal_params->p_interface;
+        double p_spreader           = _thermal_params->p_spreader;
+        double p_sink               = _thermal_params->p_sink;
     
         int i;
         int n = _floorplan_holder->_n_units;
@@ -565,14 +585,19 @@ namespace Thermal
         populatePackageC(w_chip, l_chip);
         
         // functional block C's  
-        for (i = 0; i < n; i++) {
+        for (i = 0; i < n; i++) 
+        {
             double area = (_floorplan_holder->_flp_units[i]._height * _floorplan_holder->_flp_units[i]._width);
-            // C's from functional units to ground   
-            a[i] = getCap(p_chip, t_chip, area);
+            // C's from chip device units to ground   
+            a[          i] = getCap(p_device, t_device, area);
+            // C's from chip box units to ground   
+            a[BOX*n+    i] = getCap(p_box, t_box, area);
+            // C's from chip substrate units to ground   
+            a[CSUB*n+   i] = getCap(p_csub, t_csub, area);
             // C's from interface portion of the functional units to ground  
-            a[IFACE*n+i] = getCap(p_interface, t_interface, area);
+            a[IFACE*n+  i] = getCap(p_interface, t_interface, area);
             // C's from spreader portion of the functional units to ground   
-            a[HSP*n+i] = getCap(p_spreader, t_spreader, area);
+            a[HSP*n+    i] = getCap(p_spreader, t_spreader, area);
             // C's from heatsink portion of the functional units to ground   
             // vertical C to ambient: divide c_convec proportional to area   
             c_amb = C_FACTOR * c_convec / (s_sink * s_sink) * area;
