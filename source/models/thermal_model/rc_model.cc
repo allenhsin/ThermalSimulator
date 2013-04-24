@@ -46,6 +46,7 @@ namespace Thermal
     void RCModel::allocateRCModelHolder()
     {
         assert(_floorplan_holder);
+        assert(_thermal_params);
         
         _rc_model_holder = new RCModelHolder();
         assert(_rc_model_holder);
@@ -71,10 +72,12 @@ namespace Thermal
 
         Misc::initDouble2DVector(   _rc_model_holder->geq_step,     N_TIME_STEPS, m);
         Misc::initDouble1DVector(   _rc_model_holder->time_steps,   N_TIME_STEPS);
-        _rc_model_holder->time_steps[0] = TIME_STEP_0;
-        _rc_model_holder->time_steps[1] = TIME_STEP_1;
-        _rc_model_holder->time_steps[2] = TIME_STEP_2;
-        _rc_model_holder->time_steps[3] = TIME_STEP_3;
+        double max_time_step = (_thermal_params->sampling_intvl>MAX_TIME_STEP)? MAX_TIME_STEP : (_thermal_params->sampling_intvl/2);
+        for(int i = 0; i < N_TIME_STEPS; ++i)
+        {
+            _rc_model_holder->time_steps[i] = max_time_step;
+            max_time_step /= 4;
+        }
 
         Misc::initDouble1DVector(   _rc_model_holder->a,            m); // vertical Cs - diagonal matrix stored as a 1-d vector
         Misc::initDouble1DVector(   _rc_model_holder->inva,         m); // inverse of a
@@ -82,6 +85,10 @@ namespace Thermal
         
         Misc::initDouble1DVector(   _rc_model_holder->gx,           n); // lumped conductances in x direction
         Misc::initDouble1DVector(   _rc_model_holder->gy,           n); // lumped conductances in y direction
+        Misc::initDouble1DVector(   _rc_model_holder->gx_box,       n); // lateral conductances in the chip box layer
+        Misc::initDouble1DVector(   _rc_model_holder->gy_box,       n);
+        Misc::initDouble1DVector(   _rc_model_holder->gx_csub,      n); // lateral conductances in the chip substrate layer
+        Misc::initDouble1DVector(   _rc_model_holder->gy_csub,      n);
         Misc::initDouble1DVector(   _rc_model_holder->gx_int,       n); // lateral conductances in the interface layer
         Misc::initDouble1DVector(   _rc_model_holder->gy_int,       n);
         Misc::initDouble1DVector(   _rc_model_holder->gx_sp,        n); // lateral conductances in the spreader layer
@@ -288,6 +295,10 @@ namespace Thermal
         vector< vector<double> >& b     = _rc_model_holder->b;
         vector<double>& gx              = _rc_model_holder->gx;
         vector<double>& gy              = _rc_model_holder->gy;
+        vector<double>& gx_box          = _rc_model_holder->gx_box;
+        vector<double>& gy_box          = _rc_model_holder->gy_box;
+        vector<double>& gx_csub         = _rc_model_holder->gx_csub;
+        vector<double>& gy_csub         = _rc_model_holder->gy_csub;
         vector<double>& gx_int          = _rc_model_holder->gx_int;
         vector<double>& gy_int          = _rc_model_holder->gy_int;
         vector<double>& gx_sp           = _rc_model_holder->gx_sp;
@@ -300,14 +311,21 @@ namespace Thermal
         vector< vector<double> >& lu    = _rc_model_holder->lu;
         vector< vector<int> >& border   = _rc_model_holder->border;
         vector<int>& p                  = _rc_model_holder->p;
-        double t_chip                   = _thermal_params->t_chip;
+        
         double r_convec                 = _thermal_params->r_convec;
         double s_sink                   = _thermal_params->s_sink;
-        double t_sink                   = _thermal_params->t_sink;
         double s_spreader               = _thermal_params->s_spreader;
+        
+        double t_device                 = _thermal_params->t_device;
+        double t_box                    = _thermal_params->t_box;
+        double t_csub                   = _thermal_params->t_csub;
         double t_spreader               = _thermal_params->t_spreader;
         double t_interface              = _thermal_params->t_interface;
-        double k_chip                   = _thermal_params->k_chip;
+        double t_sink                   = _thermal_params->t_sink;
+
+        double k_device                 = _thermal_params->k_device;
+        double k_box                    = _thermal_params->k_box;
+        double k_csub                   = _thermal_params->k_csub;
         double k_sink                   = _thermal_params->k_sink;
         double k_spreader               = _thermal_params->k_spreader;
         double k_interface              = _thermal_params->k_interface;
@@ -336,6 +354,10 @@ namespace Thermal
                 gy[i] = 1.0/getR(k_chip, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_chip);
             }
     
+            // at the chip substrate layer
+            gx_csub[i] = 1.0/getR(k_chip, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_csub);
+            gy_csub[i] = 1.0/getR(k_chip, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_csub);
+            
             // at the interface layer    
             gx_int[i] = 1.0/getR(k_interface, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_interface);
             gy_int[i] = 1.0/getR(k_interface, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_interface);
@@ -389,18 +411,22 @@ namespace Thermal
         }
     
         // overall Rs between nodes  
-        for (i = 0; i < n; i++) {
+        for (i = 0; i < n; i++) 
+        {
             double area = (_floorplan_holder->_flp_units[i]._height * _floorplan_holder->_flp_units[i]._width);
             // amongst functional units in the various layers    
-            for (j = 0; j < n; j++) {
-                double part = 0, part_int = 0, part_sp = 0, part_hs = 0;
-                if (Floorplan::isHorizAdj(_floorplan_holder, i, j)) {
+            for (j = 0; j < n; j++) 
+            {
+                double part = 0, part_csub = 0, part_int = 0, part_sp = 0, part_hs = 0;
+                if (Floorplan::isHorizAdj(_floorplan_holder, i, j)) 
+                {
                     part = gx[i] / _floorplan_holder->_flp_units[i]._height;
                     part_int = gx_int[i] / _floorplan_holder->_flp_units[i]._height;
                     part_sp = gx_sp[i] / _floorplan_holder->_flp_units[i]._height;
                     part_hs = gx_hs[i] / _floorplan_holder->_flp_units[i]._height;
                 }
-                else if (Floorplan::isVertAdj(_floorplan_holder, i,j))  {
+                else if (Floorplan::isVertAdj(_floorplan_holder, i,j))  
+                {
                     part = gy[i] / _floorplan_holder->_flp_units[i]._width;
                     part_int = gy_int[i] / _floorplan_holder->_flp_units[i]._width;
                     part_sp = gy_sp[i] / _floorplan_holder->_flp_units[i]._width;
@@ -514,6 +540,7 @@ namespace Thermal
 
         vector<double>& a           = _rc_model_holder->a;
         double t_chip               = _thermal_params->t_chip;
+        double t_csub               = _thermal_params->t_csub;
         double c_convec             = _thermal_params->c_convec;
         double s_sink               = _thermal_params->s_sink;
         double t_sink               = _thermal_params->t_sink;

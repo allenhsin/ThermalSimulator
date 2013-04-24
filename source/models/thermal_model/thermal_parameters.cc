@@ -48,9 +48,15 @@ namespace Thermal
         debug_model_file    = getThermalConfig()->getString("env_setup/debug_model_file");
         debug_flp_file      = getThermalConfig()->getString("env_setup/debug_flp_file");
         // [chip]
-        t_chip              = getThermalConfig()->getFloat("chip/t_chip");
-        k_chip              = getThermalConfig()->getFloat("chip/k_chip");
-        p_chip              = getThermalConfig()->getFloat("chip/p_chip");
+        t_device            = getThermalConfig()->getFloat("chip/t_device");
+        k_device            = getThermalConfig()->getFloat("chip/k_device");
+        p_device            = getThermalConfig()->getFloat("chip/p_device");
+        t_box               = getThermalConfig()->getFloat("chip/t_box");
+        k_box               = getThermalConfig()->getFloat("chip/k_box");
+        p_box               = getThermalConfig()->getFloat("chip/p_box");
+        t_csub              = getThermalConfig()->getFloat("chip/t_csub");
+        k_csub              = getThermalConfig()->getFloat("chip/k_csub");
+        p_csub              = getThermalConfig()->getFloat("chip/p_csub");
         // [heat_sink]
         c_convec            = getThermalConfig()->getFloat("heat_sink/c_convec");
         r_convec            = getThermalConfig()->getFloat("heat_sink/r_convec");

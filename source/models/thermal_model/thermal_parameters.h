@@ -46,9 +46,15 @@ namespace Thermal
         std::string     debug_model_file;
         std::string     debug_flp_file;
         // [chip]
-        double          t_chip;
-        double          k_chip;
-        double          p_chip;
+        double          t_device;
+        double          k_device;
+        double          p_device;
+        double          t_box;
+        double          k_box;
+        double          p_box;
+        double          t_csub;
+        double          k_csub;
+        double          p_csub;
         // [heat_sink]
         double          c_convec;
         double          r_convec;

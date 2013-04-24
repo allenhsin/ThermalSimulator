@@ -77,6 +77,12 @@ namespace Thermal
             case 0:
                 strcpy(format,"%s%lf");
                 break;
+            case BOX:
+                strcpy(format,"box_%s%lf");
+                break;
+            case CSUB:
+                strcpy(format,"csub_%s%lf");
+                break;
             case IFACE:
                 strcpy(format,"iface_%s%lf");
                 break;
@@ -208,6 +214,8 @@ namespace Thermal
 
         for(i=0; i<_floorplan_holder->_n_units; ++i)
         {
+            _power[BOX   * _floorplan_holder->_n_units + i] = 0;
+            _power[CSUB  * _floorplan_holder->_n_units + i] = 0;
             _power[IFACE * _floorplan_holder->_n_units + i] = 0;
             _power[HSP   * _floorplan_holder->_n_units + i] = 0;
         }

@@ -139,6 +139,10 @@ namespace Thermal
         // intermediate std::vectors and matrices
         std::vector<double> gx; 
         std::vector<double> gy;
+        std::vector<double> gx_box;
+        std::vector<double> gy_box;
+        std::vector<double> gx_csub;
+        std::vector<double> gy_csub;
         std::vector<double> gx_int; 
         std::vector<double> gy_int;
         std::vector<double> gx_sp;

@@ -34,14 +34,18 @@
 #define SINK_S      11
 
 // total functional block laters
-#define NL          4
-// silicon is always layer 0
+#define NL          6
+// chip device layer is always layer 0
+// chip buried oxide (BOX) layer
+#define BOX         1
+// chip substrate layer
+#define CSUB        2
 // interface layer
-#define IFACE       1
+#define IFACE       3
 // heat spreader
-#define HSP         2
+#define HSP         4
 // heat sink
-#define HSINK       3
+#define HSINK       5
 
 // typical thermal properties for secondary path layers 
 #define RHO_METAL           0.0025  
@@ -71,11 +75,8 @@
 #define C_FACTOR    0.333       // fitting factor to match floworks (due to lumping)
 
 // number time step sizes
-#define N_TIME_STEPS    4
-#define TIME_STEP_0     2.5e-6
-#define TIME_STEP_1     1.0e-6
-#define TIME_STEP_2     200e-9
-#define TIME_STEP_3     50e-9
+#define N_TIME_STEPS    3
+#define MAX_TIME_STEP   2.0e-6
 
 // ------------------------------------------------------------------------------------------------
 

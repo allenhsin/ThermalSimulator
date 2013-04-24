@@ -38,7 +38,7 @@
     # width [m] 
     ring_width                  = 1.2e-6
     # height [m]
-    ring_height                 = 800e-9
+    ring_height                 = 80e-9
     # the portion of light mode in the ring
     confinement_factor          = 0.47
 
