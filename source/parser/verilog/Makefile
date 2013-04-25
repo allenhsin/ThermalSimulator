@@ -22,7 +22,7 @@ LEX_OUT         = lex.$(language).cc
 
 TARGET          = $(CURDIR)/lib$(language).a
 
-all: $(TARGET)
+all: $(language).y $(language).l $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(AR) -rcs $@ $^
