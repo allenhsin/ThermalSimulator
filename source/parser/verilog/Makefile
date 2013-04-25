@@ -22,9 +22,9 @@ LEX_OUT         = lex.$(language).cc
 
 TARGET          = $(CURDIR)/lib$(language).a
 
-all: $(language).y $(language).l $(TARGET)
+all: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(YACC_OUT) $(YACC_OUT) $(OBJS)
 	$(AR) -rcs $@ $^
 
 # For general c++ compilation

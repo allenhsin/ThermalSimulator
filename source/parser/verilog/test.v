@@ -35,7 +35,7 @@ endmodule
 
 module AND_X1M_A12TR (A, B, Y);
 
-    parameter CadenceSucks = 32'b00000000002;
+    parameter CadenceSucks = 32'hFFF_F_FFFF;
     
     input A, B;
     output Y;

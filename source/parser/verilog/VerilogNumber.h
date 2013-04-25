@@ -12,7 +12,12 @@ namespace Thermal
     class VerilogNumber
     {
         public:
-            VerilogNumber(const std::string& value_, char base_ = 'd', const std::string& width_ = "32");
+            static const char DEFAULT_BASE;
+            static const unsigned int DEFAULT_WIDTH;
+            static const unsigned int UINT_MAX_BITS;
+    
+        public:
+            VerilogNumber(const std::string& num_str_);
             virtual ~VerilogNumber();
             
         public:
@@ -24,7 +29,11 @@ namespace Thermal
             // const string& getHexString() const;
             // const string& getUIntString() const;
             
-            unsigned int getUInt() const;            
+            unsigned int getUInt() const;
+            
+            // Prunes the '_' fillers in verilog numbers
+            static std::string pruneNum(const std::string& input_);
+            
             // static const string& makeBinString(const string& value_, char base_);
             
         private:

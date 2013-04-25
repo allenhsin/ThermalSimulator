@@ -13,7 +13,7 @@ namespace Thermal
     using namespace std;
     using namespace LibUtil;
 
-    VerilogModule::VerilogModule(const string& name_, const VerilogItems* items_)
+    VerilogModule::VerilogModule(const string& name_, const VerilogItems& items_)
         : m_name_(name_)
     {        
         m_nets_ = new vector<VerilogNet*>();
@@ -31,10 +31,10 @@ namespace Thermal
         m_instances_ = NULL;
     }
     
-    void VerilogModule::initializeItems(const VerilogItems* module_items_)
+    void VerilogModule::initializeItems(const VerilogItems& module_items_)
     {
         VerilogItems::const_iterator it;
-        for(it = module_items_->begin(); it != module_items_->end(); ++it)
+        for(it = module_items_.begin(); it != module_items_.end(); ++it)
         {
             VerilogItemType type = (*it)->getType();
             if (type == ITEM_NET)

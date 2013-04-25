@@ -12,7 +12,7 @@ namespace Thermal
     class VerilogInstance : public VerilogItem
     {
         public:
-            VerilogInstance(const std::string& name_, const VerilogConns* conns_);
+            VerilogInstance(const std::string& name_, const VerilogConns& conns_);
             virtual ~VerilogInstance();
             
             inline const std::string& getName() const { return m_name_; }
@@ -22,11 +22,11 @@ namespace Thermal
             // Set the name of the module that this instance instantiates
             inline void setModuleName(const std::string& module_name_ ) { m_module_name_ = module_name_; }
             // Set parameter values
-            void setParameterValues(const VerilogConns* conns_);
+            void setParameterValues(const VerilogConns& conns_);
             
         private:
             // Initialize the instance connections
-            void initializeConns(const VerilogConns* conns_);
+            void initializeConns(const VerilogConns& conns_);
 
         private:
             // Instance name

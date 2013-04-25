@@ -86,17 +86,12 @@ void yyerror(VerilogFile* file_, const char *s);
 "~"             { return yytext[0];     }
 "'"             { return yytext[0];     }
 
-    /* other */
-"'"[bd]         { yylval.cval = yytext[1]; return BASE; }
+    /* verilog numbers */
+[_0-9]+                                 { yylval.num = new VerilogNumber(yytext); return NUMBER; }
+[_0-9]+"'"[bodh][ \t\n]*[a-fA-F_0-9]+   { yylval.num = new VerilogNumber(yytext); return NUMBER; }
 
     /* identifiers */
-[a-zA-Z_][a-zA-Z_0-9]*      { yylval.sval = strdup(yytext); return IDENTIFIER; }
-
-    /* 
-     * numbers, because I'm too lazy to resolve conflict between identifier and hex numbers,
-     * I will simply disallow hex numbers
-     */
-[_0-9]+                     { yylval.nval = strdup(yytext); return UNSIGNED_NUMBER; }
+[a-zA-Z_][a-zA-Z_0-9]*                  { yylval.sval = strdup(yytext); return IDENTIFIER; }
 
     /* ignore white spaces */
 [ \t]           { ; }

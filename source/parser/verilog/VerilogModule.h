@@ -14,7 +14,7 @@ namespace Thermal
     class VerilogModule
     {
         public:
-            VerilogModule(const std::string& name_, const VerilogItems* items_);
+            VerilogModule(const std::string& name_, const VerilogItems& items_);
             virtual ~VerilogModule();
 
             // Get the module name
@@ -26,7 +26,7 @@ namespace Thermal
         
         private:
             // Initialize the the module based on the module items
-            void initializeItems(const VerilogItems* items_);
+            void initializeItems(const VerilogItems& items_);
             
         private:
             const std::string m_name_;

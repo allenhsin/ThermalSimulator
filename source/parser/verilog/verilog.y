@@ -58,7 +58,6 @@ void yyerror(VerilogFile* file_, const char *s);
 // use that union instead of "int" for the definition of "yystype":
 %union {
 	char *sval;
-    char *nval;
     char cval;
     
     Thermal::VerilogNumber* num;    
@@ -105,8 +104,7 @@ void yyerror(VerilogFile* file_, const char *s);
 // define some terminal symbol data types
 %token  <fval>          FLOAT
 %token  <sval>          IDENTIFIER
-%token  <nval>          UNSIGNED_NUMBER
-%token  <cval>          BASE
+%token  <num>           NUMBER
 
 // Define non-terminal symbol data types
 %type   <expr>          expression
@@ -145,9 +143,6 @@ void yyerror(VerilogFile* file_, const char *s);
 %type   <conns>         list_of_module_port_connections
 %type   <conns>         list_of_module_connections
 
-// %type   <cval>          base
-%type   <num>           number
-
 %start source_text
 
 %%
@@ -159,14 +154,14 @@ source_text:
 
 module_declaration:
     MODULE IDENTIFIER '(' list_of_ports ')' ';' module_item_list ENDMODULE
-        { $$ = new VerilogModule($2, $7); delete $7; }
+        { $$ = new VerilogModule($2, *$7); delete $7; }
     ;
         
 // The list of ports is online used to describe the port ordering if this module is instantiated
 // using ordered (unnamed) port connections
 list_of_ports:
     /* empty */                                     { $$ = new VerilogVariables(); }
-    | IDENTIFIER                                    { $$ = new VerilogVariables(); $$->push_back($1); }
+    | IDENTIFIER                                    { $$ = new VerilogVariables(1, $1); }
     | list_of_ports ',' IDENTIFIER                  { $$ = $1; $1->push_back($3); }
     ;
     
@@ -204,7 +199,7 @@ parameter_declaration:
 
 list_of_param_assignments:
     /* empty */                                         { $$ = new VerilogItems(); }
-    | param_assignment                                  { $$ = new VerilogItems(); $$->push_back($1); }
+    | param_assignment                                  { $$ = new VerilogItems(1, $1); }
     | list_of_param_assignments ',' param_assignment    { $$ = $1; $$->push_back($3); }
     ;
         
@@ -219,11 +214,10 @@ module_instantiation:
             for (it = $3->begin(); it != $3->end(); ++it)
             {
                 (*it)->setModuleName($1);
-                (*it)->setParameterValues($2);
+                (*it)->setParameterValues(*$2);
             }
 
-            $$ = new VerilogItems();
-            $$->insert($$->end(), $3->begin(), $3->end());
+            $$ = new VerilogItems($3->begin(), $3->end());
             delete $2;
             delete $3;
         }
@@ -233,8 +227,7 @@ module_instantiation:
             for (it = $2->begin(); it != $2->end(); ++it)
                 (*it)->setModuleName($1);
 
-            $$ = new VerilogItems();
-            $$->insert($$->end(), $2->begin(), $2->end());
+            $$ = new VerilogItems($2->begin(), $2->end());
             delete $2;
         }
     ;
@@ -255,8 +248,8 @@ list_of_named_connections:
     ;
     
 list_of_module_instances:
-    IDENTIFIER '(' list_of_module_connections ')'                                 { $$ = new VerilogInstances(); $$->push_back(new VerilogInstance($1, $3)); delete $3; }
-    | list_of_module_instances IDENTIFIER '(' list_of_module_connections ')'      { $$ = $1; $$->push_back(new VerilogInstance($2, $4)); delete $4; }
+    IDENTIFIER '(' list_of_module_connections ')'                                 { $$ = new VerilogInstances(1, new VerilogInstance($1, *$3)); delete $3; }
+    | list_of_module_instances IDENTIFIER '(' list_of_module_connections ')'      { $$ = $1; $$->push_back(new VerilogInstance($2, *$4)); delete $4; }
     ;
     
 // Must used named ports for the whole thing or implicit ports, cannot mix between the two
@@ -292,7 +285,7 @@ named_connection:
     
 // TODO stack
 
-// For now, I don't know what else is important in a verilog netlist file besides
+// For now, I don't know what else is important in a verilog netlist file for us besides
 // just module declarations
 description:
     module_declaration
@@ -301,24 +294,24 @@ description:
 // Support very simple form of expressions, no unary/binary/conditional operations are
 // supported. Thus, this is merged with "primary". STRINGS are also disallowed
 expression:
-    number                                  { $$ = new VerilogExpression(*$1); delete $1; }
-    | concatenation                         { $$ = new VerilogExpression(*$1); delete $1; }
+    NUMBER                                  { $$ = new VerilogExpression(*$1); delete $1; }
     | IDENTIFIER                            { $$ = new VerilogExpression($1); }
     | IDENTIFIER range                      { $$ = new VerilogExpression($1, *$2); delete $2; }
+    | concatenation                         { $$ = new VerilogExpression(*$1); delete $1; }
     ;
     
 constant_expression:
-    number                                  { $$ = new VerilogExpression(*$1); delete $1; }
+    NUMBER                                  { $$ = new VerilogExpression(*$1); delete $1; }
     ;
 
 list_of_expressions:
-    expression                              { $$ = new VerilogExpressions(); $$->push_back($1); }
+    expression                              { $$ = new VerilogExpressions(1, $1); }
     | list_of_expressions ',' expression    { $$ = $1; $$->push_back($3); }
     ;
     
 list_of_variables:
     /* empty */                             { $$ = new VerilogVariables(); }
-    | IDENTIFIER                            { $$ = new VerilogVariables(); $$->push_back($1); }
+    | IDENTIFIER                            { $$ = new VerilogVariables(1, $1); }
     | list_of_variables ',' IDENTIFIER      { $$ = $1; $$->push_back($3); }
     ;
 
@@ -331,18 +324,6 @@ module_item:
 concatenation:
     '{' list_of_expressions '}'             { $$ = $2; }
     ;
-    
-// For our purposes, there's no reason to allow anything other than unsigned integers
-number:
-    UNSIGNED_NUMBER                                 { $$ = new VerilogNumber($1); }
-    | UNSIGNED_NUMBER BASE UNSIGNED_NUMBER     { $$ = new VerilogNumber($3, $2, $1); }
-    ;
-    
-// base:
-    // 'b'                                     { $$ = 'b'; }
-    // | 'd'                                   { $$ = 'd'; }
-    // | 'h'                                   { $$ = 'h'; }
-    // ;
     
 // continuous_assign:
     // ASSIGN list_of_assignments ';'
