@@ -1,31 +1,41 @@
 
 #include <cstdio>
 #include <iostream>
+#include <string>
 
-#include "generated/yacc.verilog.hh"
+#include "verilog/VerilogFileReader.h"
+#include "verilog/VerilogFile.h"
 
 using namespace std;
+using namespace Thermal;
 
-extern string awesome;
-extern FILE* verilogin;
+extern string snazzle_awesome;
 
-int main() 
+extern int snazzleparse();
+
+extern FILE* snazzlein;
+
+// File used to test the parser
+int main(int argc, char** argv) 
 {
 	// open a file handle to a particular file:
-	FILE *myfile = fopen("a.snazzle.file", "r");
+	//FILE *myfile2 = fopen("a.snazzle.file", "r");
 	// make sure it's valid:
-	if (!myfile) {
-		cout << "I can't open a.snazzle.file!" << endl;
-		return -1;
-	}
+    // if(!myfile2)
+    // {
+		// cout << "I can't open a.snazzle.file!" << endl;
+		// return -1;
+	// }
 	// set flex to read from it instead of defaulting to STDIN:
-	verilogin = myfile;
+    // snazzlein = myfile2;
 
-	// parse through the input until there is no more:
-	// do {
-        verilogparse();
-	// } while (!feof(yyin));
+    VerilogFile* file_ = new VerilogFile(argv[1]);
+    VerilogFileReader* file_reader = new VerilogFileReader(file_);
+    file_reader->parse();
+    //snazzleparse();
     
-    cout << awesome << endl;
-	
+    //cout << snazzle_awesome << endl;
+
+    delete file_reader;
+    
 }

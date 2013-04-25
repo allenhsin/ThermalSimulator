@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "VerilogItem.h"
+#include "VerilogExpression.h"
 
 // A class representing a verilog module
 namespace Thermal

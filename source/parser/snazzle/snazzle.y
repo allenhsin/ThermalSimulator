@@ -1,6 +1,6 @@
 
-// This will be a verilog parser, so prefix everything with verilog
-%define api.prefix "verilog"
+// This will be a snazzle parser, so prefix everything with snazzle
+%define api.prefix "snazzle"
 
 %{
 #include <cstdio>
@@ -8,16 +8,15 @@
 
 using namespace std;
 
-//#include "snazzle.tab.h"  // to get the token types that we return
-#define yyin verilogin
+#define yyin snazzlein
 
 // stuff from flex that bison needs to know about:
 int yylex();
 int yyparse();
 
-extern int line_num;
+extern int snazzle_line_num;
 
-string awesome; 
+string snazzle_awesome; 
 void yyerror(const char *s);
 %}
 
@@ -49,7 +48,7 @@ void yyerror(const char *s);
 snazzle:
 	header template body_section footer 
     { 
-        awesome = "BLAH";
+        snazzle_awesome = "SNAZZLE";
         cout << "done with a snazzle file!" << endl; 
     }
 	;
@@ -88,7 +87,7 @@ ENDLS:
 %%
 
 void yyerror(const char *s) {
-	cout << "EEK, parse error on line " << line_num << "!  Message: " << s << endl;
+	cout << "EEK, parse error on line " << snazzle_line_num << "!  Message: " << s << endl;
 	// might as well halt now:
 	exit(-1);
 }

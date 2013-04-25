@@ -68,7 +68,8 @@ extern int verilogdebug;
      WIRE = 269,
      FLOAT = 270,
      IDENTIFIER = 271,
-     UNSIGNED_NUMBER = 272
+     UNSIGNED_NUMBER = 272,
+     BASE = 273
    };
 #endif
 
@@ -111,7 +112,7 @@ typedef union VERILOGSTYPE
 
 
 /* Line 2058 of yacc.c  */
-#line 115 "yacc.verilog.hh"
+#line 116 "yacc.verilog.hh"
 } VERILOGSTYPE;
 # define VERILOGSTYPE_IS_TRIVIAL 1
 # define verilogstype VERILOGSTYPE /* obsolescent; will be withdrawn */

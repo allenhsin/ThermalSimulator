@@ -10,16 +10,19 @@ namespace Thermal
     class VerilogModule;
     class VerilogItem;
 
+    class VerilogExpression;
     class VerilogParameter;
     class VerilogNet;
     class VerilogInstance;
     
-    typedef int VerilogExpression;
-    typedef std::pair<int, int> VerilogRange;
+    typedef std::pair<VerilogExpression, VerilogExpression> VerilogRange;
     typedef std::vector<char*> VerilogVariables;
+    typedef std::pair<char*, VerilogExpression> VerilogConn;
 
     typedef std::vector<VerilogModule*> VerilogModules;
     typedef std::vector<VerilogItem*> VerilogItems;
+    typedef std::vector<VerilogConn*> VerilogConns;
+    typedef std::vector<VerilogExpression*> VerilogExpressions;
     
     typedef std::vector<VerilogParameter*> VerilogParameters;
     typedef std::vector<VerilogNet*> VerilogNets;

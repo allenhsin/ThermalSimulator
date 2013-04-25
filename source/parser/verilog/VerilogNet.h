@@ -6,6 +6,8 @@
 
 #include "VerilogItem.h"
 #include "VerilogMisc.h"
+#include "VerilogNumber.h"
+#include "VerilogExpression.h"
 
 // A class representing a verilog module
 namespace Thermal
@@ -34,10 +36,11 @@ namespace Thermal
         private:
             // Private constructor, use the static creation function instead
             VerilogNet(const std::string& net_name_, VerilogPortType port_type_,
-                VerilogNetType net_type_, const VerilogRange range_);
+                VerilogNetType net_type_, const VerilogRange& range_);
         public:
-            static VerilogItems* createVerilogNets(const VerilogVariables* names_, VerilogPortType port_type_,
-                VerilogNetType net_type_, const VerilogRange range_ = VerilogRange(0, 0));
+            static VerilogItems* createVerilogNets(const VerilogVariables& names_, VerilogPortType port_type_,
+                VerilogNetType net_type_, const VerilogRange& range_ = VerilogRange(
+                        VerilogExpression(VerilogNumber("0")), VerilogExpression(VerilogNumber("0"))));
             
         public:
             inline const std::string& getName() const { return m_net_name_; }

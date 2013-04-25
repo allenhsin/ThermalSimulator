@@ -5,6 +5,9 @@
  * netlist language subset of verilog. The only behavioral constructs the
  * parser recognizes are used for supporting parametrized netlists. Syntax
  * checking will not be rigorous.
+ *
+ * WARNING: This code is very likely to MEMORY-LEAK!!! Use at your own risk.
+ *
  */
 
 // This will be a verilog parser, so prefix everything with verilog
@@ -12,6 +15,8 @@
 
 // Let yyparse take a verilog file pointer as an input
 %parse-param { Thermal::VerilogFile* file_ }
+
+%error-verbose
 
 %{
 #include <cstdio>
@@ -25,9 +30,12 @@
 #include "VerilogItem.h"
 #include "VerilogMisc.h"
 
+#include "VerilogNumber.h"
 #include "VerilogParameter.h"
 #include "VerilogNet.h"
 #include "VerilogInstance.h"
+
+#include <cstdlib>
 
 using namespace std;
 using namespace Thermal;
@@ -49,16 +57,21 @@ void yyerror(VerilogFile* file_, const char *s);
 // holding each of the types of tokens that Flex could return, and have Bison
 // use that union instead of "int" for the definition of "yystype":
 %union {
-	int ival;
-	float fval;
 	char *sval;
+    char *nval;
+    char cval;
     
+    Thermal::VerilogNumber* num;    
     Thermal::VerilogExpression* expr;
     Thermal::VerilogRange* range;
     Thermal::VerilogVariables* variables;
+    Thermal::VerilogConn* conn;
     
     Thermal::VerilogPortType port_type;
     Thermal::VerilogNetType net_type;
+    
+    Thermal::VerilogExpressions* exprs;
+    Thermal::VerilogConns* conns;
     
     Thermal::VerilogModule* module;
     Thermal::VerilogModules* modules;
@@ -90,15 +103,19 @@ void yyerror(VerilogFile* file_, const char *s);
 %token  WIRE            "wire"
 
 // define some terminal symbol data types
-%token  <ival>          INT
 %token  <fval>          FLOAT
-%token  <sval>          STRING
 %token  <sval>          IDENTIFIER
+%token  <nval>          UNSIGNED_NUMBER
+%token  <cval>          BASE
 
 // Define non-terminal symbol data types
 %type   <expr>          expression
 %type   <expr>          constant_expression
+%type   <exprs>         concatenation
+%type   <exprs>         list_of_expressions
 %type   <variables>     list_of_variables
+
+%type   <variables>     list_of_ports
 
 %type   <port_type>     port_dir
 %type   <net_type>      net_type
@@ -118,8 +135,18 @@ void yyerror(VerilogFile* file_, const char *s);
 %type   <items>         parameter_declaration
 
 %type   <items>         module_instantiation
-%type   <items>         list_of_module_instances
+%type   <instances>     list_of_module_instances
 
+%type   <conn>          named_connection
+%type   <conns>         list_of_named_connections
+%type   <conns>         list_of_named_port_connections
+%type   <conns>         list_of_named_parameter_value_assignment
+%type   <conns>         parameter_value_assignment
+%type   <conns>         list_of_module_port_connections
+%type   <conns>         list_of_module_connections
+
+// %type   <cval>          base
+%type   <num>           number
 
 %start source_text
 
@@ -132,30 +159,29 @@ source_text:
 
 module_declaration:
     MODULE IDENTIFIER '(' list_of_ports ')' ';' module_item_list ENDMODULE
-        { $$ = new VerilogModule($2, $7); }    
+        { $$ = new VerilogModule($2, $7); delete $7; }
     ;
         
-// The list of ports in a module can be syntax-checked, but we really don't need to do anything with them
-// since the ports will be fully declared in the module item list anyways
+// The list of ports is online used to describe the port ordering if this module is instantiated
+// using ordered (unnamed) port connections
 list_of_ports:
-    /* empty */
-    | IDENTIFIER
-    | list_of_ports ',' IDENTIFIER
+    /* empty */                                     { $$ = new VerilogVariables(); }
+    | IDENTIFIER                                    { $$ = new VerilogVariables(); $$->push_back($1); }
+    | list_of_ports ',' IDENTIFIER                  { $$ = $1; $1->push_back($3); }
     ;
     
 module_item_list:
     /* empty */                                     { $$ = new VerilogItems(); }
-    | module_item                                   { $$ = $1; }
     | module_item_list module_item                  { $$ = $1; $$->insert($$->end(), $2->begin(), $2->end()); delete $2; }
     ;
 
 net_declaration:
-    net_type list_of_variables ';'                  { $$ = VerilogNet::createVerilogNets($2, PORT_NONE, $1); delete $2; }
-    | net_type range list_of_variables ';'          { $$ = VerilogNet::createVerilogNets($3, PORT_NONE, $1, *$2); delete $2; delete $3; }
-    | port_dir list_of_variables ';'                { $$ = VerilogNet::createVerilogNets($2, $1, NET_WIRE); delete $2; }
-    | port_dir range list_of_variables ';'          { $$ = VerilogNet::createVerilogNets($3, $1, NET_WIRE, *$2); delete $2; delete $3; }
-    | port_dir net_type list_of_variables ';'       { $$ = VerilogNet::createVerilogNets($3, $1, $2); delete $3; }
-    | port_dir net_type range list_of_variables ';' { $$ = VerilogNet::createVerilogNets($4, $1, $2, *$3); delete $3; delete $4; }
+    net_type list_of_variables ';'                  { $$ = VerilogNet::createVerilogNets(*$2, PORT_NONE, $1); delete $2; }
+    | net_type range list_of_variables ';'          { $$ = VerilogNet::createVerilogNets(*$3, PORT_NONE, $1, *$2); delete $2; delete $3; }
+    | port_dir list_of_variables ';'                { $$ = VerilogNet::createVerilogNets(*$2, $1, NET_WIRE); delete $2; }
+    | port_dir range list_of_variables ';'          { $$ = VerilogNet::createVerilogNets(*$3, $1, NET_WIRE, *$2); delete $2; delete $3; }
+    | port_dir net_type list_of_variables ';'       { $$ = VerilogNet::createVerilogNets(*$3, $1, $2); delete $3; }
+    | port_dir net_type range list_of_variables ';' { $$ = VerilogNet::createVerilogNets(*$4, $1, $2, *$3); delete $3; delete $4; }
     ;    
     
 range:
@@ -187,58 +213,108 @@ param_assignment:
     ;
 
 module_instantiation:
-    IDENTIFIER parameter_value_assignment list_of_module_instances ';'          { $$ = $3; }
-    | IDENTIFIER list_of_module_instances ';'                                   { $$ = $2; }
+    IDENTIFIER parameter_value_assignment list_of_module_instances ';' 
+        { 
+            VerilogInstances::const_iterator it;
+            for (it = $3->begin(); it != $3->end(); ++it)
+            {
+                (*it)->setModuleName($1);
+                (*it)->setParameterValues($2);
+            }
+
+            $$ = new VerilogItems();
+            $$->insert($$->end(), $3->begin(), $3->end());
+            delete $2;
+            delete $3;
+        }
+    | IDENTIFIER list_of_module_instances ';' 
+        { 
+            VerilogInstances::const_iterator it;
+            for (it = $2->begin(); it != $2->end(); ++it)
+                (*it)->setModuleName($1);
+
+            $$ = new VerilogItems();
+            $$->insert($$->end(), $2->begin(), $2->end());
+            delete $2;
+        }
+    ;
 
 parameter_value_assignment:
-    '#' '(' list_of_named_parameter_value_assignment ')'
+    '#' '(' list_of_named_parameter_value_assignment ')'    { $$ = $3; }
     
 list_of_named_parameter_value_assignment:
-    /* empty */
-    | list_of_named_connections
+    /* empty */                                             { $$ = new VerilogConns(); }
+    | list_of_named_connections                             { $$ = $1; }
+    ;
     
 // A list of named connections following the .IDENTIFIER(EXPRESSION) format
 // Used for both port connections and parameter assignments
 list_of_named_connections:
-    named_connection
-    | list_of_named_connections ',' named_connection    
+    named_connection                                        { $$ = new VerilogConns(); $$->push_back($1); }
+    | list_of_named_connections ',' named_connection        { $$ = $1; $$->push_back($3); }
+    ;
     
 list_of_module_instances:
-    IDENTIFIER '(' list_of_module_connections ')'                                 { $$ = new VerilogItems(); $$->push_back(new VerilogInstance($1)); }
-    | list_of_module_instances IDENTIFIER '(' list_of_module_connections ')'      { $$ = $1; $$->push_back(new VerilogInstance($2)); }
+    IDENTIFIER '(' list_of_module_connections ')'                                 { $$ = new VerilogInstances(); $$->push_back(new VerilogInstance($1, $3)); delete $3; }
+    | list_of_module_instances IDENTIFIER '(' list_of_module_connections ')'      { $$ = $1; $$->push_back(new VerilogInstance($2, $4)); delete $4; }
+    ;
     
 // Must used named ports for the whole thing or implicit ports, cannot mix between the two
 list_of_module_connections:
-    /* empty */
-    | list_of_module_port_connections
-    | list_of_named_port_connections
+    /* empty */                                             { $$ = new VerilogConns(); }
+    | list_of_module_port_connections                       { $$ = $1; }
+    | list_of_named_port_connections                        { $$ = $1; }
+    ;
     
 list_of_module_port_connections:
     list_of_expressions
+        { 
+            // Convert a list of expressions to port connections
+            $$ = new VerilogConns();
+            // Just insert NULL as the port name and the verilog module should understand
+            VerilogExpressions::const_iterator it;
+            for (it = $1->begin(); it != $1->end(); ++it)
+            {
+                $$->push_back(new VerilogConn(NULL, *(*it)));
+                delete *it;
+            }
+            delete $1;
+        }
+    ;
 
 list_of_named_port_connections:
     list_of_named_connections
+    ;
     
 named_connection:
-    '.' IDENTIFIER '(' expression ')'
+    '.' IDENTIFIER '(' expression ')'       { $$ = new VerilogConn($2, *$4); delete $4; }
+    ;
     
 // TODO stack
 
+// For now, I don't know what else is important in a verilog netlist file besides
+// just module declarations
 description:
     module_declaration
     ;
-    
+
+// Support very simple form of expressions, no unary/binary/conditional operations are
+// supported. Thus, this is merged with "primary". STRINGS are also disallowed
 expression:
-    INT                                     { $$ = new VerilogExpression($1); }
+    number                                  { $$ = new VerilogExpression(*$1); delete $1; }
+    | concatenation                         { $$ = new VerilogExpression(*$1); delete $1; }
+    | IDENTIFIER                            { $$ = new VerilogExpression($1); }
+    | IDENTIFIER range                      { $$ = new VerilogExpression($1, *$2); delete $2; }
     ;
     
 constant_expression:
-    INT                                     { $$ = new VerilogExpression($1); }
+    number                                  { $$ = new VerilogExpression(*$1); delete $1; }
     ;
 
 list_of_expressions:
-    expression
-    | list_of_expressions ',' expression
+    expression                              { $$ = new VerilogExpressions(); $$->push_back($1); }
+    | list_of_expressions ',' expression    { $$ = $1; $$->push_back($3); }
+    ;
     
 list_of_variables:
     /* empty */                             { $$ = new VerilogVariables(); }
@@ -251,7 +327,23 @@ module_item:
     | parameter_declaration
     | module_instantiation
     ;
-
+    
+concatenation:
+    '{' list_of_expressions '}'             { $$ = $2; }
+    ;
+    
+// For our purposes, there's no reason to allow anything other than unsigned integers
+number:
+    UNSIGNED_NUMBER                                 { $$ = new VerilogNumber($1); }
+    | UNSIGNED_NUMBER BASE UNSIGNED_NUMBER     { $$ = new VerilogNumber($3, $2, $1); }
+    ;
+    
+// base:
+    // 'b'                                     { $$ = 'b'; }
+    // | 'd'                                   { $$ = 'd'; }
+    // | 'h'                                   { $$ = 'h'; }
+    // ;
+    
 // continuous_assign:
     // ASSIGN list_of_assignments ';'
 
@@ -305,13 +397,13 @@ namespace Thermal
             yyin = fopen( m_file_->getFileName().c_str(), "r" );
             if( yyin == NULL ) 
             {
-                cout << "rshFileReader::parse : [Error] Problem opening the input file: " << m_file_->getFileName() << "." << endl;
+                cout << "VerilogFileReader::parse : [Error] Problem opening the input file: " << m_file_->getFileName() << "." << endl;
                 throw -1;
             }
         } 
         else 
         {
-            cout << "rshFileReader::parse : [Warning] File name not given for verilog file reader constructor, running from stdin" << endl;
+            cout << "VerilogFileReader::parse : [Warning] File name not given for verilog file reader constructor, running from stdin" << endl;
         }
         
         return yyparse( m_file_ ) == 0;

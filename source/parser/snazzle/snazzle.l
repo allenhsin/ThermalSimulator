@@ -1,17 +1,17 @@
 
-%option prefix="verilog"
+%option prefix="snazzle"
 %option noyywrap
 %option nounput
 
 %{
 #include <iostream>
-#include "yacc.verilog.hh"
+#include "yacc.snazzle.hh"
 using namespace std;
 
 #define YY_DECL extern "C++" int yylex()
-#define yylval veriloglval
+#define yylval snazzlelval
 
-int line_num = 1;
+int snazzle_line_num = 1;
 %}
 %%
 [ \t] ;
@@ -25,6 +25,6 @@ end            { return END; }
 	yylval.sval = strdup(yytext);
 	return STRING;
 }
-\n             { ++line_num; return ENDL; }
+\n             { ++snazzle_line_num; return ENDL; }
 .              ;
 %%

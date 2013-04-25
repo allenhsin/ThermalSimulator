@@ -18,6 +18,7 @@
 #include "VerilogItem.h"
 #include "VerilogMisc.h"
 
+#include "VerilogNumber.h"
 #include "VerilogParameter.h"
 #include "VerilogNet.h"
 #include "VerilogInstance.h"
@@ -34,10 +35,17 @@ int line_num = 1;
 void yyerror(VerilogFile* file_, const char *s);
 %}
 
+%s IN_COMMENT
+
 %%
 
-\n              { ++line_num; }
+<INITIAL>{
 
+    /* ignore comments in the lexer */
+    
+\n              { ++line_num;           }
+
+    /* keywords */
 "assign"        { return ASSIGN;        }
 "defparam"      { return DEFPARAM;      }
 "endgenerate"   { return ENDGENERATE;   }
@@ -76,21 +84,37 @@ void yyerror(VerilogFile* file_, const char *s);
 "^"             { return yytext[0];     }
 "|"             { return yytext[0];     }
 "~"             { return yytext[0];     }
+"'"             { return yytext[0];     }
 
- /* numbers */
-[0-9]+\.[0-9]+              { yylval.fval = atof(yytext); return FLOAT; }
-[0-9]+                      { yylval.ival = atoi(yytext); return INT; }
+    /* other */
+"'"[bd]         { yylval.cval = yytext[1]; return BASE; }
 
- /* identifiers */
-[a-zA-Z][_a-zA-Z0-9]*       { yylval.sval = strdup(yytext); return IDENTIFIER; }
+    /* identifiers */
+[a-zA-Z_][a-zA-Z_0-9]*      { yylval.sval = strdup(yytext); return IDENTIFIER; }
 
- /* ignore white spaces */
-[ \t]                                   { ; }
+    /* 
+     * numbers, because I'm too lazy to resolve conflict between identifier and hex numbers,
+     * I will simply disallow hex numbers
+     */
+[_0-9]+                     { yylval.nval = strdup(yytext); return UNSIGNED_NUMBER; }
 
- /* ignore comments in the lexer */
-\/\/.*\n                                { ; }
+    /* ignore white spaces */
+[ \t]           { ; }
 
- /* unrecognized tokens */
-.                                       { cout << "[Error] line " << line_num << ": Unrecognized token!" << endl; exit(-1); }
+    /* Recognize comments  */
+"//"[^\n]*      { ; }
+"/*"            { BEGIN(IN_COMMENT);    }
+
+    /* Other things */
+.               { cout << "[Error] line " << line_num << ": Unrecognized token!" << endl; exit(-1); }
+
+}
+
+<IN_COMMENT>{
+"*/"           { BEGIN(INITIAL);     }
+[^*\n]+  
+"*"
+\n             { ++line_num;         }
+}
 
 %%

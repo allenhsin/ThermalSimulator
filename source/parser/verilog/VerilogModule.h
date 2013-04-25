@@ -23,15 +23,15 @@ namespace Thermal
             const VerilogNets* getNets() const { return m_nets_; }            
             // Get an instance
             const VerilogInstances* getInstances() const { return m_instances_; }
-            
+        
         private:
             // Initialize the the module based on the module items
             void initializeItems(const VerilogItems* items_);
             
         private:
-            VerilogNets* m_nets_;
-            VerilogInstances* m_instances_;            
             const std::string m_name_;
+            VerilogNets* m_nets_;
+            VerilogInstances* m_instances_;
     };
 }
 #endif

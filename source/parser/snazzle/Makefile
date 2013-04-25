@@ -1,7 +1,5 @@
 
-parser          := verilog
-
-generated       := $(CURDIR)/generated
+language        := snazzle
 
 DIRS_TO_SOURCE  := .
 
@@ -19,15 +17,15 @@ OPT_FLAGS       = -O2 -fPIC
 WARN_FLAGS      = -Wall -W # -pedantic
 CXXFLAGS        = $(DEBUG_FLAGS) $(OPT_FLAGS) $(WARN_FLAGS) $(INCLUDE_FLAGS)
 
-TARGET          = $(CURDIR)/snazzle
+YACC_OUT        = yacc.$(language).cc yacc.$(language).hh
+LEX_OUT         = lex.$(language).cc
 
-YACC_OUT        = $(generated)/yacc.$(parser).cc $(generated)/yacc.$(parser).hh
-LEX_OUT         = $(generated)/lex.$(parser).cc
+TARGET          = $(CURDIR)/lib$(language).a
 
 all: $(TARGET)
 
-$(TARGET): $(YACC_OUT) $(LEX_OUT) $(OBJS) 
-	$(CXX) $(CXXFLAGS) $(LD_FLAGS) $(OBJS) -lfl -o $(TARGET)
+$(TARGET): $(OBJS)
+	$(AR) -rcs $@ $^
     
 # For general c++ compilation
 %.o: %.cc 
@@ -36,14 +34,11 @@ $(TARGET): $(YACC_OUT) $(LEX_OUT) $(OBJS)
 %.o: %.c
 	$(CXX) $(CXXFLAGS) -c $< -o $@
     
-$(YACC_OUT): snazzle.y $(generated)
-	$(YACC) -o $(generated)/yacc.$(parser).cc -d snazzle.y
+$(YACC_OUT): $(language).y $(generated)
+	$(YACC) -o yacc.$(language).cc -d $(language).y
 
-$(LEX_OUT): snazzle.l $(generated) $(YACC_OUT)
-	$(LEX) -o $@ snazzle.l
-    
-$(generated):
-	mkdir -p $(generated)
+$(LEX_OUT): $(language).l $(generated) $(YACC_OUT)
+	$(LEX) -o $@ $(language).l
     
 clean:
 	rm -rf $(TARGET) $(OBJS) $(LEX_OUT) $(YACC_OUT)
