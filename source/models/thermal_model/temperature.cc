@@ -65,8 +65,7 @@ namespace Thermal
             _ttrace_file = fopen(_ttrace_file_name.c_str(), "w");
             if(!_ttrace_file)
                 LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
-
-
+            
             // not including the air layer
             for(i = 0; i < _rc_model_holder->layer.n_layers; ++i)
             {
