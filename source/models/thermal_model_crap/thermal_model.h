@@ -10,6 +10,7 @@
 #include "source/misc/common_types.h"
 #include "source/data/data.h"
 #include "source/system/event_scheduler.h"
+#include "source/models/thermal_model/package.h"
 #include "source/models/thermal_model/floorplan.h"
 #include "source/models/thermal_model/temperature.h"
 #include "source/models/thermal_model/rc_model.h"
@@ -29,9 +30,11 @@ namespace Thermal
 
     protected:
         void loadConfig();
-        void printTtraceFile(bool startup);
+        void checkVadilityOfThermalParameters();
 
     private:
+        // model packaing (heat sink and fan) parameters
+        Package*            _package;
         // construct floorplan data structure
         Floorplan*          _floorplan;
         // construct RC model data structure
@@ -39,8 +42,8 @@ namespace Thermal
         // temperature handler class
         Temperature*        _temperature;
 
+        bool                _parameter_ready;
         FILE*               _ttrace_file;
-        double              _sampling_intvl;
 
     }; // class ThermalModel
 

@@ -60,7 +60,7 @@ namespace Thermal
                 
                 Misc::isEndOfLine(1);
             }
-        }
+        } // while
 
         fclose(fp);
         _floorplan_map_loaded = true;

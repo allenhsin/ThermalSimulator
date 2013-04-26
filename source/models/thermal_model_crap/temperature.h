@@ -4,7 +4,6 @@
 
 #include <vector>
 
-#include "source/models/thermal_model/floorplan.h"
 #include "source/models/thermal_model/rc_model.h"
 #include "source/misc/common_types.h"
 
@@ -16,26 +15,29 @@ namespace Thermal
         Temperature();
         ~Temperature();
 
-        void setFloorplanHolder(const FloorplanHolder* floorplan_holder)
-        { _floorplan_holder = floorplan_holder; }
-        void setRCModelHolder(const RCModelHolder* rc_model_holder)
-        { _rc_model_holder = rc_model_holder; }
-        void setSamplingInterval(double sampling_intvl)
-        { _sampling_intvl = sampling_intvl; }
+        void setThermalParameters(ThermalParameters* thermal_params);
+        void setFloorplanHolder(const FloorplanHolder* floorplan_holder);
+        void setRCModelHolder(const RCModelHolder* rc_model_holder);
         
-        void initialize(double initial_temperature, double ambient_temperature);
+        void setInitialTemperature();
         void updateTransientTemperature(Time time_elapsed_since_last_update);
+
+        // calculate avg sink temp for natural convection package model
+        double getAvgSinkTemperature();
 
     protected:
         void updateTemperatureData();
+        void loadInitTemperatureFromFile();
         void computeTransientTemperatureFromPower();
-        void setInternalPower(double ambient_temp);
+        void setInternalPower();
 
     private:
+        ThermalParameters*      _thermal_params;
+
         const FloorplanHolder*  _floorplan_holder;
         const RCModelHolder*    _rc_model_holder;
 
-        double                  _sampling_intvl;
+        bool                    _is_internal_power_set;
         
         // _temperature is in the floorplan unit order
         // for each layer, plus EXTRA nodes.

@@ -39,7 +39,7 @@ namespace Thermal
     {
         assert(dim_1>0);
         vec_ref.clear();
-        vec_ref.resize(dim_1);
+        vec_ref.resize(dim_1, 0);
     }
 
     void Misc::initDouble2DVector(vector< vector<double> >& vec_ref, int dim_1, int dim_2)
@@ -48,7 +48,7 @@ namespace Thermal
         vec_ref.clear();
         vec_ref.resize(dim_1);
         for(int i=0; i<dim_1; ++i)
-            vec_ref[i].resize(dim_2);
+            vec_ref[i].resize(dim_2, 0);
     }
 
     void Misc::initDouble3DVector(vector< vector< vector<double> > >& vec_ref, int dim_1, int dim_2, int dim_3)
@@ -61,7 +61,7 @@ namespace Thermal
         {
             vec_ref[i].resize(dim_2);
             for(j=0; j<dim_2; ++j)
-                vec_ref[i][j].resize(dim_3);
+                vec_ref[i][j].resize(dim_3, 0);
         }
     }
 
@@ -69,7 +69,7 @@ namespace Thermal
     {
         assert(dim_1>0);
         vec_ref.clear();
-        vec_ref.resize(dim_1);
+        vec_ref.resize(dim_1, 0);
     }
 
     void Misc::initInt2DVector(vector< vector<int> >& vec_ref, int dim_1, int dim_2)
@@ -78,7 +78,7 @@ namespace Thermal
         vec_ref.clear();
         vec_ref.resize(dim_1);
         for(int i=0; i<dim_1; ++i)
-            vec_ref[i].resize(dim_2);
+            vec_ref[i].resize(dim_2, 0);
     }
 
     bool Misc::eq(double x, double y)

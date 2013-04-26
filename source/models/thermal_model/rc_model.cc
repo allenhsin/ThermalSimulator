@@ -1,541 +1,259 @@
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <stddef.h>
-#include <math.h>
 #include <cassert>
-#include <vector>
 
 #include "source/models/thermal_model/rc_model.h"
-#include "source/models/thermal_model/floorplan.h"
-#include "source/models/thermal_model/thermal_constants.h"
 #include "source/models/thermal_model/thermal_util.h"
 #include "source/models/thermal_model/thermal_constants.h"
 #include "source/misc/misc.h"
 #include "libutil/LibUtil.h"
 
 using std::vector;
+using std::string;
+using LibUtil::String;
 
 namespace Thermal
 {
 
     RCModel::RCModel()
-        : _rc_model_holder  (NULL)
-        , _thermal_params   (NULL)
+        : _rc_model_holder  ( new RCModelHolder() )
         , _floorplan_holder (NULL)
     {}
 
     RCModel::~RCModel()
-    {
-        if(_rc_model_holder)
-            delete _rc_model_holder;
-    }
-
-    void RCModel::setThermalParameters(ThermalParameters* thermal_params)
-    { _thermal_params = thermal_params; }
-
-    void RCModel::setFloorplanHolder(const FloorplanHolder* floorplan_holder)
-    { _floorplan_holder = floorplan_holder; }
+    { delete _rc_model_holder; }
     
     double RCModel::getR(double conductivity, double thickness, double area)
     { return thickness / (conductivity * area); }
 
     double RCModel::getCap(double sp_heat, double thickness, double area)
-    { return C_FACTOR * sp_heat * thickness * area; }
+    { return sp_heat * thickness * area; }
 
-    void RCModel::allocateRCModelHolder()
+    void RCModel::loadLayerDefinitionFile(string layer_def_file_name)
     {
-        assert(_floorplan_holder);
-        assert(_thermal_params);
-        
-        _rc_model_holder = new RCModelHolder();
         assert(_rc_model_holder);
 
-        // number floorplan units
-        int n = _floorplan_holder->_n_units;
-        // number total rc model nodes
-        int m = NL*n+EXTRA;
+        char    line[LINE_SIZE];
+        char    line_copy[LINE_SIZE];
+        char*   line_token;
+        int     line_number = 0;
+
+        double  current_thickness = 0;
+        double  current_thermal_conductance = 0;
+        double  current_specific_heat = 0;
+        int     n_layers = 0;
+
+        vector<double>& thickness           = _rc_model_holder->layer.thickness;
+        vector<double>& thermal_conductance = _rc_model_holder->layer.thermal_conductance;
+        vector<double>& specific_heat       = _rc_model_holder->layer.specific_heat;
+        thickness.clear();
+        thermal_conductance.clear();
+        specific_heat.clear();
+
+        FILE* def_file = fopen(layer_def_file_name.c_str(), "r");
+        if (!def_file)
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open layer def file.\n");
+
+        while(!feof(def_file))
+        {
+            // read a line from the file
+            fgets(line, LINE_SIZE, def_file);
+            line_number++;
+            if (feof(def_file))
+                break;
+
+            strcpy(line_copy, line);
+            line_token = strtok(line, " \r\t\n");
+
+            // ignore comments and empty lines
+            if      (!line_token || line_token[0] == '#')
+                continue;
+            else
+            {
+                if (sscanf(line_copy, "%lf%lf%lf", &current_thickness, &current_thermal_conductance, &current_specific_heat) == 3) 
+                {
+                    thickness.push_back(current_thickness);
+                    thermal_conductance.push_back(current_thermal_conductance);
+                    specific_heat.push_back(current_specific_heat);
+                    n_layers++;
+                }
+                else
+                    LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong layer def file format at line " + (String) line_number + ".\n");
+                
+                Misc::isEndOfLine(2);
+            }
+        } // while
+
+        _rc_model_holder->layer.n_layers = n_layers;
+
+        fclose(def_file);
+    }
+
+    void RCModel::allocateRCModelHolder(string layer_def_file_name, double sampling_intvl)
+    {
+        assert(_floorplan_holder);
+        assert(_rc_model_holder);
         
-        _rc_model_holder->n_units = n;
-        _rc_model_holder->base_n_units = n;
-        _rc_model_holder->n_nodes = m;
+        // setup layer definitions
+        loadLayerDefinitionFile(layer_def_file_name);
+
+        // number floorplan units
+        int n_units = _floorplan_holder->_n_units;
+        // number of layers = 
+        //   number of layers in the process file + 1 more for the air around the chip
+        int n_layers = _rc_model_holder->layer.n_layers + 1;
+        // number total rc model nodes
+        int n_nodes = n_layers * n_units;
+        
+        _rc_model_holder->n_nodes = n_nodes;
         
         // ready are all not set
         _rc_model_holder->r_ready = 0;
         _rc_model_holder->c_ready = 0;
 
-        Misc::initDouble2DVector(   _rc_model_holder->b,            m, m); // conductance matrix
-        Misc::initDouble2DVector(   _rc_model_holder->lu,           m, m); // LUP decomposition of b
-        Misc::initDouble3DVector(   _rc_model_holder->lu_step,      N_TIME_STEPS, m, m); // for precomputed lupdcmp at several different time step sizes
-        Misc::initInt1DVector   (   _rc_model_holder->p,            m); // permutation vector for b's LUP decomposition
-        Misc::initInt2DVector   (   _rc_model_holder->p_step,       N_TIME_STEPS, m);
-
-        Misc::initDouble2DVector(   _rc_model_holder->geq_step,     N_TIME_STEPS, m);
+        Misc::initDouble2DVector(   _rc_model_holder->b,            n_nodes, n_nodes); // conductance matrix
+        Misc::initDouble1DVector(   _rc_model_holder->a,            n_nodes); // vertical Cs - diagonal matrix stored as a 1-d vector
+        Misc::initDouble1DVector(   _rc_model_holder->g_amb,        n_units); // vertical conductances to ambient
+        Misc::initDouble3DVector(   _rc_model_holder->lu_step,      N_TIME_STEPS, n_nodes, n_nodes); // for precomputed lupdcmp at several different time step sizes
+        Misc::initInt2DVector   (   _rc_model_holder->p_step,       N_TIME_STEPS, n_nodes);
+        Misc::initDouble2DVector(   _rc_model_holder->geq_step,     N_TIME_STEPS, n_nodes);
         Misc::initDouble1DVector(   _rc_model_holder->time_steps,   N_TIME_STEPS);
-        double max_time_step = (_thermal_params->sampling_intvl>MAX_TIME_STEP)? MAX_TIME_STEP : (_thermal_params->sampling_intvl/2);
+
+        double max_time_step = (sampling_intvl>(2*MAX_TIME_STEP))? MAX_TIME_STEP : (sampling_intvl/2);
         for(int i = 0; i < N_TIME_STEPS; ++i)
         {
             _rc_model_holder->time_steps[i] = max_time_step;
             max_time_step /= 4;
         }
 
-        Misc::initDouble1DVector(   _rc_model_holder->a,            m); // vertical Cs - diagonal matrix stored as a 1-d vector
-        Misc::initDouble1DVector(   _rc_model_holder->inva,         m); // inverse of a
-        Misc::initDouble2DVector(   _rc_model_holder->c,            m ,m);
-        
-        Misc::initDouble1DVector(   _rc_model_holder->gx,           n); // lumped conductances in x direction
-        Misc::initDouble1DVector(   _rc_model_holder->gy,           n); // lumped conductances in y direction
-        Misc::initDouble1DVector(   _rc_model_holder->gx_box,       n); // lateral conductances in the chip box layer
-        Misc::initDouble1DVector(   _rc_model_holder->gy_box,       n);
-        Misc::initDouble1DVector(   _rc_model_holder->gx_csub,      n); // lateral conductances in the chip substrate layer
-        Misc::initDouble1DVector(   _rc_model_holder->gy_csub,      n);
-        Misc::initDouble1DVector(   _rc_model_holder->gx_int,       n); // lateral conductances in the interface layer
-        Misc::initDouble1DVector(   _rc_model_holder->gy_int,       n);
-        Misc::initDouble1DVector(   _rc_model_holder->gx_sp,        n); // lateral conductances in the spreader layer
-        Misc::initDouble1DVector(   _rc_model_holder->gy_sp,        n);
-        Misc::initDouble1DVector(   _rc_model_holder->gx_hs,        n); // lateral conductances in the heatsink layer
-        Misc::initDouble1DVector(   _rc_model_holder->gy_hs,        n);
-        Misc::initDouble1DVector(   _rc_model_holder->g_amb,        n+EXTRA); // vertical conductances to ambient
-        Misc::initDouble1DVector(   _rc_model_holder->t_vector,     m); // scratch pad
-       
-        Misc::initDouble2DVector(   _rc_model_holder->len,          n, n); // len[i][j] = length of shared edge between i & j
-        Misc::initDouble2DVector(   _rc_model_holder->g,            m, m); // g[i][j] = conductance between nodes i & j
-        Misc::initInt2DVector   (   _rc_model_holder->border,       n ,4);
     } // allocateRCModelHolder
 
-    void RCModel::populatePackageR(double chip_width, double chip_height)
-    {
-        double s_spreader   = _thermal_params->s_spreader;
-        double t_spreader   = _thermal_params->t_spreader;
-        double s_sink       = _thermal_params->s_sink;
-        double t_sink       = _thermal_params->t_sink;
-        double r_convec     = _thermal_params->r_convec;
-     
-        double s_sub        = _thermal_params->s_sub;
-        double t_sub        = _thermal_params->t_sub;
-        double s_solder     = _thermal_params->s_solder;
-        double t_solder     = _thermal_params->t_solder;
-        double s_pcb        = _thermal_params->s_pcb;
-        double t_pcb        = _thermal_params->t_pcb;
-        double r_convec_sec = _thermal_params->r_convec_sec;
-        
-        double k_sink       = _thermal_params->k_sink;
-        double k_spreader   = _thermal_params->k_spreader;
-     
-    
-        // lateral R's of spreader and sink  
-        _rc_model_holder->pack.r_sp1_x = getR(k_spreader, (s_spreader-chip_width)/4.0, (s_spreader+3*chip_height)/4.0 * t_spreader);
-        _rc_model_holder->pack.r_sp1_y = getR(k_spreader, (s_spreader-chip_height)/4.0, (s_spreader+3*chip_width)/4.0 * t_spreader);
-        _rc_model_holder->pack.r_hs1_x = getR(k_sink, (s_spreader-chip_width)/4.0, (s_spreader+3*chip_height)/4.0 * t_sink);
-        _rc_model_holder->pack.r_hs1_y = getR(k_sink, (s_spreader-chip_height)/4.0, (s_spreader+3*chip_width)/4.0 * t_sink);
-        _rc_model_holder->pack.r_hs2_x = getR(k_sink, (s_spreader-chip_width)/4.0, (3*s_spreader+chip_height)/4.0 * t_sink);
-        _rc_model_holder->pack.r_hs2_y = getR(k_sink, (s_spreader-chip_height)/4.0, (3*s_spreader+chip_width)/4.0 * t_sink);
-        _rc_model_holder->pack.r_hs = getR(k_sink, (s_sink-s_spreader)/4.0, (s_sink+3*s_spreader)/4.0 * t_sink);
-    
-        // vertical R's of spreader and sink  
-        _rc_model_holder->pack.r_sp_per_x = getR(k_spreader, t_spreader, (s_spreader+chip_height) * (s_spreader-chip_width) / 4.0);
-        _rc_model_holder->pack.r_sp_per_y = getR(k_spreader, t_spreader, (s_spreader+chip_width) * (s_spreader-chip_height) / 4.0);
-        _rc_model_holder->pack.r_hs_c_per_x = getR(k_sink, t_sink, (s_spreader+chip_height) * (s_spreader-chip_width) / 4.0);
-        _rc_model_holder->pack.r_hs_c_per_y = getR(k_sink, t_sink, (s_spreader+chip_width) * (s_spreader-chip_height) / 4.0);
-        _rc_model_holder->pack.r_hs_per = getR(k_sink, t_sink, (s_sink*s_sink - s_spreader*s_spreader) / 4.0);
-        
-        // vertical R's to ambient (divide r_convec proportional to area)  
-        _rc_model_holder->pack.r_amb_c_per_x = r_convec * (s_sink * s_sink) / ((s_spreader+chip_height) * (s_spreader-chip_width) / 4.0);
-        _rc_model_holder->pack.r_amb_c_per_y = r_convec * (s_sink * s_sink) / ((s_spreader+chip_width) * (s_spreader-chip_height) / 4.0);
-        _rc_model_holder->pack.r_amb_per = r_convec * (s_sink * s_sink) / ((s_sink*s_sink - s_spreader*s_spreader) / 4.0);
-        
-        // lateral R's of package substrate, solder and PCB  
-        _rc_model_holder->pack.r_sub1_x = getR(K_SUB, (s_sub-chip_width)/4.0, (s_sub+3*chip_height)/4.0 * t_sub);
-        _rc_model_holder->pack.r_sub1_y = getR(K_SUB, (s_sub-chip_height)/4.0, (s_sub+3*chip_width)/4.0 * t_sub);
-        _rc_model_holder->pack.r_solder1_x = getR(K_SOLDER, (s_solder-chip_width)/4.0, (s_solder+3*chip_height)/4.0 * t_solder);
-        _rc_model_holder->pack.r_solder1_y = getR(K_SOLDER, (s_solder-chip_height)/4.0, (s_solder+3*chip_width)/4.0 * t_solder);
-        _rc_model_holder->pack.r_pcb1_x = getR(K_PCB, (s_solder-chip_width)/4.0, (s_solder+3*chip_height)/4.0 * t_pcb);
-        _rc_model_holder->pack.r_pcb1_y = getR(K_PCB, (s_solder-chip_height)/4.0, (s_solder+3*chip_width)/4.0 * t_pcb);
-        _rc_model_holder->pack.r_pcb2_x = getR(K_PCB, (s_solder-chip_width)/4.0, (3*s_solder+chip_height)/4.0 * t_pcb);
-        _rc_model_holder->pack.r_pcb2_y = getR(K_PCB, (s_solder-chip_height)/4.0, (3*s_solder+chip_width)/4.0 * t_pcb);
-        _rc_model_holder->pack.r_pcb = getR(K_PCB, (s_pcb-s_solder)/4.0, (s_pcb+3*s_solder)/4.0 * t_pcb);
-    
-        // vertical R's of package substrate, solder balls and PCB  
-        _rc_model_holder->pack.r_sub_per_x = getR(K_SUB, t_sub, (s_sub+chip_height) * (s_sub-chip_width) / 4.0);
-        _rc_model_holder->pack.r_sub_per_y = getR(K_SUB, t_sub, (s_sub+chip_width) * (s_sub-chip_height) / 4.0);
-        _rc_model_holder->pack.r_solder_per_x = getR(K_SOLDER, t_solder, (s_solder+chip_height) * (s_solder-chip_width) / 4.0);
-        _rc_model_holder->pack.r_solder_per_y = getR(K_SOLDER, t_solder, (s_solder+chip_width) * (s_solder-chip_height) / 4.0);
-        _rc_model_holder->pack.r_pcb_c_per_x = getR(K_PCB, t_pcb, (s_solder+chip_height) * (s_solder-chip_width) / 4.0);
-        _rc_model_holder->pack.r_pcb_c_per_y = getR(K_PCB, t_pcb, (s_solder+chip_width) * (s_solder-chip_height) / 4.0);
-        _rc_model_holder->pack.r_pcb_per = getR(K_PCB, t_pcb, (s_pcb*s_pcb - s_solder*s_solder) / 4.0);
-        
-        // vertical R's to ambient at PCB (divide r_convec_sec proportional to area)  
-        _rc_model_holder->pack.r_amb_sec_c_per_x = r_convec_sec * (s_pcb * s_pcb) / ((s_solder+chip_height) * (s_solder-chip_width) / 4.0);
-        _rc_model_holder->pack.r_amb_sec_c_per_y = r_convec_sec * (s_pcb * s_pcb) / ((s_solder+chip_width) * (s_solder-chip_height) / 4.0);
-        _rc_model_holder->pack.r_amb_sec_per = r_convec_sec * (s_pcb * s_pcb) / ((s_pcb*s_pcb - s_solder*s_solder) / 4.0);
-
-    } // populatePackageR
-
-    void RCModel::populatePackageC(double chip_width, double chip_height)
-    {
-        double s_spreader   = _thermal_params->s_spreader;
-        double t_spreader   = _thermal_params->t_spreader;
-        double s_sink       = _thermal_params->s_sink;
-        double t_sink       = _thermal_params->t_sink;
-        double c_convec     = _thermal_params->c_convec;
-     
-        double s_sub        = _thermal_params->s_sub;
-        double t_sub        = _thermal_params->t_sub;
-        double s_solder     = _thermal_params->s_solder;
-        double t_solder     = _thermal_params->t_solder;
-        double s_pcb        = _thermal_params->s_pcb;
-        double t_pcb        = _thermal_params->t_pcb;
-        double c_convec_sec = _thermal_params->c_convec_sec;
-        
-        double p_sink       = _thermal_params->p_sink;
-        double p_spreader   = _thermal_params->p_spreader; 
-    
-        // vertical C's of spreader and sink  
-        _rc_model_holder->pack.c_sp_per_x = getCap(p_spreader, t_spreader, (s_spreader+chip_height) * (s_spreader-chip_width) / 4.0);
-        _rc_model_holder->pack.c_sp_per_y = getCap(p_spreader, t_spreader, (s_spreader+chip_width) * (s_spreader-chip_height) / 4.0);
-        _rc_model_holder->pack.c_hs_c_per_x = getCap(p_sink, t_sink, (s_spreader+chip_height) * (s_spreader-chip_width) / 4.0);
-        _rc_model_holder->pack.c_hs_c_per_y = getCap(p_sink, t_sink, (s_spreader+chip_width) * (s_spreader-chip_height) / 4.0);
-        _rc_model_holder->pack.c_hs_per = getCap(p_sink, t_sink, (s_sink*s_sink - s_spreader*s_spreader) / 4.0);
-    
-        // vertical C's to ambient (divide c_convec proportional to area)  
-        _rc_model_holder->pack.c_amb_c_per_x = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_spreader+chip_height) * (s_spreader-chip_width) / 4.0);
-        _rc_model_holder->pack.c_amb_c_per_y = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_spreader+chip_width) * (s_spreader-chip_height) / 4.0);
-        _rc_model_holder->pack.c_amb_per = C_FACTOR * c_convec / (s_sink * s_sink) * ((s_sink*s_sink - s_spreader*s_spreader) / 4.0);
-        
-        // vertical C's of package substrate, solder balls, and PCB  
-        _rc_model_holder->pack.c_sub_per_x = getCap(SPEC_HEAT_SUB, t_sub, (s_sub+chip_height) * (s_sub-chip_width) / 4.0);
-        _rc_model_holder->pack.c_sub_per_y = getCap(SPEC_HEAT_SUB, t_sub, (s_sub+chip_width) * (s_sub-chip_height) / 4.0);
-        _rc_model_holder->pack.c_solder_per_x = getCap(SPEC_HEAT_SOLDER, t_solder, (s_solder+chip_height) * (s_solder-chip_width) / 4.0);
-        _rc_model_holder->pack.c_solder_per_y = getCap(SPEC_HEAT_SOLDER, t_solder, (s_solder+chip_width) * (s_solder-chip_height) / 4.0);
-        _rc_model_holder->pack.c_pcb_c_per_x = getCap(SPEC_HEAT_PCB, t_pcb, (s_solder+chip_height) * (s_solder-chip_width) / 4.0);
-        _rc_model_holder->pack.c_pcb_c_per_y = getCap(SPEC_HEAT_PCB, t_pcb, (s_solder+chip_width) * (s_solder-chip_height) / 4.0);
-        _rc_model_holder->pack.c_pcb_per = getCap(SPEC_HEAT_PCB, t_pcb, (s_pcb*s_pcb - s_solder*s_solder) / 4.0);
-    
-        // vertical C's to ambient at PCB (divide c_convec_sec proportional to area)  
-        _rc_model_holder->pack.c_amb_sec_c_per_x = C_FACTOR * c_convec_sec / (s_pcb * s_pcb) * ((s_solder+chip_height) * (s_solder-chip_width) / 4.0);
-        _rc_model_holder->pack.c_amb_sec_c_per_y = C_FACTOR * c_convec_sec / (s_pcb * s_pcb) * ((s_solder+chip_width) * (s_solder-chip_height) / 4.0);
-        _rc_model_holder->pack.c_amb_sec_per = C_FACTOR * c_convec_sec / (s_pcb * s_pcb) * ((s_pcb*s_pcb - s_solder*s_solder) / 4.0);
-
-    } // populatePackageC
-
-    void RCModel::printPackageRCModelToFile(FILE* fp)
-    {
-        fprintf(fp, "printing package RC information...\n");
-        fprintf(fp, "r_sp1_x: %f\tr_sp1_y: %f\n", _rc_model_holder->pack.r_sp1_x, _rc_model_holder->pack.r_sp1_y);
-        fprintf(fp, "r_sp_per_x: %f\tr_sp_per_y: %f\n", _rc_model_holder->pack.r_sp_per_x, _rc_model_holder->pack.r_sp_per_y);
-        fprintf(fp, "c_sp_per_x: %f\tc_sp_per_y: %f\n", _rc_model_holder->pack.c_sp_per_x, _rc_model_holder->pack.c_sp_per_y);
-        fprintf(fp, "r_hs1_x: %f\tr_hs1_y: %f\n", _rc_model_holder->pack.r_hs1_x, _rc_model_holder->pack.r_hs1_y);
-        fprintf(fp, "r_hs2_x: %f\tr_hs2_y: %f\n", _rc_model_holder->pack.r_hs2_x, _rc_model_holder->pack.r_hs2_y);
-        fprintf(fp, "r_hs_c_per_x: %f\tr_hs_c_per_y: %f\n", _rc_model_holder->pack.r_hs_c_per_x, _rc_model_holder->pack.r_hs_c_per_y);
-        fprintf(fp, "c_hs_c_per_x: %f\tc_hs_c_per_y: %f\n", _rc_model_holder->pack.c_hs_c_per_x, _rc_model_holder->pack.c_hs_c_per_y);
-        fprintf(fp, "r_hs: %f\tr_hs_per: %f\n", _rc_model_holder->pack.r_hs, _rc_model_holder->pack.r_hs_per);
-        fprintf(fp, "c_hs_per: %f\n", _rc_model_holder->pack.c_hs_per);
-        fprintf(fp, "r_amb_c_per_x: %f\tr_amb_c_per_y: %f\n", _rc_model_holder->pack.r_amb_c_per_x, _rc_model_holder->pack.r_amb_c_per_y);
-        fprintf(fp, "c_amb_c_per_x: %f\tc_amb_c_per_y: %f\n", _rc_model_holder->pack.c_amb_c_per_x, _rc_model_holder->pack.c_amb_c_per_y);
-        fprintf(fp, "r_amb_per: %f\n", _rc_model_holder->pack.r_amb_per);
-        fprintf(fp, "c_amb_per: %f\n", _rc_model_holder->pack.c_amb_per);
-        fprintf(fp, "r_sub1_x: %f\tr_sub1_y: %f\n", _rc_model_holder->pack.r_sub1_x, _rc_model_holder->pack.r_sub1_y);
-        fprintf(fp, "r_sub_per_x: %f\tr_sub_per_y: %f\n", _rc_model_holder->pack.r_sub_per_x, _rc_model_holder->pack.r_sub_per_y);
-        fprintf(fp, "c_sub_per_x: %f\tc_sub_per_y: %f\n", _rc_model_holder->pack.c_sub_per_x, _rc_model_holder->pack.c_sub_per_y);
-        fprintf(fp, "r_solder1_x: %f\tr_solder1_y: %f\n", _rc_model_holder->pack.r_solder1_x, _rc_model_holder->pack.r_solder1_y);
-        fprintf(fp, "r_solder_per_x: %f\tr_solder_per_y: %f\n", _rc_model_holder->pack.r_solder_per_x, _rc_model_holder->pack.r_solder_per_y);
-        fprintf(fp, "c_solder_per_x: %f\tc_solder_per_y: %f\n", _rc_model_holder->pack.c_solder_per_x, _rc_model_holder->pack.c_solder_per_y);
-        fprintf(fp, "r_pcb1_x: %f\tr_pcb1_y: %f\n", _rc_model_holder->pack.r_pcb1_x, _rc_model_holder->pack.r_pcb1_y);
-        fprintf(fp, "r_pcb2_x: %f\tr_pcb2_y: %f\n", _rc_model_holder->pack.r_pcb2_x, _rc_model_holder->pack.r_pcb2_y);
-        fprintf(fp, "r_pcb_c_per_x: %f\tr_pcb_c_per_y: %f\n", _rc_model_holder->pack.r_pcb_c_per_x, _rc_model_holder->pack.r_pcb_c_per_y);
-        fprintf(fp, "c_pcb_c_per_x: %f\tc_pcb_c_per_y: %f\n", _rc_model_holder->pack.c_pcb_c_per_x, _rc_model_holder->pack.c_pcb_c_per_y);
-        fprintf(fp, "r_pcb: %f\tr_pcb_per: %f\n", _rc_model_holder->pack.r_pcb, _rc_model_holder->pack.r_pcb_per);
-        fprintf(fp, "c_pcb_per: %f\n", _rc_model_holder->pack.c_pcb_per);
-        fprintf(fp, "r_amb_sec_c_per_x: %f\tr_amb_sec_c_per_y: %f\n", _rc_model_holder->pack.r_amb_sec_c_per_x, _rc_model_holder->pack.r_amb_sec_c_per_y);
-        fprintf(fp, "c_amb_sec_c_per_x: %f\tc_amb_sec_c_per_y: %f\n", _rc_model_holder->pack.c_amb_sec_c_per_x, _rc_model_holder->pack.c_amb_sec_c_per_y);
-        fprintf(fp, "r_amb_sec_per: %f\n", _rc_model_holder->pack.r_amb_sec_per);
-        fprintf(fp, "c_amb_sec_per: %f\n", _rc_model_holder->pack.c_amb_sec_per);
-    } // printPackageRCModelToFile
-
-    void RCModel::printRCModelToFile()
-    {
-        assert(_thermal_params);
-        assert(_rc_model_holder);
-
-        FILE* fp = fopen(_thermal_params->debug_model_file.c_str(), "w");
-
-        fprintf(fp, "printing block model information...\n");
-        fprintf(fp, "n_nodes: %d\n", _rc_model_holder->n_nodes);
-        fprintf(fp, "n_units: %d\n", _rc_model_holder->n_units);
-        fprintf(fp, "base_n_units: %d\n", _rc_model_holder->base_n_units);
-        fprintf(fp, "r_ready: %d\n", _rc_model_holder->r_ready);
-        fprintf(fp, "c_ready: %d\n", _rc_model_holder->c_ready);
-    
-        printPackageRCModelToFile(fp);
-    
-        fprintf(fp, "printing matrix b:\n");
-        Misc::printDouble2DVector(_rc_model_holder->b, _rc_model_holder->n_nodes, _rc_model_holder->n_nodes, fp);
-        fprintf(fp, "printing vector a:\n");
-        Misc::printDouble1DVector(_rc_model_holder->a, _rc_model_holder->n_nodes, fp);
-        fprintf(fp, "printing vector inva:\n");
-        Misc::printDouble1DVector(_rc_model_holder->inva, _rc_model_holder->n_nodes, fp);
-        fprintf(fp, "printing matrix c:\n");
-        Misc::printDouble2DVector(_rc_model_holder->c, _rc_model_holder->n_nodes, _rc_model_holder->n_nodes, fp);
-        fprintf(fp, "printing vector g_amb:\n");
-        Misc::printDouble1DVector(_rc_model_holder->g_amb, _rc_model_holder->n_units+EXTRA, fp);
-
-        fclose(fp);
-    }
-    
     // creates matrices  B and invB: BT = Power in the steady state. 
-    // NOTE: EXTRA nodes: 4 heat spreader peripheral nodes, 4 heat 
-    // sink inner peripheral nodes, 4 heat sink outer peripheral 
-    // nodes(north, south, east and west) and 1 ambient node.
-    void RCModel::populateR()
+    void RCModel::populateR(double r_convec)
     {
-        assert(_thermal_params);
         assert(_floorplan_holder);
         assert(_rc_model_holder);
+        
+        int i = 0, j = 0, k = 0;
+        int n_units  = _floorplan_holder->_n_units;            // number units
+        int n_layers = _rc_model_holder->layer.n_layers + 1;   // number layers
+        int n_nodes  = _rc_model_holder->n_nodes;              // number nodes
+        double chip_area = _floorplan_holder->_total_width * _floorplan_holder->_total_height; // chip area
+
+        vector< vector<double> >    gx;
+        vector< vector<double> >    gy;
+        vector< vector<double> >    gz;
+        vector< vector<double> >    len;
+        vector< vector<double> >    g;
+        Misc::initDouble2DVector( gx,   n_layers, n_units); // lumped conductances in x direction
+        Misc::initDouble2DVector( gy,   n_layers, n_units); // lumped conductances in y direction
+        Misc::initDouble2DVector( gz,   n_layers, n_units); // lumped conductances in z direction
+        Misc::initDouble2DVector( len,  n_units,  n_units); // len[i][j] = length of shared edge between i & j
+        Misc::initDouble2DVector( g,    n_nodes,  n_nodes); // g[i][j] = conductance between nodes i & j
 
         vector< vector<double> >& b     = _rc_model_holder->b;
-        vector<double>& gx              = _rc_model_holder->gx;
-        vector<double>& gy              = _rc_model_holder->gy;
-        vector<double>& gx_box          = _rc_model_holder->gx_box;
-        vector<double>& gy_box          = _rc_model_holder->gy_box;
-        vector<double>& gx_csub         = _rc_model_holder->gx_csub;
-        vector<double>& gy_csub         = _rc_model_holder->gy_csub;
-        vector<double>& gx_int          = _rc_model_holder->gx_int;
-        vector<double>& gy_int          = _rc_model_holder->gy_int;
-        vector<double>& gx_sp           = _rc_model_holder->gx_sp;
-        vector<double>& gy_sp           = _rc_model_holder->gy_sp;
-        vector<double>& gx_hs           = _rc_model_holder->gx_hs;
-        vector<double>& gy_hs           = _rc_model_holder->gy_hs;
         vector<double>& g_amb           = _rc_model_holder->g_amb;
-        vector< vector<double> >& len   = _rc_model_holder->len;
-        vector< vector<double> >& g     = _rc_model_holder->g;
-        vector< vector<double> >& lu    = _rc_model_holder->lu;
-        vector< vector<int> >& border   = _rc_model_holder->border;
-        vector<int>& p                  = _rc_model_holder->p;
-        
-        double r_convec                 = _thermal_params->r_convec;
-        double s_sink                   = _thermal_params->s_sink;
-        double s_spreader               = _thermal_params->s_spreader;
-        
-        double t_device                 = _thermal_params->t_device;
-        double t_box                    = _thermal_params->t_box;
-        double t_csub                   = _thermal_params->t_csub;
-        double t_spreader               = _thermal_params->t_spreader;
-        double t_interface              = _thermal_params->t_interface;
-        double t_sink                   = _thermal_params->t_sink;
+        vector<double>& thickness       = _rc_model_holder->layer.thickness;
+        vector<double>& thermal_conductance = _rc_model_holder->layer.thermal_conductance;
 
-        double k_device                 = _thermal_params->k_device;
-        double k_box                    = _thermal_params->k_box;
-        double k_csub                   = _thermal_params->k_csub;
-        double k_sink                   = _thermal_params->k_sink;
-        double k_spreader               = _thermal_params->k_spreader;
-        double k_interface              = _thermal_params->k_interface;
-     
-        int i, j;
-        int n = _floorplan_holder->_n_units;
-        double gn_sp=0, gs_sp=0, ge_sp=0, gw_sp=0;
-        double gn_hs=0, gs_hs=0, ge_hs=0, gw_hs=0;
-        double r_amb;
-    
-        double w_chip = _floorplan_holder->_total_width;  // x-axis    
-        double l_chip = _floorplan_holder->_total_height; // y-axis    
-        
-        // sanity check on floorplan sizes   
-        if (w_chip > s_sink || l_chip > s_sink || w_chip > s_spreader || l_chip > s_spreader) 
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Floorplan size larger than heat spreader and heat sink size.\n");
-    
-        // gx's and gy's of blocks   
-        for (i = 0; i < n; i++) {
-            // at the silicon layer  
-            if (_thermal_params->block_omit_lateral) {
-                gx[i] = gy[i] = 0;
+        // modeling each unit in 3D T-model with the node in the center and 
+        // 2 x-axis, 2 y-axis and 2 z-axis resistances and 1 cap connecting from
+        // the node to the ground
+        // for each unit
+        double unit_width = 0;
+        double unit_height = 0;
+        double unit_area = 0;
+        for (i = 0; i < n_units; i++) 
+        {   
+            unit_width  =   _floorplan_holder->_flp_units[i]._width;
+            unit_height =   _floorplan_holder->_flp_units[i]._height;
+            unit_area   =   unit_width * unit_height;
+            // (n_units-1) layers (exclude the air layer)
+            for (k = 0; k < (n_layers-1); ++k)
+            {
+                gx[k][i] = 1.00/getR(thermal_conductance[k], (unit_width  / 2.00), (unit_height * thickness[k]));
+                gy[k][i] = 1.00/getR(thermal_conductance[k], (unit_height / 2.00), (unit_width  * thickness[k]));
+                gz[k][i] = 1.00/getR(thermal_conductance[k], (thickness[k] / 2.00), unit_area);
             }
-            else {
-                gx[i] = 1.0/getR(k_device, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_device);
-                gy[i] = 1.0/getR(k_device, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_device);
-            }
-    
-            // at the chip substrate layer
-            gx_box[i] = 1.0/getR(k_box, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_box);
-            gy_box[i] = 1.0/getR(k_box, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_box);
-            
-            // at the chip substrate layer
-            gx_csub[i] = 1.0/getR(k_csub, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_csub);
-            gy_csub[i] = 1.0/getR(k_csub, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_csub);
-            
-            // at the interface layer    
-            gx_int[i] = 1.0/getR(k_interface, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_interface);
-            gy_int[i] = 1.0/getR(k_interface, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_interface);
-    
-            // at the spreader layer     
-            gx_sp[i] = 1.0/getR(k_spreader, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_spreader);
-            gy_sp[i] = 1.0/getR(k_spreader, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_spreader);
-    
-            // at the heatsink layer     
-            gx_hs[i] = 1.0/getR(k_sink, _floorplan_holder->_flp_units[i]._width / 2.0, _floorplan_holder->_flp_units[i]._height * t_sink);
-            gy_hs[i] = 1.0/getR(k_sink, _floorplan_holder->_flp_units[i]._height / 2.0, _floorplan_holder->_flp_units[i]._width * t_sink);
+            // air layer
+            gx[n_layers-1][i] = 0;
+            gy[n_layers-1][i] = 0;
+            gz[n_layers-1][i] = 1.0/( (r_convec/2.00) * (chip_area / unit_area) ); // r_convec is devided by 2 since it's T-model
         }
     
-        // shared lengths between blocks     
-        for (i = 0; i < n; i++) 
-            for (j = i; j < n; j++) 
+        // shared lengths between units at the same layer
+        for (i = 0; i < n_units; i++) 
+            for (j = i; j < n_units; j++) 
                 len[i][j] = len[j][i] = Floorplan::getSharedLength(_floorplan_holder, i, j);
     
-        // package R's   
-        populatePackageR(w_chip, l_chip);
-    
-        // short the R's from block centers to a particular chip edge    
-        for (i = 0; i < n; i++) {
-            if (Misc::eq(_floorplan_holder->_flp_units[i]._bottomy + _floorplan_holder->_flp_units[i]._height, l_chip)) {
-                gn_sp += gy_sp[i];
-                gn_hs += gy_hs[i];
-                border[i][2] = 1;   // block is on northern border   
-            } else
-                border[i][2] = 0;
-    
-            if (Misc::eq(_floorplan_holder->_flp_units[i]._bottomy, 0)) {
-                gs_sp += gy_sp[i];
-                gs_hs += gy_hs[i];
-                border[i][3] = 1;   // block is on southern border   
-            } else
-                border[i][3] = 0;
-    
-            if (Misc::eq(_floorplan_holder->_flp_units[i]._leftx + _floorplan_holder->_flp_units[i]._width, w_chip)) {
-                ge_sp += gx_sp[i];
-                ge_hs += gx_hs[i];
-                border[i][1] = 1;   // block is on eastern border    
-            } else 
-                border[i][1] = 0;
-    
-            if (Misc::eq(_floorplan_holder->_flp_units[i]._leftx, 0)) {
-                gw_sp += gx_sp[i];
-                gw_hs += gx_hs[i];
-                border[i][0] = 1;   // block is on western border    
-            } else
-                border[i][0] = 0;
-        }
-    
-        // overall Rs between nodes  
-        for (i = 0; i < n; i++) 
+        double side_length = 0;
+        // for each unit "Ui"
+        for (i = 0; i < n_units; i++) 
         {
-            double area = (_floorplan_holder->_flp_units[i]._height * _floorplan_holder->_flp_units[i]._width);
-            // amongst functional units in the various layers    
-            for (j = 0; j < n; j++) 
+            // first find out the conductance from "Ui" to "Uj" for all layers, "Uj" being another unit at the same layer
+            for (j = 0; j < n_units; j++) 
             {
-                double part = 0, part_box = 0, part_csub = 0, part_int = 0, part_sp = 0, part_hs = 0;
+                // "Ui" and "Uj" are horizontally adjacent to each other at the same layer
                 if (Floorplan::isHorizAdj(_floorplan_holder, i, j)) 
                 {
-                    part        = gx[i]     / _floorplan_holder->_flp_units[i]._height;
-                    part_box    = gx_box[i] / _floorplan_holder->_flp_units[i]._height;
-                    part_csub   = gx_csub[i]/ _floorplan_holder->_flp_units[i]._height;
-                    part_int    = gx_int[i] / _floorplan_holder->_flp_units[i]._height;
-                    part_sp     = gx_sp[i]  / _floorplan_holder->_flp_units[i]._height;
-                    part_hs     = gx_hs[i]  / _floorplan_holder->_flp_units[i]._height;
+                    side_length = _floorplan_holder->_flp_units[i]._height;
+                    // for each layer
+                    for (k = 0; k < (n_layers-1); ++k)
+                        g[k*n_units + i][k*n_units + j] = gx[k][i] * (len[i][j] / side_length);
                 }
+                // "Ui" and "Uj" are vertically adjacent to each other at the same layer
                 else if (Floorplan::isVertAdj(_floorplan_holder, i,j))  
                 {
-                    part        = gy[i]     / _floorplan_holder->_flp_units[i]._width;
-                    part_box    = gy_box[i] / _floorplan_holder->_flp_units[i]._width;
-                    part_csub   = gy_csub[i]/ _floorplan_holder->_flp_units[i]._width;
-                    part_int    = gy_int[i] / _floorplan_holder->_flp_units[i]._width;
-                    part_sp     = gy_sp[i]  / _floorplan_holder->_flp_units[i]._width;
-                    part_hs     = gy_hs[i]  / _floorplan_holder->_flp_units[i]._width;
+                    side_length = _floorplan_holder->_flp_units[i]._width;
+                    // for each layer
+                    for (k = 0; k < (n_layers-1); ++k)
+                        g[k*n_units + i][k*n_units + j] = gy[k][i] * (len[i][j] / side_length);
                 }
-                g[          i][         j] = part       * len[i][j];
-                g[BOX*n+    i][BOX*n+   j] = part_box   * len[i][j];
-                g[CSUB*n+   i][CSUB*n+  j] = part_csub  * len[i][j];
-                g[IFACE*n+  i][IFACE*n+ j] = part_int   * len[i][j];
-                g[HSP*n+    i][HSP*n+   j] = part_sp    * len[i][j];
-                g[HSINK*n+  i][HSINK*n+ j] = part_hs    * len[i][j];
+                // "Ui" and "Uj" are not adjacent to each other at the same layer
+                else
+                {
+                    for (k = 0; k < (n_layers-1); ++k)
+                        g[k*n_units + i][k*n_units + j] = 0.00;
+                }
+
+                // at the air layer, nodes are not conducted with each other at the same layer
+                g[(n_layers-1)*n_units + i][(n_layers-1)*n_units + j] = 0.00;
             }
-            // the 2.0 factor in the following equations is 
-            // explained during the calculation of the B matrix
-              
-            // vertical g's in the device layer
-            g[i][BOX*n+i]=g[BOX*n+i][i]                     = 2.0/getR(k_device, t_device, area);
-            // vertical g's in the BOX layer
-            g[BOX*n+i][CSUB*n+i]=g[CSUB*n+i][BOX*n+i]       = 2.0/getR(k_box, t_box, area);
-            // vertical g's in the chip substrate layer
-            g[CSUB*n+i][IFACE*n+i]=g[IFACE*n+i][CSUB*n+i]   = 2.0/getR(k_csub, t_csub, area);
-            // vertical g's in the interface layer   
-            g[IFACE*n+i][HSP*n+i]=g[HSP*n+i][IFACE*n+i]     = 2.0/getR(k_interface, t_interface, area);
-            // vertical g's in the spreader layer    
-            g[HSP*n+i][HSINK*n+i]=g[HSINK*n+i][HSP*n+i]     = 2.0/getR(k_spreader, t_spreader, area);
-            // vertical g's in the heatsink core layer   
-            // vertical R to ambient: divide r_convec proportional to area   
-            r_amb = r_convec * (s_sink * s_sink) / area;
-            g_amb[i] = 1.0 / (getR(k_sink, t_sink, area) + r_amb);
-    
-            // lateral g's from block center (spreader layer) to peripheral (n,s,e,w) spreader nodes     
-            g[HSP*n+i][NL*n+SP_N]=g[NL*n+SP_N][HSP*n+i]=2.0*border[i][2] /
-                                  ((1.0/gy_sp[i])+_rc_model_holder->pack.r_sp1_y*gn_sp/gy_sp[i]);
-            g[HSP*n+i][NL*n+SP_S]=g[NL*n+SP_S][HSP*n+i]=2.0*border[i][3] /
-                                  ((1.0/gy_sp[i])+_rc_model_holder->pack.r_sp1_y*gs_sp/gy_sp[i]);
-            g[HSP*n+i][NL*n+SP_E]=g[NL*n+SP_E][HSP*n+i]=2.0*border[i][1] /
-                                  ((1.0/gx_sp[i])+_rc_model_holder->pack.r_sp1_x*ge_sp/gx_sp[i]);
-            g[HSP*n+i][NL*n+SP_W]=g[NL*n+SP_W][HSP*n+i]=2.0*border[i][0] /
-                                  ((1.0/gx_sp[i])+_rc_model_holder->pack.r_sp1_x*gw_sp/gx_sp[i]);
             
-            // lateral g's from block center (heatsink layer) to peripheral (n,s,e,w) heatsink nodes     
-            g[HSINK*n+i][NL*n+SINK_C_N]=g[NL*n+SINK_C_N][HSINK*n+i]=2.0*border[i][2] /
-                                        ((1.0/gy_hs[i])+_rc_model_holder->pack.r_hs1_y*gn_hs/gy_hs[i]);
-            g[HSINK*n+i][NL*n+SINK_C_S]=g[NL*n+SINK_C_S][HSINK*n+i]=2.0*border[i][3] /
-                                        ((1.0/gy_hs[i])+_rc_model_holder->pack.r_hs1_y*gs_hs/gy_hs[i]);
-            g[HSINK*n+i][NL*n+SINK_C_E]=g[NL*n+SINK_C_E][HSINK*n+i]=2.0*border[i][1] /
-                                        ((1.0/gx_hs[i])+_rc_model_holder->pack.r_hs1_x*ge_hs/gx_hs[i]);
-            g[HSINK*n+i][NL*n+SINK_C_W]=g[NL*n+SINK_C_W][HSINK*n+i]=2.0*border[i][0] /
-                                        ((1.0/gx_hs[i])+_rc_model_holder->pack.r_hs1_x*gw_hs/gx_hs[i]);
+            // second, find out the conductances between "Ui"s at different layers
+            for (k = 0; k < (n_layers-1); ++k)
+            {
+                g[k*n_units + i][(k+1)*n_units + i] = gz[k][i];
+                g[(k+1)*n_units + i][k*n_units + i] = gz[k+1][i];
+            }
+            // from air layer to ambient
+            g_amb[i] = gz[n_layers-1][i];
         }
-        
-        // g's from peripheral(n,s,e,w) nodes    
-        // vertical g's between peripheral spreader nodes and center peripheral heatsink nodes  
-        g[NL*n+SP_N][NL*n+SINK_C_N]=g[NL*n+SINK_C_N][NL*n+SP_N]=2.0/_rc_model_holder->pack.r_sp_per_y;
-        g[NL*n+SP_S][NL*n+SINK_C_S]=g[NL*n+SINK_C_S][NL*n+SP_S]=2.0/_rc_model_holder->pack.r_sp_per_y;
-        g[NL*n+SP_E][NL*n+SINK_C_E]=g[NL*n+SINK_C_E][NL*n+SP_E]=2.0/_rc_model_holder->pack.r_sp_per_x;
-        g[NL*n+SP_W][NL*n+SINK_C_W]=g[NL*n+SINK_C_W][NL*n+SP_W]=2.0/_rc_model_holder->pack.r_sp_per_x;
-        // lateral g's between peripheral outer sink nodes and center peripheral sink nodes  
-        g[NL*n+SINK_C_N][NL*n+SINK_N]=g[NL*n+SINK_N][NL*n+SINK_C_N]=2.0/(_rc_model_holder->pack.r_hs + _rc_model_holder->pack.r_hs2_y);
-        g[NL*n+SINK_C_S][NL*n+SINK_S]=g[NL*n+SINK_S][NL*n+SINK_C_S]=2.0/(_rc_model_holder->pack.r_hs + _rc_model_holder->pack.r_hs2_y);
-        g[NL*n+SINK_C_E][NL*n+SINK_E]=g[NL*n+SINK_E][NL*n+SINK_C_E]=2.0/(_rc_model_holder->pack.r_hs + _rc_model_holder->pack.r_hs2_x);
-        g[NL*n+SINK_C_W][NL*n+SINK_W]=g[NL*n+SINK_W][NL*n+SINK_C_W]=2.0/(_rc_model_holder->pack.r_hs + _rc_model_holder->pack.r_hs2_x);
-        // vertical g's between inner peripheral sink nodes and ambient  
-        g_amb[n+SINK_C_N] = g_amb[n+SINK_C_S] = 1.0 / (_rc_model_holder->pack.r_hs_c_per_y+_rc_model_holder->pack.r_amb_c_per_y);
-        g_amb[n+SINK_C_E] = g_amb[n+SINK_C_W] = 1.0 / (_rc_model_holder->pack.r_hs_c_per_x+_rc_model_holder->pack.r_amb_c_per_x);
-        // vertical g's between outer peripheral sink nodes and ambient  
-        g_amb[n+SINK_N] = g_amb[n+SINK_S] = g_amb[n+SINK_E] =
-                          g_amb[n+SINK_W] = 1.0 / (_rc_model_holder->pack.r_hs_per+_rc_model_holder->pack.r_amb_per);
     
         // calculate matrix B such that BT = POWER in steady state  
         // non-diagonal elements     
-        for (i = 0; i < NL*n+EXTRA; i++)
+        for (i = 0; i < n_nodes; i++)
             for (j = 0; j < i; j++)
                 if ((g[i][j] == 0.0) || (g[j][i] == 0.0))
-                    b[i][j] = b[j][i] = 0.0;
+                    b[i][j] = b[j][i] = 0.00;
                 else
-                    // here is why the 2.0 factor comes when calculating g[][]   
-                    b[i][j] = b[j][i] = -1.0/((1.0/g[i][j])+(1.0/g[j][i]));
+                    b[i][j] = b[j][i] = -1.0/( (1.0/g[i][j]) + (1.0/g[j][i]) );
         // diagonal elements               
-        for (i = 0; i < NL*n+EXTRA; i++) 
+        for (i = 0; i < n_nodes; i++) 
         {
-            // functional blocks in the heat sink layer  
-            if (i >= HSINK*n && i < NL*n) 
-                b[i][i] = g_amb[i%n];
-            // heat sink peripheral nodes    
-            else if (i >= NL*n+SINK_C_W)
-                b[i][i] = g_amb[n+i-NL*n];
-            // all other nodes that are not connected to the ambient       
+            // nodes at the air layer
+            if (i >= (n_layers-1)*n_units) 
+                b[i][i] = g_amb[i%n_units];
+            // all other nodes that are not connected to the ambient
             else
-                b[i][i] = 0.0;
+                b[i][i] = 0.00;
             // sum up the conductances     
-            for(j=0; j < NL*n+EXTRA; j++)
+            for(j=0; j < n_nodes; j++)
                 if (i != j)
                     b[i][i] -= b[i][j];
         }
         
-        // copy b to lu
-        lu = b;
-        // LUP decomp.
-        ThermalUtil::lupDecomposition(lu, NL*n+EXTRA, p);
-
         // done  
         _rc_model_holder->r_ready = true;
     } // populateR
@@ -543,85 +261,37 @@ namespace Thermal
 
     // creates 2 matrices: invA, C: dT + A^-1*BT = A^-1*Power, 
     // C = A^-1 * B. note that A is a diagonal matrix (no lateral
-    // capacitances. all capacitances are to ground). also note that
-    // it is stored as a 1-d vector. so, for computing the inverse, 
-    // inva[i] = 1/a[i] is just enough. 
-    void RCModel::populateC()
+    // capacitances. all capacitances are to ground).
+    void RCModel::populateC(double c_convec)
     {
-        assert(_thermal_params);
         assert(_floorplan_holder);
         assert(_rc_model_holder);
 
-        vector<double>& a           = _rc_model_holder->a;
+        int i = 0, k = 0;
+        int n_units  = _floorplan_holder->_n_units; // number units
+        int n_layers = _rc_model_holder->layer.n_layers + 1;   // number layers
+        double chip_area = _floorplan_holder->_total_width * _floorplan_holder->_total_height; // chip area
 
-        double t_device             = _thermal_params->t_device;
-        double t_box                = _thermal_params->t_box;
-        double t_csub               = _thermal_params->t_csub;
-        double t_interface          = _thermal_params->t_interface;
-        double t_spreader           = _thermal_params->t_spreader;
-        double t_sink               = _thermal_params->t_sink;
-
-        double c_convec             = _thermal_params->c_convec;
-        double c_amb;
-        double s_sink               = _thermal_params->s_sink;
-        
-        double p_device             = _thermal_params->p_device;
-        double p_box                = _thermal_params->p_box;
-        double p_csub               = _thermal_params->p_csub;
-        double p_interface          = _thermal_params->p_interface;
-        double p_spreader           = _thermal_params->p_spreader;
-        double p_sink               = _thermal_params->p_sink;
-    
-        int i;
-        int n = _floorplan_holder->_n_units;
+        vector<double>& a               = _rc_model_holder->a;
+        vector<double>& thickness       = _rc_model_holder->layer.thickness;
+        vector<double>& specific_heat   = _rc_model_holder->layer.specific_heat;
     
         if (!_rc_model_holder->r_ready)
             LibUtil::Log::printFatalLine(std::cerr, "\nR model not ready\n");
             
-        double w_chip = _floorplan_holder->_total_width;  // x-axis    
-        double l_chip = _floorplan_holder->_total_height; // y-axis    
-    
-        // package C's   
-        populatePackageC(w_chip, l_chip);
-        
-        // functional block C's  
-        for (i = 0; i < n; i++) 
+        // thermal capacitance of each unit
+        double unit_area = 0;
+        for (i = 0; i < n_units; i++) 
         {
-            double area = (_floorplan_holder->_flp_units[i]._height * _floorplan_holder->_flp_units[i]._width);
-            // C's from chip device units to ground   
-            a[          i] = getCap(p_device, t_device, area);
-            // C's from chip box units to ground   
-            a[BOX*n+    i] = getCap(p_box, t_box, area);
-            // C's from chip substrate units to ground   
-            a[CSUB*n+   i] = getCap(p_csub, t_csub, area);
-            // C's from interface portion of the functional units to ground  
-            a[IFACE*n+  i] = getCap(p_interface, t_interface, area);
-            // C's from spreader portion of the functional units to ground   
-            a[HSP*n+    i] = getCap(p_spreader, t_spreader, area);
-            // C's from heatsink portion of the functional units to ground   
-            // vertical C to ambient: divide c_convec proportional to area   
-            c_amb = C_FACTOR * c_convec / (s_sink * s_sink) * area;
-            a[HSINK*n+i] = getCap(p_sink, t_sink, area) + c_amb;
+            unit_area = (_floorplan_holder->_flp_units[i]._height * _floorplan_holder->_flp_units[i]._width);
+            
+            // at every layer excluding air layer
+            for (k=0; k<(n_layers-1); ++k)
+                a[k*n_units + i] = getCap(specific_heat[k], thickness[k], unit_area);
+            // at air layer
+            a[(n_layers-1)*n_units + i] = c_convec * (unit_area/chip_area);
         }
     
-        // C's from peripheral(n,s,e,w) nodes    
-        // from peripheral spreader nodes to ground  
-        a[NL*n+SP_N] = a[NL*n+SP_S] = _rc_model_holder->pack.c_sp_per_y;
-        a[NL*n+SP_E] = a[NL*n+SP_W] = _rc_model_holder->pack.c_sp_per_x;
-        // from center peripheral sink nodes to ground
-        // NOTE: this treatment of capacitances (and 
-        // the corresponding treatment of resistances 
-        // in populate_R_model) as parallel (series)
-        // is only approximate and is done in order
-        // to avoid creating an extra layer of nodes
-        a[NL*n+SINK_C_N] = a[NL*n+SINK_C_S] = _rc_model_holder->pack.c_hs_c_per_y + 
-                                              _rc_model_holder->pack.c_amb_c_per_y;
-        a[NL*n+SINK_C_E] = a[NL*n+SINK_C_W] = _rc_model_holder->pack.c_hs_c_per_x + 
-                                              _rc_model_holder->pack.c_amb_c_per_x; 
-        // from outer peripheral sink nodes to ground    
-        a[NL*n+SINK_N] = a[NL*n+SINK_S] = a[NL*n+SINK_E] = a[NL*n+SINK_W] = 
-                         _rc_model_holder->pack.c_hs_per + _rc_model_holder->pack.c_amb_per;
-        
         //  done     
         _rc_model_holder->c_ready = true;
     } // populateC
@@ -629,7 +299,7 @@ namespace Thermal
 
     void RCModel::precomputeStepLupDcmp()
     {
-        int m                               = _rc_model_holder->n_nodes;
+        int n_nodes                         = _rc_model_holder->n_nodes;
         vector< vector<double> >& b         = _rc_model_holder->b;
         vector<double>& a                   = _rc_model_holder->a;
         vector< vector<int> >& p_step       = _rc_model_holder->p_step;
@@ -643,15 +313,41 @@ namespace Thermal
         {   
             lu_step[i] = b;
     
-            for (j=0; j<m; ++j)
+            for (j=0; j<n_nodes; ++j)
             {
                 geq_step[i][j] = a[j]/time_steps[i];
                 lu_step[i][j][j] += geq_step[i][j];
             }
     
-            ThermalUtil::lupDecomposition(lu_step[i], m, p_step[i]);
+            ThermalUtil::lupDecomposition(lu_step[i], n_nodes, p_step[i]);
         }
     }
 
+    void RCModel::printRCModelToFile(string rc_model_file_name)
+    {
+        assert(_rc_model_holder);
+        assert(_floorplan_holder);
+
+        FILE* fp = fopen(rc_model_file_name.c_str(), "w");
+
+        int n_units = _floorplan_holder->_n_units;
+        int n_nodes = _rc_model_holder->n_nodes;
+
+        fprintf(fp, "printing block model information...\n");
+        fprintf(fp, "n_nodes: %d\n", n_nodes);
+        fprintf(fp, "n_units: %d\n", n_units);
+        fprintf(fp, "r_ready: %d\n", _rc_model_holder->r_ready);
+        fprintf(fp, "c_ready: %d\n", _rc_model_holder->c_ready);
+    
+        fprintf(fp, "printing matrix b:\n");
+        Misc::printDouble2DVector(_rc_model_holder->b, n_nodes, n_nodes, fp);
+        fprintf(fp, "printing vector a:\n");
+        Misc::printDouble1DVector(_rc_model_holder->a, n_nodes, fp);
+        fprintf(fp, "printing vector g_amb:\n");
+        Misc::printDouble1DVector(_rc_model_holder->g_amb, n_units, fp);
+
+        fclose(fp);
+    }
+    
 } // namespace Thermal
 
