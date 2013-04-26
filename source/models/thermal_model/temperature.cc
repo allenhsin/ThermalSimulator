@@ -43,7 +43,7 @@ namespace Thermal
     {
         int i = 0, j = 0;
         int n_units = _floorplan_holder->_n_units;
-        int n_layers = _rc_model_holder->layer.n_layers;
+        int n_layers = _rc_model_holder->layer.n_layers + 1;
 
         for(i=0; i<n_units; ++i)
         {
