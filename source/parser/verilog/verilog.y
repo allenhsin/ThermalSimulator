@@ -23,6 +23,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../../../include/libutil/LibUtil.h"
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
 
@@ -62,6 +63,7 @@ void yyerror(VerilogFile* file_, const char *s);
 	char *sval;
     char cval;
     
+    Thermal::VerilogBinOp bop;
     Thermal::VerilogNumber* num;    
     Thermal::VerilogExpression* expr;
     Thermal::VerilogRange* range;
@@ -109,6 +111,7 @@ void yyerror(VerilogFile* file_, const char *s);
 %token  <num>           NUMBER
 
 // Define non-terminal symbol data types
+// %type   <bop>           binary_operator
 %type   <expr>          expression
 %type   <expr>          constant_expression
 %type   <exprs>         concatenation
@@ -144,6 +147,9 @@ void yyerror(VerilogFile* file_, const char *s);
 %type   <conns>         parameter_value_assignment
 %type   <conns>         list_of_module_port_connections
 %type   <conns>         list_of_module_connections
+
+%left '+' '-'
+%left '*' '/' '%'
 
 %start source_text
 
@@ -212,15 +218,26 @@ param_assignment:
 module_instantiation:
     IDENTIFIER parameter_value_assignment list_of_module_instances ';' 
         { 
-            // TODO: Need to deep-copy this array
             VerilogInstances::const_iterator it;
             for (it = $3->begin(); it != $3->end(); ++it)
             {
+                // Make a deep copy of $2 for every instance            
+                VerilogConns* new_conns = new VerilogConns();
+                VerilogConns::const_iterator c_it;
+                for (c_it = $2->begin(); c_it != $2->end(); ++c_it)
+                    new_conns->push_back(new VerilogConn(*(*c_it)));
+                
                 (*it)->setModuleName($1);
-                (*it)->setParameterValues(*$2);
+                (*it)->setParameterValues(*new_conns);
+                
+                delete new_conns;
             }
 
             $$ = new VerilogItems($3->begin(), $3->end());
+            
+            VerilogConns::const_iterator c_it;
+            for (c_it = $2->begin(); c_it != $2->end(); ++c_it)
+                delete *c_it;
             delete $2;
             delete $3;
         }
@@ -294,13 +311,27 @@ description:
     module_declaration
     ;
 
+// binary_operator:
+    // '+'                                     { $$ = BOP_PLUS; }
+    // | '-'                                   { $$ = BOP_MINUS; }
+    // | '*'                                   { $$ = BOP_TIMES; }
+    // | '/'                                   { $$ = BOP_DIV; }
+    // | '%'                                   { $$ = BOP_MOD; }
+    // ;
+    
 // Support very simple form of expressions, no unary/binary/conditional operations are
 // supported. Thus, this is merged with "primary". STRINGS are also disallowed
 expression:
-    NUMBER                                  { $$ = new VerilogExpression(*$1); delete $1; }
+    '(' expression ')'                      { $$ = $2; }
+    | NUMBER                                { $$ = new VerilogExpression(*$1); delete $1; }
     | IDENTIFIER                            { $$ = new VerilogExpression($1); }
     | IDENTIFIER range                      { $$ = new VerilogExpression($1, *$2); delete $2; }
     | concatenation                         { $$ = new VerilogExpression(*$1); delete $1; }
+    | expression '+' expression             { $$ = new VerilogExpression(*$1, BOP_PLUS, *$3); delete $1; delete $3; }
+    | expression '-' expression             { $$ = new VerilogExpression(*$1, BOP_MINUS, *$3); delete $1; delete $3; }
+    | expression '*' expression             { $$ = new VerilogExpression(*$1, BOP_TIMES, *$3); delete $1; delete $3; }
+    | expression '/' expression             { $$ = new VerilogExpression(*$1, BOP_DIV, *$3); delete $1; delete $3; }
+    | expression '%' expression             { $$ = new VerilogExpression(*$1, BOP_MOD, *$3); delete $1; delete $3; }
     ;
     
 constant_expression:

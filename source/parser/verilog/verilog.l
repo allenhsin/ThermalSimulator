@@ -11,6 +11,7 @@
 %{
 #include <iostream>
 
+#include "../../../include/libutil/LibUtil.h"
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
 

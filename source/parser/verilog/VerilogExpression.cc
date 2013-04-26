@@ -22,6 +22,8 @@ namespace Thermal
         m_val_num_ = new VerilogNumber(num_);
         m_val_concat_ = NULL;
         m_val_range_ = NULL;
+        m_val_expr0_ = NULL;
+        m_val_expr1_ = NULL;
     }
 
     VerilogExpression::VerilogExpression(const VerilogExpressions& concat_)
@@ -30,6 +32,8 @@ namespace Thermal
         m_val_num_ = NULL;
         m_val_concat_ = new VerilogExpressions(concat_.begin(), concat_.end());
         m_val_range_ = NULL;
+        m_val_expr0_ = NULL;
+        m_val_expr1_ = NULL;
     }
     
     VerilogExpression::VerilogExpression(const string& identifier_)
@@ -39,6 +43,8 @@ namespace Thermal
         m_val_concat_ = NULL;
         m_val_identifier_ = identifier_;
         m_val_range_ = NULL;
+        m_val_expr0_ = NULL;
+        m_val_expr1_ = NULL;
     }
     
     VerilogExpression::VerilogExpression(const string& identifier_, const VerilogRange& range_)
@@ -48,7 +54,22 @@ namespace Thermal
         m_val_concat_ = NULL;
         m_val_identifier_ = identifier_;
         m_val_range_ = new VerilogRange(range_);
+        m_val_expr0_ = NULL;
+        m_val_expr1_ = NULL;
     }
+    
+    VerilogExpression::VerilogExpression(const VerilogExpression& expr0_, VerilogBinOp bin_op, const VerilogExpression& expr1_)
+        : m_type_(BINARY_EXPRESSION), m_elaborated_(false)
+    {
+        m_val_num_ = NULL;
+        m_val_concat_ = NULL;
+        m_val_range_ = NULL;
+        m_val_bin_op_ = bin_op;
+        m_val_expr0_ = new VerilogExpression(expr0_);
+        m_val_expr1_ = new VerilogExpression(expr1_);
+        
+    }
+
 
 
     VerilogExpression::~VerilogExpression()
@@ -89,6 +110,16 @@ namespace Thermal
             deletePtrVector<VerilogExpression>(m_val_concat_);
         if (m_val_range_ != NULL)
             delete m_val_range_;
+        if (m_val_expr0_ != NULL)
+            delete m_val_expr0_;
+        if (m_val_expr1_ != NULL)
+            delete m_val_expr1_;
+        
+        m_val_num_ = NULL;
+        m_val_concat_ = NULL;
+        m_val_range_ = NULL;
+        m_val_expr0_ = NULL;
+        m_val_expr1_ = NULL;
     }
     
     void VerilogExpression::copy(const VerilogExpression& expr_)
@@ -96,6 +127,7 @@ namespace Thermal
         m_type_ = expr_.m_type_;
         m_elaborated_ = expr_.m_elaborated_;
         m_val_identifier_ = expr_.m_val_identifier_;
+        m_val_bin_op_ = expr_.m_val_bin_op_;
         m_const_expr_ = expr_.m_const_expr_;
         
         if (expr_.m_val_num_ == NULL) m_val_num_ = NULL;
@@ -111,7 +143,13 @@ namespace Thermal
         }
         
         if(expr_.m_val_range_ == NULL) m_val_range_ = NULL;
-        else m_val_range_ = new VerilogRange(*expr_.m_val_range_);    
+        else m_val_range_ = new VerilogRange(*expr_.m_val_range_);
+        
+        if(expr_.m_val_expr0_ == NULL) m_val_expr0_ = NULL;
+        else m_val_expr0_ = new VerilogExpression(*expr_.m_val_expr0_);
+
+        if(expr_.m_val_expr1_ == NULL) m_val_expr1_ = NULL;
+        else m_val_expr1_ = new VerilogExpression(*expr_.m_val_expr1_);
     }
     
     void VerilogExpression::elaborate(VerilogScope* scope_)
@@ -147,12 +185,56 @@ namespace Thermal
                 m_val_range_ = new VerilogRange(((VerilogNet*) item)->getRange());                            
                 m_type_ = IDENTIFIER_RANGE;
             }
-        }        
+        }
+        else if (m_type_ == BINARY_EXPRESSION)
+        {            
+            m_val_expr0_->elaborate(scope_);
+            m_val_expr1_->elaborate(scope_);
+            evaluate();
+        }
         // After an expression has been elaborated, it must be either a NUMBER or
         // an IDENTIFIER_RANGE or a CONCAT
         if ((m_type_ != NUMBER) && (m_type_ != IDENTIFIER_RANGE) && (m_type_ != CONCAT))
             throw VerilogException("bad expression: " + toString());
         m_elaborated_ = true;
+    }
+    
+    void VerilogExpression::evaluate()
+    {
+        if (m_type_ == BINARY_EXPRESSION)
+        {
+            if ((m_val_expr0_->getType() != NUMBER) || (m_val_expr1_->getType() != NUMBER))
+                throw VerilogException("Expression did not resolve to constant number: " + toString());
+
+            switch(m_val_bin_op_)
+            {
+                case BOP_PLUS:
+                    m_val_num_ = new VerilogNumber(m_val_expr0_->getNumber().getUInt() + m_val_expr1_->getNumber().getUInt());
+                    break;
+                case BOP_MINUS:
+                    m_val_num_ = new VerilogNumber(m_val_expr0_->getNumber().getUInt() - m_val_expr1_->getNumber().getUInt());                    
+                    break;
+                case BOP_TIMES:
+                    m_val_num_ = new VerilogNumber(m_val_expr0_->getNumber().getUInt() * m_val_expr1_->getNumber().getUInt());
+                    break;
+                case BOP_DIV:
+                    m_val_num_ = new VerilogNumber(m_val_expr0_->getNumber().getUInt() / m_val_expr1_->getNumber().getUInt());
+                    break;
+                case BOP_MOD:
+                    m_val_num_ = new VerilogNumber(m_val_expr0_->getNumber().getUInt() % m_val_expr1_->getNumber().getUInt());
+                    break;
+                default:
+                    throw VerilogException("Bad binary operator " + m_val_bin_op_);
+            }
+            m_type_ = NUMBER;
+            m_const_expr_ = true;
+            
+            delete m_val_expr0_;
+            delete m_val_expr1_;
+            
+            m_val_expr0_ = NULL;
+            m_val_expr1_ = NULL;
+        }
     }
     
     string VerilogExpression::toString() const
@@ -164,6 +246,24 @@ namespace Thermal
         else if (m_type_ == IDENTIFIER_RANGE)
             return m_val_identifier_ + "[" + m_val_range_->first.toString() + ":" + 
                 m_val_range_->second.toString() + "]";
+        else if (m_type_ == BINARY_EXPRESSION)
+        {
+            switch(m_val_bin_op_)
+            {
+                case BOP_PLUS:
+                    return m_val_expr0_->toString() + " + " + m_val_expr1_->toString();
+                case BOP_MINUS:
+                    return m_val_expr0_->toString() + " - " + m_val_expr1_->toString();
+                case BOP_TIMES:
+                    return m_val_expr0_->toString() + " * " + m_val_expr1_->toString();
+                case BOP_DIV:
+                    return m_val_expr0_->toString() + " / " + m_val_expr1_->toString();
+                case BOP_MOD:
+                    return m_val_expr0_->toString() + " % " + m_val_expr1_->toString();
+                default:
+                    throw VerilogException("Bad binary operator " + m_val_bin_op_);
+            }
+        }
         
         throw VerilogException("No string support for current expression type."); 
     }

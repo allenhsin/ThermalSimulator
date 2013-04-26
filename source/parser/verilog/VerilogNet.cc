@@ -31,6 +31,11 @@ namespace Thermal
         // Elaborate the bit ranges
         m_range_.first.elaborate(scope_);
         m_range_.second.elaborate(scope_);
+        
+        if(!m_range_.first.isConstExpr())
+            throw VerilogException("bit range did not evaluate to a constant: " + m_range_.first.toString());        
+        if(!m_range_.second.isConstExpr())
+            throw VerilogException("bit range did not evaluate to a constant: " + m_range_.second.toString());
     }
     
     VerilogItems* VerilogNet::createVerilogNets(
