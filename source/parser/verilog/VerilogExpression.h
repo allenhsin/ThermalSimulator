@@ -8,7 +8,7 @@
 #include "VerilogNumber.h"
 
 // A class representing a verilog module
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogScope;
     

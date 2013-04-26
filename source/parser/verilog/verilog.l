@@ -29,7 +29,7 @@
 #include "yacc.verilog.hh"
 
 using namespace std;
-using namespace Thermal;
+using namespace VerilogParser;
 
 #define YY_DECL extern "C++" int yylex()
 #define yylval veriloglval

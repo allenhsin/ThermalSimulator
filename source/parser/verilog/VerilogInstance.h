@@ -7,7 +7,7 @@
 #include "VerilogMisc.h"
 
 // A class representing a verilog module
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogScope;
     
@@ -24,6 +24,8 @@ namespace Thermal
             inline void setModuleName(const std::string& module_name_ ) { m_module_name_ = module_name_; }
             // Set parameter values
             void setParameterValues(const VerilogConns& conns_);
+            
+            std::string toString() const;
             
         protected:
             void elaborateItem(VerilogScope* scope_);

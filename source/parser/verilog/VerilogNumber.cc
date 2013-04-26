@@ -6,7 +6,7 @@
 #include "../../../include/libutil/LibUtil.h"
 #include "VerilogNumber.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     using namespace std;
     using namespace LibUtil;
@@ -121,4 +121,4 @@ namespace Thermal
         : m_use_uint_(num_.m_use_uint_), m_width_(num_.m_width_), m_value_uint_(num_.m_value_uint_)
     {}
     
-} // namespace Thermal
+} // namespace VerilogParser

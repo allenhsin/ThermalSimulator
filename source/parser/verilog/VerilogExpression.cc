@@ -11,7 +11,7 @@
 #include "VerilogParameter.h"
 #include "VerilogNet.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     using namespace std;
     using namespace LibUtil;
@@ -268,4 +268,4 @@ namespace Thermal
         throw VerilogException("No string support for current expression type."); 
     }
     
-} // namespace Thermal
+} // namespace VerilogParser

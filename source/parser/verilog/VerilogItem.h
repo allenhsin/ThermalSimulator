@@ -7,7 +7,7 @@
 #include "VerilogMisc.h"
 
 // A class representing a verilog module
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogScope;
 
@@ -35,6 +35,7 @@ namespace Thermal
             
         public:
             inline VerilogItemType getType() const { return m_type_; }
+            virtual std::string toString() const = 0;
             
         private:
             // The type of verilog item this is

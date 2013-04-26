@@ -6,7 +6,7 @@
 #include "VerilogNet.h"
 #include "VerilogScope.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     using namespace std;
     using namespace LibUtil;
@@ -59,4 +59,9 @@ namespace Thermal
         return new_nets;
     }
     
-} // namespace Thermal
+    std::string VerilogNet::toString() const
+    {
+        return "Net -> " + getIdentifier() + " [" + m_range_.first.toString() + ":" + m_range_.second.toString() + "]";
+    }
+    
+} // namespace VerilogParser

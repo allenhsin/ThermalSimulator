@@ -7,7 +7,7 @@
 #include <map>
 
 // Various other data structures for verilog parsing
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogModule;
     class VerilogItem;

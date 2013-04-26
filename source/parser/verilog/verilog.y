@@ -14,7 +14,7 @@
 %define api.prefix "verilog"
 
 // Let yyparse take a verilog file pointer as an input
-%parse-param { Thermal::VerilogFile* file_ }
+%parse-param { VerilogParser::VerilogFile* file_ }
 
 %error-verbose
 
@@ -41,7 +41,7 @@
 #include <cstdlib>
 
 using namespace std;
-using namespace Thermal;
+using namespace VerilogParser;
 
 #define yyin verilogin
 
@@ -63,31 +63,31 @@ void yyerror(VerilogFile* file_, const char *s);
 	char *sval;
     char cval;
     
-    Thermal::VerilogBinOp bop;
-    Thermal::VerilogNumber* num;    
-    Thermal::VerilogExpression* expr;
-    Thermal::VerilogRange* range;
-    Thermal::VerilogVariables* variables;
-    Thermal::VerilogConn* conn;
+    VerilogParser::VerilogBinOp bop;
+    VerilogParser::VerilogNumber* num;    
+    VerilogParser::VerilogExpression* expr;
+    VerilogParser::VerilogRange* range;
+    VerilogParser::VerilogVariables* variables;
+    VerilogParser::VerilogConn* conn;
     
-    Thermal::VerilogPortType port_type;
-    Thermal::VerilogNetType net_type;
+    VerilogParser::VerilogPortType port_type;
+    VerilogParser::VerilogNetType net_type;
     
-    Thermal::VerilogExpressions* exprs;
-    Thermal::VerilogConns* conns;
+    VerilogParser::VerilogExpressions* exprs;
+    VerilogParser::VerilogConns* conns;
     
-    Thermal::VerilogModule* module;
-    Thermal::VerilogModules* modules;
+    VerilogParser::VerilogModule* module;
+    VerilogParser::VerilogModules* modules;
 
-    Thermal::VerilogItem* item;
-    Thermal::VerilogItems* items;
+    VerilogParser::VerilogItem* item;
+    VerilogParser::VerilogItems* items;
 
-    Thermal::VerilogNet* net;
-    Thermal::VerilogNets* nets;
-    Thermal::VerilogInstance* instance;
-    Thermal::VerilogInstances* instances;
-    Thermal::VerilogParameter* parameter;
-    Thermal::VerilogParameters* parameters;
+    VerilogParser::VerilogNet* net;
+    VerilogParser::VerilogNets* nets;
+    VerilogParser::VerilogInstance* instance;
+    VerilogParser::VerilogInstances* instances;
+    VerilogParser::VerilogParameter* parameter;
+    VerilogParser::VerilogParameters* parameters;
     
 }
 
@@ -157,7 +157,7 @@ void yyerror(VerilogFile* file_, const char *s);
 
 source_text: 
     /* empty */                                     { ; }
-    | source_text description                       { file_->addModule($2); cout << $2->getName() << endl; }
+    | source_text description                       { file_->addModule($2); }
     ;
 
 module_declaration:
@@ -394,7 +394,7 @@ concatenation:
     
 %%
 
-namespace Thermal
+namespace VerilogParser
 {
     VerilogFileReader::VerilogFileReader(VerilogFile* file_)
         : m_file_(file_)

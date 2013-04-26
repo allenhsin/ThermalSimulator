@@ -4,8 +4,10 @@
 #include <string>
 #include <vector>
 
+#include "VerilogMisc.h"
+
 // A class representing a verilog file
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogModule;
     class VerilogScope;
@@ -25,10 +27,10 @@ namespace Thermal
             // add a module to the file
             void addModule(VerilogModule* module_);
             // Get all the modules from a file
-            std::vector<VerilogModule*>* getModules();
+            inline const VerilogModules* getModules() const { return m_modules_; }
 
         private:
-            std::vector<VerilogModule*>* m_modules_;
+            VerilogModules* m_modules_;
             const std::string m_file_name_;
     };
 }

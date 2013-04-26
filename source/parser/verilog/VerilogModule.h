@@ -7,7 +7,7 @@
 #include "VerilogMisc.h"
 
 // A class representing a verilog module
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogNet;
     class VerilogInstance;

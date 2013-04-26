@@ -7,7 +7,7 @@
 #include "VerilogScope.h"
 #include "VerilogModule.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     VerilogItem::VerilogItem(VerilogItemType type_, const std::string& identifier_)
         : m_type_(type_), m_identifier_(identifier_), m_elaborated_(false)
@@ -42,4 +42,4 @@ namespace Thermal
         m_elaborated_ = true;        
     }
 
-} // namespace Thermal
+} // namespace VerilogParser

@@ -5,7 +5,7 @@
 #include <vector>
 
 // A class that is able to parse a given verilog file
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogFile;
     

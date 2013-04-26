@@ -5,7 +5,7 @@
 #include "../../../include/libutil/LibUtil.h"
 #include "VerilogMisc.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     using namespace std;
     using namespace LibUtil;
@@ -29,4 +29,4 @@ namespace Thermal
         // elaborateItem(scope_);
     // }
     
-} // namespace Thermal
+} // namespace VerilogParser

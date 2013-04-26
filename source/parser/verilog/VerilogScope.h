@@ -7,7 +7,7 @@
 #include "VerilogMisc.h"
 
 // Simple class containing the current elaboration scope
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogScope
     {

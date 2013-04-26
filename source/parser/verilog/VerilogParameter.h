@@ -7,7 +7,7 @@
 #include "VerilogExpression.h"
 
 // A class representing a verilog module
-namespace Thermal
+namespace VerilogParser
 {
     class VerilogScope;
 
@@ -20,6 +20,8 @@ namespace Thermal
         public:
             // Get the value
             const VerilogExpression& getValue() const { return m_value_; }
+            
+            std::string toString() const;
             
         protected:
             void elaborateItem(VerilogScope* scope_);

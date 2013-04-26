@@ -6,7 +6,7 @@
 #include "VerilogParameter.h"
 #include "VerilogScope.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     using namespace LibUtil;
     using namespace std;
@@ -26,4 +26,10 @@ namespace Thermal
                 " non-constant expression: " + m_value_.toString());
     }
     
-} // namespace Thermal
+    std::string VerilogParameter::toString() const
+    {
+        return "Parameter -> " + getIdentifier() + " = " + m_value_.toString();
+    }
+    
+    
+} // namespace VerilogParser

@@ -9,7 +9,7 @@
 #include "VerilogMisc.h"
 #include "VerilogScope.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     using namespace std;
     using namespace LibUtil;
@@ -74,4 +74,4 @@ namespace Thermal
         m_elaborated_ = true;		
 	}
     
-} // namespace Thermal
+} // namespace VerilogParser

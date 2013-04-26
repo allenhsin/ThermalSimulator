@@ -9,7 +9,7 @@
 #include "VerilogNet.h"
 #include "VerilogScope.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     using namespace LibUtil;
 
@@ -92,4 +92,9 @@ namespace Thermal
         }
     }
     
-} // namespace Thermal
+    std::string VerilogInstance::toString() const
+    {
+        return "Instance -> " + getIdentifier() + " (" + m_module_->getName() + ")";
+    }    
+    
+} // namespace VerilogParser

@@ -10,7 +10,7 @@
 #include "VerilogExpression.h"
 
 // A class representing a verilog module
-namespace Thermal
+namespace VerilogParser
 {
 
     class VerilogScope;
@@ -52,6 +52,8 @@ namespace Thermal
             inline const VerilogRange& getRange() const { return m_range_; }
             inline VerilogPortType getPortType() const { return m_port_type_; }
             inline VerilogNetType getNetType() const { return m_net_type_; }
+            
+            std::string toString() const;
             
         private:
             // Port type

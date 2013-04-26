@@ -7,7 +7,7 @@
 #include "VerilogModule.h"
 #include "VerilogScope.h"
 
-namespace Thermal
+namespace VerilogParser
 {
     using namespace std;
     using namespace LibUtil;
@@ -36,4 +36,4 @@ namespace Thermal
         m_modules_->push_back(module_);
     }
     
-} // namespace Thermal
+} // namespace VerilogParser
