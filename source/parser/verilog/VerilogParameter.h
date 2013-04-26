@@ -9,20 +9,23 @@
 // A class representing a verilog module
 namespace Thermal
 {
+    class VerilogScope;
+
     class VerilogParameter : public VerilogItem
     {
         public:
-            VerilogParameter(const std::string& name_, const VerilogExpression value_);
+            VerilogParameter(const std::string& identifier_, const VerilogExpression& value_);
             virtual ~VerilogParameter();
 
-            // Get name
-            const std::string& getName() const { return m_name_; }
+        public:
             // Get the value
             const VerilogExpression& getValue() const { return m_value_; }
             
+        protected:
+            void elaborateItem(VerilogScope* scope_);
+            
         private:
-            const std::string m_name_;
-            const VerilogExpression m_value_;
+            VerilogExpression m_value_;
     };
 }
 #endif

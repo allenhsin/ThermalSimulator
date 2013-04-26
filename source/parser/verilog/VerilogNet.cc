@@ -4,6 +4,7 @@
 
 #include "../../../include/libutil/LibUtil.h"
 #include "VerilogNet.h"
+#include "VerilogScope.h"
 
 namespace Thermal
 {
@@ -11,13 +12,12 @@ namespace Thermal
     using namespace LibUtil;
 
     VerilogNet::VerilogNet(
-                const std::string& net_name_, 
+                const std::string& identifier_, 
                 VerilogPortType port_type_,
                 VerilogNetType net_type_,
                 const VerilogRange& range_
             )
-        : VerilogItem(ITEM_NET),
-        m_net_name_(net_name_),
+        : VerilogItem(ITEM_NET, identifier_),
         m_port_type_(port_type_),
         m_net_type_(net_type_),
         m_range_(range_)
@@ -26,8 +26,15 @@ namespace Thermal
     VerilogNet::~VerilogNet()
     {}
     
+    void VerilogNet::elaborateItem(VerilogScope* scope_)
+    {
+        // Elaborate the bit ranges
+        m_range_.first.elaborate(scope_);
+        m_range_.second.elaborate(scope_);
+    }
+    
     VerilogItems* VerilogNet::createVerilogNets(
-            const VerilogVariables& names_,
+            const VerilogVariables& identifiers_,
             VerilogPortType port_type_,
             VerilogNetType net_type_, 
             const VerilogRange& range_
@@ -35,7 +42,7 @@ namespace Thermal
     {
         VerilogItems* new_nets = new VerilogItems();
         VerilogVariables::const_iterator it;
-        for (it = names_.begin(); it != names_.end(); ++it)
+        for (it = identifiers_.begin(); it != identifiers_.end(); ++it)
         {
             new_nets->push_back(new VerilogNet(
                     string(*it),

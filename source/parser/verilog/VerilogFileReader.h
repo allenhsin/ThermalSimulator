@@ -16,7 +16,10 @@ namespace Thermal
             virtual ~VerilogFileReader();
 
             // Read the file
-            bool parse();   
+            bool parse();
+            // Elaborate the file
+            void elaborate();
+            
             // Get a pointer to the file data structure
             inline const VerilogFile* getFile() { return m_file_; }
 

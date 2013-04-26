@@ -23,6 +23,8 @@
 #include "VerilogNet.h"
 #include "VerilogInstance.h"
 
+#include "VerilogScope.h"
+
 #include "yacc.verilog.hh"
 
 using namespace std;

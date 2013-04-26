@@ -34,6 +34,8 @@ namespace Thermal
             // Prunes the '_' fillers in verilog numbers
             static std::string pruneNum(const std::string& input_);
             
+            std::string toString() const;
+            
             // static const string& makeBinString(const string& value_, char base_);
             
         private:

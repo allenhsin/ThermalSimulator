@@ -13,6 +13,8 @@
 namespace Thermal
 {
 
+    class VerilogScope;
+
     enum VerilogPortType
     {
         PORT_INPUT,
@@ -35,28 +37,29 @@ namespace Thermal
             
         private:
             // Private constructor, use the static creation function instead
-            VerilogNet(const std::string& net_name_, VerilogPortType port_type_,
+            VerilogNet(const std::string& identifier_, VerilogPortType port_type_,
                 VerilogNetType net_type_, const VerilogRange& range_);
+        
+        protected:
+            void elaborateItem(VerilogScope* scope_);
+        
         public:
-            static VerilogItems* createVerilogNets(const VerilogVariables& names_, VerilogPortType port_type_,
+            static VerilogItems* createVerilogNets(const VerilogVariables& identifiers_, VerilogPortType port_type_,
                 VerilogNetType net_type_, const VerilogRange& range_ = VerilogRange(
                         VerilogExpression(VerilogNumber("0")), VerilogExpression(VerilogNumber("0"))));
             
         public:
-            inline const std::string& getName() const { return m_net_name_; }
             inline const VerilogRange& getRange() const { return m_range_; }
             inline VerilogPortType getPortType() const { return m_port_type_; }
             inline VerilogNetType getNetType() const { return m_net_type_; }
             
         private:
-            // Name of the net
-            const std::string& m_net_name_;
             // Port type
             const VerilogPortType m_port_type_;
             // Net type
             const VerilogNetType m_net_type_;
             // The bit range of the net
-            const VerilogRange& m_range_;            
+            VerilogRange m_range_;            
     };
 }
 #endif

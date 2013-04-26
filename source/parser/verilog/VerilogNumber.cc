@@ -60,7 +60,7 @@ namespace Thermal
         {
             // If not, try to convert to a binary string
             m_use_uint_ = false;
-            throw ("Numerical constants with bit widths > UINT_MAX_BITS are unsupported at this moment.");
+            throw VerilogException("Numerical constants with bit widths > UINT_MAX_BITS are unsupported at this moment.");
         }
     }
 
@@ -72,9 +72,22 @@ namespace Thermal
         if (m_use_uint_)
             return m_value_uint_;
         
-        throw "Numerical constants with bit widths > 32 are unsupported at this moment";
+        throw VerilogException("Numerical constants with bit widths > 32 are unsupported at this moment");
         return 0;
     }
+            
+    string VerilogNumber::toString() const
+    {
+        std::ostringstream ost;
+        if (m_use_uint_)
+        {
+            ost << m_value_uint_;
+            return ost.str();
+        }        
+        throw VerilogException("Numerical constants with bit widths > 32 are unsupported at this moment");
+        return "";
+    }
+    
     
     string VerilogNumber::pruneNum(const string& input_)
     {
@@ -83,7 +96,7 @@ namespace Thermal
             if (*it != '_') output += *it;
         return output;
     }
-    
+
     // const string& VerilogNumber::makeBinString(const string& value_, char base_)
     // {
         // if (base_ == 'h')

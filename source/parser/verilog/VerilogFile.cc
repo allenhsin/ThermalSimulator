@@ -5,6 +5,7 @@
 #include "../../../include/libutil/LibUtil.h"
 #include "VerilogFile.h"
 #include "VerilogModule.h"
+#include "VerilogScope.h"
 
 namespace Thermal
 {
@@ -23,6 +24,13 @@ namespace Thermal
         m_modules_ = NULL;
     }
 
+    void VerilogFile::elaborate(VerilogScope* scope_)
+    {
+        VerilogModules::const_iterator it;
+        for (it = m_modules_->begin(); it != m_modules_->end(); ++it)
+            (*it)->elaborate(scope_);
+    }
+    
     void VerilogFile::addModule(VerilogModule* module_)
     {
         m_modules_->push_back(module_);

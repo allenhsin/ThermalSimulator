@@ -9,13 +9,14 @@
 // A class representing a verilog module
 namespace Thermal
 {
+    class VerilogScope;
+    
     class VerilogInstance : public VerilogItem
     {
         public:
-            VerilogInstance(const std::string& name_, const VerilogConns& conns_);
+            VerilogInstance(const std::string& identifier_, const VerilogConns& conns_);
             virtual ~VerilogInstance();
             
-            inline const std::string& getName() const { return m_name_; }
             inline const VerilogConns* getConns() const { return m_conns_; }            
             inline const VerilogModule* getModule() const { return m_module_; }
             
@@ -24,13 +25,14 @@ namespace Thermal
             // Set parameter values
             void setParameterValues(const VerilogConns& conns_);
             
+        protected:
+            void elaborateItem(VerilogScope* scope_);
+            
         private:
             // Initialize the instance connections
             void initializeConns(const VerilogConns& conns_);
 
         private:
-            // Instance name
-            const std::string m_name_;
             // Instance connections
             VerilogConns* m_conns_;
             // Instance parameter values

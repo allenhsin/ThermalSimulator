@@ -35,6 +35,8 @@
 #include "VerilogNet.h"
 #include "VerilogInstance.h"
 
+#include "VerilogScope.h"
+
 #include <cstdlib>
 
 using namespace std;
@@ -148,8 +150,8 @@ void yyerror(VerilogFile* file_, const char *s);
 %%
 
 source_text: 
-    /* empty */                                     { $$ = new VerilogModules(); }
-    | source_text description                       { $$ = $1; $$->push_back($2); cout << $2->getName() << endl; }
+    /* empty */                                     { ; }
+    | source_text description                       { file_->addModule($2); cout << $2->getName() << endl; }
     ;
 
 module_declaration:
@@ -210,6 +212,7 @@ param_assignment:
 module_instantiation:
     IDENTIFIER parameter_value_assignment list_of_module_instances ';' 
         { 
+            // TODO: Need to deep-copy this array
             VerilogInstances::const_iterator it;
             for (it = $3->begin(); it != $3->end(); ++it)
             {
@@ -264,11 +267,11 @@ list_of_module_port_connections:
         { 
             // Convert a list of expressions to port connections
             $$ = new VerilogConns();
-            // Just insert NULL as the port name and the verilog module should understand
+            // Just insert empty string as the port name and the verilog module should understand
             VerilogExpressions::const_iterator it;
             for (it = $1->begin(); it != $1->end(); ++it)
             {
-                $$->push_back(new VerilogConn(NULL, *(*it)));
+                $$->push_back(new VerilogConn("", *(*it)));
                 delete *it;
             }
             delete $1;
@@ -301,7 +304,7 @@ expression:
     ;
     
 constant_expression:
-    NUMBER                                  { $$ = new VerilogExpression(*$1); delete $1; }
+    expression                              { $$ = $1; }
     ;
 
 list_of_expressions:
@@ -371,6 +374,13 @@ namespace Thermal
         delete m_file_;
     }
 
+    void VerilogFileReader::elaborate()
+    {
+        VerilogScope* scope = new VerilogScope();
+        m_file_->elaborate(scope);
+        delete scope;
+    }
+    
     bool VerilogFileReader::parse()
     {
         if(m_file_ != NULL)

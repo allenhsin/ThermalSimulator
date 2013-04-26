@@ -8,13 +8,17 @@
 namespace Thermal
 {
     class VerilogModule;
-
+    class VerilogScope;
+    
     class VerilogFile
     {
         public:
             VerilogFile(std::string file_name_);
             virtual ~VerilogFile();
 
+            // Elaborate the file
+            void elaborate(VerilogScope* scope_);
+            
             // Get the file name of this file
             inline const std::string& getFileName() { return m_file_name_; }
             
