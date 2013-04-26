@@ -5,10 +5,10 @@ package gui;
  * Classes implementing Listeners
  * @param <T> the owner class
  */
-abstract class EventsHelper<T>
+public abstract class EventsHelper<T>
 {
 	protected T owner;
-	EventsHelper(T owner)
+	public EventsHelper(T owner)
 	{
 		this.owner = owner;
 	}

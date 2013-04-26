@@ -50,6 +50,8 @@ public class FloorplanRender extends JComponent
 	
 	// Current rendered time step
 	private int time;
+	// Current rendered layer
+	private int layer;
 	
 	// Scaling factor
 	private double scale;
@@ -92,9 +94,9 @@ public class FloorplanRender extends JComponent
 		if (render_target != null)
 		{
 			updateImageSize();
-			zoom();
-			repaint();
 		}
+		zoom();
+		repaint();
 	}
 	
 	/**
@@ -153,7 +155,7 @@ public class FloorplanRender extends JComponent
 			TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
 			
 			// Set the painting color based on the temperature
-			g.setPaint(TemperatureColor.getColor(temp_step.getTemperatures()[idx], max_temp, min_temp));
+			g.setPaint(TemperatureColor.getColor(temp_step.getTemperatures()[layer][idx], max_temp, min_temp));
 			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
 					trans_x, trans_y, offset_x, offset_y, scale);			
 			g.fillRect(rect.x, rect.y, rect.w, rect.h);
@@ -304,23 +306,39 @@ public class FloorplanRender extends JComponent
 		setScale(scale * scale_factor);
 	}
 
-	// Centers the zoom
+	// Centers and fits the zoom
 	public void zoom()
 	{
-		Box b_box = Master.getBoundingBox(render_target);
-		// Set default scale	
-		setScale(0.9 * Math.min(getSize().getWidth() / b_box.getWidth().toDouble(),
-				getSize().getHeight() / b_box.getHeight().toDouble()));
-
-		// Set translates
-		trans_x = -b_box.llx.toDouble() - b_box.getWidth().toDouble() / 2;
-		trans_y = -b_box.lly.toDouble() - b_box.getHeight().toDouble() / 2;
+		if (render_target != null)
+		{
+			Box b_box = Master.getBoundingBox(render_target);
+			if(b_box.isValidBox())
+			{
+				// Set default scale	
+				setScale(0.9 * Math.min(getSize().getWidth() / b_box.getWidth().toDouble(),
+						getSize().getHeight() / b_box.getHeight().toDouble()));
+				// Set translates
+				trans_x = -b_box.llx.toDouble() - b_box.getWidth().toDouble() / 2;
+				trans_y = -b_box.lly.toDouble() - b_box.getHeight().toDouble() / 2;
+			}
+		}
+		else
+		{
+			trans_x = 0;
+			trans_y = 0;
+			setScale(MAX_SCALE);
+		}
 	}
 
 	
 	public void setTime(int time)
 	{
 		this.time = time;
+	}
+	
+	public void setLayer(int layer)
+	{
+		this.layer = layer;
 	}
 	
 	public void updateImageSize()

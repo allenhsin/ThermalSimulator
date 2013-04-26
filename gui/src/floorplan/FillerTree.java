@@ -61,11 +61,11 @@ public class FillerTree
 			// Check aspect ratio
 			GridPoint width = raw_filler.m.getWidth();
 			GridPoint height = raw_filler.m.getHeight();
-			double aspect_ratio = GridPoint.div(width, height).toDouble();			
+			double aspect_ratio = width.toDouble() / height.toDouble();
 			// If too wide
 			if (aspect_ratio > max_aspect_ratio)
 			{
-				GridPoint half_width_0 = GridPoint.div(width, new GridPoint(2));
+				GridPoint half_width_0 = GridPoint.div2(width);
 				GridPoint half_width_1 = GridPoint.sub(width, half_width_0);
 				
 				// Split into two fillers, horizontal with each other
@@ -86,7 +86,7 @@ public class FillerTree
 			}
 			else if (aspect_ratio < min_aspect_ratio)
 			{
-				GridPoint half_height_0 = GridPoint.div(height, new GridPoint(2));
+				GridPoint half_height_0 = GridPoint.div2(height);
 				GridPoint half_height_1 = GridPoint.sub(height, half_height_0);
 				
 				// Split into two fillers, vertical with each other

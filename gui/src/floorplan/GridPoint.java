@@ -10,7 +10,7 @@ public class GridPoint
 	// The smallest grid step size used in the floorplan, 1nm by default
 	//public static final double GRID_STEP = 1e-9;
 	// The scale of the grid
-	public static final long GRID_SCALE = 1000000000;
+	public static final long GRID_SCALE = 1000000000L;
 	// Grid point 0
 	public static final GridPoint ZERO = new GridPoint(0);
 	
@@ -57,15 +57,26 @@ public class GridPoint
 		return new GridPoint((long) (a.val - b.val));
 	}
 	
-	public static GridPoint mult(GridPoint a, GridPoint b)
+	// Overflows too often, recommend to do these kinds of multiplications by converting to double first
+//	public static GridPoint mult(GridPoint a, GridPoint b)
+//	{
+//		return new GridPoint((long) (a.val * b.val) / GRID_SCALE);
+//	}
+//	
+// Overflows too often, recommend to do these kinds of divisions by converting to double first
+//	public static GridPoint div(GridPoint a, GridPoint b) 
+//	{
+//		long mult = a.val * GRID_SCALE;
+//		return new GridPoint((long) (mult / b.val));
+//	}
+
+	// Special div2 function that tries to minimize overflows
+	// that occur frequently with the regular divide
+	public static GridPoint div2(GridPoint a) 
 	{
-		return new GridPoint((long) (a.val * b.val) / GRID_SCALE);
+		return new GridPoint((long) (a.val / 2L));
 	}
-	
-	public static GridPoint div(GridPoint a, GridPoint b) 
-	{
-		return new GridPoint((long) ((a.val * GRID_SCALE) / b.val));
-	}
+
 	
 	public static GridPoint max(GridPoint a, GridPoint b)
 	{

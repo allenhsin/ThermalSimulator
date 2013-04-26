@@ -55,7 +55,7 @@ public class FillerDialogBox extends JDialog
 		
 	private FillerDialogBox(Floorplanner gui, MasterMap masters, Master cur_master) 
 	{
-		super(gui, "New Instance", true);
+		super(gui, "Generate Fillers", true);
 		
 		this.cur_master = cur_master;
 		
@@ -179,6 +179,7 @@ public class FillerDialogBox extends JDialog
 	{
 		if (checkInputs())
 		{
+			label_filler_count.setText("Calculating filler instances");
 			Master fill_master = Master.createFillerMaster(cur_master, 
 					Double.parseDouble(text_max_aspect_ratio.getText()), text_filler_master_name.getText());
 			MasterInst filler_inst = new MasterInst(cur_master, fill_master,
