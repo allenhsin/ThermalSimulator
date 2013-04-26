@@ -29,7 +29,6 @@ namespace Thermal
 
     protected:
         void loadConfig();
-        void printTtraceFile(bool startup);
 
     private:
         // construct floorplan data structure

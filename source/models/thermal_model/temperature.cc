@@ -8,6 +8,8 @@
 #include "libutil/LibUtil.h"
 
 using std::vector;
+using std::string;
+using LibUtil::String;
 
 namespace Thermal
 {
@@ -20,9 +22,11 @@ namespace Thermal
         _power.clear();
     }
 
-
     Temperature::~Temperature()
-    {}
+    {
+        if(_ttrace_file)
+            fclose(_ttrace_file);
+    }
 
     void Temperature::updateTemperatureData()
     {
@@ -48,6 +52,37 @@ namespace Thermal
             
             _power[ (n_layers-1) * n_units + i ] = ambient_temp * _rc_model_holder->g_amb[i];
         }
+    }
+
+    void Temperature::printTtraceFiles(bool initialization)
+    {
+        assert(_rc_model_holder);
+        assert(_floorplan_holder);
+        int i = 0, j = 0;
+
+        if(initialization)
+        {   
+            _ttrace_file = fopen(_ttrace_file_name.c_str(), "w");
+            if(!_ttrace_file)
+                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
+
+
+            // not including the air layer
+            for(i = 0; i < _rc_model_holder->layer.n_layers; ++i)
+            {
+                // print flp unit names
+                for(j = 0; j < _floorplan_holder->_n_units; ++j)
+                    fprintf(_ttrace_file, "layer%d.%s ", i, (_floorplan_holder->_flp_units[j]._name).c_str() );
+            }
+            fprintf(_ttrace_file, "\n");
+        }
+
+        for(i = 0; i < _rc_model_holder->layer.n_layers; ++i)
+        {
+            for(j = 0; j < _floorplan_holder->_n_units; ++j)
+                fprintf(_ttrace_file, "%.5f ", _temperature[ (i*_floorplan_holder->_n_units) + j]);
+        }
+        fprintf(_ttrace_file, "\n");
     }
     
     void Temperature::computeTransientTemperatureFromPower()
@@ -116,6 +151,9 @@ namespace Thermal
         // compute temp from power
         computeTransientTemperatureFromPower();
 
+        // print ttrace files
+        printTtraceFiles(false);
+
         // write temperature back to the main data structure
         updateTemperatureData();
 
@@ -139,6 +177,9 @@ namespace Thermal
         for(int i=0; i<(int) _temperature.size(); ++i)
             _temperature[i] = initial_temperature;
         
+        // print ttrace files
+        printTtraceFiles(true);
+
         // write temperature back to the main data structure
         updateTemperatureData();
 

@@ -53,29 +53,6 @@ namespace Thermal
         _sampling_intvl = _config->getFloat("env_setup/sampling_intvl");
     }
 
-    void ThermalModel::printTtraceFile(bool startup)
-    {
-        if(startup)
-            _ttrace_file = fopen( _config->getString("env_setup/ttrace_file").c_str(), "w");
-
-        if(!_ttrace_file)
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open ttrace file for output.\n");
-
-        assert(Data::getSingleton()->getTemperatureDataSize() == (unsigned int) _floorplan->getFloorplanHolder()->_n_units);
-
-        if(startup)
-        {
-            // print flp unit names
-            for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
-                fprintf(_ttrace_file, "%s ", (_floorplan->getFloorplanHolder()->_flp_units[i]._name).c_str() );
-            fprintf(_ttrace_file, "\n");
-        }
-        // print init temp values
-        for(int i =0; i<_floorplan->getFloorplanHolder()->_n_units; ++i)
-            fprintf(_ttrace_file, "%.2f ", Data::getSingleton()->getTemperatureData(_floorplan->getFloorplanHolder()->_flp_units[i]._name));
-        fprintf(_ttrace_file, "\n");
-    }
-
     void ThermalModel::startup()
     {
         LibUtil::Log::printLine( "Startup " + getModelName() );
@@ -120,15 +97,12 @@ namespace Thermal
         _temperature->setFloorplanHolder(_floorplan->getFloorplanHolder());
         _temperature->setRCModelHolder(_rc_model->getRCModelHolder());
         _temperature->setSamplingInterval( _sampling_intvl );
+        _temperature->setTtraceFileName( _config->getString("env_setup/ttrace_file") );
 
         // set initial temperature and initialize temperature model
         _temperature->initialize( _config->getFloat("chip/init_temp"), _config->getFloat("chip/ambient_temp") );
     // ------------------------------------------------------------------------
         
-    // Print temperature trace file -------------------------------------------
-        printTtraceFile(true);
-    // ------------------------------------------------------------------------
-
     // Schedule the first thermal model execution event -----------------------
         // first update any accumulated energy if necessary
         EventScheduler::getSingleton()->enqueueEvent(_sampling_intvl, DEVICE_MANAGER);
@@ -155,10 +129,6 @@ namespace Thermal
     // Compute Transient Temperature ------------------------------------------
         Time time_since_last_update = scheduled_time - _last_execute_time;
         _temperature->updateTransientTemperature(time_since_last_update);
-    // ------------------------------------------------------------------------
-
-    // Print temperature trace file -------------------------------------------
-        printTtraceFile(false);
     // ------------------------------------------------------------------------
 
     // Clear the accumulated energy in the data structure ---------------------

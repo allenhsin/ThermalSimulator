@@ -3,6 +3,8 @@
 #define __THERMAL_TEMPERATURE_H__
 
 #include <vector>
+#include <string>
+#include <stdio.h>
 
 #include "source/models/thermal_model/floorplan.h"
 #include "source/models/thermal_model/rc_model.h"
@@ -22,6 +24,8 @@ namespace Thermal
         { _rc_model_holder = rc_model_holder; }
         void setSamplingInterval(double sampling_intvl)
         { _sampling_intvl = sampling_intvl; }
+        void setTtraceFileName(std::string ttrace_file_name)
+        { _ttrace_file_name = ttrace_file_name; }
         
         void initialize(double initial_temperature, double ambient_temperature);
         void updateTransientTemperature(Time time_elapsed_since_last_update);
@@ -29,6 +33,7 @@ namespace Thermal
     protected:
         void updateTemperatureData();
         void computeTransientTemperatureFromPower();
+        void printTtraceFiles(bool initialization);
         void setInternalPower(double ambient_temp);
 
     private:
@@ -38,12 +43,14 @@ namespace Thermal
         double                  _sampling_intvl;
         
         // _temperature is in the floorplan unit order
-        // for each layer, plus EXTRA nodes.
+        // for each layer.
         // i.e. within each layer the order is the same
         // with _floorplan_holder->_flp_units[i]
-        std::vector<double>      _temperature;
+        std::vector<double>     _temperature;
         // _power is in also in the floorplan unit order
-        std::vector<double>      _power;
+        std::vector<double>     _power;
+        std::string             _ttrace_file_name;
+        FILE*                   _ttrace_file;
 
     }; // class Temperature
 
