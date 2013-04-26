@@ -11,6 +11,15 @@
 namespace Thermal
 {
     class VerilogScope;
+    
+    enum VerilogBinOp
+    {
+        BOP_PLUS,
+        BOP_MINUS,
+        BOP_TIMES,
+        BOP_DIV,
+        BOP_MOD
+    };
 
     class VerilogExpression
     {
@@ -19,7 +28,8 @@ namespace Thermal
             NUMBER,
             CONCAT,
             IDENTIFIER,
-            IDENTIFIER_RANGE
+            IDENTIFIER_RANGE,
+            BINARY_EXPRESSION
         };
     
         public:
@@ -27,10 +37,11 @@ namespace Thermal
             VerilogExpression(const VerilogExpressions& concat_);
             VerilogExpression(const std::string& identifier_);
             VerilogExpression(const std::string& identifier_, const VerilogRange& range_);
+            VerilogExpression(const VerilogExpression& expr0_, VerilogBinOp bin_op, const VerilogExpression& expr1_);
             virtual ~VerilogExpression();
             
-            void elaborate(VerilogScope* scope_);
-        
+            void elaborate(VerilogScope* scope_);        
+
         public:
             // Copy constructor
             VerilogExpression(const VerilogExpression& expr_);
@@ -48,20 +59,26 @@ namespace Thermal
         private:
             void deleteSelf();
             void copy(const VerilogExpression& expr_);
-        
+            // Evaluate a binary expression
+            void evaluate();
+            
         private:
             // Type of the expression
             Type m_type_;
+            
             // Various stored types
             VerilogNumber* m_val_num_;
             VerilogExpressions* m_val_concat_;
             std::string m_val_identifier_;
-            VerilogRange* m_val_range_;            
+            VerilogRange* m_val_range_;
+            VerilogExpression* m_val_expr0_;
+            VerilogExpression* m_val_expr1_;
+            VerilogBinOp m_val_bin_op_;
+            
             // Elaborated
             bool m_elaborated_;            
             // Is constant expression
-            bool m_const_expr_;
-            
+            bool m_const_expr_;            
     };
 }
 #endif

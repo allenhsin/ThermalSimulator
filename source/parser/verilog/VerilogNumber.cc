@@ -63,7 +63,14 @@ namespace Thermal
             throw VerilogException("Numerical constants with bit widths > UINT_MAX_BITS are unsupported at this moment.");
         }
     }
-
+    
+    VerilogNumber::VerilogNumber(unsigned int num_)
+    {
+        m_use_uint_ = true;
+        m_width_ = DEFAULT_WIDTH;
+        m_value_uint_ = num_;
+    }
+    
     VerilogNumber::~VerilogNumber()
     {}
     

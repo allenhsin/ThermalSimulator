@@ -18,6 +18,7 @@ namespace Thermal
     
         public:
             VerilogNumber(const std::string& num_str_);
+            VerilogNumber(unsigned int num_);
             virtual ~VerilogNumber();
             
         public:

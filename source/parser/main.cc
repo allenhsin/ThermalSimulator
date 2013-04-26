@@ -33,7 +33,8 @@ int main(int argc, char** argv)
     VerilogFileReader* file_reader = new VerilogFileReader(file_);
     file_reader->parse();
     //snazzleparse();
-    
+    file_reader->elaborate();
+
     //cout << snazzle_awesome << endl;
 
     delete file_reader;
