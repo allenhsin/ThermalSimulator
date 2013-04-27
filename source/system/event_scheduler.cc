@@ -6,8 +6,11 @@
 #include <string>
 #include <cassert>
 #include <stddef.h>
+#include <stdio.h>
 
 using LibUtil::String;
+using std::cout;
+using std::scientific;
 
 namespace Thermal
 {
@@ -62,6 +65,10 @@ namespace Thermal
 
     void EventScheduler::startScheduler()
     {
+        Time next_progress_report_time = 1e-6;
+        Time progress_report_time_interval = 1e-6;
+        fprintf(stdout, "\n\n");
+
         // Set time to zero
         advanceSimClockToAbsTime(0);
 
@@ -80,6 +87,14 @@ namespace Thermal
         {
             next_event = dequeueEvent();
             advanceSimClockToAbsTime(next_event._scheduled_time);
+            
+            // progress report
+            if(_sim_clock >= next_progress_report_time)
+            {
+                fprintf(stdout, "Time Progress: %e sec\n", next_progress_report_time);
+                next_progress_report_time += progress_report_time_interval;
+            }
+
             LibUtil::Log::printLine ( "\nTime: " + (String) _sim_clock );
             _model[static_cast<int>(next_event._model_type)]->execute(next_event._scheduled_time);
         }

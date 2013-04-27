@@ -1,0 +1,26 @@
+# This is the comment line
+# In-line comment with command is not allowed
+#
+# List the device and its port you want to monitor, each
+# port information will be print out to one file. The
+# format is
+#
+#       <DEVICE_INSTANCE_NAME, PORT 1, PORT 2, ...>
+#
+# The device instance name is as defined in the device
+# netlist.
+#
+[device_list]
+<device_1, out, in>
+<device_2, in>
+
+# The time list define the time interval the simulator
+# monitors the devices listed above. The time list must
+# be list in ascending order with no overlaps. The 
+# format is
+#
+#   START_TIME-DURATION
+#
+[time]
+0-1
+
