@@ -1,3 +1,6 @@
+# parameters
+
+CONFIG_FILE ?= configs/thermal_sim.cfg
 
 # Define the directories that will be compiled
 DIRS_TO_SOURCE  := source \
@@ -51,7 +54,7 @@ $(TARGET): $(OBJS)
 
 run:
 	make clean_results
-	$(TARGET) 
+	$(TARGET) -c $(CONFIG_FILE)
 
 clean:
 	make clean_results

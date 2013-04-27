@@ -1,5 +1,5 @@
-# Floorplan CellTest_fill, 71 instances
-floorplan CellTest_fill
+# Floorplan CellChip_fill, 71 instances
+floorplan CellChip_fill
     filler Fill_0 4.5E-5 2.6E-5 9.0E-5 3.0E-4
     filler Fill_5 4.5E-5 2.6E-5 1.35E-4 3.0E-4
     filler Fill_6 4.0E-5 2.0E-5 1.35E-4 3.3E-4
@@ -73,8 +73,8 @@ floorplan CellTest_fill
     filler Fill_9_w1_w1_w1 1.125E-5 1.0E-5 2.5875E-4 3.4E-4
 endfloorplan
 
-# Floorplan CellTest, 36 instances
-floorplan CellTest
+# Floorplan CellChip, 36 instances
+floorplan CellChip
     atomic cell_btm_0 1.35E-4 1.5E-4 0.0 0.0
     atomic cell_btm_1 1.35E-4 1.5E-4 1.35E-4 0.0
     atomic cell_btm_2 1.35E-4 1.5E-4 2.7E-4 0.0
@@ -110,6 +110,6 @@ floorplan CellTest
     atomic waveguide_6 9.0E-5 4.0E-6 5.4E-4 3.26E-4
     atomic waveguide_7 9.0E-5 4.0E-6 6.3E-4 3.26E-4
     atomic waveguide_8 9.0E-5 4.0E-6 7.2E-4 3.26E-4
-    CellTest_fill Filler 0.0 0.0
+    CellChip_fill Filler 0.0 0.0
 endfloorplan
 

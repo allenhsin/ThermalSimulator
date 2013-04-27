@@ -285,7 +285,7 @@ namespace Thermal
                 line_token = strtok(NULL, " \r\t\n");
                 strcpy(flp_obj_name, line_token);
                 // check floorplan object name validity
-                if(!flp_obj_name)
+                if(strlen(flp_obj_name)==0)
                     LibUtil::Log::printFatalLine(std::cerr, "\nERROR: No floorplan object name.\n");
                 // check if there are duplicated floorplan objs names
                 if(_floorplan_objects.count( (string) flp_obj_name ))
