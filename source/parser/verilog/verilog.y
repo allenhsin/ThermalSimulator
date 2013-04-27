@@ -105,6 +105,12 @@ void yyerror(VerilogFile* file_, const char *s);
 %token  PARAMETER       "parameter"
 %token  WIRE            "wire"
 
+%token  <sval>          '+'
+%token  <sval>          '-'
+%token  <sval>          '*'
+%token  <sval>          '/'
+%token  <sval>          '%'
+
 // define some terminal symbol data types
 %token  <fval>          FLOAT
 %token  <sval>          IDENTIFIER
@@ -218,6 +224,8 @@ param_assignment:
 module_instantiation:
     IDENTIFIER parameter_value_assignment list_of_module_instances ';' 
         { 
+            // I don't like how this is written, probably should rewrite the data
+            // structure a bit to minimize the chance of accidental memory leaks
             VerilogInstances::const_iterator it;
             for (it = $3->begin(); it != $3->end(); ++it)
             {

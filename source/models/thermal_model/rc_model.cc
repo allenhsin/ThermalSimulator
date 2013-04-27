@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <cassert>
+#include <cstring>
 
 #include "source/models/thermal_model/rc_model.h"
 #include "source/models/thermal_model/thermal_util.h"
