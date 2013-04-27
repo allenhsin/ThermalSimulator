@@ -195,12 +195,12 @@ public class Master implements Comparable<Master>
 	 * Helper function that adds atomics in a master hierarchically to an atomics list
 	 */
 	public static void addFlatInstances(List<MasterInst> atomics, Master m, GridPoint x_coord, GridPoint y_coord, String hier_name)
-	{		
+	{	
 		// If it is an atomic, add it to the list of atomics
-		if (m.isAtomic())
+		if (m != null && m.isAtomic())
 			atomics.add(new MasterInst(null, m, hier_name, x_coord, y_coord));
 		// Otherwise recursively walk
-		else
+		else if (m != null)
 		{
 			// Recursively add atomics through all sub instances
 			Iterator<MasterInst> it = m.getInstances().iterator();
