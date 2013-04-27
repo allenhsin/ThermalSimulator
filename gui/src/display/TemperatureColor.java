@@ -6,7 +6,7 @@ import java.awt.Color;
 class TemperatureColor
 {
 	public static final double COLOR_POWER = 0.7;
-	public static final double INV_COLOR_POWER = 1.0 / 0.7;
+	public static final double INV_COLOR_POWER = 1.0 / COLOR_POWER;
 	
 	static Color getColor(double temp, double max_temp, double min_temp)
 	{
@@ -41,7 +41,6 @@ class TemperatureColor
 		else if (val < 0.625f) return (0.625f - val)/0.25f;
 		else return 0.0f;
 	}
-	
 	static double getTemp(double max_temp, double min_temp, Color color)
 	{
 		return Math.pow(color.getRed()/256f, INV_COLOR_POWER) * (max_temp - min_temp) + min_temp;

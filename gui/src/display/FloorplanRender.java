@@ -1,10 +1,13 @@
 package display;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Stroke;
 
 import java.awt.AlphaComposite;
 import java.awt.event.ComponentEvent;
@@ -33,14 +36,21 @@ public class FloorplanRender extends JComponent
 	public static final Paint COLOR_ATOMIC = Color.GRAY;
 	public static final Paint COLOR_FILLER = Color.GRAY;
 	public static final Paint COLOR_HIGHLIGHTS = Color.YELLOW;
+	public static final Paint COLOR_TEMPTEXT = Color.BLACK;
 	
 	public static final float ALPHA_BACKGROUND = 1.0f;	
 	public static final float ALPHA_BORDER = 1.0f;	
 	public static final float ALPHA_OUTLINE = 1.0f;	
 	public static final float ALPHA_ATOMIC = 0.6f;	
 	public static final float ALPHA_FILLER = 0.3f;	
-	public static final float ALPHA_HIGHLIGHTS = 0.5f;	
-
+	public static final float ALPHA_HIGHLIGHTS = 0.5f;
+	
+	public static final float LINEWIDTH_HIGHLIGHTS = 8f;
+	
+	public static final Font FONT_TEMPTEXT = new Font("Arial", Font.BOLD, 10);
+	public static final String FORMAT_TEMPTEXT = "%6.3f";
+	
+	
 	// The master to render
 	private Master render_target;
 	// The temperature trace to follow
@@ -139,6 +149,7 @@ public class FloorplanRender extends JComponent
 	public synchronized void paintTemperatures(Graphics2D g)
 	{
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+		g.setFont(FONT_TEMPTEXT);
 		// Paint temperatures helper
 		paintTemperatures(g, render_target, new Coord(0.0, 0.0), "");
 	}
@@ -155,11 +166,19 @@ public class FloorplanRender extends JComponent
 			int idx = temp_trace.getIdxMap().get(hier_name);
 			TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
 			
+			// Get the temperature
+			double temperature = temp_step.getTemperatures()[layer][idx];
+			
 			// Set the painting color based on the temperature
-			g.setPaint(TemperatureColor.getColor(temp_step.getTemperatures()[layer][idx], max_temp, min_temp));
+			Color temp_color = TemperatureColor.getColor(temp_step.getTemperatures()[layer][idx], max_temp, min_temp);
+			g.setPaint(temp_color);
 			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
 					trans_x, trans_y, offset_x, offset_y, scale);			
 			g.fillRect(rect.x, rect.y, rect.w, rect.h);
+			
+			// Write a string with the temperature information
+            drawStringInBox(g, new Color(~temp_color.getRGB()),
+            		String.format(FORMAT_TEMPTEXT, temperature), rect);			
 		}
 		else
 		{
@@ -268,7 +287,16 @@ public class FloorplanRender extends JComponent
 		{
 			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
 					trans_x, trans_y, offset_x, offset_y, scale);			
-			g.fillRect(rect.x, rect.y, rect.w, rect.h);
+			if (temp_trace == null)
+				g.fillRect(rect.x, rect.y, rect.w, rect.h);
+			else
+			{
+				Stroke old_stroke = g.getStroke();
+				g.setStroke(new BasicStroke(LINEWIDTH_HIGHLIGHTS));
+				g.drawRect(rect.x, rect.y, rect.w, rect.h);
+				g.setStroke(old_stroke);
+			}
+				
 		}
 		// Otherwise recursively call and paint
 		else
@@ -280,6 +308,23 @@ public class FloorplanRender extends JComponent
 				MasterInst next_inst = it.next();
 				paintHighlights(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)));
 			}
+		}
+	}
+	
+	private void drawStringInBox(Graphics2D g, Color c, String s, FloorplanRectangle rect)
+	{
+		// If there is enough room to write the temperature
+		int string_w = (int) g.getFontMetrics().getStringBounds(s, g).getWidth();
+		int string_h = (int) g.getFontMetrics().getStringBounds(s, g).getHeight();
+
+		if ((string_w + 10 < rect.w) && (string_h + 10 < rect.h))
+		{			
+			int start_x = rect.w / 2 - string_w / 2;
+			int start_y = rect.h / 2 - string_h / 2;
+            g.setPaint(c);
+    		g.scale(1, -1);
+			g.drawString(s, rect.x + start_x, -(rect.y + start_y));
+    		g.scale(1, -1);
 		}
 	}
 	
