@@ -173,7 +173,7 @@ public class FloorplanRender extends JComponent
 			double temperature = temp_step.getTemperatures()[layer][idx];
 			
 			// Set the painting color based on the temperature
-			Color temp_color = TemperatureColor.getColorRGB(temp_step.getTemperatures()[layer][idx], max_temp, min_temp);
+			Color temp_color = TemperatureScale.getColorRGB(temp_step.getTemperatures()[layer][idx], max_temp, min_temp);
 			g.setPaint(temp_color);
 			FloorplanRectangle rect = new FloorplanRectangle(next_inst, trans_x, trans_y, offset_x, offset_y, scale);			
 			g.fillRect(rect.x, rect.y, rect.w, rect.h);

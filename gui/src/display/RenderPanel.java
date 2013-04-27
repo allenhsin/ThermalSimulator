@@ -32,9 +32,12 @@ public class RenderPanel extends JPanel
 
 	// The floorplan render image
 	private FloorplanRender render;
+	// Temperature color scale
+	private TemperatureScale scale;
+	// Time slider panel
+	private JPanel time_slider_panel;
 	// The slider for controller the current time (for temperature renders)
 	private JSlider time_slider;	
-
 	// Render labels
 	private JLabel render_name_text;
 	
@@ -60,17 +63,26 @@ public class RenderPanel extends JPanel
 		temp_trace_map = new HashMap<Master, TemperatureTrace>();
 		
 		render = new FloorplanRender (image_size);
+		scale = new TemperatureScale();
+
 		// Create mouse and keyboard listeners
 		new RenderMouse(this);
 		new RenderKeyboard(this);
 		
 		add(render, BorderLayout.CENTER);
+		add(scale, BorderLayout.WEST);
+		
 		createTimeSliderPanel();
+
+		scale.setVisible(false);
+		time_slider.setEnabled(false);
+		time_slider_panel.setVisible(false);
+
 	}
 
 	private void createTimeSliderPanel()
 	{
-		JPanel time_slider_panel = new JPanel();
+		time_slider_panel = new JPanel();
 		time_slider_panel.setLayout(new BorderLayout());
 
 		time_slider_file_text = new JLabel("No Temperature Trace Loaded", JLabel.CENTER);
@@ -145,8 +157,11 @@ public class RenderPanel extends JPanel
 		if (trace == null)
 		{
 			render.setTempTrace(null);
+			scale.setVisible(false);
 			time_slider.setEnabled(false);
+			time_slider.setVisible(false);
 			time_slider_file_text.setText("No Temperature Trace Loaded");
+			time_slider_panel.setVisible(false);
 		}
 		else if (trace.isCompatible(render.getRenderTarget()))
 		{
@@ -162,8 +177,13 @@ public class RenderPanel extends JPanel
 			time_slider.setMajorTickSpacing(total_steps / 10);
 			time_slider_file_text.setText(trace.getFile().getName());
 			time_slider.setEnabled(true);
-			
+			time_slider.setVisible(true);
+			scale.setVisible(true);			
+			time_slider_panel.setVisible(true);
 			layer_spinner.setModel(new SpinnerNumberModel(0, 0, trace.getNumLayers() - 1, 1));
+			
+			scale.setMaxTemp(trace.getMaxTemp());
+			scale.setMinTemp(trace.getMinTemp());
 		}
 		else
 		{

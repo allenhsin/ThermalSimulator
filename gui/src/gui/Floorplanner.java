@@ -105,7 +105,10 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	{
 		try
 		{
-			render_panel.setTempTrace(TemperatureTrace.parseTemperatureTrace(temp_trace));
+			if (cur_master != null)
+				render_panel.setTempTrace(TemperatureTrace.parseTemperatureTrace(temp_trace));
+			else
+				JOptionPane.showMessageDialog(this, "File reading aborted: no floorplan loaded", "Open", JOptionPane.WARNING_MESSAGE);				
 		}
 		catch (Exception ex)
 		{ 

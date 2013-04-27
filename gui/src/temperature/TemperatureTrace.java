@@ -115,11 +115,12 @@ public class TemperatureTrace
 			if (step.getMinTemp() < temp.min_temp) temp.min_temp = step.getMinTemp();
 		}
 		
+		
+		s.close();
+
 		// Check
 		if (i != (lines - 1)) throw new Exception("Expected number of lines (" + lines +
 				") did not match actual number of lines (" + i + ")!");
-		
-		s.close();
 		
 		return temp;
 	}
