@@ -1,9 +1,0 @@
-[device_list]
-<modulator_driver, out, ref>
-<laser_source, out>
-<waveguide_0, in, out>
-<waveguide_1, in, out>
-
-[time]
-0-5e-6
-

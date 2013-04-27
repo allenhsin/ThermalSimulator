@@ -11,19 +11,25 @@
 #           specific heat - [J/(m^3-K)]
 #
 # some common numbers at around 300K:
-#                       thermal conductivity    specific heat
-#   silicon:            149.0                   1.65e6
-#   silicon dioxide:    1.38                    2.27e6
+#                           thermal conductivity    specific heat
+#   silicon:                149.0                   1.65e6
+#   silicon dioxide:        1.38                    2.27e6
+#   silicon carbide (6H):   490                     2.25e6
 #
 # Note: The first layer has to be the device layer, and the following
 #       layers should be in order.
 
 # device layer (transistors and optical devices) - comb. of silicon and silicon dioxide
-100e-9 5.00 2.00e6
+100e-9 149.0 1.65e6
 
 # SOI buried oxide layer (BOX) - silicon dioxide
 150e-9 1.38 2.27e6
 
 # substrate layer - silicon
-300e-6 149.0 1.65e6
+0.5e-6 1.38 2.27e6
+2e-6 1.38 2.27e6
+8e-6 1.38 2.27e6
+32e-6 1.38 2.27e6
+128e-6 1.38 2.27e6
+128e-6 1.38 2.27e6
 

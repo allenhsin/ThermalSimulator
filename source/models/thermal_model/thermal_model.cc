@@ -79,7 +79,7 @@ namespace Thermal
     // Construct RC Model -----------------------------------------------------
         // allocate the RC model
         _rc_model->setFloorplanHolder(_floorplan->getFloorplanHolder());
-        _rc_model->allocateRCModelHolder( _config->getString("chip/process_file"), _sampling_intvl );
+        _rc_model->allocateRCModelHolder( _config->getString("chip/process_def_file"), _sampling_intvl );
         assert(_rc_model->getRCModelHolder());
         // populate RC equivalent circuit
         _rc_model->populateR( _config->getFloat("chip/r_convec") );
