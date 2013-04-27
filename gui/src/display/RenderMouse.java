@@ -2,10 +2,14 @@ package display;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.AWTException;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.Robot;
 
 import javax.swing.event.MouseInputAdapter;
+
+import temperature.TemperatureTrace;
 
 public class RenderMouse extends MouseInputAdapter 
 {	
@@ -43,6 +47,16 @@ public class RenderMouse extends MouseInputAdapter
 	{
 		Point p = e.getPoint();
 		panel.setMouseCoord(p.x, p.y);
+		
+//		Robot r = null;
+//		try {
+//			r = new Robot();
+//		} catch (AWTException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		TemperatureTrace t = panel.getRender().getTemperatureTrace();
+//		System.out.println(TemperatureColor.getTemp(t.getMaxTemp(), t.getMinTemp(), r.getPixelColor(e.getXOnScreen(), e.getYOnScreen())));
 	}
 	
 	

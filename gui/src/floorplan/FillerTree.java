@@ -1,6 +1,9 @@
 package floorplan;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -22,15 +25,21 @@ public class FillerTree
 	public void calculateFill(Master m)
 	{
 		Box b_box = Master.getBoundingBox(m);
-		root = new FillerTreeNode(b_box.llx, b_box.lly, b_box.urx, b_box.ury);	
-		calculateFill(m, new GridPoint(0), new GridPoint(0));
+		root = new FillerTreeNode(b_box.llx, b_box.lly, b_box.urx, b_box.ury);
+		
+		// Find all the atomic instances
+		List<AtomicMasterRaw> atomics = new LinkedList<AtomicMasterRaw>();
+		findAtomics(atomics, m, new GridPoint(0), new GridPoint(0));
+		// Sort the atomic instances (by area)
+		Collections.sort(atomics);		
+		calculateFill(atomics);
 	}
 	
-	private void calculateFill(Master m, GridPoint x_coord, GridPoint y_coord)
-	{
+	private void findAtomics(List<AtomicMasterRaw> atomics, Master m, GridPoint x_coord, GridPoint y_coord)
+	{		
 		// If it is a leaf, subtract it from the fill shape
 		if (m.isAtomic())
-			subtractFill(m, x_coord, y_coord);
+			atomics.add(new AtomicMasterRaw(m, x_coord, y_coord));
 		// Otherwise recursively walk through and calculate fill
 		else
 		{
@@ -39,10 +48,17 @@ public class FillerTree
 			while(it.hasNext())
 			{
 				MasterInst next_inst = it.next();
-				calculateFill(next_inst.m, GridPoint.add(x_coord, next_inst.x), GridPoint.add(y_coord, next_inst.y));
+				findAtomics(atomics, next_inst.m, GridPoint.add(x_coord, next_inst.x), GridPoint.add(y_coord, next_inst.y));
 			}
 		}
 		
+	}
+	
+	private void calculateFill(List<AtomicMasterRaw> atomics)
+	{
+		Iterator<AtomicMasterRaw> it = atomics.iterator();
+		while (it.hasNext())
+			subtractFill(it.next());
 	}
 	
 	// Get a list of filler instance for a master
@@ -112,13 +128,13 @@ public class FillerTree
 	}
 	
 	// Tell the filler tree node to subtract fill
-	private void subtractFill(Master m, GridPoint x_coord, GridPoint y_coord)
+	private void subtractFill(AtomicMasterRaw a)
 	{
 		// Make sure the master to subtract is atomic
-		if(!m.isAtomic())
+		if(!a.m.isAtomic())
 			throw new Error("Error: expected atomic master in filler subroutine, got non-atomic master.");
 		// Tell the root to subtract the fill
-		root.subtractFill(m, x_coord, y_coord);
+		root.subtractFill(a);
 	}
 }
 
@@ -162,8 +178,12 @@ class FillerTreeNode
 	}
 	
 	// Tell the filler tree node to subtract fill
-	void subtractFill(Master m, GridPoint x_coord, GridPoint y_coord)
+	void subtractFill(AtomicMasterRaw a)
 	{
+		Master m = a.m;
+		GridPoint x_coord = a.x;
+		GridPoint y_coord = a.y;
+		
 		// Calculate the bounding box of the subtracted master, with limits
 		// at the bounding box of the current node
 		GridPoint m_llx = GridPoint.max(x_coord, llx);
@@ -186,18 +206,18 @@ class FillerTreeNode
 					// This is no longer a leaf
 					leaf = false;
 					// Create new sub leaf nodes
-					n = new FillerTreeNode(llx, m_ury, urx, ury);
-					s = new FillerTreeNode(llx, lly, urx, m_lly);
-					e = new FillerTreeNode(m_urx, m_lly, urx, m_ury);
-					w = new FillerTreeNode(llx, m_lly, m_llx, m_ury);
+					n = new FillerTreeNode(m_llx, m_ury, urx, ury);
+					s = new FillerTreeNode(llx, lly, m_urx, m_lly);
+					e = new FillerTreeNode(m_urx, lly, urx, m_ury);
+					w = new FillerTreeNode(llx, m_lly, m_llx, ury);
 				}
 				// If not, then perform the subtractFill operation on all the children
 				else
 				{
-					n.subtractFill(m, x_coord, y_coord);
-					s.subtractFill(m, x_coord, y_coord);
-					e.subtractFill(m, x_coord, y_coord);
-					w.subtractFill(m, x_coord, y_coord);
+					n.subtractFill(a);
+					s.subtractFill(a);
+					e.subtractFill(a);
+					w.subtractFill(a);
 				}
 			}
 		}
@@ -249,3 +269,33 @@ class FillerTreeNode
 	}
 }
 
+/**
+ * Helper class used to sort atomic masters by their area
+ */
+class AtomicMasterRaw implements Comparable<AtomicMasterRaw>
+{
+	Master m;
+	GridPoint x, y;
+	
+	AtomicMasterRaw(Master m, GridPoint x, GridPoint y)
+	{
+		if (!m.isAtomic())
+			throw new Error("Error: expected atomic master in constructor, got non-atomic master.");
+		this.m = m;
+		this.x = x;
+		this.y = y;
+	}
+	
+	@Override
+	public int compareTo(AtomicMasterRaw a) 
+	{
+		double my_width = m.getWidth().toDouble();
+		double my_height = m.getHeight().toDouble();
+		double a_width = a.m.getWidth().toDouble();
+		double a_height = a.m.getHeight().toDouble();
+		
+		if ((my_width * my_height) == (a_width * a_height)) return 0;
+		else if ((my_width * my_height) > (a_width * a_height)) return -1;
+		else return 1;
+	}
+}

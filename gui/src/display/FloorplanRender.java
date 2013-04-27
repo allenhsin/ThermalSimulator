@@ -138,6 +138,7 @@ public class FloorplanRender extends JComponent
 	
 	public synchronized void paintTemperatures(Graphics2D g)
 	{
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 		// Paint temperatures helper
 		paintTemperatures(g, render_target, new Coord(0.0, 0.0), "");
 	}
@@ -200,6 +201,7 @@ public class FloorplanRender extends JComponent
 	 */
 	private synchronized void paintOutlines(Graphics2D g, boolean fill, Master target, Coord origin)
 	{
+		// TODO: Prune things out of view
 		// If it is a leaf, paint it
 		if (target.isAtomic())
 		{
