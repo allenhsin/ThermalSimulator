@@ -15,6 +15,8 @@ import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import floorplan.*;
@@ -44,9 +46,9 @@ public class FloorplanRender extends JComponent
 	public static final float ALPHA_OUTLINE = 1.0f;	
 	public static final float ALPHA_ATOMIC = 0.6f;	
 	public static final float ALPHA_FILLER = 0.3f;	
-	public static final float ALPHA_HIGHLIGHTS = 0.5f;
+	public static final float ALPHA_HIGHLIGHTS = 1.0f;
 	
-	public static final float LINEWIDTH_HIGHLIGHTS = 8f;
+	public static final float LINEWIDTH_HIGHLIGHTS = 4f;
 	
 	public static final Font FONT_TEMPTEXT = new Font("Arial", Font.BOLD, 10);
 	public static final String FORMAT_TEMPTEXT = "%6.3f";
@@ -57,7 +59,7 @@ public class FloorplanRender extends JComponent
 	// The temperature trace to follow
 	private TemperatureTrace temp_trace;
 	// Map of floorplan instance names to highlight
-	private HashMap<String, Boolean> highlights;
+	private HashMap<String, MasterInst> highlights;
 	
 	// Current rendered time step
 	private int time;
@@ -81,7 +83,7 @@ public class FloorplanRender extends JComponent
 		setPreferredSize(image_size);
 
 		// Highlights
-		highlights = new HashMap<String, Boolean>();
+		highlights = new HashMap<String, MasterInst>();
 
 		// Set time step to 0;
 		time = 0;
@@ -103,9 +105,7 @@ public class FloorplanRender extends JComponent
 		highlights.clear();
 		// Go to default zoom if we are actually rendering something		
 		if (render_target != null)
-		{
 			updateImageSize();
-		}
 		zoom();
 		repaint();
 	}
@@ -133,133 +133,96 @@ public class FloorplanRender extends JComponent
 		g.setPaint(COLOR_BACKGROUND);
 		g.fillRect(0, 0, (int) getSize().getWidth(), (int) getSize().getHeight());
 		
+		// Get all the atomic instances
+		List<MasterInst> atomics = Master.getFlatInstances(render_target);
+		
 		// If there is stuff to render
 		if (render_target != null)
 		{
 			if (temp_trace != null)
 			{
-				paintTemperatures(g);
-				paintOutlines(g, false);
+				paintTemperatures(g, atomics);
+				paintOutlines(g, atomics, false);
 			}
 			else
-				paintOutlines(g, true);
+				paintOutlines(g, atomics, true);
 			paintHighlights(g);
 		}
 	}
 	
-	public synchronized void paintTemperatures(Graphics2D g)
+	public synchronized void paintTemperatures(Graphics2D g, List<MasterInst> atomics)
 	{
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 		g.setFont(FONT_TEMPTEXT);
-		// Paint temperatures helper
-		paintTemperatures(g, render_target, new Coord(0.0, 0.0), "");
-	}
+
+		// Get maximum and minimum temperatures
+		double max_temp = temp_trace.getMaxTemp();
+		double min_temp = temp_trace.getMinTemp();
+		// Get the temperatures for this time step
+		TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
 	
-	private synchronized void paintTemperatures(Graphics2D g, Master target, Coord origin, String hier_name)
-	{
-		if (target.isAtomic())
+		// Go through all atomic instances and paint them
+		Iterator<MasterInst> it = atomics.iterator();
+		while(it.hasNext())
 		{
-			// Get maximum and minimum temperatures
-			double max_temp = temp_trace.getMaxTemp();
-			double min_temp = temp_trace.getMinTemp();
-		
-			// Get temperatures at this time step
-			int idx = temp_trace.getIdxMap().get(hier_name);
-			TemperatureStep temp_step = temp_trace.getTemperatureSteps()[time];
+			MasterInst next_inst = it.next();			
+			// Get temperature for this instance
+			int idx = temp_trace.getIdxMap().get(next_inst.n);
 			
 			// Get the temperature
 			double temperature = temp_step.getTemperatures()[layer][idx];
 			
 			// Set the painting color based on the temperature
-			Color temp_color = TemperatureColor.getColor(temp_step.getTemperatures()[layer][idx], max_temp, min_temp);
+			Color temp_color = TemperatureColor.getColorRGB(temp_step.getTemperatures()[layer][idx], max_temp, min_temp);
 			g.setPaint(temp_color);
-			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
-					trans_x, trans_y, offset_x, offset_y, scale);			
+			FloorplanRectangle rect = new FloorplanRectangle(next_inst, trans_x, trans_y, offset_x, offset_y, scale);			
 			g.fillRect(rect.x, rect.y, rect.w, rect.h);
 			
 			// Write a string with the temperature information
             drawStringInBox(g, new Color(~temp_color.getRGB()),
             		String.format(FORMAT_TEMPTEXT, temperature), rect);			
 		}
-		else
-		{
-			// Recursively paint outlines through all sub instances
-			Iterator<MasterInst> it = target.getInstances().iterator();
-			while(it.hasNext())
-			{
-				MasterInst next_inst = it.next();
-				// Kind of a hack to avoid the extra hierarchical separator
-				if (next_inst.isAtomic())
-					paintTemperatures(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)),
-							hier_name + next_inst.n);					
-				else
-					paintTemperatures(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)),
-							hier_name + next_inst.n + Master.HIER_SEPARATOR);
-			}
-		}
 	}
 	
 	/**
 	 * Draw all the outlines of blocks
 	 */
-	public synchronized void paintOutlines(Graphics2D g, boolean fill)
+	public synchronized void paintOutlines(Graphics2D g, List<MasterInst> atomics, boolean fill)
 	{	
-		// Paint outlines, starting with the top floorplan instance at origin 0, 0
-		paintOutlines(g, fill, render_target, new Coord(0.0, 0.0));
-
+		// Go through all atomic instances and paint them
+		Iterator<MasterInst> it = atomics.iterator();
+		while(it.hasNext())
+		{
+			MasterInst next_inst = it.next();
+			// Find the bounding rectangle
+			FloorplanRectangle rect = new FloorplanRectangle(next_inst, trans_x, trans_y, offset_x, offset_y, scale);			
+			// Fill the rectangle if we are asked to
+			if (fill)
+			{
+				if (next_inst.isFiller())
+				{
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_FILLER));
+					g.setPaint(COLOR_FILLER);		
+				}
+				else
+				{
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_ATOMIC));
+					g.setPaint(COLOR_ATOMIC);		
+				}
+				g.fillRect(rect.x, rect.y, rect.w, rect.h);
+			}
+			// Draw outline around rectangle
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_OUTLINE));
+			g.setPaint(COLOR_OUTLINE);		
+			g.drawRect(rect.x, rect.y, rect.w, rect.h);	
+		}
+		
 		// Draw top-level border rectangle
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_BORDER));
 		g.setPaint(COLOR_BORDER);
 		FloorplanRectangle border = new FloorplanRectangle(Master.getBoundingBox(render_target), new Coord(0.0, 0.0),
 				trans_x, trans_y, offset_x, offset_y, scale);
 		g.drawRect(border.x,  border.y, border.w, border.h);
-	}
-	
-	/**
-	 * Paint a master instance at a specific location, returns the upper right
-	 * coordinates
-	 */
-	private synchronized void paintOutlines(Graphics2D g, boolean fill, Master target, Coord origin)
-	{
-		// TODO: Prune things out of view
-		// If it is a leaf, paint it
-		if (target.isAtomic())
-		{
-			// Find the bounding rectangle
-			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
-					trans_x, trans_y, offset_x, offset_y, scale);			
-			// Fill the rectangle if we are asked to
-			if (fill)
-			{
-				if (target.isFiller())
-				{
-					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_FILLER));
-					g.setPaint(COLOR_FILLER);		
-					g.fillRect(rect.x, rect.y, rect.w, rect.h);				
-				}
-				else
-				{
-					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_ATOMIC));
-					g.setPaint(COLOR_ATOMIC);		
-					g.fillRect(rect.x, rect.y, rect.w, rect.h);
-				}
-			}
-			// Draw outline around rectangle
-			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_OUTLINE));
-			g.setPaint(COLOR_OUTLINE);		
-			g.drawRect(rect.x, rect.y, rect.w, rect.h);			
-		}
-		// Otherwise recursively call and paint
-		else
-		{
-			// Recursively paint outlines through all sub instances
-			Iterator<MasterInst> it = target.getInstances().iterator();
-			while(it.hasNext())
-			{
-				MasterInst next_inst = it.next();
-				paintOutlines(g, fill, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)));
-			}
-		}
 	}
 
 	public synchronized void paintHighlights(Graphics2D g)
@@ -268,47 +231,25 @@ public class FloorplanRender extends JComponent
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, ALPHA_HIGHLIGHTS));
 		g.setPaint(COLOR_HIGHLIGHTS);
 
-		// Iterate through all sub-instances, see if any of them need to be highlighted
-		Iterator<MasterInst> it = render_target.getInstances().iterator();		
+		// A list of atomics to highlight
+		List<MasterInst> atomics = new LinkedList<MasterInst>();		
+		// Iterate through all the highlights
+		Iterator<MasterInst> it = highlights.values().iterator();		
 		while(it.hasNext())
 		{
 			MasterInst next_inst = it.next();
-			if (highlights.containsKey(next_inst.n))
-				paintHighlights(g, next_inst.m, new Coord(next_inst.x, next_inst.y));
+			Master.addFlatInstances(atomics, next_inst.m, next_inst.x, next_inst.y, next_inst.n);
 		}
-	}
-	
-	/**
-	 * Helper for painting highlights
-	 */
-	private synchronized void paintHighlights(Graphics2D g, Master target, Coord origin)
-	{
-		// If it is a leaf, paint it
-		if (target.isAtomic())
+		
+		// Highlight and draw a halo around the highlighted object
+		it = atomics.iterator();
+		while(it.hasNext())
 		{
-			FloorplanRectangle rect = new FloorplanRectangle(target, origin,
-					trans_x, trans_y, offset_x, offset_y, scale);			
-			if (temp_trace == null)
-				g.fillRect(rect.x, rect.y, rect.w, rect.h);
-			else
-			{
-				Stroke old_stroke = g.getStroke();
-				g.setStroke(new BasicStroke(LINEWIDTH_HIGHLIGHTS));
-				g.drawRect(rect.x, rect.y, rect.w, rect.h);
-				g.setStroke(old_stroke);
-			}
-				
-		}
-		// Otherwise recursively call and paint
-		else
-		{
-			// Recursively paint outlines through all sub instances
-			Iterator<MasterInst> it = target.getInstances().iterator();
-			while(it.hasNext())
-			{
-				MasterInst next_inst = it.next();
-				paintHighlights(g, next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), GridPoint.add(origin.y, next_inst.y)));
-			}
+			FloorplanRectangle rect = new FloorplanRectangle(it.next(), trans_x, trans_y, offset_x, offset_y, scale);
+			Stroke old_stroke = g.getStroke();
+			g.setStroke(new BasicStroke(LINEWIDTH_HIGHLIGHTS));
+			g.drawRect(rect.x, rect.y, rect.w, rect.h);
+			g.setStroke(old_stroke);
 		}
 	}
 	
@@ -329,7 +270,7 @@ public class FloorplanRender extends JComponent
 		}
 	}
 	
-	public HashMap<String, Boolean> getHighlights()
+	public HashMap<String, MasterInst> getHighlights()
 	{
 		return highlights;
 	}
@@ -391,8 +332,8 @@ public class FloorplanRender extends JComponent
 	
 	public void updateImageSize()
 	{ 
-		offset_x = (int) getSize().getWidth() / 2;
-		offset_y = (int) getSize().getHeight() / 2;
+		offset_x = getSize().width / 2;
+		offset_y = getSize().height / 2;
 	}
 	
 	/**
@@ -409,7 +350,13 @@ public class FloorplanRender extends JComponent
 	}
 	
 	public Master getRenderTarget() { return render_target; }
-	public TemperatureTrace getTemperatureTrace() { return temp_trace; }	
+	public TemperatureTrace getTemperatureTrace() { return temp_trace; }
+	public Box getViewingArea()
+	{
+		Coord ll = pixelToCoord(0, getSize().height);
+		Coord ur = pixelToCoord(getSize().width, 0);		
+		return new Box(ll.x, ll.y, ur.x, ur.y);
+	}
 }
 
 class RenderComponentListener implements ComponentListener

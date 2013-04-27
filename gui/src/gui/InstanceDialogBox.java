@@ -27,6 +27,7 @@ import floorplan.GridPoint;
 import floorplan.Master;
 import floorplan.MasterInst;
 import floorplan.MasterMap;
+import javax.swing.SwingConstants;
 
 public class InstanceDialogBox extends JDialog
 {
@@ -60,6 +61,7 @@ public class InstanceDialogBox extends JDialog
 	
 	// New instances to return
 	private Vector<MasterInst> new_insts;
+	private JCheckBox check_filler;
 		
 	private InstanceDialogBox(JFrame frame, MasterMap masters, Master cur_master) 
 	{
@@ -102,9 +104,9 @@ public class InstanceDialogBox extends JDialog
 		JPanel panel_2 = new JPanel();
 		getContentPane().add(panel_2, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_2 = new GridBagLayout();
-		gbl_panel_2.columnWidths = new int[]{10, 0, 100, 50, 0, 0, 10};
-		gbl_panel_2.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_panel_2.columnWeights = new double[]{0.0, 0.0, 1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_2.columnWidths = new int[]{10, 0, 100, 50, 0, 0, 0, 10};
+		gbl_panel_2.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0};
+		gbl_panel_2.columnWeights = new double[]{0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		gbl_panel_2.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_2.setLayout(gbl_panel_2);
 		
@@ -136,7 +138,7 @@ public class InstanceDialogBox extends JDialog
 		
 		combo_instance_master = new JComboBox();
 		GridBagConstraints gbc_combo_instance_master = new GridBagConstraints();
-		gbc_combo_instance_master.gridwidth = 2;
+		gbc_combo_instance_master.gridwidth = 3;
 		gbc_combo_instance_master.insets = new Insets(0, 0, 5, 5);
 		gbc_combo_instance_master.fill = GridBagConstraints.HORIZONTAL;
 		gbc_combo_instance_master.gridx = 2;
@@ -147,10 +149,19 @@ public class InstanceDialogBox extends JDialog
 		check_atomic = new JCheckBox("Atomic");
 		check_atomic.setSelected(true);
 		GridBagConstraints gbc_check_atomic = new GridBagConstraints();
+		gbc_check_atomic.anchor = GridBagConstraints.WEST;
 		gbc_check_atomic.insets = new Insets(0, 0, 5, 5);
-		gbc_check_atomic.gridx = 4;
-		gbc_check_atomic.gridy = 2;
+		gbc_check_atomic.gridx = 2;
+		gbc_check_atomic.gridy = 3;
 		panel_2.add(check_atomic, gbc_check_atomic);
+		
+		check_filler = new JCheckBox("Filler");
+		GridBagConstraints gbc_chckbxFiller = new GridBagConstraints();
+		gbc_chckbxFiller.anchor = GridBagConstraints.WEST;
+		gbc_chckbxFiller.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxFiller.gridx = 3;
+		gbc_chckbxFiller.gridy = 3;
+		panel_2.add(check_filler, gbc_chckbxFiller);
 		
 		JLabel label_x_position = new JLabel("X Position");
 		GridBagConstraints gbc_label_x_position = new GridBagConstraints();
@@ -337,12 +348,14 @@ public class InstanceDialogBox extends JDialog
 		{
 			text_height.setEnabled(true);
 			text_width.setEnabled(true);
+			check_filler.setEnabled(true);
 			combo_instance_master.setEnabled(false);
 		}
 		else
 		{	
 			text_height.setEnabled(false);
 			text_width.setEnabled(false);				
+			check_filler.setEnabled(false);
 			combo_instance_master.setEnabled(true);
 			if (combo_instance_master.getItemCount() > 0)
 				combo_instance_master.setSelectedIndex(0);
@@ -399,7 +412,7 @@ public class InstanceDialogBox extends JDialog
 			// Parse height/width
 			GridPoint width = GridPoint.parseGridPoint(text_width.getText());
 			GridPoint height = GridPoint.parseGridPoint(text_height.getText());
-			new_inst_master = new Master(width, height, false);
+			new_inst_master = new Master(width, height, check_filler.isSelected());
 		}
 		else
 		{

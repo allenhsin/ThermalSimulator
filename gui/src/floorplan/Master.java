@@ -1,8 +1,12 @@
 package floorplan;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 import java.util.Vector;
 
 /**
@@ -142,7 +146,6 @@ public class Master implements Comparable<Master>
 		}		
 	}
 	
-
 	public boolean isFiller() { return filler; }
 	public boolean isAtomic() { return atomic; }
 	public GridPoint getHeight() { return height;	}	
@@ -161,37 +164,6 @@ public class Master implements Comparable<Master>
 	}
 
 	/**
-	 * Get the bounding box of a master instance
-	 */
-	public static Box getBoundingBox(Master m)
-	{
-		return getBoundingBox(m, new Coord(0, 0));
-	}
-	
-	private static Box getBoundingBox(Master m, Coord origin)
-	{
-		if (m.isAtomic())
-			return new Box(origin.x, origin.y,
-					GridPoint.add(origin.x, m.getWidth()), GridPoint.add(origin.y, m.getHeight()));
-		
-		// Create new box instance
-		Box box = new Box(Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
-		// Iterate through all elements
-		Iterator<MasterInst> it = m.getInstances().iterator();
-		while(it.hasNext())
-		{
-			MasterInst next_inst = it.next();
-			Box next_box = getBoundingBox(next_inst.m, new Coord(GridPoint.add(origin.x, next_inst.x), 
-					GridPoint.add(origin.y, next_inst.y)));
-			box.llx = GridPoint.min(next_box.llx, box.llx);
-			box.lly = GridPoint.min(next_box.lly, box.lly);
-			box.urx = GridPoint.max(next_box.urx, box.urx);
-			box.ury = GridPoint.max(next_box.ury, box.ury);
-		}
-		return box;
-	}
-	
-	/**
 	 * Create a filler master for a master instance
 	 */
 	public static Master createFillerMaster(Master m, double max_aspect_ratio, String master_name)
@@ -209,6 +181,61 @@ public class Master implements Comparable<Master>
 		return fill_master;
 	}
 	
+	/**
+	 * Function that returns all atomic instances at their flattened coordinates
+	 */
+	public static List<MasterInst> getFlatInstances(Master m)
+	{
+		List<MasterInst> atomics = new LinkedList<MasterInst>();
+		addFlatInstances(atomics, m, GridPoint.ZERO, GridPoint.ZERO, "");
+		return atomics;
+	}
 	
+	/**
+	 * Helper function that adds atomics in a master hierarchically to an atomics list
+	 */
+	public static void addFlatInstances(List<MasterInst> atomics, Master m, GridPoint x_coord, GridPoint y_coord, String hier_name)
+	{		
+		// If it is an atomic, add it to the list of atomics
+		if (m.isAtomic())
+			atomics.add(new MasterInst(null, m, hier_name, x_coord, y_coord));
+		// Otherwise recursively walk
+		else
+		{
+			// Recursively add atomics through all sub instances
+			Iterator<MasterInst> it = m.getInstances().iterator();
+			while(it.hasNext())
+			{
+				MasterInst next_inst = it.next();
+				// Have to do this for hierarhical name, or else you end up with an extra .
+				String next_hier_name  = "";
+				if(next_inst.isAtomic()) next_hier_name = hier_name + next_inst.n;
+				else next_hier_name = hier_name + next_inst.n + HIER_SEPARATOR;					
+				addFlatInstances(atomics, next_inst.m, GridPoint.add(x_coord, next_inst.x), GridPoint.add(y_coord, next_inst.y), next_hier_name);
+			}
+		}
+		
+	}
+		
+	/**
+	 * Get the bounding box of a master instance
+	 */
+	public static Box getBoundingBox(Master m)
+	{
+		List<MasterInst> atomics = getFlatInstances(m);
+		Box box = new Box(Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
+		Iterator<MasterInst> it = atomics.iterator();
+		while(it.hasNext())
+		{
+			MasterInst next_inst = it.next();
+			GridPoint.add(next_inst.x, next_inst.m.width);
+			box.llx = GridPoint.min(box.llx, next_inst.x);
+			box.lly = GridPoint.min(box.lly, next_inst.y);
+			box.urx = GridPoint.max(box.urx, GridPoint.add(next_inst.x, next_inst.m.width));
+			box.ury = GridPoint.max(box.ury, GridPoint.add(next_inst.y, next_inst.m.height));			
+		}		
+		return box;
+	}
+		
 }
 

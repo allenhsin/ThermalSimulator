@@ -8,6 +8,7 @@ import floorplan.Box;
 import floorplan.Coord;
 import floorplan.GridPoint;
 import floorplan.Master;
+import floorplan.MasterInst;
 
 /** 
  * Simple class that calculates render pixel coordinates of a master instance
@@ -42,6 +43,21 @@ class FloorplanRectangle
 		double lly = origin.y.toDouble() + trans_y;
 		double urx = llx + target.getWidth().toDouble();
 		double ury = lly + target.getHeight().toDouble();
+		
+		// Maybe a more efficient way to do this?
+		w = (int) roundSigFigs(urx * scale, 6) - (int) roundSigFigs(llx * scale, 6);
+		h = (int) roundSigFigs(ury * scale, 6) - (int) roundSigFigs(lly * scale, 6);
+		x = (int) roundSigFigs(llx * scale, 6) + offset_x;
+		y = (int) roundSigFigs(lly * scale, 6) + offset_y;
+	}
+	
+	FloorplanRectangle(MasterInst inst, double trans_x, double trans_y,
+			int offset_x, int offset_y, double scale)
+	{
+		double llx = inst.x.toDouble() + trans_x;
+		double lly = inst.y.toDouble() + trans_y;
+		double urx = llx + inst.m.getWidth().toDouble();
+		double ury = lly + inst.m.getHeight().toDouble();
 		
 		// Maybe a more efficient way to do this?
 		w = (int) roundSigFigs(urx * scale, 6) - (int) roundSigFigs(llx * scale, 6);

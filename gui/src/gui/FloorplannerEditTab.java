@@ -70,6 +70,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	private int sel_index;
 	// If there are currently unapplied changes
 	private boolean changed;
+	private JCheckBox check_filler;
 	
 	
 	/**
@@ -122,7 +123,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		JPanel panel_2 = new JPanel();
 		add(panel_2, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_2 = new GridBagLayout();
-		gbl_panel_2.columnWidths = new int[]{10, 0, 100, 50, 0, 0, 10};
+		gbl_panel_2.columnWidths = new int[]{10, 0, 100, 50, 70, 0, 10};
 		gbl_panel_2.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_panel_2.columnWeights = new double[]{0.0, 0.0, 1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
 		gbl_panel_2.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
@@ -157,7 +158,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		
 		combo_instance_master = new JComboBox();
 		GridBagConstraints gbc_combo_instance_master = new GridBagConstraints();
-		gbc_combo_instance_master.gridwidth = 2;
+		gbc_combo_instance_master.gridwidth = 3;
 		gbc_combo_instance_master.insets = new Insets(0, 0, 5, 5);
 		gbc_combo_instance_master.fill = GridBagConstraints.HORIZONTAL;
 		gbc_combo_instance_master.gridx = 2;
@@ -170,9 +171,18 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		check_atomic.setEnabled(false);
 		GridBagConstraints gbc_check_atomic = new GridBagConstraints();
 		gbc_check_atomic.insets = new Insets(0, 0, 5, 5);
-		gbc_check_atomic.gridx = 4;
-		gbc_check_atomic.gridy = 2;
+		gbc_check_atomic.gridx = 2;
+		gbc_check_atomic.gridy = 3;
 		panel_2.add(check_atomic, gbc_check_atomic);
+		
+		check_filler = new JCheckBox("Filler");
+		check_filler.addItemListener(this);
+		check_filler.setEnabled(false);
+		GridBagConstraints gbc_chckbxFiller = new GridBagConstraints();
+		gbc_chckbxFiller.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxFiller.gridx = 3;
+		gbc_chckbxFiller.gridy = 3;
+		panel_2.add(check_filler, gbc_chckbxFiller);
 		
 		JLabel label_x_position = new JLabel("X Position");
 		GridBagConstraints gbc_label_x_position = new GridBagConstraints();
@@ -312,6 +322,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			text_height.setEnabled(false);
 			text_width.setEnabled(false);
 			check_atomic.setEnabled(false);
+			check_filler.setEnabled(false);
 			combo_instance_master.setEnabled(false);
 
 			label_object_num.setText("0/0");
@@ -331,12 +342,14 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			text_x_position.setEnabled(true);
 			text_y_position.setEnabled(true);
 			check_atomic.setEnabled(true);
+			check_filler.setEnabled(true);
 			
 			text_instance_name.setText(cur_inst.n);
 			text_x_position.setText(cur_inst.x.toString());
 			text_y_position.setText(cur_inst.y.toString());
 			
 			check_atomic.setSelected(cur_inst.m.isAtomic());
+			check_filler.setSelected(cur_inst.m.isFiller());
 			setEditAtomic(cur_inst.m.isAtomic());
 			text_height.setText(cur_inst.m.getHeight().toString());
 			text_width.setText(cur_inst.m.getWidth().toString());
@@ -356,12 +369,14 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		{
 			text_height.setEnabled(true);
 			text_width.setEnabled(true);
+			check_filler.setEnabled(true);
 			combo_instance_master.setEnabled(false);
 		}
 		else
 		{	
 			text_height.setEnabled(false);
 			text_width.setEnabled(false);				
+			check_filler.setEnabled(false);
 			combo_instance_master.setEnabled(true);
 			if (combo_instance_master.getItemCount() > 0)
 				combo_instance_master.setSelectedIndex(0);
@@ -386,14 +401,15 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 		// Edit the instantiation coordinates
 		edit_master_inst.x = GridPoint.parseGridPoint(text_x_position.getText());
 		edit_master_inst.y = GridPoint.parseGridPoint(text_y_position.getText());
-		
+
 		// Edit the instance name (if ncessary)
 		if (!edit_master_inst.n.equals(text_instance_name.getText()))
 			edit_master_inst.parent.renameMasterInst(edit_master_inst.n, text_instance_name.getText());
 		
 		// If atomic is selected, make the thing a new atomic!
 		if (check_atomic.isSelected())
-			edit_master_inst.m = new Master(GridPoint.parseGridPoint(text_width.getText()), GridPoint.parseGridPoint(text_height.getText()), false);
+			edit_master_inst.m = new Master(GridPoint.parseGridPoint(text_width.getText()), GridPoint.parseGridPoint(text_height.getText()),
+					check_filler.isSelected());
 		// If the atomic is not selected then find the master and set it to that
 		else
 		{
@@ -453,7 +469,7 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 	}
 
 	/**
-	 * Handles state changes for the atomic checkbox
+	 * Handles state changes for the filler and atomic checkbox
 	 */
 	public void itemStateChanged(ItemEvent e)
 	{
@@ -465,7 +481,11 @@ public class FloorplannerEditTab extends JPanel implements ListSelectionListener
 			else if (e.getStateChange() == ItemEvent.SELECTED)
 				setEditAtomic(true);
 		}
-		else throw new Error("Internal Error: Button '" + e.toString() + "' is not supported!");
+		else if (e.getSource() == check_filler)
+		{
+			setChanges(true);
+		}
+		else throw new Error("Internal Error: Checkbox '" + e.toString() + "' is not supported!");
 	}
 	
 	/**

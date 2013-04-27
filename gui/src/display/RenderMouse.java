@@ -47,16 +47,6 @@ public class RenderMouse extends MouseInputAdapter
 	{
 		Point p = e.getPoint();
 		panel.setMouseCoord(p.x, p.y);
-		
-//		Robot r = null;
-//		try {
-//			r = new Robot();
-//		} catch (AWTException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		TemperatureTrace t = panel.getRender().getTemperatureTrace();
-//		System.out.println(TemperatureColor.getTemp(t.getMaxTemp(), t.getMinTemp(), r.getPixelColor(e.getXOnScreen(), e.getYOnScreen())));
 	}
 	
 	

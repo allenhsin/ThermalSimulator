@@ -184,7 +184,7 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 	public void updateHighlights()
 	{
 		ListSelectionModel lsm = view_panel.getObjectsTable().getSelectionModel();
-		HashMap<String, Boolean> highlights = render_panel.getRender().getHighlights();
+		HashMap<String, MasterInst> highlights = render_panel.getRender().getHighlights();
 		
 		// Clear all current highlights
 		highlights.clear();
@@ -196,7 +196,10 @@ public class Floorplanner extends JFrame implements ListSelectionListener, TreeS
 			{
 				// If it has been selected, add it to the highlights
 				if (lsm.isSelectedIndex(i))
-					highlights.put((String) view_panel.getObjectsTable().getValueAt(i, 0), new Boolean(true));
+				{
+					String inst_name = (String) view_panel.getObjectsTable().getValueAt(i, 0);
+					highlights.put(inst_name, cur_master.getInstanceMap().get(inst_name));
+				}
 			}
 		}
 		render_panel.repaint();

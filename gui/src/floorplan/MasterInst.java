@@ -9,7 +9,7 @@ import javax.swing.tree.TreeNode;
  * Simple class 
  *
  */
-public class MasterInst implements MutableTreeNode
+public class MasterInst implements TreeNode, Comparable<MasterInst>
 {
 	// Parent master of this instance
 	public Master parent;
@@ -52,28 +52,18 @@ public class MasterInst implements MutableTreeNode
 	public int getIndex(TreeNode node) { return m.getInstances().indexOf(node); }
 	public TreeNode getParent() { return null; }
 	public boolean isLeaf() { return m.isAtomic(); }
-
-	@Override
-	public void insert(MutableTreeNode child, int index)
-	{ 
-		m.getInstances().insertElementAt((MasterInst) child, index);
-	}
-
-	public void remove(int index)
+	
+	public int compareTo(MasterInst a) 
 	{
-		m.getInstances().remove(index);		
+		double my_width = m.getWidth().toDouble();
+		double my_height = m.getHeight().toDouble();
+		double a_width = a.m.getWidth().toDouble();
+		double a_height = a.m.getHeight().toDouble();
+		
+		if ((my_width * my_height) == (a_width * a_height)) return 0;
+		else if ((my_width * my_height) > (a_width * a_height)) return -1;
+		else return 1;
 	}
-
-	public void remove(MutableTreeNode node)
-	{
-		m.getInstances().remove((MasterInst) node);		
-	}
-
-	public void removeFromParent() { throw new Error("Should never happen"); }
-
-	public void setParent(MutableTreeNode newParent) { throw new Error("Should never happen"); }
-
-	public void setUserObject(Object object) { throw new Error("Should never happen"); }
 }
 
 
