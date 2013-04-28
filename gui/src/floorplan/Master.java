@@ -166,13 +166,14 @@ public class Master implements Comparable<Master>
 	/**
 	 * Create a filler master for a master instance
 	 */
-	public static Master createFillerMaster(Master m, double max_aspect_ratio, String master_name)
+	public static Master createFillerMaster(Master m, String master_name, Box fill_box, 
+			GridPoint max_width, GridPoint max_height, double max_aspect_ratio)
 	{
 		FillerTree t = new FillerTree();
-		t.calculateFill(m);
+		t.calculateFill(fill_box, m);
 		
 		Master fill_master = new Master(master_name);
-		Vector<MasterInst> fillers = t.getFillers(max_aspect_ratio);
+		Vector<MasterInst> fillers = t.getFillers(max_width, max_height, max_aspect_ratio);
 		
 		Iterator<MasterInst> it = fillers.iterator();
 		while(it.hasNext())
@@ -223,6 +224,8 @@ public class Master implements Comparable<Master>
 	public static Box getBoundingBox(Master m)
 	{
 		List<MasterInst> atomics = getFlatInstances(m);
+		if (atomics.isEmpty())
+			return new Box(0, 0, 0, 0);
 		Box box = new Box(Double.MAX_VALUE, Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
 		Iterator<MasterInst> it = atomics.iterator();
 		while(it.hasNext())

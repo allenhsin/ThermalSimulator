@@ -9,8 +9,6 @@ import java.awt.Graphics2D;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 // Simple class with a helper that returns a color for a corresponding temperature

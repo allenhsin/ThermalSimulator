@@ -23,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import floorplan.Box;
 import floorplan.FillerTree;
 import floorplan.GridPoint;
 import floorplan.Master;
@@ -30,6 +31,7 @@ import floorplan.MasterInst;
 import floorplan.MasterMap;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
+import javax.swing.JSeparator;
 
 public class FillerDialogBox extends JDialog
 {
@@ -51,6 +53,22 @@ public class FillerDialogBox extends JDialog
 	
 	// Current master
 	private Master cur_master;
+	private JLabel lblMaxHeight;
+	private JLabel lblMaxWidth;
+	private JTextField text_max_height;
+	private JTextField text_max_width;
+	private JLabel lblFillerSizeConstraints;
+	private JLabel lblGenerateFillBoundary;
+	private JTextField text_fill_llx;
+	private JTextField text_fill_lly;
+	private JTextField text_fill_urx;
+	private JTextField text_fill_ury;
+	private JLabel lblX;
+	private JLabel lblT;
+	private JLabel lblLowerLeft;
+	private JLabel lblUpperRight;
+	private JSeparator separator;
+	private JSeparator separator_1;
 
 		
 	private FillerDialogBox(Floorplanner gui, MasterMap masters, Master cur_master) 
@@ -63,6 +81,8 @@ public class FillerDialogBox extends JDialog
 
 		layoutGUI();
 		addListeners();
+		
+		initializeValues();
 		
 		pack();
 		setLocationRelativeTo(gui.getContentPane());
@@ -92,9 +112,9 @@ public class FillerDialogBox extends JDialog
 		getContentPane().add(panel_2, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_2 = new GridBagLayout();
 		gbl_panel_2.columnWidths = new int[]{10, 0, 49, 50, 0, 10};
-		gbl_panel_2.rowHeights = new int[]{19, 0, 0, 0, 0, 0, 0};
+		gbl_panel_2.rowHeights = new int[]{10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_panel_2.columnWeights = new double[]{0.0, 1.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_2.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_2.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_2.setLayout(gbl_panel_2);
 		
 		JLabel label_filler_instance_name = new JLabel("Filler Instance Name");
@@ -114,7 +134,6 @@ public class FillerDialogBox extends JDialog
 		gbc_text_filler_instance_name.gridy = 1;
 		panel_2.add(text_filler_instance_name, gbc_text_filler_instance_name);
 		text_filler_instance_name.setColumns(10);
-		text_filler_instance_name.setText("Filler");
 		
 		JLabel label_filler_master_name = new JLabel("Filler Master Name");
 		GridBagConstraints gbc_label_filler_master_name = new GridBagConstraints();
@@ -133,14 +152,146 @@ public class FillerDialogBox extends JDialog
 		gbc_text_filler_master_name.gridy = 2;
 		panel_2.add(text_filler_master_name, gbc_text_filler_master_name);
 		text_filler_master_name.setColumns(10);
-		text_filler_master_name.setText(cur_master.getName() + "_fill");
+		
+		separator = new JSeparator();
+		GridBagConstraints gbc_separator = new GridBagConstraints();
+		gbc_separator.gridwidth = 3;
+		gbc_separator.insets = new Insets(0, 0, 5, 5);
+		gbc_separator.gridx = 1;
+		gbc_separator.gridy = 3;
+		panel_2.add(separator, gbc_separator);
+		
+		lblGenerateFillBoundary = new JLabel("Generate Fill Boundary");
+		GridBagConstraints gbc_lblGenerateFillBoundary = new GridBagConstraints();
+		gbc_lblGenerateFillBoundary.gridwidth = 3;
+		gbc_lblGenerateFillBoundary.insets = new Insets(0, 0, 5, 5);
+		gbc_lblGenerateFillBoundary.gridx = 1;
+		gbc_lblGenerateFillBoundary.gridy = 4;
+		panel_2.add(lblGenerateFillBoundary, gbc_lblGenerateFillBoundary);
+		
+		lblX = new JLabel("X");
+		GridBagConstraints gbc_lblX = new GridBagConstraints();
+		gbc_lblX.insets = new Insets(0, 0, 5, 5);
+		gbc_lblX.gridx = 2;
+		gbc_lblX.gridy = 5;
+		panel_2.add(lblX, gbc_lblX);
+		
+		lblT = new JLabel("Y");
+		GridBagConstraints gbc_lblT = new GridBagConstraints();
+		gbc_lblT.insets = new Insets(0, 0, 5, 5);
+		gbc_lblT.gridx = 3;
+		gbc_lblT.gridy = 5;
+		panel_2.add(lblT, gbc_lblT);
+		
+		lblLowerLeft = new JLabel("Lower Left");
+		GridBagConstraints gbc_lblLowerLeft = new GridBagConstraints();
+		gbc_lblLowerLeft.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLowerLeft.anchor = GridBagConstraints.EAST;
+		gbc_lblLowerLeft.gridx = 1;
+		gbc_lblLowerLeft.gridy = 6;
+		panel_2.add(lblLowerLeft, gbc_lblLowerLeft);
+		
+		text_fill_llx = new JTextField();
+		GridBagConstraints gbc_text_fill_llx = new GridBagConstraints();
+		gbc_text_fill_llx.insets = new Insets(0, 0, 5, 5);
+		gbc_text_fill_llx.fill = GridBagConstraints.HORIZONTAL;
+		gbc_text_fill_llx.gridx = 2;
+		gbc_text_fill_llx.gridy = 6;
+		panel_2.add(text_fill_llx, gbc_text_fill_llx);
+		text_fill_llx.setColumns(10);
+		
+		text_fill_lly = new JTextField();
+		GridBagConstraints gbc_text_fill_lly = new GridBagConstraints();
+		gbc_text_fill_lly.insets = new Insets(0, 0, 5, 5);
+		gbc_text_fill_lly.fill = GridBagConstraints.HORIZONTAL;
+		gbc_text_fill_lly.gridx = 3;
+		gbc_text_fill_lly.gridy = 6;
+		panel_2.add(text_fill_lly, gbc_text_fill_lly);
+		text_fill_lly.setColumns(10);
+		
+		lblUpperRight = new JLabel("Upper Right");
+		GridBagConstraints gbc_lblUpperRight = new GridBagConstraints();
+		gbc_lblUpperRight.insets = new Insets(0, 0, 5, 5);
+		gbc_lblUpperRight.anchor = GridBagConstraints.EAST;
+		gbc_lblUpperRight.gridx = 1;
+		gbc_lblUpperRight.gridy = 7;
+		panel_2.add(lblUpperRight, gbc_lblUpperRight);
+		
+		text_fill_urx = new JTextField();
+		GridBagConstraints gbc_text_fill_urx = new GridBagConstraints();
+		gbc_text_fill_urx.insets = new Insets(0, 0, 5, 5);
+		gbc_text_fill_urx.fill = GridBagConstraints.HORIZONTAL;
+		gbc_text_fill_urx.gridx = 2;
+		gbc_text_fill_urx.gridy = 7;
+		panel_2.add(text_fill_urx, gbc_text_fill_urx);
+		text_fill_urx.setColumns(10);
+		
+		text_fill_ury = new JTextField();
+		GridBagConstraints gbc_text_fill_ury = new GridBagConstraints();
+		gbc_text_fill_ury.insets = new Insets(0, 0, 5, 5);
+		gbc_text_fill_ury.fill = GridBagConstraints.HORIZONTAL;
+		gbc_text_fill_ury.gridx = 3;
+		gbc_text_fill_ury.gridy = 7;
+		panel_2.add(text_fill_ury, gbc_text_fill_ury);
+		text_fill_ury.setColumns(10);
+		
+		separator_1 = new JSeparator();
+		GridBagConstraints gbc_separator_1 = new GridBagConstraints();
+		gbc_separator_1.gridwidth = 3;
+		gbc_separator_1.insets = new Insets(0, 0, 5, 5);
+		gbc_separator_1.gridx = 1;
+		gbc_separator_1.gridy = 8;
+		panel_2.add(separator_1, gbc_separator_1);
+		
+		lblFillerSizeConstraints = new JLabel("Filler Size Constraints");
+		GridBagConstraints gbc_lblFillerSizeConstraints = new GridBagConstraints();
+		gbc_lblFillerSizeConstraints.fill = GridBagConstraints.VERTICAL;
+		gbc_lblFillerSizeConstraints.gridwidth = 3;
+		gbc_lblFillerSizeConstraints.insets = new Insets(0, 0, 5, 5);
+		gbc_lblFillerSizeConstraints.gridx = 1;
+		gbc_lblFillerSizeConstraints.gridy = 9;
+		panel_2.add(lblFillerSizeConstraints, gbc_lblFillerSizeConstraints);
+		
+		lblMaxHeight = new JLabel("Max Height");
+		GridBagConstraints gbc_lblMaxHeight = new GridBagConstraints();
+		gbc_lblMaxHeight.anchor = GridBagConstraints.EAST;
+		gbc_lblMaxHeight.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMaxHeight.gridx = 1;
+		gbc_lblMaxHeight.gridy = 10;
+		panel_2.add(lblMaxHeight, gbc_lblMaxHeight);
+		
+		text_max_height = new JTextField();
+		GridBagConstraints gbc_text_max_height = new GridBagConstraints();
+		gbc_text_max_height.insets = new Insets(0, 0, 5, 5);
+		gbc_text_max_height.fill = GridBagConstraints.HORIZONTAL;
+		gbc_text_max_height.gridx = 2;
+		gbc_text_max_height.gridy = 10;
+		panel_2.add(text_max_height, gbc_text_max_height);
+		text_max_height.setColumns(10);
+		
+		lblMaxWidth = new JLabel("Max Width");
+		GridBagConstraints gbc_lblMaxWidth = new GridBagConstraints();
+		gbc_lblMaxWidth.anchor = GridBagConstraints.EAST;
+		gbc_lblMaxWidth.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMaxWidth.gridx = 1;
+		gbc_lblMaxWidth.gridy = 11;
+		panel_2.add(lblMaxWidth, gbc_lblMaxWidth);
+		
+		text_max_width = new JTextField();
+		GridBagConstraints gbc_text_max_width = new GridBagConstraints();
+		gbc_text_max_width.insets = new Insets(0, 0, 5, 5);
+		gbc_text_max_width.fill = GridBagConstraints.HORIZONTAL;
+		gbc_text_max_width.gridx = 2;
+		gbc_text_max_width.gridy = 11;
+		panel_2.add(text_max_width, gbc_text_max_width);
+		text_max_width.setColumns(10);
 		
 		JLabel label_max_aspect_ratio = new JLabel("Max Aspect Ratio");
 		GridBagConstraints gbc_label_max_aspect_ratio = new GridBagConstraints();
 		gbc_label_max_aspect_ratio.anchor = GridBagConstraints.EAST;
 		gbc_label_max_aspect_ratio.insets = new Insets(0, 0, 5, 5);
 		gbc_label_max_aspect_ratio.gridx = 1;
-		gbc_label_max_aspect_ratio.gridy = 3;
+		gbc_label_max_aspect_ratio.gridy = 12;
 		panel_2.add(label_max_aspect_ratio, gbc_label_max_aspect_ratio);
 		
 		text_max_aspect_ratio = new JTextField();
@@ -148,16 +299,15 @@ public class FillerDialogBox extends JDialog
 		gbc_text_max_aspect_ratio.insets = new Insets(0, 0, 5, 5);
 		gbc_text_max_aspect_ratio.fill = GridBagConstraints.HORIZONTAL;
 		gbc_text_max_aspect_ratio.gridx = 2;
-		gbc_text_max_aspect_ratio.gridy = 3;
+		gbc_text_max_aspect_ratio.gridy = 12;
 		panel_2.add(text_max_aspect_ratio, gbc_text_max_aspect_ratio);
 		text_max_aspect_ratio.setColumns(10);
-		text_max_aspect_ratio.setText(String.valueOf(FillerTree.MINIMUM_MAX_ASPECT_RATIO));
 		
 		button_calculate = new JButton("Calculate");
 		GridBagConstraints gbc_button_calculate = new GridBagConstraints();
 		gbc_button_calculate.insets = new Insets(0, 0, 5, 5);
 		gbc_button_calculate.gridx = 3;
-		gbc_button_calculate.gridy = 3;
+		gbc_button_calculate.gridy = 12;
 		panel_2.add(button_calculate, gbc_button_calculate);
 		
 		label_filler_count = new JLabel("Fillers not Calculated");
@@ -165,8 +315,24 @@ public class FillerDialogBox extends JDialog
 		gbc_label_filler_count.gridwidth = 3;
 		gbc_label_filler_count.insets = new Insets(0, 0, 5, 5);
 		gbc_label_filler_count.gridx = 1;
-		gbc_label_filler_count.gridy = 4;
+		gbc_label_filler_count.gridy = 13;
 		panel_2.add(label_filler_count, gbc_label_filler_count);
+	}
+	
+	private void initializeValues()
+	{
+		Box master_box = Master.getBoundingBox(cur_master);
+		
+		text_max_aspect_ratio.setText(String.valueOf(FillerTree.MINIMUM_MAX_ASPECT_RATIO));
+		text_filler_master_name.setText(cur_master.getName() + "_fill");
+		text_filler_instance_name.setText("Filler");
+		text_fill_llx.setText(master_box.llx.toString());
+		text_fill_lly.setText(master_box.lly.toString());
+		text_fill_urx.setText(master_box.urx.toString());
+		text_fill_ury.setText(master_box.ury.toString());
+		
+		text_max_width.setText("1e-3");
+		text_max_height.setText("1e-3");
 	}
 	
 	public boolean createFillerInstance()
@@ -180,8 +346,22 @@ public class FillerDialogBox extends JDialog
 		if (checkInputs())
 		{
 			label_filler_count.setText("Calculating filler instances");
+			
+			Box filler_box = new Box(
+					GridPoint.parseGridPoint(text_fill_llx.getText()),
+					GridPoint.parseGridPoint(text_fill_lly.getText()),
+					GridPoint.parseGridPoint(text_fill_urx.getText()),
+					GridPoint.parseGridPoint(text_fill_ury.getText())
+				);
+			
 			Master fill_master = Master.createFillerMaster(cur_master, 
-					Double.parseDouble(text_max_aspect_ratio.getText()), text_filler_master_name.getText());
+					text_filler_master_name.getText(),
+					filler_box,
+					GridPoint.parseGridPoint(text_max_width.getText()),
+					GridPoint.parseGridPoint(text_max_height.getText()),
+					Double.parseDouble(text_max_aspect_ratio.getText())
+				);
+					
 			MasterInst filler_inst = new MasterInst(cur_master, fill_master,
 					text_filler_instance_name.getText(), GridPoint.ZERO, GridPoint.ZERO);
 			label_filler_count.setText(fill_master.getInstances().size() + " filler instances");
@@ -244,6 +424,31 @@ public class FillerDialogBox extends JDialog
 			JOptionPane.showMessageDialog(this, "Filler master name cannot be empty.",
 					"Error", JOptionPane.WARNING_MESSAGE);
 			return false;
+		}
+		
+		try
+		{
+			Double.parseDouble(text_fill_llx.getText());			
+			Double.parseDouble(text_fill_lly.getText());			
+			Double.parseDouble(text_fill_urx.getText());			
+			Double.parseDouble(text_fill_ury.getText());			
+		}
+		catch (NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(this, "Invalid fill boundary box",
+					"Error", JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		
+		try
+		{
+			Double.parseDouble(text_max_width.getText());
+			Double.parseDouble(text_max_height.getText());
+		}
+		catch (NumberFormatException e)
+		{
+			JOptionPane.showMessageDialog(this, "Invalid maximum fill height/width",
+					"Error", JOptionPane.WARNING_MESSAGE);			
 		}
 		
 		try
