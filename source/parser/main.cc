@@ -22,30 +22,21 @@ extern FILE* snazzlein;
 // File used to test the parser
 int main(int argc, char** argv) 
 {
-	// open a file handle to a particular file:
-	//FILE *myfile2 = fopen("a.snazzle.file", "r");
-	// make sure it's valid:
-    // if(!myfile2)
-    // {
-		// cout << "I can't open a.snazzle.file!" << endl;
-		// return -1;
-	// }
-	// set flex to read from it instead of defaulting to STDIN:
-    // snazzlein = myfile2;
-
-    if (argc == 2)
+    if (argc >= 2)
     {
-        VerilogFile* file_ = new VerilogFile(argv[1]);
-        VerilogFileReader* file_reader = new VerilogFileReader(file_);
+        VerilogFileReader* file_reader = new VerilogFileReader();
+    
+        for (int i = 1; i < argc; ++i)
+        {
+            VerilogFile* file_ = new VerilogFile(argv[i]);
+            file_reader->parse(file_);
+            cout << file_->getFileName() + ": Parsing successful" << endl;
+        }
         
-        file_reader->parse();
-        cout << "Parsing successful" << endl;
-        //snazzleparse();
         file_reader->elaborate();
         cout << "Elaboration successful" << endl;
-
         cout << "Printing post-elaboration contents:" << endl;
-        const VerilogModules* modules = file_reader->getFile()->getModules();
+        const VerilogModules* modules = file_reader->getModules();
         for(VerilogModules::const_iterator m_it = modules->begin(); m_it != modules->end(); ++m_it)
         {
             const VerilogModule* module = *m_it;
@@ -53,7 +44,8 @@ int main(int argc, char** argv)
             cout << "    " << module->getName() << endl;            
             for(VerilogItemMap::const_iterator i_it = items->begin(); i_it != items->end(); ++i_it)
                 cout << "        " << (*i_it).second->toString() << endl;
-        }        
+        }
+        
         delete file_reader;            
         exit(0);
     }

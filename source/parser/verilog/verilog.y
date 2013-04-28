@@ -14,7 +14,7 @@
 %define api.prefix "verilog"
 
 // Let yyparse take a verilog file pointer as an input
-%parse-param { VerilogParser::VerilogFile* file_ }
+%parse-param { VerilogParser::VerilogFileReader* reader_ }
 
 %error-verbose
 
@@ -51,7 +51,7 @@ int yylex();
 extern int line_num;
 
 extern FILE* yyin;
-void yyerror(VerilogFile* file_, const char *s);
+void yyerror(VerilogFileReader* file_, const char *s);
 %}
 
 // Bison fundamentally works by asking flex to get the next token, which it
@@ -163,7 +163,7 @@ void yyerror(VerilogFile* file_, const char *s);
 
 source_text: 
     /* empty */                                     { ; }
-    | source_text description                       { file_->addModule($2); }
+    | source_text description                       { reader_->addModule($2); }
     ;
 
 module_declaration:
@@ -404,30 +404,44 @@ concatenation:
 
 namespace VerilogParser
 {
-    VerilogFileReader::VerilogFileReader(VerilogFile* file_)
-        : m_file_(file_)
-    {}
+    VerilogFileReader::VerilogFileReader()
+    {
+        m_modules_ = new vector<VerilogModule*>();    
+    }
     
     VerilogFileReader::~VerilogFileReader()
     {
-        delete m_file_;
+        VerilogModules::const_iterator it;
+        for (it = m_modules_->begin(); it != m_modules_->end(); ++it)
+            delete (*it);
+        delete m_modules_;
+        m_modules_ = NULL;
     }
 
     void VerilogFileReader::elaborate()
     {
         VerilogScope* scope = new VerilogScope();
-        m_file_->elaborate(scope);
+        VerilogModules::const_iterator it;
+        for (it = m_modules_->begin(); it != m_modules_->end(); ++it)
+            (*it)->elaborate(scope);
         delete scope;
+    }    
+    
+    void VerilogFileReader::addModule(VerilogModule* module_)
+    {
+        m_modules_->push_back(module_);
     }
     
-    bool VerilogFileReader::parse()
+    
+    bool VerilogFileReader::parse(VerilogFile* file_)
     {
-        if(m_file_ != NULL)
+        m_cur_file_ = file_;
+        if(file_ != NULL)
         {
-            yyin = fopen( m_file_->getFileName().c_str(), "r" );
+            yyin = fopen(file_->getFileName().c_str(), "r");
             if( yyin == NULL ) 
             {
-                cout << "VerilogFileReader::parse : [Error] Problem opening the input file: " << m_file_->getFileName() << "." << endl;
+                cout << "VerilogFileReader::parse : [Error] Problem opening the input file: " << file_->getFileName() << "." << endl;
                 throw -1;
             }
         } 
@@ -436,13 +450,14 @@ namespace VerilogParser
             cout << "VerilogFileReader::parse : [Warning] File name not given for verilog file reader constructor, running from stdin" << endl;
         }
         
-        return yyparse( m_file_ ) == 0;
+        m_cur_file_ = NULL;
+        return yyparse( this ) == 0;
     }
 }
 
 // Arguments must match those to yyparse
-void yyerror(VerilogFile* file_, const char *s) {
-	cout << "[Error] " << file_->getFileName() << ":" << line_num << " -> " << s << endl;
+void yyerror(VerilogFileReader* reader_, const char *s) {
+	cout << "[Error] " << reader_->getCurFile()->getFileName() << ":" << line_num << " -> " << s << endl;
 	// might as well halt now:
 	exit(-1);
 }

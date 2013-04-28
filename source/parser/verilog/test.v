@@ -59,7 +59,7 @@ module AND_X1M_A12TR (A, B, Y);
                             
     INV_X2M_A12TR   #   (   .bad_param1(CadenceSucks / (2*123)), 
                             .bad_param2(YesIt_Does * 2)) 
-                blah1   (   A, B)
-                blah2   (   Y, B[12:3]);
+                blah1   (   .A(A), .Y(B));
+                // blah2   (   Y, B[12:3]);
     
 endmodule
