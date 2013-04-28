@@ -22,7 +22,7 @@ namespace Thermal
 
         virtual void printDefinition(FILE* device_list_file);
 
-        virtual void initializeMonitoring(){}
+        virtual void initializeMonitoring();
         virtual void printMonitoredResult();
 
     protected:

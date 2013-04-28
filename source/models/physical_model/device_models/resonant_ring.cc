@@ -221,6 +221,44 @@ namespace Thermal
         _last_temperature = current_temperature;
     } // updateDeviceProperties
 
+    void ResonantRing::initializeMonitoring()
+    {
+        unsigned int number_wavelength = 0;
+        unsigned int i = 0;
+
+        for(map<string, FILE*>::iterator it = _monitored_device_ports.begin(); it != _monitored_device_ports.end(); ++it)
+        {
+            if( (it->first=="in") || (it->first=="thru") || (it->first=="add") || (it->first=="drop") )
+            {
+                number_wavelength = getPort(it->first)->getPortPropertySize("wavelength");
+            
+                for(i=0; i<number_wavelength; ++i)
+                    fprintf(it->second, "%.12f ", getPort(it->first)->getPortPropertyValueByIndex("wavelength", i) );
+                fprintf(it->second, "\n\n\n");
+            }
+        }
+    }
+
+    void ResonantRing::printMonitoredResult()
+    {
+        unsigned int number_wavelength = 0;
+        unsigned int i = 0;
+
+        for(map<string, FILE*>::iterator it = _monitored_device_ports.begin(); it != _monitored_device_ports.end(); ++it)
+        {
+            if ( it->first == "heater" )
+                fprintf(it->second, "%.9f\n", getPort("heater")->getPortPropertyValueByIndex("power", 0) );
+            else // other optical ports
+            {
+                number_wavelength = getPort(it->first)->getPortPropertySize("power");
+                
+                for(i=0; i<number_wavelength; ++i)
+                    fprintf(it->second, "%.9f ", getPort(it->first)->getPortPropertyValueByIndex("power", i) );
+                fprintf(it->second, "\n");
+            }
+        }
+    }
+
     void ResonantRing::printDefinition(FILE* device_list_file)
     {
         DeviceModel::printDefinition(device_list_file);
