@@ -25,97 +25,196 @@ floorplan CellTop
     atomic sub_13 2.25E-5 2.0E-5 1.125E-4 0.0
 endfloorplan
 
-# Floorplan CellChipFill, 76 instances
-floorplan CellChipFill
-    filler Fill_0 2.25E-5 2.6E-5 0.0 3.0E-4
-    filler Fill_1 2.25E-5 2.0E-5 0.0 3.3E-4
-    filler Fill_2 2.25E-5 2.6E-5 2.25E-5 3.0E-4
-    filler Fill_3 2.25E-5 2.0E-5 2.25E-5 3.3E-4
-    filler Fill_4 2.25E-5 2.6E-5 4.5E-5 3.0E-4
-    filler Fill_5 2.25E-5 2.0E-5 4.5E-5 3.3E-4
-    filler Fill_6 2.25E-5 2.6E-5 6.75E-5 3.0E-4
-    filler Fill_7 2.25E-5 2.0E-5 6.75E-5 3.3E-4
-    filler Fill_8 2.25E-5 2.6E-5 9.0E-5 3.0E-4
-    filler Fill_9 2.25E-5 2.0E-5 9.0E-5 3.3E-4
-    filler Fill_10 2.25E-5 2.6E-5 1.125E-4 3.0E-4
-    filler Fill_11 2.25E-5 2.0E-5 1.125E-4 3.3E-4
-    filler Fill_12 2.25E-5 2.6E-5 1.35E-4 3.0E-4
-    filler Fill_13 2.25E-5 2.0E-5 1.35E-4 3.3E-4
-    filler Fill_14 2.25E-5 2.6E-5 1.575E-4 3.0E-4
-    filler Fill_15 7.5E-6 1.0E-5 1.575E-4 3.4E-4
-    filler Fill_16 7.5E-6 1.0E-5 1.575E-4 3.3E-4
-    filler Fill_17 2.25E-5 2.6E-5 1.8E-4 3.0E-4
-    filler Fill_18 7.5E-6 1.0E-5 1.95E-4 3.3E-4
-    filler Fill_19 7.5E-6 1.0E-5 1.95E-4 3.4E-4
-    filler Fill_20 2.25E-5 2.6E-5 2.025E-4 3.0E-4
-    filler Fill_21 2.25E-5 2.0E-5 2.025E-4 3.3E-4
-    filler Fill_22 2.25E-5 2.6E-5 2.25E-4 3.0E-4
-    filler Fill_23 2.25E-5 2.0E-5 2.25E-4 3.3E-4
-    filler Fill_24 2.25E-5 2.6E-5 2.475E-4 3.0E-4
-    filler Fill_25 2.25E-5 2.0E-5 2.475E-4 3.3E-4
-    filler Fill_26 2.25E-5 2.6E-5 2.7E-4 3.0E-4
-    filler Fill_27 2.25E-5 2.0E-5 2.7E-4 3.3E-4
-    filler Fill_28 2.25E-5 2.6E-5 2.925E-4 3.0E-4
-    filler Fill_29 2.25E-5 2.0E-5 2.925E-4 3.3E-4
-    filler Fill_30 2.25E-5 2.6E-5 3.15E-4 3.0E-4
-    filler Fill_31 2.25E-5 2.0E-5 3.15E-4 3.3E-4
-    filler Fill_32 2.25E-5 2.6E-5 3.375E-4 3.0E-4
-    filler Fill_33 2.25E-5 2.0E-5 3.375E-4 3.3E-4
-    filler Fill_34 2.25E-5 2.6E-5 3.6E-4 3.0E-4
-    filler Fill_35 2.25E-5 2.0E-5 3.6E-4 3.3E-4
-    filler Fill_36 2.25E-5 2.6E-5 3.825E-4 3.0E-4
-    filler Fill_37 2.25E-5 2.0E-5 3.825E-4 3.3E-4
-    filler Fill_38 2.25E-5 2.6E-5 4.05E-4 3.0E-4
-    filler Fill_39 2.25E-5 2.0E-5 4.05E-4 3.3E-4
-    filler Fill_40 2.25E-5 2.6E-5 4.275E-4 3.0E-4
-    filler Fill_41 2.25E-5 2.0E-5 4.275E-4 3.3E-4
-    filler Fill_42 2.25E-5 2.6E-5 4.5E-4 3.0E-4
-    filler Fill_43 2.25E-5 2.0E-5 4.5E-4 3.3E-4
-    filler Fill_44 2.25E-5 2.6E-5 4.725E-4 3.0E-4
-    filler Fill_45 2.25E-5 2.0E-5 4.725E-4 3.3E-4
-    filler Fill_46 2.25E-5 2.6E-5 4.95E-4 3.0E-4
-    filler Fill_47 2.25E-5 2.0E-5 4.95E-4 3.3E-4
-    filler Fill_48 2.25E-5 2.6E-5 5.175E-4 3.0E-4
-    filler Fill_49 2.25E-5 2.0E-5 5.175E-4 3.3E-4
-    filler Fill_50 2.25E-5 2.6E-5 5.4E-4 3.0E-4
-    filler Fill_51 2.25E-5 2.0E-5 5.4E-4 3.3E-4
-    filler Fill_52 2.25E-5 2.6E-5 5.625E-4 3.0E-4
-    filler Fill_53 2.25E-5 2.0E-5 5.625E-4 3.3E-4
-    filler Fill_54 2.25E-5 2.6E-5 5.85E-4 3.0E-4
-    filler Fill_55 2.25E-5 2.0E-5 5.85E-4 3.3E-4
-    filler Fill_56 2.25E-5 2.6E-5 6.075E-4 3.0E-4
-    filler Fill_57 7.5E-6 1.0E-5 6.075E-4 3.4E-4
-    filler Fill_58 7.5E-6 1.0E-5 6.075E-4 3.3E-4
-    filler Fill_59 2.25E-5 2.6E-5 6.3E-4 3.0E-4
-    filler Fill_60 7.5E-6 1.0E-5 6.45E-4 3.3E-4
-    filler Fill_61 7.5E-6 1.0E-5 6.45E-4 3.4E-4
-    filler Fill_62 2.25E-5 2.6E-5 6.525E-4 3.0E-4
-    filler Fill_63 2.25E-5 2.0E-5 6.525E-4 3.3E-4
-    filler Fill_64 2.25E-5 2.6E-5 6.75E-4 3.0E-4
-    filler Fill_65 2.25E-5 2.0E-5 6.75E-4 3.3E-4
-    filler Fill_66 2.25E-5 2.6E-5 6.975E-4 3.0E-4
-    filler Fill_67 2.25E-5 2.0E-5 6.975E-4 3.3E-4
-    filler Fill_68 2.25E-5 2.6E-5 7.2E-4 3.0E-4
-    filler Fill_69 2.25E-5 2.0E-5 7.2E-4 3.3E-4
-    filler Fill_70 2.25E-5 2.6E-5 7.425E-4 3.0E-4
-    filler Fill_71 2.25E-5 2.0E-5 7.425E-4 3.3E-4
-    filler Fill_72 2.25E-5 2.6E-5 7.65E-4 3.0E-4
-    filler Fill_73 2.25E-5 2.0E-5 7.65E-4 3.3E-4
-    filler Fill_74 2.25E-5 2.6E-5 7.875E-4 3.0E-4
-    filler Fill_75 2.25E-5 2.0E-5 7.875E-4 3.3E-4
+# Floorplan CellChip_fill, 148 instances
+floorplan CellChip_fill
+    filler Fill_16 1.0E-5 1.5E-5 1.7E-4 3.35E-4
+    filler Fill_17 1.25E-5 1.1E-5 1.9E-4 3.0E-4
+    filler Fill_19 1.0E-5 1.1E-5 1.8E-4 3.0E-4
+    filler Fill_20 2.25E-5 1.5E-5 1.8E-4 3.35E-4
+    filler Fill_59 1.0E-5 1.5E-5 6.2E-4 3.35E-4
+    filler Fill_60 1.25E-5 1.1E-5 6.4E-4 3.0E-4
+    filler Fill_62 1.0E-5 1.1E-5 6.3E-4 3.0E-4
+    filler Fill_63 2.25E-5 1.5E-5 6.3E-4 3.35E-4
+    filler Fill_0_w0 1.125E-5 1.1E-5 0.0 3.0E-4
+    filler Fill_0_w1 1.125E-5 1.1E-5 1.125E-5 3.0E-4
+    filler Fill_1_h00 2.25E-5 1.75E-5 0.0 3.15E-4
+    filler Fill_1_h10 2.25E-5 1.75E-5 0.0 3.325E-4
+    filler Fill_2_w0 1.125E-5 1.1E-5 2.25E-5 3.0E-4
+    filler Fill_2_w1 1.125E-5 1.1E-5 3.375E-5 3.0E-4
+    filler Fill_3_h00 2.25E-5 1.75E-5 2.25E-5 3.15E-4
+    filler Fill_3_h10 2.25E-5 1.75E-5 2.25E-5 3.325E-4
+    filler Fill_4_w0 1.125E-5 1.1E-5 4.5E-5 3.0E-4
+    filler Fill_4_w1 1.125E-5 1.1E-5 5.625E-5 3.0E-4
+    filler Fill_5_h00 2.25E-5 1.75E-5 4.5E-5 3.15E-4
+    filler Fill_5_h10 2.25E-5 1.75E-5 4.5E-5 3.325E-4
+    filler Fill_6_w0 1.125E-5 1.1E-5 6.75E-5 3.0E-4
+    filler Fill_6_w1 1.125E-5 1.1E-5 7.875E-5 3.0E-4
+    filler Fill_7_h00 2.25E-5 1.75E-5 6.75E-5 3.15E-4
+    filler Fill_7_h10 2.25E-5 1.75E-5 6.75E-5 3.325E-4
+    filler Fill_8_w0 1.125E-5 1.1E-5 9.0E-5 3.0E-4
+    filler Fill_8_w1 1.125E-5 1.1E-5 1.0125E-4 3.0E-4
+    filler Fill_9_h00 2.25E-5 1.75E-5 9.0E-5 3.15E-4
+    filler Fill_9_h10 2.25E-5 1.75E-5 9.0E-5 3.325E-4
+    filler Fill_10_w0 1.125E-5 1.1E-5 1.125E-4 3.0E-4
+    filler Fill_10_w1 1.125E-5 1.1E-5 1.2375E-4 3.0E-4
+    filler Fill_11_h00 2.25E-5 1.75E-5 1.125E-4 3.15E-4
+    filler Fill_11_h10 2.25E-5 1.75E-5 1.125E-4 3.325E-4
+    filler Fill_12_w0 1.125E-5 1.1E-5 1.35E-4 3.0E-4
+    filler Fill_12_w1 1.125E-5 1.1E-5 1.4625E-4 3.0E-4
+    filler Fill_13_h00 2.25E-5 1.75E-5 1.35E-4 3.15E-4
+    filler Fill_13_h10 2.25E-5 1.75E-5 1.35E-4 3.325E-4
+    filler Fill_14_h00 1.25E-5 1.75E-5 1.575E-4 3.15E-4
+    filler Fill_14_h10 1.25E-5 1.75E-5 1.575E-4 3.325E-4
+    filler Fill_15_w0 1.125E-5 1.1E-5 1.575E-4 3.0E-4
+    filler Fill_15_w1 1.125E-5 1.1E-5 1.6875E-4 3.0E-4
+    filler Fill_18_h02 1.25E-5 1.0E-5 1.9E-4 3.15E-4
+    filler Fill_18_h12 1.25E-5 1.0E-5 1.9E-4 3.25E-4
+    filler Fill_21_w0 1.125E-5 1.1E-5 2.025E-4 3.0E-4
+    filler Fill_21_w1 1.125E-5 1.1E-5 2.1375E-4 3.0E-4
+    filler Fill_22_h04 2.25E-5 1.75E-5 2.025E-4 3.15E-4
+    filler Fill_22_h14 2.25E-5 1.75E-5 2.025E-4 3.325E-4
+    filler Fill_23_w0 1.125E-5 1.1E-5 2.25E-4 3.0E-4
+    filler Fill_23_w1 1.125E-5 1.1E-5 2.3625E-4 3.0E-4
+    filler Fill_24_h04 2.25E-5 1.75E-5 2.25E-4 3.15E-4
+    filler Fill_24_h14 2.25E-5 1.75E-5 2.25E-4 3.325E-4
+    filler Fill_25_w0 1.125E-5 1.1E-5 2.475E-4 3.0E-4
+    filler Fill_25_w1 1.125E-5 1.1E-5 2.5875E-4 3.0E-4
+    filler Fill_26_h04 2.25E-5 1.75E-5 2.475E-4 3.15E-4
+    filler Fill_26_h14 2.25E-5 1.75E-5 2.475E-4 3.325E-4
+    filler Fill_27_w0 1.125E-5 1.1E-5 2.7E-4 3.0E-4
+    filler Fill_27_w1 1.125E-5 1.1E-5 2.8125E-4 3.0E-4
+    filler Fill_28_h04 2.25E-5 1.75E-5 2.7E-4 3.15E-4
+    filler Fill_28_h14 2.25E-5 1.75E-5 2.7E-4 3.325E-4
+    filler Fill_29_w0 1.125E-5 1.1E-5 2.925E-4 3.0E-4
+    filler Fill_29_w1 1.125E-5 1.1E-5 3.0375E-4 3.0E-4
+    filler Fill_30_h04 2.25E-5 1.75E-5 2.925E-4 3.15E-4
+    filler Fill_30_h14 2.25E-5 1.75E-5 2.925E-4 3.325E-4
+    filler Fill_31_w0 1.125E-5 1.1E-5 3.15E-4 3.0E-4
+    filler Fill_31_w1 1.125E-5 1.1E-5 3.2625E-4 3.0E-4
+    filler Fill_32_h04 2.25E-5 1.75E-5 3.15E-4 3.15E-4
+    filler Fill_32_h14 2.25E-5 1.75E-5 3.15E-4 3.325E-4
+    filler Fill_33_w0 1.125E-5 1.1E-5 3.375E-4 3.0E-4
+    filler Fill_33_w1 1.125E-5 1.1E-5 3.4875E-4 3.0E-4
+    filler Fill_34_h04 2.25E-5 1.75E-5 3.375E-4 3.15E-4
+    filler Fill_34_h14 2.25E-5 1.75E-5 3.375E-4 3.325E-4
+    filler Fill_35_w0 1.125E-5 1.1E-5 3.6E-4 3.0E-4
+    filler Fill_35_w1 1.125E-5 1.1E-5 3.7125E-4 3.0E-4
+    filler Fill_36_h04 2.25E-5 1.75E-5 3.6E-4 3.15E-4
+    filler Fill_36_h14 2.25E-5 1.75E-5 3.6E-4 3.325E-4
+    filler Fill_37_w0 1.125E-5 1.1E-5 3.825E-4 3.0E-4
+    filler Fill_37_w1 1.125E-5 1.1E-5 3.9375E-4 3.0E-4
+    filler Fill_38_h04 2.25E-5 1.75E-5 3.825E-4 3.15E-4
+    filler Fill_38_h14 2.25E-5 1.75E-5 3.825E-4 3.325E-4
+    filler Fill_39_w0 1.125E-5 1.1E-5 4.05E-4 3.0E-4
+    filler Fill_39_w1 1.125E-5 1.1E-5 4.1625E-4 3.0E-4
+    filler Fill_40_h04 2.25E-5 1.75E-5 4.05E-4 3.15E-4
+    filler Fill_40_h14 2.25E-5 1.75E-5 4.05E-4 3.325E-4
+    filler Fill_41_w0 1.125E-5 1.1E-5 4.275E-4 3.0E-4
+    filler Fill_41_w1 1.125E-5 1.1E-5 4.3875E-4 3.0E-4
+    filler Fill_42_h04 2.25E-5 1.75E-5 4.275E-4 3.15E-4
+    filler Fill_42_h14 2.25E-5 1.75E-5 4.275E-4 3.325E-4
+    filler Fill_43_w0 1.125E-5 1.1E-5 4.5E-4 3.0E-4
+    filler Fill_43_w1 1.125E-5 1.1E-5 4.6125E-4 3.0E-4
+    filler Fill_44_h04 2.25E-5 1.75E-5 4.5E-4 3.15E-4
+    filler Fill_44_h14 2.25E-5 1.75E-5 4.5E-4 3.325E-4
+    filler Fill_45_w0 1.125E-5 1.1E-5 4.725E-4 3.0E-4
+    filler Fill_45_w1 1.125E-5 1.1E-5 4.8375E-4 3.0E-4
+    filler Fill_46_h04 2.25E-5 1.75E-5 4.725E-4 3.15E-4
+    filler Fill_46_h14 2.25E-5 1.75E-5 4.725E-4 3.325E-4
+    filler Fill_47_w0 1.125E-5 1.1E-5 4.95E-4 3.0E-4
+    filler Fill_47_w1 1.125E-5 1.1E-5 5.0625E-4 3.0E-4
+    filler Fill_48_h04 2.25E-5 1.75E-5 4.95E-4 3.15E-4
+    filler Fill_48_h14 2.25E-5 1.75E-5 4.95E-4 3.325E-4
+    filler Fill_49_w0 1.125E-5 1.1E-5 5.175E-4 3.0E-4
+    filler Fill_49_w1 1.125E-5 1.1E-5 5.2875E-4 3.0E-4
+    filler Fill_50_h04 2.25E-5 1.75E-5 5.175E-4 3.15E-4
+    filler Fill_50_h14 2.25E-5 1.75E-5 5.175E-4 3.325E-4
+    filler Fill_51_w0 1.125E-5 1.1E-5 5.4E-4 3.0E-4
+    filler Fill_51_w1 1.125E-5 1.1E-5 5.5125E-4 3.0E-4
+    filler Fill_52_h04 2.25E-5 1.75E-5 5.4E-4 3.15E-4
+    filler Fill_52_h14 2.25E-5 1.75E-5 5.4E-4 3.325E-4
+    filler Fill_53_w0 1.125E-5 1.1E-5 5.625E-4 3.0E-4
+    filler Fill_53_w1 1.125E-5 1.1E-5 5.7375E-4 3.0E-4
+    filler Fill_54_h04 2.25E-5 1.75E-5 5.625E-4 3.15E-4
+    filler Fill_54_h14 2.25E-5 1.75E-5 5.625E-4 3.325E-4
+    filler Fill_55_w0 1.125E-5 1.1E-5 5.85E-4 3.0E-4
+    filler Fill_55_w1 1.125E-5 1.1E-5 5.9625E-4 3.0E-4
+    filler Fill_56_h04 2.25E-5 1.75E-5 5.85E-4 3.15E-4
+    filler Fill_56_h14 2.25E-5 1.75E-5 5.85E-4 3.325E-4
+    filler Fill_57_h04 1.25E-5 1.75E-5 6.075E-4 3.15E-4
+    filler Fill_57_h14 1.25E-5 1.75E-5 6.075E-4 3.325E-4
+    filler Fill_58_w0 1.125E-5 1.1E-5 6.075E-4 3.0E-4
+    filler Fill_58_w1 1.125E-5 1.1E-5 6.1875E-4 3.0E-4
+    filler Fill_61_h06 1.25E-5 1.0E-5 6.4E-4 3.15E-4
+    filler Fill_61_h16 1.25E-5 1.0E-5 6.4E-4 3.25E-4
+    filler Fill_64_w0 1.125E-5 1.1E-5 6.525E-4 3.0E-4
+    filler Fill_64_w1 1.125E-5 1.1E-5 6.6375E-4 3.0E-4
+    filler Fill_65_h08 2.25E-5 1.75E-5 6.525E-4 3.15E-4
+    filler Fill_65_h18 2.25E-5 1.75E-5 6.525E-4 3.325E-4
+    filler Fill_66_w0 1.125E-5 1.1E-5 6.75E-4 3.0E-4
+    filler Fill_66_w1 1.125E-5 1.1E-5 6.8625E-4 3.0E-4
+    filler Fill_67_h08 2.25E-5 1.75E-5 6.75E-4 3.15E-4
+    filler Fill_67_h18 2.25E-5 1.75E-5 6.75E-4 3.325E-4
+    filler Fill_68_w0 1.125E-5 1.1E-5 6.975E-4 3.0E-4
+    filler Fill_68_w1 1.125E-5 1.1E-5 7.0875E-4 3.0E-4
+    filler Fill_69_h08 2.25E-5 1.75E-5 6.975E-4 3.15E-4
+    filler Fill_69_h18 2.25E-5 1.75E-5 6.975E-4 3.325E-4
+    filler Fill_70_w0 1.125E-5 1.1E-5 7.2E-4 3.0E-4
+    filler Fill_70_w1 1.125E-5 1.1E-5 7.3125E-4 3.0E-4
+    filler Fill_71_h08 2.25E-5 1.75E-5 7.2E-4 3.15E-4
+    filler Fill_71_h18 2.25E-5 1.75E-5 7.2E-4 3.325E-4
+    filler Fill_72_w0 1.125E-5 1.1E-5 7.425E-4 3.0E-4
+    filler Fill_72_w1 1.125E-5 1.1E-5 7.5375E-4 3.0E-4
+    filler Fill_73_h08 2.25E-5 1.75E-5 7.425E-4 3.15E-4
+    filler Fill_73_h18 2.25E-5 1.75E-5 7.425E-4 3.325E-4
+    filler Fill_74_w0 1.125E-5 1.1E-5 7.65E-4 3.0E-4
+    filler Fill_74_w1 1.125E-5 1.1E-5 7.7625E-4 3.0E-4
+    filler Fill_75_h08 2.25E-5 1.75E-5 7.65E-4 3.15E-4
+    filler Fill_75_h18 2.25E-5 1.75E-5 7.65E-4 3.325E-4
+    filler Fill_76_w0 1.125E-5 1.1E-5 7.875E-4 3.0E-4
+    filler Fill_76_w1 1.125E-5 1.1E-5 7.9875E-4 3.0E-4
+    filler Fill_77_h08 2.25E-5 1.75E-5 7.875E-4 3.15E-4
+    filler Fill_77_h18 2.25E-5 1.75E-5 7.875E-4 3.325E-4
 endfloorplan
 
-# Floorplan Waveguide, 9 instances
+# Floorplan Waveguide, 36 instances
 floorplan Waveguide
-    atomic sec_0 9.0E-5 4.0E-6 0.0 0.0
-    atomic sec_1 9.0E-5 4.0E-6 9.0E-5 0.0
-    atomic sec_2 9.0E-5 4.0E-6 1.8E-4 0.0
-    atomic sec_3 9.0E-5 4.0E-6 2.7E-4 0.0
-    atomic sec_4 9.0E-5 4.0E-6 3.6E-4 0.0
-    atomic sec_5 9.0E-5 4.0E-6 4.5E-4 0.0
-    atomic sec_6 9.0E-5 4.0E-6 5.4E-4 0.0
-    atomic sec_7 9.0E-5 4.0E-6 6.3E-4 0.0
-    atomic sec_8 9.0E-5 4.0E-6 7.2E-4 0.0
+    atomic sec_0 2.25E-5 4.0E-6 0.0 0.0
+    atomic sec_1 2.25E-5 4.0E-6 2.25E-5 0.0
+    atomic sec_2 2.25E-5 4.0E-6 4.5E-5 0.0
+    atomic sec_3 2.25E-5 4.0E-6 6.75E-5 0.0
+    atomic sec_4 2.25E-5 4.0E-6 9.0E-5 0.0
+    atomic sec_5 2.25E-5 4.0E-6 1.125E-4 0.0
+    atomic sec_6 2.25E-5 4.0E-6 1.35E-4 0.0
+    atomic sec_7 2.25E-5 4.0E-6 1.575E-4 0.0
+    atomic sec_8 2.25E-5 4.0E-6 1.8E-4 0.0
+    atomic sec_9 2.25E-5 4.0E-6 2.025E-4 0.0
+    atomic sec_10 2.25E-5 4.0E-6 2.25E-4 0.0
+    atomic sec_11 2.25E-5 4.0E-6 2.475E-4 0.0
+    atomic sec_12 2.25E-5 4.0E-6 2.7E-4 0.0
+    atomic sec_13 2.25E-5 4.0E-6 2.925E-4 0.0
+    atomic sec_14 2.25E-5 4.0E-6 3.15E-4 0.0
+    atomic sec_15 2.25E-5 4.0E-6 3.375E-4 0.0
+    atomic sec_16 2.25E-5 4.0E-6 3.6E-4 0.0
+    atomic sec_17 2.25E-5 4.0E-6 3.825E-4 0.0
+    atomic sec_18 2.25E-5 4.0E-6 4.05E-4 0.0
+    atomic sec_19 2.25E-5 4.0E-6 4.275E-4 0.0
+    atomic sec_20 2.25E-5 4.0E-6 4.5E-4 0.0
+    atomic sec_21 2.25E-5 4.0E-6 4.725E-4 0.0
+    atomic sec_22 2.25E-5 4.0E-6 4.95E-4 0.0
+    atomic sec_23 2.25E-5 4.0E-6 5.175E-4 0.0
+    atomic sec_24 2.25E-5 4.0E-6 5.4E-4 0.0
+    atomic sec_25 2.25E-5 4.0E-6 5.625E-4 0.0
+    atomic sec_26 2.25E-5 4.0E-6 5.85E-4 0.0
+    atomic sec_27 2.25E-5 4.0E-6 6.075E-4 0.0
+    atomic sec_28 2.25E-5 4.0E-6 6.3E-4 0.0
+    atomic sec_29 2.25E-5 4.0E-6 6.525E-4 0.0
+    atomic sec_30 2.25E-5 4.0E-6 6.75E-4 0.0
+    atomic sec_31 2.25E-5 4.0E-6 6.975E-4 0.0
+    atomic sec_32 2.25E-5 4.0E-6 7.2E-4 0.0
+    atomic sec_33 2.25E-5 4.0E-6 7.425E-4 0.0
+    atomic sec_34 2.25E-5 4.0E-6 7.65E-4 0.0
+    atomic sec_35 2.25E-5 4.0E-6 7.875E-4 0.0
 endfloorplan
 
 # Floorplan CellBtm, 14 instances
@@ -136,10 +235,10 @@ floorplan CellBtm
     atomic sub_13 2.25E-5 2.0E-5 1.125E-4 2.8E-4
 endfloorplan
 
-# Floorplan CellChip, 18 instances
+# Floorplan CellChip, 16 instances
 floorplan CellChip
-    atomic modulator 1.0E-5 1.0E-5 1.75E-4 3.3E-4
-    atomic receiver_ring 1.0E-5 1.0E-5 6.25E-4 3.3E-4
+    atomic modulator 2.0E-5 2.0E-5 1.7E-4 3.15E-4
+    atomic receiver_ring 2.0E-5 2.0E-5 6.2E-4 3.15E-4
     CellBtm cell_btm_0 0.0 0.0
     CellBtm cell_btm_1 1.35E-4 0.0
     CellBtm cell_btm_2 2.7E-4 0.0
@@ -152,9 +251,7 @@ floorplan CellChip
     CellTop cell_top_3 4.05E-4 3.5E-4
     CellTop cell_top_4 5.4E-4 3.5E-4
     CellTop cell_top_5 6.75E-4 3.5E-4
-    Waveguide waveguide 0.0 3.26E-4
-    RingFill ring_fill_0 1.65E-4 3.3E-4
-    RingFill ring_fill_1 6.15E-4 3.3E-4
-    CellChipFill filler 0.0 0.0
+    Waveguide waveguide 0.0 3.11E-4
+    CellChip_fill Filler 0.0 0.0
 endfloorplan
 

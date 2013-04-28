@@ -1,14 +1,14 @@
 # Cell Test Device-Floorplan Map
 
-waveguide_0 waveguide.sec_0
-waveguide_1 waveguide.sec_1
-waveguide_2 waveguide.sec_2
-waveguide_3 waveguide.sec_3
-waveguide_4 waveguide.sec_4
-waveguide_5 waveguide.sec_5
-waveguide_6 waveguide.sec_6
-waveguide_7 waveguide.sec_7
-waveguide_8 waveguide.sec_8
+#waveguide_0 waveguide.sec_0
+#waveguide_1 waveguide.sec_1
+#waveguide_2 waveguide.sec_2
+#waveguide_3 waveguide.sec_3
+#waveguide_4 waveguide.sec_4
+#waveguide_5 waveguide.sec_5
+#waveguide_6 waveguide.sec_6
+#waveguide_7 waveguide.sec_7
+#waveguide_8 waveguide.sec_8
 receiver_ring receiver_ring
 modulator modulator
 
