@@ -31,5 +31,14 @@ namespace VerilogParser
         return "Parameter -> " + getIdentifier() + " = " + m_value_.toString();
     }
     
+    VerilogItem* VerilogParameter::clone() const
+    {
+        return new VerilogParameter(*this);
+    }
+    
+    VerilogParameter::VerilogParameter(const VerilogParameter& param_)
+        : VerilogItem(param_),  m_value_(param_.m_value_)
+    {}
+    
     
 } // namespace VerilogParser

@@ -42,6 +42,7 @@
 
 using namespace std;
 using namespace VerilogParser;
+using namespace LibUtil;
 
 #define yyin verilogin
 
@@ -243,10 +244,7 @@ module_instantiation:
 
             $$ = new VerilogItems($3->begin(), $3->end());
             
-            VerilogConns::const_iterator c_it;
-            for (c_it = $2->begin(); c_it != $2->end(); ++c_it)
-                delete *c_it;
-            delete $2;
+            deletePtrVector<VerilogConn>($2);
             delete $3;
         }
     | IDENTIFIER list_of_module_instances ';' 
@@ -406,25 +404,31 @@ namespace VerilogParser
 {
     VerilogFileReader::VerilogFileReader()
     {
-        m_modules_ = new vector<VerilogModule*>();    
+        m_modules_ = new vector<VerilogModule*>();
+        m_scope_ = new VerilogScope();        
     }
     
     VerilogFileReader::~VerilogFileReader()
     {
-        VerilogModules::const_iterator it;
-        for (it = m_modules_->begin(); it != m_modules_->end(); ++it)
-            delete (*it);
-        delete m_modules_;
+        delete m_scope_;
+        LibUtil::deletePtrVector<VerilogModule>(m_modules_);
+        
         m_modules_ = NULL;
+        m_scope_ = NULL;
     }
 
     void VerilogFileReader::elaborate()
     {
-        VerilogScope* scope = new VerilogScope();
+        // Elaborate all potential top-level modules
         VerilogModules::const_iterator it;
         for (it = m_modules_->begin(); it != m_modules_->end(); ++it)
-            (*it)->elaborate(scope);
-        delete scope;
+        {
+            // Put the module in the scope's raw modules
+            m_scope_->addRawModule(*it);
+            // (*it)->elaborate(m_scope_);
+            // Make a copy of the module, with no parameter overrides and elaborate
+            (new VerilogModule(*it))->elaborate(m_scope_);
+        }
     }    
     
     void VerilogFileReader::addModule(VerilogModule* module_)
@@ -449,9 +453,38 @@ namespace VerilogParser
         {
             cout << "VerilogFileReader::parse : [Warning] File name not given for verilog file reader constructor, running from stdin" << endl;
         }
-        
-        m_cur_file_ = NULL;
         return yyparse( this ) == 0;
+    }
+    
+    VerilogItems* VerilogFileReader::getFlattenedItems(const string& top_module_name, 
+        const std::string& hier_sep_) const
+    {
+        VerilogItems* items = new VerilogItems();
+        addFlattenedItems(items, hier_sep_, m_scope_->getElabModule(top_module_name), "");
+        return items;
+    }
+    
+    void VerilogFileReader::addFlattenedItems(VerilogItems* items_, const std::string& hier_sep_, 
+        const VerilogModule* module_, const std::string& hier_name_)
+    {
+        // Get all things in the module
+        VerilogItems::const_iterator it;
+        for (it = module_->getItems()->begin(); it != module_->getItems()->end(); ++it)
+        {
+            VerilogItem* item = *it;
+            if (item->getType() == ITEM_NET)
+                items_->push_back(item->getFlattenedClone(hier_name_, hier_sep_));
+            else if (item->getType() == ITEM_PARAMETER)
+                items_->push_back(item->getFlattenedClone(hier_name_, hier_sep_));
+            else if (item->getType() == ITEM_INSTANCE)
+            {
+                const VerilogInstance* inst = (const VerilogInstance*) item;                
+                addFlattenedItems(items_, hier_sep_, inst->getModule(),
+                    hier_name_ + inst->getIdentifier() + hier_sep_);         
+                    
+                items_->push_back(inst->getFlattenedClone(hier_name_, hier_sep_));
+            }
+        }
     }
 }
 

@@ -39,10 +39,7 @@ namespace VerilogParser
             // Private constructor, use the static creation function instead
             VerilogNet(const std::string& identifier_, VerilogPortType port_type_,
                 VerilogNetType net_type_, const VerilogRange& range_);
-        
-        protected:
-            void elaborateItem(VerilogScope* scope_);
-        
+
         public:
             static VerilogItems* createVerilogNets(const VerilogVariables& identifiers_, VerilogPortType port_type_,
                 VerilogNetType net_type_, const VerilogRange& range_ = VerilogRange(
@@ -54,6 +51,16 @@ namespace VerilogParser
             inline VerilogNetType getNetType() const { return m_net_type_; }
             
             std::string toString() const;
+            
+            // Clone
+            VerilogItem* clone() const;
+            // Static function for seeing one range is a valid subrange of another
+            static bool isValidSubRange(const VerilogRange& range, const VerilogRange& sub_range);
+            
+        protected:
+            void elaborateItem(VerilogScope* scope_);
+            // Protected copy constructor, use clone instead
+            VerilogNet(const VerilogNet& net_);
             
         private:
             // Port type

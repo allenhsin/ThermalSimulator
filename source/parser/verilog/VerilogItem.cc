@@ -6,6 +6,9 @@
 #include "VerilogItem.h"
 #include "VerilogScope.h"
 #include "VerilogModule.h"
+#include "VerilogParameter.h"
+#include "VerilogNet.h"
+#include "VerilogInstance.h"
 
 namespace VerilogParser
 {
@@ -41,5 +44,16 @@ namespace VerilogParser
             
         m_elaborated_ = true;        
     }
+    
+    VerilogItem::VerilogItem(const VerilogItem& item_)
+        : m_type_(item_.m_type_), m_identifier_(item_.m_identifier_), m_elaborated_(item_.m_elaborated_)
+    {}
 
+    VerilogItem* VerilogItem::getFlattenedClone(const std::string& hier_, const std::string& /* hier_sep_ */) const
+    {
+        VerilogItem* c = clone();
+        c->m_identifier_ = hier_ + c->m_identifier_;        
+        return c;
+    }
+    
 } // namespace VerilogParser

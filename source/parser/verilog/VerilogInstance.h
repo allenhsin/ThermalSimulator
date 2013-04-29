@@ -25,15 +25,22 @@ namespace VerilogParser
             // Set parameter values
             void setParameterValues(const VerilogConns& conns_);
             
-            std::string toString() const;
+            std::string toString() const;            
+            // Clone the item
+            VerilogInstance* clone() const;
+            // Get a clone with flattened identifiers
+            VerilogInstance* getFlattenedClone(const std::string& hier_, const std::string& hier_sep_) const;
             
         protected:
             void elaborateItem(VerilogScope* scope_);
+            // Protected copy constructor, use clone instead
+            VerilogInstance(const VerilogInstance& instance_);
             
         private:
-            // Initialize the instance connections
-            void initializeConns(const VerilogConns& conns_);
-
+            std::string elaborateParamVals(VerilogScope* scope_);
+            void elaborateTargetModule(VerilogScope* scope_, const std::string& full_name_);
+            void elaboratePortConns(VerilogScope* scope_);
+            
         private:
             // Instance connections
             VerilogConns* m_conns_;

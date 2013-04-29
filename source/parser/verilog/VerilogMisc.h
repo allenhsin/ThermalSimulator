@@ -20,8 +20,9 @@ namespace VerilogParser
     
     typedef std::pair<VerilogExpression, VerilogExpression> VerilogRange;
     typedef std::vector<std::string> VerilogVariables;
+    
     typedef std::pair<std::string, VerilogExpression> VerilogConn;
-
+    
     typedef std::vector<VerilogModule*> VerilogModules;
     typedef std::vector<VerilogItem*> VerilogItems;
     typedef std::vector<VerilogConn*> VerilogConns;
@@ -30,8 +31,7 @@ namespace VerilogParser
     typedef std::vector<VerilogParameter*> VerilogParameters;
     typedef std::vector<VerilogNet*> VerilogNets;
     typedef std::vector<VerilogInstance*> VerilogInstances;
-    
-    
+        
     typedef std::map<std::string, VerilogModule*> VerilogModuleMap;
     typedef std::map<std::string, VerilogItem*> VerilogItemMap;
     
@@ -47,7 +47,7 @@ namespace VerilogParser
             // String containing the exception
             std::string m_message_;
     };
-    
+
     // // A base class for a elaborate-able verilog class
     // class VerilogElaborate
     // {

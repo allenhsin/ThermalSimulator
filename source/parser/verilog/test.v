@@ -14,11 +14,13 @@ module INV_X1M_A12TR(A, Y);
     parameter HolyShit = CadenceSucks;
     parameter Wow = HolyShit-1;
     
-    input wire [CadenceSucks-1:0] A;
+    input A;
+    output Y;
+    
     wire [33:0] n1;    
-    output wire [CadenceSucks*(2-1-1)*5:0] Y;
-
     wire [1:0]      n2;
+    wire [CadenceSucks*(2-1-1)*5:0] n3;
+    wire [CadenceSucks-1:0] n4;
 
     // parameter Wow2 = n2;
 
@@ -39,7 +41,11 @@ endmodule
     input A;
     output Y; 
 
-    wire n1, n2, n3, n4, n5;
+    wire [bad_param2-1:0] n1, n2, n3, n4, n5;
+
+    INV_X1M_A12TR   #   (   .Wow(3))
+            terrible0   (   .A(A),
+                            .Y(Y));
     
 endmodule
 
@@ -49,7 +55,7 @@ module AND_X1M_A12TR (A, B, Y);
     parameter YesIt_Does = 4'b01010;
     //parameter UnsupportedConcat = { CadenceSucks, CadenceSucks };
     
-    input A, B;
+    input [6:0] A, B;
     output Y;
 
     INV_X1M_A12TR   #   (   .CadenceSucks(2), 
@@ -57,9 +63,14 @@ module AND_X1M_A12TR (A, B, Y);
                 blah0   (   .A(A[5]), 
                             .Y(B[6]));
                             
+
+    INV_X1M_A12TR   wow   
+                        (   .A(A[5]), 
+                            .Y(B[6]));
+
     INV_X2M_A12TR   #   (   .bad_param1(CadenceSucks / (2*123)), 
                             .bad_param2(YesIt_Does * 2)) 
-                blah1   (   .A(A), .Y(B));
-                // blah2   (   Y, B[12:3]);
+                blah1   (   .A(A[0]), .Y(B[1]))
+                blah2   (   .A(Y), .Y(B[3:3]));
     
 endmodule

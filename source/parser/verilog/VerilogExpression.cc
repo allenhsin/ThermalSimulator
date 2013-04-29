@@ -17,7 +17,7 @@ namespace VerilogParser
     using namespace LibUtil;
 
     VerilogExpression::VerilogExpression(const VerilogNumber& num_)
-        : m_type_(NUMBER), m_elaborated_(false)
+        : m_type_(NUMBER), m_elaborated_(false), m_const_expr_(true)
     {
         m_val_num_ = new VerilogNumber(num_);
         m_val_concat_ = NULL;
@@ -27,7 +27,7 @@ namespace VerilogParser
     }
 
     VerilogExpression::VerilogExpression(const VerilogExpressions& concat_)
-        : m_type_(CONCAT), m_elaborated_(false)
+        : m_type_(CONCAT), m_elaborated_(false), m_const_expr_(false)
     {
         m_val_num_ = NULL;
         m_val_concat_ = new VerilogExpressions(concat_.begin(), concat_.end());
@@ -37,7 +37,7 @@ namespace VerilogParser
     }
     
     VerilogExpression::VerilogExpression(const string& identifier_)
-        : m_type_(IDENTIFIER), m_elaborated_(false)
+        : m_type_(IDENTIFIER), m_elaborated_(false), m_const_expr_(false)
     {
         m_val_num_ = NULL;
         m_val_concat_ = NULL;
@@ -48,7 +48,7 @@ namespace VerilogParser
     }
     
     VerilogExpression::VerilogExpression(const string& identifier_, const VerilogRange& range_)
-        : m_type_(IDENTIFIER_RANGE), m_elaborated_(false)
+        : m_type_(IDENTIFIER_RANGE), m_elaborated_(false), m_const_expr_(false)
     {
         m_val_num_ = NULL;
         m_val_concat_ = NULL;
@@ -59,7 +59,7 @@ namespace VerilogParser
     }
     
     VerilogExpression::VerilogExpression(const VerilogExpression& expr0_, VerilogBinOp bin_op, const VerilogExpression& expr1_)
-        : m_type_(BINARY_EXPRESSION), m_elaborated_(false)
+        : m_type_(BINARY_EXPRESSION), m_elaborated_(false), m_const_expr_(false)
     {
         m_val_num_ = NULL;
         m_val_concat_ = NULL;
@@ -83,25 +83,6 @@ namespace VerilogParser
         copy(expr_);
     }
 
-    // VerilogExpression::VerilogExpression(const VerilogExpression& expr_)
-        // : m_type_(expr_.m_type_), m_elaborated_(expr_.m_elaborated_), m_val_identifier_(expr_.m_val_identifier_)
-    // {
-        // if (expr_.m_val_num_ == NULL) m_val_num_ = NULL;
-        // else m_val_num_ = new VerilogNumber(*expr_.m_val_num_);
-        
-        // if(expr_.m_val_concat_ == NULL) m_val_concat_ = NULL;
-        // else
-        // {
-            // m_val_concat_ = new VerilogExpressions();
-            // VerilogExpressions::const_iterator it;
-            // for (it = expr_.m_val_concat_->begin(); it != expr_.m_val_concat_->end(); ++it)
-                // m_val_concat_->push_back(new VerilogExpression(*(*it)));
-        // }
-        
-        // if(expr_.m_val_range_ == NULL) m_val_range_ = NULL;
-        // else m_val_range_ = new VerilogRange(*expr_.m_val_range_);
-    // }
-    
     void VerilogExpression::deleteSelf()
     {
         if (m_val_num_ != NULL)
@@ -155,8 +136,8 @@ namespace VerilogParser
     void VerilogExpression::elaborate(VerilogScope* scope_)
     {        
         // Mostly will just simplify the expression as best as possible
-        if (m_elaborated_)
-            throw VerilogException("expression already elaborated: " + toString());
+        // if (m_elaborated_)
+            // throw VerilogException("expression already elaborated: " + toString());
         
         // If I am a concat, I am currently not supported (TODO)
         if (m_type_ == CONCAT) throw VerilogException("Concatenations currently not supported!");                
@@ -166,6 +147,7 @@ namespace VerilogParser
         else if (m_type_ == IDENTIFIER_RANGE || m_type_ == IDENTIFIER)
         {
             const VerilogItem* item = scope_->getModuleScope()->getItem(m_val_identifier_);            
+            
             if (item->getType() == ITEM_INSTANCE)
                 throw VerilogException("Expression identifier cannot be an instance!");
             // Resolve parameters
@@ -177,13 +159,18 @@ namespace VerilogParser
                 if (!m_elaborated_)
                     throw VerilogException("Internal error: parameter " + item->getIdentifier() +
                         " should have contained an elaborated expression!");
-                
-            }
-            // Turn a plain IDENTIFIER to an IDENTIFIER_RANGE by finding the wire and getting its range
-            else if ((item->getType() == ITEM_NET) && (m_type_ == IDENTIFIER))
+            }            
+            else if (item->getType() == ITEM_NET)
             {
-                m_val_range_ = new VerilogRange(((VerilogNet*) item)->getRange());                            
-                m_type_ = IDENTIFIER_RANGE;
+                // Turn a plain IDENTIFIER to an IDENTIFIER_RANGE by finding the wire and getting its range
+                if (m_type_ == IDENTIFIER)
+                {
+                    m_val_range_ = new VerilogRange(((VerilogNet*) item)->getRange());                            
+                    m_type_ = IDENTIFIER_RANGE;
+                }
+                // Check that the range is valid
+                if (!VerilogNet::isValidSubRange(((VerilogNet*) item)->getRange(), *m_val_range_))
+                    throw VerilogException("Invalid range: [" + m_val_range_->first.toString() + ":" + m_val_range_->second.toString() + "]");
             }
         }
         else if (m_type_ == BINARY_EXPRESSION)
@@ -266,6 +253,18 @@ namespace VerilogParser
         }
         
         throw VerilogException("No string support for current expression type."); 
+    }
+    
+    void VerilogExpression::useHierName(const string& hier_name_)
+    {
+        if (m_val_identifier_.size() != 0)
+            m_val_identifier_ = hier_name_ + m_val_identifier_;
+    }
+    
+    unsigned int VerilogExpression::getConstExpr() const
+    {
+        if (!m_const_expr_) throw VerilogException("Expected constant expression, got " + toString());        
+        return m_val_num_->getUInt();
     }
     
 } // namespace VerilogParser

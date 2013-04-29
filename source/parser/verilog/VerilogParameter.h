@@ -19,12 +19,16 @@ namespace VerilogParser
 
         public:
             // Get the value
-            const VerilogExpression& getValue() const { return m_value_; }
-            
+            const VerilogExpression& getValue() const { return m_value_; }            
             std::string toString() const;
             
+            // Clone
+            VerilogItem* clone() const;
+        
         protected:
-            void elaborateItem(VerilogScope* scope_);
+            void elaborateItem(VerilogScope* scope_);            
+            // Protected copy constructor, use clone instead
+            VerilogParameter(const VerilogParameter& param_);
             
         private:
             VerilogExpression m_value_;

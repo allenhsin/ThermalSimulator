@@ -64,4 +64,25 @@ namespace VerilogParser
         return "Net -> " + getIdentifier() + " [" + m_range_.first.toString() + ":" + m_range_.second.toString() + "]";
     }
     
+    VerilogItem* VerilogNet::clone() const
+    {
+        return new VerilogNet(*this);
+    }
+    
+    VerilogNet::VerilogNet(const VerilogNet& net_)
+        : VerilogItem(net_), m_port_type_(net_.m_port_type_), m_net_type_(net_.m_net_type_), m_range_(net_.m_range_)
+    {}
+    
+     bool VerilogNet::isValidSubRange(const VerilogRange& range, const VerilogRange& sub_range)
+     {
+        if (sub_range.first.getConstExpr() < sub_range.second.getConstExpr())
+            return false;
+        if (range.first.getConstExpr() < sub_range.first.getConstExpr())
+            return false;
+        if (range.second.getConstExpr() > sub_range.second.getConstExpr())
+            return false;
+            
+        return true;
+     }
+    
 } // namespace VerilogParser

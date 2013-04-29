@@ -54,8 +54,13 @@ namespace VerilogParser
             inline const VerilogRange& getRange() const { return *m_val_range_; }            
             inline bool isConstExpr() const { return m_const_expr_; }
             
+            // Get const expression
+            unsigned int getConstExpr() const;
+            
             // Returns the expression as a printable string
             std::string toString() const;
+            // Set the hierarchy
+            void useHierName(const std::string& hier_);
         
         private:
             void deleteSelf();

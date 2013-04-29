@@ -20,25 +20,29 @@ namespace VerilogParser
             virtual ~VerilogModule();
 
 			// Elaborates the verilog module (and all items in the module)
-			void elaborate(VerilogScope* scope_); 
-     
+			void elaborate(VerilogScope* scope_);     
             // Has a verilog module item
             bool hasItem(const std::string& identifier_) const;
             // Get an item in the module
             const VerilogItem* getItem(const std::string& identifier_) const;
-
-            // Get the item map
+            // Get the item list and item map
             const VerilogItemMap* getItemMap() const { return m_item_map_; }
+            const VerilogItems* getItems() const { return m_items_; }
+
             // Get the name of the module
             inline const std::string& getName() const { return m_name_; }
 		
+        // Copy the module but with parameter overwrites
+        public:
+            VerilogModule(const VerilogModule* module_, const VerilogConns& parameter_values_ = VerilogConns());
+            
         private:
-            // Initialize the the module based on the module items
-            void initializeItems(const VerilogItems& items_);
+            // Copy a module, applying the appropriate parameter overwrites
+            void copyModule(const VerilogModule* module_, const VerilogConns& parameter_values_);
             
         private:
             // Module name
-            const std::string m_name_;
+            std::string m_name_;
 			// Marks whether this module has been elaborated or not
 			bool m_elaborated_;
             // Initialized items

@@ -26,14 +26,26 @@ namespace VerilogParser
 
             // add a module to the file
             void addModule(VerilogModule* module_);
-            // Get all the modules from a file
-            inline const VerilogModules* getModules() const { return m_modules_; }
+            // Get the verilog scope
+            inline const VerilogScope* getVerilogScope() const { return m_scope_; }
+            
+            // Get a vector of flattened verilog items for a top module, will only return
+            // a list of verilog items containing nets and instantiation of primitives
+            VerilogItems* getFlattenedItems(const std::string& top_module_name_,
+                const std::string& hier_sep_) const;
+            
+        private:
+            // Helper for get flattened items, adds all items in a module to a list using a hierarchical name
+            static void addFlattenedItems(VerilogItems* items_, const std::string& hier_sep_,
+                const VerilogModule* module_, const std::string& hier_name_);
 
         private:
             // List of parsed modules
             VerilogModules* m_modules_;
             // Currently parsed file
             VerilogFile* m_cur_file_;
+            // Verilog scope
+            VerilogScope* m_scope_;
     };
 }
 #endif
