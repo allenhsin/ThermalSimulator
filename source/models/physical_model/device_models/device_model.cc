@@ -16,6 +16,7 @@
 #include "source/models/physical_model/device_models/laser_source_off_chip.h"
 #include "source/models/physical_model/device_models/lossy_optical_net.h"
 #include "source/models/physical_model/device_models/modulator_driver.h"
+#include "source/models/physical_model/device_models/thermal_tuner.h"
 
 using std::string;
 using std::map;
@@ -88,6 +89,10 @@ namespace Thermal
 
         case LASER_SOURCE_OFF_CHIP:
             device_model = new LaserSourceOffChip( device_floorplan_map, physical_config->getString("device/laser_source_off_chip/def_file") );
+            break;
+
+        case THERMAL_TUNER:
+            device_model = new ThermalTuner( device_floorplan_map, physical_config->getString("device/thermal_tuner/def_file") );
             break;
 
         case LASER_SOURCE_ON_CHIP:
@@ -265,6 +270,9 @@ namespace Thermal
             break;
         case RECEIVER:
             device_type = "Receiver";
+            break;
+        case THERMAL_TUNER:
+            device_type = "Thermal Tuner";
             break;
         default:
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized Device Type: " + (String) _device_type + ".\n");

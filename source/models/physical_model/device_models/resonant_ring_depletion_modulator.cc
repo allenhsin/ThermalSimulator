@@ -287,12 +287,51 @@ namespace Thermal
         }
 
         // update energy data structure for the consumed energy
-        //_device_power = getPort("heater")->getPortPropertyValueByIndex("power", 0) + accumulated_dissipated_power;
-        _device_power = 0.004 + accumulated_dissipated_power;
+        _device_power = getPort("heater")->getPortPropertyValueByIndex("power", 0) + accumulated_dissipated_power;
 
         _last_temperature = current_temperature;
         _last_voltage = current_voltage;
     } // updateDeviceProperties
+
+    void ResonantRingDepletionModulator::initializeMonitoring()
+    {
+        unsigned int number_wavelength = 0;
+        unsigned int i = 0;
+
+        for(map<string, FILE*>::iterator it = _monitored_device_ports.begin(); it != _monitored_device_ports.end(); ++it)
+        {
+            if( (it->first=="in") || (it->first=="thru") || (it->first=="add") || (it->first=="drop") )
+            {
+                number_wavelength = getPort(it->first)->getPortPropertySize("wavelength");
+            
+                for(i=0; i<number_wavelength; ++i)
+                    fprintf(it->second, "%.12f ", getPort(it->first)->getPortPropertyValueByIndex("wavelength", i) );
+                fprintf(it->second, "\n\n\n");
+            }
+        }
+    }
+
+    void ResonantRingDepletionModulator::printMonitoredResult()
+    {
+        unsigned int number_wavelength = 0;
+        unsigned int i = 0;
+
+        for(map<string, FILE*>::iterator it = _monitored_device_ports.begin(); it != _monitored_device_ports.end(); ++it)
+        {
+            if      ( it->first == "mod_driver" )
+                fprintf(it->second, "%.2f\n", getPort("mod_driver")->getPortPropertyValueByIndex("voltage", 0) );
+            else if ( it->first == "heater" )
+                fprintf(it->second, "%.9f\n", getPort("heater")->getPortPropertyValueByIndex("power", 0) );
+            else // other optical ports
+            {
+                number_wavelength = getPort(it->first)->getPortPropertySize("power");
+                
+                for(i=0; i<number_wavelength; ++i)
+                    fprintf(it->second, "%.9f ", getPort(it->first)->getPortPropertyValueByIndex("power", i) );
+                fprintf(it->second, "\n");
+            }
+        }
+    }
 
     void ResonantRingDepletionModulator::printDefinition(FILE* device_list_file)
     {

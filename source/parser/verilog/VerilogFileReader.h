@@ -3,28 +3,37 @@
 
 #include <string>
 #include <vector>
+#include "VerilogMisc.h"
 
 // A class that is able to parse a given verilog file
 namespace VerilogParser
 {
     class VerilogFile;
+    class VerilogModule;
     
     class VerilogFileReader 
     {
         public:
-            VerilogFileReader(VerilogFile* file_);
+            VerilogFileReader();
             virtual ~VerilogFileReader();
 
-            // Read the file
-            bool parse();
-            // Elaborate the file
-            void elaborate();
-            
-            // Get a pointer to the file data structure
-            inline const VerilogFile* getFile() { return m_file_; }
+            // Parse a file
+            bool parse(VerilogFile* file_);
+            // Elaborate parsed files
+            void elaborate();            
+            // Get the currently pased file
+            inline VerilogFile* getCurFile() { return m_cur_file_; }
+
+            // add a module to the file
+            void addModule(VerilogModule* module_);
+            // Get all the modules from a file
+            inline const VerilogModules* getModules() const { return m_modules_; }
 
         private:
-            VerilogFile* m_file_;
+            // List of parsed modules
+            VerilogModules* m_modules_;
+            // Currently parsed file
+            VerilogFile* m_cur_file_;
     };
 }
 #endif

@@ -23,14 +23,15 @@ namespace VerilogParser
 
     class VerilogExpression
     {
-        enum Type
-        {
-            NUMBER,
-            CONCAT,
-            IDENTIFIER,
-            IDENTIFIER_RANGE,
-            BINARY_EXPRESSION
-        };
+        public:
+            enum Type
+            {
+                NUMBER,
+                CONCAT,
+                IDENTIFIER,
+                IDENTIFIER_RANGE,
+                BINARY_EXPRESSION
+            };
     
         public:
             VerilogExpression(const VerilogNumber& num_);

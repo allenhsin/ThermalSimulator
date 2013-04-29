@@ -35,7 +35,7 @@ using namespace VerilogParser;
 #define yylval veriloglval
 
 int line_num = 1;
-void yyerror(VerilogFile* file_, const char *s);
+void yyerror(VerilogFileReader* file_, const char *s);
 %}
 
 %s IN_COMMENT

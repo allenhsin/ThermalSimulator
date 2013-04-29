@@ -67,27 +67,41 @@ namespace VerilogParser
         }
 
         // Resolve port connections
-        for (it = m_conns_->begin(); it != m_conns_->end(); ++it)
+        VerilogConns::iterator conn_it;
+        for (conn_it = m_conns_->begin(); conn_it != m_conns_->end(); ++conn_it)
         {
-            const string& identifier = (*it)->first;
-            VerilogExpression& expr = (*it)->second;
+            const string& identifier = (*conn_it)->first;
+            VerilogExpression& expr = (*conn_it)->second;
             
             // Elaborate the expression
             expr.elaborate(scope_);
 
+            // If it is a non-named port connect, find the identifier through the port list
+            if (identifier.size() == 0)
+                throw VerilogException("non-named port connections currently unsupported");
+
             // Check to make sure the identifier exists as a net, if it is a named port connect
-            if (identifier.size() > 0)
+            const VerilogItem* item = m_module_->getItem(identifier);
+            if (item->getType () != ITEM_NET)
+                throw VerilogException("invalid port connection: " + identifier + " is not a port");
+            else
             {
-                const VerilogItem* item = m_module_->getItem(identifier);
-                if (item->getType () != ITEM_NET)
-                    throw VerilogException("invalid port connection: " + identifier + " is not a port");
-                else
-                {
-                    VerilogPortType port_type = ((VerilogNet*) item)->getPortType();
-                    if (port_type == PORT_NONE)
-                        throw VerilogException("invalid port connection: " + identifier + " is not a port");                    
-                }
+                VerilogPortType port_type = ((VerilogNet*) item)->getPortType();
+                if (port_type == PORT_NONE)
+                    throw VerilogException("invalid port connection: " + identifier + " is not a port");                    
             }
+            
+            // Expression should have evaluated to a NUMBER or IDENTIFIER
+            if (expr.getType() == VerilogExpression::NUMBER)
+            {
+                throw VerilogException("port connect to number currently unsupported");
+            }
+            else if (expr.getType() == VerilogExpression::IDENTIFIER_RANGE)
+            {
+                
+            }
+            else
+                throw VerilogException("bad expression in port connect: " + expr.toString());
             // TODO: Check for port width mismatches
         }
     }

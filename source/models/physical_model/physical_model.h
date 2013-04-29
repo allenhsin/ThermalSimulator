@@ -42,6 +42,8 @@ namespace Thermal
         // store the power for floorplan units at current time
         // the units must be mapped to the floorplan
         map<std::string, double> _floorplan_unit_power;
+
+        Time _last_every_update_time;
         
 
     }; // class PhysicalModel

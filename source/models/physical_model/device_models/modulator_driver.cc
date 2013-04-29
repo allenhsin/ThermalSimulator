@@ -111,6 +111,9 @@ namespace Thermal
         getPortForModification("ref")->setPortPropertyValueByIndex("bit", 0, (_current_bit? 1:0) );
     }
     
+    void ModulatorDriver::initializeMonitoring()
+    {}
+
     void ModulatorDriver::printMonitoredResult()
     {
         double value = 0;

@@ -25,9 +25,9 @@
     
     # lossless coupling is assumed
     # in-to-thru self-coupling coefficient [dB]
-    t1                          = 0.995
+    t1                          = 0.962
     # add-to-drop self-coupling coefficient [dB]
-    t2                          = 0.995
+    t2                          = 0.950
 
     # waveguide ---------------------------------------------------------------
     # [dB/m]
@@ -35,7 +35,7 @@
 
     # ring structure ----------------------------------------------------------
     # radius [m]
-    ring_radius                 = 4.53e-6
+    ring_radius                 = 7.00e-6
     # width [m] 
     ring_width                  = 1.2e-6
     # height [m]

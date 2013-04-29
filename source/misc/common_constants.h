@@ -8,6 +8,8 @@
 #define STR_SIZE        512
 #define LINE_SIZE       65536
 #define MAX_ENTRIES     512
+
+#define HIER_SEPARATOR  "."
 // ------------------------------------------------------------------------------------------------
 
 #endif // __THERMAL_COMMON_CONSTANTS_H__

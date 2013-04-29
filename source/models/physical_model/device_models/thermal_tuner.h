@@ -1,6 +1,6 @@
 
-#ifndef __THERMAL_MODULATOR_DRIVER_H__
-#define __THERMAL_MODULATOR_DRIVER_H__
+#ifndef __THERMAL_THERMAL_TUNER_H__
+#define __THERMAL_THERMAL_TUNER_H__
 
 #include "source/models/physical_model/device_models/device_model.h"
 #include "source/models/physical_model/device_floorplan_map.h"
@@ -8,11 +8,11 @@
 
 namespace Thermal
 {
-    class ModulatorDriver : public DeviceModel
+    class ThermalTuner : public DeviceModel
     {
     public:
-        ModulatorDriver(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
-        ~ModulatorDriver();
+        ThermalTuner(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+        ~ThermalTuner();
 
         // initialize device
         virtual void initializeDevice();
@@ -30,23 +30,18 @@ namespace Thermal
         virtual void deviceParameterCheck();
 
     private:
-        Time    _bit_period;
+        double  _heater_power;
+        Time    _clock_period;
+        Time    _current_clock_period_elapsed_time;
+        int     _pdm_threshold;
+        int     _pdm_input;
 
-        double  _bit_one_time_const;
-        double  _bit_zero_time_const;
-        
-        // true: 1, false: 0
-        bool    _current_bit;
-
-        double  _current_out_voltage;
-        double  _current_delta_voltage;
-        double  _current_target_voltage;
-        double  _current_time_const;
-        Time    _current_bit_elapsed_time;
+        int     _pdm_error;
+        bool    _pdm_output;
 
     };
 
 } // namespace Thermal
 
-#endif // __THERMAL_MODULATOR_DRIVER_H__
+#endif // __THERMAL_THERMAL_TUNER_H__
 

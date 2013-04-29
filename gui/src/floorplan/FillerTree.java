@@ -22,10 +22,9 @@ public class FillerTree
 	private FillerTreeNode root;
 	
 	// Calculate the fill for a master
-	public void calculateFill(Master m)
+	public void calculateFill(Box fill_box, Master m)
 	{
-		Box b_box = Master.getBoundingBox(m);
-		root = new FillerTreeNode(b_box.llx, b_box.lly, b_box.urx, b_box.ury);		
+		root = new FillerTreeNode(fill_box.llx, fill_box.lly, fill_box.urx, fill_box.ury);		
 		// Find all the atomic instances
 		List<MasterInst> atomics = Master.getFlatInstances(m);
 		// Sort the atomic instances (by area)
@@ -41,7 +40,7 @@ public class FillerTree
 	}
 	
 	// Get a list of filler instance for a master
-	public Vector<MasterInst> getFillers(double max_aspect_ratio)
+	public Vector<MasterInst> getFillers(GridPoint max_width, GridPoint max_height, double max_aspect_ratio)
 	{
 		max_aspect_ratio = Math.max(MINIMUM_MAX_ASPECT_RATIO, max_aspect_ratio);
 		double min_aspect_ratio = 1.0 / max_aspect_ratio;
@@ -58,7 +57,7 @@ public class FillerTree
 			GridPoint height = raw_filler.m.getHeight();
 			double aspect_ratio = width.toDouble() / height.toDouble();
 			// If too wide
-			if (aspect_ratio > max_aspect_ratio)
+			if ((aspect_ratio > max_aspect_ratio) || GridPoint.greaterThan(width, max_width))
 			{
 				GridPoint half_width_0 = GridPoint.div2(width);
 				GridPoint half_width_1 = GridPoint.sub(width, half_width_0);
@@ -79,7 +78,7 @@ public class FillerTree
 				}
 				
 			}
-			else if (aspect_ratio < min_aspect_ratio)
+			else if ((aspect_ratio < min_aspect_ratio) || GridPoint.greaterThan(height, max_height))
 			{
 				GridPoint half_height_0 = GridPoint.div2(height);
 				GridPoint half_height_1 = GridPoint.sub(height, half_height_0);

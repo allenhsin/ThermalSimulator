@@ -20,16 +20,16 @@
 #       layers should be in order.
 
 # device layer (transistors and optical devices) - silicon/silicon dioxide
-150e-9 100.0 1.80e6
+150e-9 149.0 1.65e6
 
 # SOI buried oxide layer (BOX) - silicon dioxide
 150e-9 1.38 2.27e6
 
 # substrate layer - silicon/silicon dioxide/silicon carbide/air
 1e-6   1.38 2.27e6
-3e-6   1.38 2.27e6
-8e-6   1.38 2.27e6
+2e-6   1.38 2.27e6
+5e-6   1.38 2.27e6
 32e-6  1.38 2.27e6
-128e-6 1.38 2.27e6
-128e-6 1.38 2.27e6
+64e-6  1.38 2.27e6
+192e-6 1.38 2.27e6
 

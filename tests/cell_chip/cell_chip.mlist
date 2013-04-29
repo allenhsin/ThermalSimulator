@@ -1,6 +1,6 @@
 [device_list]
+<modulator, in, thru, heater>
 <modulator_driver, out, ref>
-<waveguide_2, in, out>
 
 [time]
 0-1
