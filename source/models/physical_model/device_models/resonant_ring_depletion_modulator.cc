@@ -287,8 +287,7 @@ namespace Thermal
         }
 
         // update energy data structure for the consumed energy
-        //_device_power = getPort("heater")->getPortPropertyValueByIndex("power", 0) + accumulated_dissipated_power;
-        _device_power = 0.003 + accumulated_dissipated_power;
+        _device_power = getPort("heater")->getPortPropertyValueByIndex("power", 0) + accumulated_dissipated_power;
 
         _last_temperature = current_temperature;
         _last_voltage = current_voltage;

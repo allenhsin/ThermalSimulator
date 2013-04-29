@@ -1,0 +1,27 @@
+
+# This is a comment line
+# In-line comment is not allowed
+
+# List the ports of the device and the port's corresponding properties.
+#
+# Format: <PortName, PortType, Property1, Property2, Property3, ...>
+#
+# Number of properties is arbitrary.
+# Port Types: INPUT, OUTPUT
+
+[port]
+    <heater, OUTPUT, power>
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+    
+    # delivered heater power [W]
+    heater_power                    = 3e-3
+    # PDM bit width
+    bit_width                       = 8
+    # PDM clock period
+    clock_period                    = 800e-6
+    # fixed PDM input pattern - from 0 to (2^bit_width - 1)
+    pdm_pattern                     = 128
+    

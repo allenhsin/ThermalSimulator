@@ -16,6 +16,7 @@ namespace Thermal
         LASER_SOURCE_ON_CHIP,
         PHOTODETECTOR,
         RECEIVER,
+        THERMAL_TUNER,
         NUM_DEVICE_TYPES
     };
 
