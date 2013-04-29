@@ -1,36 +1,32 @@
-# Floorplan CellChipFill2, 27 instances
-floorplan CellChipFill2
-    filler Fill_1 2.1E-4 2.05E-4 0.0 7.5E-4
-    filler Fill_2 2.1E-4 2.05E-4 0.0 5.45E-4
-    filler Fill_3 2.1E-4 1.2E-4 0.0 4.25E-4
-    filler Fill_4 2.1E-4 1.35E-4 0.0 2.9E-4
-    filler Fill_5 2.1E-4 4.25E-4 0.00129 0.0
-    filler Fill_6 1.35E-4 2.9E-4 0.001155 0.0
-    filler Fill_7 1.35E-4 2.9E-4 0.00102 0.0
-    filler Fill_8 1.35E-4 2.9E-4 8.85E-4 0.0
-    filler Fill_9 1.35E-4 2.9E-4 7.5E-4 0.0
-    filler Fill_10 1.35E-4 2.9E-4 6.15E-4 0.0
-    filler Fill_11 1.35E-4 2.9E-4 4.8E-4 0.0
-    filler Fill_12 4.8E-4 2.9E-4 0.0 0.0
-    filler Fill_13 1.35E-4 3.25E-4 2.1E-4 0.001175
-    filler Fill_14 1.35E-4 3.25E-4 3.45E-4 0.001175
-    filler Fill_15 1.35E-4 3.25E-4 4.8E-4 0.001175
-    filler Fill_16 1.35E-4 3.25E-4 6.15E-4 0.001175
-    filler Fill_17 1.35E-4 3.25E-4 7.5E-4 0.001175
-    filler Fill_18 1.35E-4 3.25E-4 8.85E-4 0.001175
-    filler Fill_19 1.35E-4 3.25E-4 0.00102 0.001175
-    filler Fill_20 2.1E-4 1.2E-4 0.00129 4.25E-4
-    filler Fill_21 2.1E-4 2.05E-4 0.00129 5.45E-4
-    filler Fill_22 2.1E-4 2.05E-4 0.00129 7.5E-4
-    filler Fill_23 2.1E-4 1.2E-4 0.00129 9.55E-4
-    filler Fill_24 2.1E-4 1.0E-4 0.00129 0.001075
-    filler Fill_25 3.45E-4 3.25E-4 0.001155 0.001175
-    filler Fill_0_h00 2.1E-4 2.725E-4 0.0 9.55E-4
-    filler Fill_0_h10 2.1E-4 2.725E-4 0.0 0.0012275
+# Floorplan RingFill, 5 instances
+floorplan RingFill
+    filler fill_0 1.0E-5 1.0E-5 0.0 1.0E-5
+    filler fill_1 1.0E-5 1.0E-5 1.0E-5 1.0E-5
+    filler fill_2 1.0E-5 1.0E-5 2.0E-5 1.0E-5
+    filler fill_3 1.0E-5 1.0E-5 0.0 0.0
+    filler fill_4 1.0E-5 1.0E-5 2.0E-5 0.0
 endfloorplan
 
-# Floorplan CellChipFill1, 148 instances
-floorplan CellChipFill1
+# Floorplan CellTop, 14 instances
+floorplan CellTop
+    atomic sub_0 1.35E-4 1.2E-4 0.0 1.8E-4
+    atomic sub_3 6.75E-5 6.0E-5 0.0 6.0E-5
+    atomic sub_4 6.75E-5 6.0E-5 6.75E-5 6.0E-5
+    atomic sub_1 6.75E-5 6.0E-5 0.0 1.2E-4
+    atomic sub_2 6.75E-5 6.0E-5 6.75E-5 1.2E-4
+    atomic sub_5 4.5E-5 4.0E-5 0.0 2.0E-5
+    atomic sub_6 4.5E-5 4.0E-5 4.5E-5 2.0E-5
+    atomic sub_7 4.5E-5 4.0E-5 9.0E-5 2.0E-5
+    atomic sub_8 2.25E-5 2.0E-5 0.0 0.0
+    atomic sub_9 2.25E-5 2.0E-5 2.25E-5 0.0
+    atomic sub_10 2.25E-5 2.0E-5 4.5E-5 0.0
+    atomic sub_11 2.25E-5 2.0E-5 6.75E-5 0.0
+    atomic sub_12 2.25E-5 2.0E-5 9.0E-5 0.0
+    atomic sub_13 2.25E-5 2.0E-5 1.125E-4 0.0
+endfloorplan
+
+# Floorplan CellChip_fill, 148 instances
+floorplan CellChip_fill
     filler Fill_16 1.0E-5 1.5E-5 1.7E-4 3.35E-4
     filler Fill_17 1.25E-5 1.1E-5 1.9E-4 3.0E-4
     filler Fill_19 1.0E-5 1.1E-5 1.8E-4 3.0E-4
@@ -181,24 +177,6 @@ floorplan CellChipFill1
     filler Fill_77_h18 2.25E-5 1.75E-5 7.875E-4 3.325E-4
 endfloorplan
 
-# Floorplan CellBtm, 14 instances
-floorplan CellBtm
-    atomic sub_0 1.35E-4 1.2E-4 0.0 0.0
-    atomic sub_1 6.75E-5 6.0E-5 0.0 1.2E-4
-    atomic sub_2 6.75E-5 6.0E-5 6.75E-5 1.2E-4
-    atomic sub_3 6.75E-5 6.0E-5 0.0 1.8E-4
-    atomic sub_4 6.75E-5 6.0E-5 6.75E-5 1.8E-4
-    atomic sub_5 4.5E-5 4.0E-5 0.0 2.4E-4
-    atomic sub_6 4.5E-5 4.0E-5 4.5E-5 2.4E-4
-    atomic sub_7 4.5E-5 4.0E-5 9.0E-5 2.4E-4
-    atomic sub_8 2.25E-5 2.0E-5 0.0 2.8E-4
-    atomic sub_9 2.25E-5 2.0E-5 2.25E-5 2.8E-4
-    atomic sub_10 2.25E-5 2.0E-5 4.5E-5 2.8E-4
-    atomic sub_11 2.25E-5 2.0E-5 6.75E-5 2.8E-4
-    atomic sub_12 2.25E-5 2.0E-5 9.0E-5 2.8E-4
-    atomic sub_13 2.25E-5 2.0E-5 1.125E-4 2.8E-4
-endfloorplan
-
 # Floorplan Waveguide, 36 instances
 floorplan Waveguide
     atomic sec_0 2.25E-5 4.0E-6 0.0 0.0
@@ -239,60 +217,26 @@ floorplan Waveguide
     atomic sec_35 2.25E-5 4.0E-6 7.875E-4 0.0
 endfloorplan
 
-# Floorplan RingFill, 5 instances
-floorplan RingFill
-    filler fill_0 1.0E-5 1.0E-5 0.0 1.0E-5
-    filler fill_1 1.0E-5 1.0E-5 1.0E-5 1.0E-5
-    filler fill_2 1.0E-5 1.0E-5 2.0E-5 1.0E-5
-    filler fill_3 1.0E-5 1.0E-5 0.0 0.0
-    filler fill_4 1.0E-5 1.0E-5 2.0E-5 0.0
-endfloorplan
-
-# Floorplan CellTop, 14 instances
-floorplan CellTop
-    atomic sub_0 1.35E-4 1.2E-4 0.0 1.8E-4
-    atomic sub_3 6.75E-5 6.0E-5 0.0 6.0E-5
-    atomic sub_4 6.75E-5 6.0E-5 6.75E-5 6.0E-5
+# Floorplan CellBtm, 14 instances
+floorplan CellBtm
+    atomic sub_0 1.35E-4 1.2E-4 0.0 0.0
     atomic sub_1 6.75E-5 6.0E-5 0.0 1.2E-4
     atomic sub_2 6.75E-5 6.0E-5 6.75E-5 1.2E-4
-    atomic sub_5 4.5E-5 4.0E-5 0.0 2.0E-5
-    atomic sub_6 4.5E-5 4.0E-5 4.5E-5 2.0E-5
-    atomic sub_7 4.5E-5 4.0E-5 9.0E-5 2.0E-5
-    atomic sub_8 2.25E-5 2.0E-5 0.0 0.0
-    atomic sub_9 2.25E-5 2.0E-5 2.25E-5 0.0
-    atomic sub_10 2.25E-5 2.0E-5 4.5E-5 0.0
-    atomic sub_11 2.25E-5 2.0E-5 6.75E-5 0.0
-    atomic sub_12 2.25E-5 2.0E-5 9.0E-5 0.0
-    atomic sub_13 2.25E-5 2.0E-5 1.125E-4 0.0
+    atomic sub_3 6.75E-5 6.0E-5 0.0 1.8E-4
+    atomic sub_4 6.75E-5 6.0E-5 6.75E-5 1.8E-4
+    atomic sub_5 4.5E-5 4.0E-5 0.0 2.4E-4
+    atomic sub_6 4.5E-5 4.0E-5 4.5E-5 2.4E-4
+    atomic sub_7 4.5E-5 4.0E-5 9.0E-5 2.4E-4
+    atomic sub_8 2.25E-5 2.0E-5 0.0 2.8E-4
+    atomic sub_9 2.25E-5 2.0E-5 2.25E-5 2.8E-4
+    atomic sub_10 2.25E-5 2.0E-5 4.5E-5 2.8E-4
+    atomic sub_11 2.25E-5 2.0E-5 6.75E-5 2.8E-4
+    atomic sub_12 2.25E-5 2.0E-5 9.0E-5 2.8E-4
+    atomic sub_13 2.25E-5 2.0E-5 1.125E-4 2.8E-4
 endfloorplan
 
-# Floorplan CellChipFill3, 21 instances
-floorplan CellChipFill3
-    filler Fill_12 1.35E-4 2.2E-4 2.1E-4 9.55E-4
-    filler Fill_13 1.35E-4 1.2E-4 2.1E-4 4.25E-4
-    filler Fill_14 1.35E-4 2.55E-4 0.001155 2.9E-4
-    filler Fill_15 1.35E-4 1.35E-4 0.00102 2.9E-4
-    filler Fill_16 1.35E-4 1.35E-4 8.85E-4 2.9E-4
-    filler Fill_17 1.35E-4 1.35E-4 7.5E-4 2.9E-4
-    filler Fill_18 1.35E-4 1.35E-4 6.15E-4 2.9E-4
-    filler Fill_19 1.35E-4 1.35E-4 4.8E-4 2.9E-4
-    filler Fill_20 2.7E-4 1.35E-4 2.1E-4 2.9E-4
-    filler Fill_21 1.35E-4 1.0E-4 3.45E-4 0.001075
-    filler Fill_22 1.35E-4 1.0E-4 4.8E-4 0.001075
-    filler Fill_23 1.35E-4 1.0E-4 6.15E-4 0.001075
-    filler Fill_24 1.35E-4 1.0E-4 7.5E-4 0.001075
-    filler Fill_25 1.35E-4 1.0E-4 8.85E-4 0.001075
-    filler Fill_38 1.35E-4 1.2E-4 0.001155 9.55E-4
-    filler Fill_39_w0 1.35E-4 1.0E-4 0.00102 0.001075
-    filler Fill_39_w1 1.35E-4 1.0E-4 0.001155 0.001075
-    filler Fill_special_0 1.35E-4 2.05E-4 2.1E-4 5.45E-4
-    filler Fill_special_1 1.35E-4 2.05E-4 0.001155 5.45E-4
-    filler Fill_special_2 1.35E-4 2.05E-4 2.1E-4 7.5E-4
-    filler Fill_special_3 1.35E-4 2.05E-4 0.001155 7.5E-4
-endfloorplan
-
-# Floorplan CellChipCenter, 16 instances
-floorplan CellChipCenter
+# Floorplan CellChip, 16 instances
+floorplan CellChip
     atomic modulator 2.0E-5 2.0E-5 1.7E-4 3.15E-4
     atomic receiver_ring 2.0E-5 2.0E-5 6.2E-4 3.15E-4
     CellBtm cell_btm_0 0.0 0.0
@@ -308,13 +252,6 @@ floorplan CellChipCenter
     CellTop cell_top_4 5.4E-4 3.5E-4
     CellTop cell_top_5 6.75E-4 3.5E-4
     Waveguide waveguide 0.0 3.11E-4
-    CellChipFill1 Filler1 0.0 0.0
-endfloorplan
-
-# Floorplan CellChip, 3 instances
-floorplan CellChip
-    CellChipCenter chip_center 3.45E-4 4.25E-4
-    CellChipFill3 Filler3 0.0 0.0
-    CellChipFill2 Filler2 0.0 0.0
+    CellChip_fill Filler 0.0 0.0
 endfloorplan
 

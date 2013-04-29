@@ -4,6 +4,7 @@
 #include <string.h>
 #include <map>
 
+#include "source/misc/common_constants.h"
 #include "source/models/thermal_model/floorplan.h"
 #include "source/data/data.h"
 #include "source/misc/misc.h"
@@ -370,7 +371,7 @@ namespace Thermal
                         // put every block in the instantiated object to the new object with new name and new coordinates
                         for(set<FloorplanUnit>::iterator it = _floorplan_objects[(string) line_token].begin(); it != _floorplan_objects[(string) line_token].end(); ++it)
                         {
-                            floorplan_unit._name    = ((string) unit_name) + "." + (*it)._name;
+                            floorplan_unit._name    = ((string) unit_name) + HIER_SEPARATOR + (*it)._name;
                             floorplan_unit._width   = (*it)._width;
                             floorplan_unit._height  = (*it)._height;
                             floorplan_unit._leftx   = (*it)._leftx + leftx;

@@ -40,6 +40,10 @@ namespace Thermal
 
         if( getParameter("pdm_pattern") < 0 || getParameter("pdm_pattern") >= pow(2.00, getParameter("bit_width")) )
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Bit period cannot be negative.\n");
+
+        if( ((int)getParameter("heater_init") != 0) && ((int)getParameter("heater_init") != 1) )
+            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Heater initial state can only be 1(ON) or 0(OFF).\n");
+
     }
 
     void ThermalTuner::initializeDevice()
@@ -54,11 +58,11 @@ namespace Thermal
         _pdm_threshold  = ((int)pow(2.00, getParameter("bit_width"))) - 1;
         _pdm_input      = getParameter("pdm_pattern");
         _pdm_error      = 0;
-        _pdm_output     = true;
+        _pdm_output     = ( ((int)getParameter("heater_init")) == 1 );
 
         // set output
         getPortForModification("heater")->setPortPropertySize("power", 1);
-        getPortForModification("heater")->setPortPropertyValueByIndex("power", 0, _heater_power);
+        getPortForModification("heater")->setPortPropertyValueByIndex("power", 0, _pdm_output? _heater_power : 0 );
     }
 
     void ThermalTuner::updateDeviceProperties(Time time_elapsed_since_last_update)
