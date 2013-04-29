@@ -17,7 +17,7 @@
 # and also have default values as defined below.
 [parameter]
     # Laser power per wavelength [dBm]
-    laser_output_power_per_wavelength   = -20.00
+    laser_output_power_per_wavelength   = 10.00
 
     # number of WDM wavelengths
     number_wavelength                   = 1

@@ -16,7 +16,7 @@ namespace Thermal
 {
     PhysicalModel::PhysicalModel()
         : Model()
-        , _last_every_update_time (0)
+        , _last_energy_update_time (0)
     { _floorplan_unit_power.clear(); }
 
     PhysicalModel::~PhysicalModel()
@@ -80,7 +80,7 @@ namespace Thermal
 
         _ready_to_execute = true;
         _last_execute_time = 0;
-        _last_every_update_time = 0;
+        _last_energy_update_time = 0;
     }
 
     void PhysicalModel::execute(Time scheduled_time)
@@ -97,8 +97,8 @@ namespace Thermal
     
         // update the accumulated energy with the power values
         // since the last energy update
-        setEnergyData( (scheduled_time - _last_every_update_time) );
-        _last_every_update_time = scheduled_time;
+        setEnergyData( (scheduled_time - _last_energy_update_time) );
+        _last_energy_update_time = scheduled_time;
         
         // then execute the physical model manager to update
         // power to its current values
