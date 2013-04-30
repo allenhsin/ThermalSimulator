@@ -1,8 +1,6 @@
 package floorplan;
 
 import java.util.Enumeration;
-
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 /**

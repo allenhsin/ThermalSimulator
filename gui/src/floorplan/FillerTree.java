@@ -2,12 +2,10 @@ package floorplan;
 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import display.FloorplanRender;
 
 /**
  * Class responsible for populating itself to figure out where to place leaf filler

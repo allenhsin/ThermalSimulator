@@ -107,17 +107,13 @@ class FloorplannerMenu extends JMenuBar
  * Helper class for handling all the listener events from the file menu
  */
 class FileMenuListener extends EventsHelper<Floorplanner> implements ActionListener
-{
-	// File chooser used
-	JFileChooser fc;
-	
+{	
 	/**
 	 * Floorplanner listener
 	 */
 	FileMenuListener(Floorplanner gui)
 	{
 		super(gui);
-		this.fc = new JFileChooser();
 	}
 	/**
 	 * Listen for menu actions
@@ -131,6 +127,7 @@ class FileMenuListener extends EventsHelper<Floorplanner> implements ActionListe
 		}
 		else if (cmd.equals("Open Floorplan..."))
 		{
+			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new FileNameExtensionFilter("Floorplan file (*.flp)", "flp"));
 			fc.showOpenDialog(owner);
 			if (fc.getSelectedFile() != null)
@@ -138,6 +135,7 @@ class FileMenuListener extends EventsHelper<Floorplanner> implements ActionListe
 		}
 		else if (cmd.equals("Save Floorplan As..."))
 		{
+			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new FileNameExtensionFilter("Floorplan file (*.flp)", "flp"));
 			fc.showSaveDialog(owner);			
 			if (fc.getSelectedFile() != null)
@@ -145,6 +143,7 @@ class FileMenuListener extends EventsHelper<Floorplanner> implements ActionListe
 		}
 		else if (cmd.equals("Open Temperature Trace..."))
 		{
+			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new FileNameExtensionFilter("Temperature trace (*.out)", "out"));
 			fc.showOpenDialog(owner);			
 			if (fc.getSelectedFile() != null)

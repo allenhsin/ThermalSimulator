@@ -158,7 +158,8 @@ public class FloorplanParser
 	public static void writeMasters(File file, MasterMap masters) throws Exception
 	{
 		FileWriter writer = new FileWriter(file);
-		Hashtable<String, Master> masters_to_write = (Hashtable<String, Master>) masters.getMasters().clone();
+		Hashtable<String, Master> masters_to_write = new Hashtable<String, Master>();
+		masters_to_write.putAll(masters.getMasters());
 		
 		try
 		{

@@ -1,16 +1,10 @@
 package floorplan;
 
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
-
-import javax.swing.ComboBoxModel;
-import javax.swing.event.ListDataListener;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 /**
  * A master map holds all the floorplan masters in a map format
@@ -25,8 +19,6 @@ public class MasterMap
 	// Vector containing all the masters, each instantiated as their own master
 	// library instance
 	private Vector<MasterInst> lib_insts;
-	// The selected master
-	private Master selected;
 	// The current unnamed number count
 	private int new_master_count;
 
