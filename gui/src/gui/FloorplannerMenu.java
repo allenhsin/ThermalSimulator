@@ -26,8 +26,8 @@ import floorplan.MasterInst;
 class FloorplannerMenu extends JMenuBar
 {
 	
-	private Floorplanner gui;
-	
+	private Floorplanner gui;	
+
 	/**
 	 * Constructor for the menu bar, contains a pointer to the main menu
 	 * @param gui, floorplanner gui that the menu bar is a part of
@@ -108,12 +108,22 @@ class FloorplannerMenu extends JMenuBar
  */
 class FileMenuListener extends EventsHelper<Floorplanner> implements ActionListener
 {	
+	// File choosers
+	private JFileChooser fc;
+	// File extension filters
+	private FileNameExtensionFilter flp_filter;
+	private FileNameExtensionFilter out_filter;
+	
 	/**
 	 * Floorplanner listener
 	 */
 	FileMenuListener(Floorplanner gui)
 	{
 		super(gui);
+		fc = new JFileChooser();		
+		// Add the potential extensions
+		flp_filter = new FileNameExtensionFilter("Floorplan file (*.flp)", "flp");
+		out_filter = new FileNameExtensionFilter("Temperature trace (*.out)", "out");
 	}
 	/**
 	 * Listen for menu actions
@@ -127,24 +137,21 @@ class FileMenuListener extends EventsHelper<Floorplanner> implements ActionListe
 		}
 		else if (cmd.equals("Open Floorplan..."))
 		{
-			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new FileNameExtensionFilter("Floorplan file (*.flp)", "flp"));
+			fc.setFileFilter(flp_filter);
 			fc.showOpenDialog(owner);
 			if (fc.getSelectedFile() != null)
 				owner.openFloorplanFile(fc.getSelectedFile());
 		}
 		else if (cmd.equals("Save Floorplan As..."))
 		{
-			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new FileNameExtensionFilter("Floorplan file (*.flp)", "flp"));
+			fc.setFileFilter(flp_filter);
 			fc.showSaveDialog(owner);			
 			if (fc.getSelectedFile() != null)
 				owner.saveFloorplanFile(fc.getSelectedFile());
 		}
 		else if (cmd.equals("Open Temperature Trace..."))
 		{
-			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new FileNameExtensionFilter("Temperature trace (*.out)", "out"));
+			fc.setFileFilter(out_filter);
 			fc.showOpenDialog(owner);			
 			if (fc.getSelectedFile() != null)
 				owner.openTemperatureTrace(fc.getSelectedFile());
