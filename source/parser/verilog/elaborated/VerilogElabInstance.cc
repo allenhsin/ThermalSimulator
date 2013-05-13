@@ -29,7 +29,15 @@ namespace VerilogParser
             (*it)->first = hier_ + getIdentifier() + hier_sep_ + (*it)->first;
             // Rebase the expression as well
             (*it)->second = hier_ + (*it)->second;
-        }      
+        }
+        
+        // for (VerilogConns::const_iterator it = params->begin(); it != params->end(); ++it)
+        // {
+            // // Parameter name
+            // (*it)->first = hier_ + c->m_module_name_ + hier_sep_ + (*it)->first;
+            // // Rebase the expression as well
+            // (*it)->second.useHierName(hier_);
+        // }
         return c;
     }
     

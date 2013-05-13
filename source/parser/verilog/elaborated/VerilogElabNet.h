@@ -13,11 +13,12 @@ namespace VerilogParser
         public:
             // Private constructor, use the static elaborate function instead
             VerilogElabNet(const std::string& identifier_, VerilogPortType port_type_,
-                VerilogNetType net_type_);
+                VerilogNetType net_type_, const VerilogElabRange& range_);
             virtual ~VerilogElabNet();
             
         public:
             // Accessor functions
+            inline VerilogElabRange getRange() const { return m_range_; }
             inline VerilogPortType getPortType() const { return m_port_type_; }
             inline VerilogNetType getNetType() const { return m_net_type_; }
             
@@ -35,6 +36,8 @@ namespace VerilogParser
             const VerilogPortType m_port_type_;
             // Net type
             const VerilogNetType m_net_type_;
+            // Range
+            const VerilogElabRange m_range_;
     };
 }
 #endif

@@ -10,7 +10,7 @@ namespace VerilogParser
 
     VerilogElabParam::VerilogElabParam(
                 const std::string& identifier_,
-                const std::string& value_
+                const VerilogExpression& value_
             )
         : VerilogElabItem(ITEM_PARAMETER, identifier_),
         m_value_(value_)
@@ -21,7 +21,7 @@ namespace VerilogParser
     
     std::string VerilogElabParam::toString() const
     {
-        return "Param -> " + getIdentifier() + " = " + m_value_;
+        return "Param -> " + getIdentifier() + " = " + m_value_.toString();
     }
     
     VerilogElabItem* VerilogElabParam::clone() const

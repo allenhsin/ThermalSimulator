@@ -11,11 +11,13 @@ namespace VerilogParser
     VerilogElabNet::VerilogElabNet(
                 const std::string& identifier_, 
                 VerilogPortType port_type_,
-                VerilogNetType net_type_
+                VerilogNetType net_type_,
+                VerilogElabRange range_,
             )
         : VerilogElabItem(ITEM_NET, identifier_),
         m_port_type_(port_type_),
-        m_net_type_(net_type_)
+        m_net_type_(net_type_),
+        m_range_(range_)
     {}
 
     VerilogElabNet::~VerilogElabNet()
@@ -32,7 +34,10 @@ namespace VerilogParser
     }
     
     VerilogElabNet::VerilogElabNet(const VerilogElabNet& net_)
-        : VerilogElabItem(net_), m_port_type_(net_.m_port_type_), m_net_type_(net_.m_net_type_)
+        : VerilogElabItem(net_), 
+        m_port_type_(net_.m_port_type_), 
+        m_net_type_(net_.m_net_type_),
+        m_range_(net_.range_)
     {}
 
     

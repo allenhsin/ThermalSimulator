@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include "../VerilogMisc.h"
+#include "../VerilogExpression.h"
 #include "VerilogElabItem.h"
 
 namespace VerilogParser
@@ -13,14 +14,12 @@ namespace VerilogParser
     {
         public:
             // Private constructor, use the static elaborate function instead
-            VerilogElabParam(const std::string& identifier_, const std::string& value_);
+            VerilogElabParam(const std::string& identifier_, const VerilogExpression& value_);
             virtual ~VerilogElabParam();
             
         public:
             // Accessor functions
-            inline const std::string& getStringValue() const { return m_value_; }
-            inline unsigned int getUIntValue() const { return atoi(m_value_.c_str()); }
-            inline double getDoubleValue() const { return atof(m_value_.c_str()); }
+            inline const VerilogExpression& getValue() const { return m_value_; }
             
             // Clone
             VerilogElabItem* clone() const;            
@@ -32,8 +31,8 @@ namespace VerilogParser
             VerilogElabParam(const VerilogElabParam& param_);
             
         private:
-            // Port type
-            const std::string& m_value_;
+            // Value of the elaborated parameter
+            const VerilogExpression m_value_;
     };
 }
 #endif

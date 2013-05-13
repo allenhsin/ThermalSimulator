@@ -1,5 +1,5 @@
-#ifndef THERMAL_PARSER_VERILOG_MODULE_H
-#define THERMAL_PARSER_VERILOG_MODULE_H
+#ifndef THERMAL_PARSER_VERILOG_ELAB_MODULE_H
+#define THERMAL_PARSER_VERILOG_ELAB_MODULE_H
 
 #include <string>
 #include <map>
@@ -10,7 +10,6 @@
 namespace VerilogParser
 {
     class VerilogElabItem;
-    class VerilogElabItems;
     
     class VerilogElabModule
     {
@@ -23,6 +22,8 @@ namespace VerilogParser
 
             // Item map accessors
             bool hasItem(const std::string& identifier_) const;
+            void addItem(VerilogElabItem* item_);
+            void addItems(VerilogElabItems* items_);            
             const VerilogElabItem* getItem(const std::string& identifier_) const;
             const VerilogElabItemMap& getItemMap() const { return m_item_map_; }
             

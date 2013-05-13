@@ -39,7 +39,21 @@ namespace VerilogParser
         return (m_item_map_.count(identifier_) != 0);
     }
     
-    const VerilogElabItem* VerilogElabModule::getItem(const string& identifier_) const
+    void VerilogElabModule::addItem(VerilogElabItem* item_)
+    {
+        const string& id = item_->getIdentifier();
+        if (hasItem(id))
+            throw VerilogException("Duplicate item: " + id);            
+        m_item_map_[id] = item_;
+    }
+    
+    void VerilogElabModule::addItems(VerilogElabItems* items_)
+    {
+        VerilogElabItems::const_iterator it;
+        for (it = items_->begin(); it != items_->end(); ++it)
+            addItem(*it);
+    }
+        const VerilogElabItem* VerilogElabModule::getItem(const string& identifier_) const
     {
         if (!hasItem(identifier_))
             throw VerilogException("Item does not exist in module: " + identifier_);
