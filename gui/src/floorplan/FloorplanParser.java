@@ -328,6 +328,14 @@ class AtomicCommand
 			this.x = GridPoint.parseGridPoint(cmd[4]);
 			this.y = GridPoint.parseGridPoint(cmd[5]);
 		}
+		else if (cmd.length == 7)
+		{
+			this.name = cmd[1];
+			this.w = GridPoint.parseGridPoint(cmd[2]);
+			this.h = GridPoint.parseGridPoint(cmd[3]);
+			this.x = GridPoint.parseGridPoint(cmd[4]);
+			this.y = GridPoint.parseGridPoint(cmd[5]);
+		}
 		else
 			throw new Exception("Syntax error: atomic command expects 5 arguments!");
 	}
@@ -360,6 +368,14 @@ class FillerCommand
 	FillerCommand(String[] cmd) throws Exception
 	{
 		if (cmd.length == 6)
+		{
+			this.name = cmd[1];
+			this.w = GridPoint.parseGridPoint(cmd[2]);
+			this.h = GridPoint.parseGridPoint(cmd[3]);
+			this.x = GridPoint.parseGridPoint(cmd[4]);
+			this.y = GridPoint.parseGridPoint(cmd[5]);
+		}
+		else if (cmd.length == 7)
 		{
 			this.name = cmd[1];
 			this.w = GridPoint.parseGridPoint(cmd[2]);
