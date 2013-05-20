@@ -16,8 +16,10 @@ namespace Thermal
         int n_layers;
 
         std::vector<double> thickness;
-        std::vector<double> thermal_conductance;
-        std::vector<double> specific_heat;
+        std::vector<double> electronics_thermal_conductance;
+        std::vector<double> electronics_specific_heat;
+        std::vector<double> photonics_thermal_conductance;
+        std::vector<double> photonics_specific_heat;
     };
 
     class RCModelHolder

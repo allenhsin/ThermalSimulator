@@ -1,9 +1,9 @@
 
 floorplan TileB
     
-    atomic block_1 0.0002 0.0004 0.0000 0.0000
-    atomic block_2 0.0003 0.0002 0.0002 0.0000
-    atomic block_3 0.0003 0.0002 0.0002 0.0002
+    atomic block_1 0.0002 0.0004 0.0000 0.0000 1
+    atomic block_2 0.0003 0.0002 0.0002 0.0000 1
+    atomic block_3 0.0003 0.0002 0.0002 0.0002 1
 
 endfloorplan
 

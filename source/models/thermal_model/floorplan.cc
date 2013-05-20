@@ -242,6 +242,7 @@ namespace Thermal
         char    flp_obj_name[STR_SIZE];
         char    unit_name[STR_SIZE];
         double  leftx, bottomy, width, height;
+        int     photonics;
                             
         FloorplanUnit floorplan_unit;
 
@@ -315,14 +316,15 @@ namespace Thermal
                     // atomic blocks
                     else if (!strcmp(line_token, "atomic"))
                     {
-                        if (sscanf(line_copy.c_str(), "%*s%s%lf%lf%lf%lf", unit_name, &width, &height, &leftx, &bottomy) == 5) 
+                        if (sscanf(line_copy.c_str(), "%*s%s%lf%lf%lf%lf%d", unit_name, &width, &height, &leftx, &bottomy, &photonics) == 6) 
                         {
-                            floorplan_unit._name    = (string) unit_name;
-                            floorplan_unit._width   = width;
-                            floorplan_unit._height  = height;
-                            floorplan_unit._leftx   = leftx;
-                            floorplan_unit._bottomy = bottomy;
-                            floorplan_unit._filler  = false;
+                            floorplan_unit._name        = (string) unit_name;
+                            floorplan_unit._width       = width;
+                            floorplan_unit._height      = height;
+                            floorplan_unit._leftx       = leftx;
+                            floorplan_unit._bottomy     = bottomy;
+                            floorplan_unit._photonics   = photonics;
+                            floorplan_unit._filler      = false;
                         }
                         else
                             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong atomic floorplan block format.\n");
@@ -333,19 +335,20 @@ namespace Thermal
 
                         // push atomic block into current object
                         _floorplan_objects[(string) flp_obj_name].insert(floorplan_unit);
-                        Misc::isEndOfLine(5);
+                        Misc::isEndOfLine(6);
                     }
                     // filler blocks
                     else if (!strcmp(line_token, "filler"))
                     {
-                        if (sscanf(line_copy.c_str(), "%*s%s%lf%lf%lf%lf", unit_name, &width, &height, &leftx, &bottomy) == 5) 
+                        if (sscanf(line_copy.c_str(), "%*s%s%lf%lf%lf%lf%d", unit_name, &width, &height, &leftx, &bottomy, &photonics) == 6)
                         {
-                            floorplan_unit._name    = (string) unit_name;
-                            floorplan_unit._width   = width;
-                            floorplan_unit._height  = height;
-                            floorplan_unit._leftx   = leftx;
-                            floorplan_unit._bottomy = bottomy;
-                            floorplan_unit._filler  = true;
+                            floorplan_unit._name        = (string) unit_name;
+                            floorplan_unit._width       = width;
+                            floorplan_unit._height      = height;
+                            floorplan_unit._leftx       = leftx;
+                            floorplan_unit._bottomy     = bottomy;
+                            floorplan_unit._photonics   = photonics;
+                            floorplan_unit._filler      = true;
                         }
                         else
                             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong filler floorplan block format.\n");
@@ -356,7 +359,7 @@ namespace Thermal
 
                         // push filler block into current object
                         _floorplan_objects[(string) flp_obj_name].insert(floorplan_unit);
-                        Misc::isEndOfLine(5);
+                        Misc::isEndOfLine(6);
                     }
                     // instantiate floorplan object
                     else
@@ -371,12 +374,13 @@ namespace Thermal
                         // put every block in the instantiated object to the new object with new name and new coordinates
                         for(set<FloorplanUnit>::iterator it = _floorplan_objects[(string) line_token].begin(); it != _floorplan_objects[(string) line_token].end(); ++it)
                         {
-                            floorplan_unit._name    = ((string) unit_name) + HIER_SEPARATOR + (*it)._name;
-                            floorplan_unit._width   = (*it)._width;
-                            floorplan_unit._height  = (*it)._height;
-                            floorplan_unit._leftx   = (*it)._leftx + leftx;
-                            floorplan_unit._bottomy = (*it)._bottomy + bottomy;
-                            floorplan_unit._filler  = (*it)._filler;
+                            floorplan_unit._name        = ((string) unit_name) + HIER_SEPARATOR + (*it)._name;
+                            floorplan_unit._width       = (*it)._width;
+                            floorplan_unit._height      = (*it)._height;
+                            floorplan_unit._leftx       = (*it)._leftx + leftx;
+                            floorplan_unit._bottomy     = (*it)._bottomy + bottomy;
+                            floorplan_unit._photonics   = (*it)._photonics;
+                            floorplan_unit._filler      = (*it)._filler;
                             
                             // push hierarchy block into current object
                             _floorplan_objects[(string) flp_obj_name].insert(floorplan_unit);
@@ -424,12 +428,13 @@ namespace Thermal
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot open debug floorplan file for output.\n");
 
         for(int i=0; i<_floorplan_holder->_n_units; ++i)
-            fprintf (fp, "Instance: %s\n    W: %.9f, H: %.9f, X: %.9f, Y: %.9f, Filler: %s\n", 
+            fprintf (fp, "Instance: %s\n    W: %.9f, H: %.9f, X: %.9f, Y: %.9f, Photonics: %s, Filler: %s\n", 
                         _floorplan_holder->_flp_units[i]._name.c_str(),
                         _floorplan_holder->_flp_units[i]._width,
                         _floorplan_holder->_flp_units[i]._height,
                         _floorplan_holder->_flp_units[i]._leftx,
                         _floorplan_holder->_flp_units[i]._bottomy,
+                        (_floorplan_holder->_flp_units[i]._photonics)? "TRUE": "FALSE",
                         (_floorplan_holder->_flp_units[i]._filler)? "TRUE": "FALSE"
                     );
 

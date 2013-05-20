@@ -23,7 +23,7 @@
     # PDM clock period
     clock_period                    = 500e-6
     # fixed PDM input pattern - from 0 to (2^bit_width - 1)
-    pdm_pattern                     = 128
+    pdm_pattern                     = 255
     # heater initial state - 1: on, 0: off
     heater_init                     = 1
     

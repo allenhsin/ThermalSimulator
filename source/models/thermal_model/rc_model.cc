@@ -41,16 +41,22 @@ namespace Thermal
         int     line_number = 0;
 
         double  current_thickness = 0;
-        double  current_thermal_conductance = 0;
-        double  current_specific_heat = 0;
+        double  current_electronics_thermal_conductance = 0;
+        double  current_electronics_specific_heat = 0;
+        double  current_photonics_thermal_conductance = 0;
+        double  current_photonics_specific_heat = 0;
         int     n_layers = 0;
 
-        vector<double>& thickness           = _rc_model_holder->layer.thickness;
-        vector<double>& thermal_conductance = _rc_model_holder->layer.thermal_conductance;
-        vector<double>& specific_heat       = _rc_model_holder->layer.specific_heat;
+        vector<double>& thickness                       = _rc_model_holder->layer.thickness;
+        vector<double>& electronics_thermal_conductance = _rc_model_holder->layer.electronics_thermal_conductance;
+        vector<double>& electronics_specific_heat       = _rc_model_holder->layer.electronics_specific_heat;
+        vector<double>& photonics_thermal_conductance   = _rc_model_holder->layer.photonics_thermal_conductance;
+        vector<double>& photonics_specific_heat         = _rc_model_holder->layer.photonics_specific_heat;
         thickness.clear();
-        thermal_conductance.clear();
-        specific_heat.clear();
+        electronics_thermal_conductance.clear();
+        electronics_specific_heat.clear();
+        photonics_thermal_conductance.clear();
+        photonics_specific_heat.clear();
 
         FILE* def_file = fopen(layer_def_file_name.c_str(), "r");
         if (!def_file)
@@ -72,17 +78,22 @@ namespace Thermal
                 continue;
             else
             {
-                if (sscanf(line_copy, "%lf%lf%lf", &current_thickness, &current_thermal_conductance, &current_specific_heat) == 3) 
+                if (sscanf(line_copy, "%lf%lf%lf%lf%lf",    &current_thickness, 
+                                                            &current_electronics_thermal_conductance, &current_electronics_specific_heat,
+                                                            &current_photonics_thermal_conductance, &current_photonics_specific_heat
+                          ) == 5) 
                 {
                     thickness.push_back(current_thickness);
-                    thermal_conductance.push_back(current_thermal_conductance);
-                    specific_heat.push_back(current_specific_heat);
+                    electronics_thermal_conductance.push_back(current_electronics_thermal_conductance);
+                    electronics_specific_heat.push_back(current_electronics_specific_heat);
+                    photonics_thermal_conductance.push_back(current_photonics_thermal_conductance);
+                    photonics_specific_heat.push_back(current_photonics_specific_heat);
                     n_layers++;
                 }
                 else
                     LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong layer def file format at line " + (String) line_number + ".\n");
                 
-                Misc::isEndOfLine(2);
+                Misc::isEndOfLine(4);
             }
         } // while
 
@@ -156,7 +167,8 @@ namespace Thermal
         vector< vector<double> >& b     = _rc_model_holder->b;
         vector<double>& g_amb           = _rc_model_holder->g_amb;
         vector<double>& thickness       = _rc_model_holder->layer.thickness;
-        vector<double>& thermal_conductance = _rc_model_holder->layer.thermal_conductance;
+        vector<double>& electronics_thermal_conductance = _rc_model_holder->layer.electronics_thermal_conductance;
+        vector<double>& photonics_thermal_conductance   = _rc_model_holder->layer.photonics_thermal_conductance;
 
         // modeling each unit in 3D T-model with the node in the center and 
         // 2 x-axis, 2 y-axis and 2 z-axis resistances and 1 cap connecting from
@@ -165,17 +177,33 @@ namespace Thermal
         double unit_width = 0;
         double unit_height = 0;
         double unit_area = 0;
+        bool   unit_is_photonics = 0;
         for (i = 0; i < n_units; i++) 
         {   
-            unit_width  =   _floorplan_holder->_flp_units[i]._width;
-            unit_height =   _floorplan_holder->_flp_units[i]._height;
-            unit_area   =   unit_width * unit_height;
-            // (n_units-1) layers (exclude the air layer)
-            for (k = 0; k < (n_layers-1); ++k)
+            unit_width          =   _floorplan_holder->_flp_units[i]._width;
+            unit_height         =   _floorplan_holder->_flp_units[i]._height;
+            unit_is_photonics   =   _floorplan_holder->_flp_units[i]._photonics;
+            unit_area           =   unit_width * unit_height;
+
+            if (!unit_is_photonics) // electronics
             {
-                gx[k][i] = 1.00/getR(thermal_conductance[k], (unit_width  / 2.00), (unit_height * thickness[k]));
-                gy[k][i] = 1.00/getR(thermal_conductance[k], (unit_height / 2.00), (unit_width  * thickness[k]));
-                gz[k][i] = 1.00/getR(thermal_conductance[k], (thickness[k] / 2.00), unit_area);
+                // (n_units-1) layers (exclude the air layer)
+                for (k = 0; k < (n_layers-1); ++k)
+                {
+                    gx[k][i] = 1.00/getR(electronics_thermal_conductance[k], (unit_width  / 2.00), (unit_height * thickness[k]));
+                    gy[k][i] = 1.00/getR(electronics_thermal_conductance[k], (unit_height / 2.00), (unit_width  * thickness[k]));
+                    gz[k][i] = 1.00/getR(electronics_thermal_conductance[k], (thickness[k] / 2.00), unit_area);
+                }
+            }
+            else // photonics
+            {
+                // (n_units-1) layers (exclude the air layer)
+                for (k = 0; k < (n_layers-1); ++k)
+                {
+                    gx[k][i] = 1.00/getR(photonics_thermal_conductance[k], (unit_width  / 2.00), (unit_height * thickness[k]));
+                    gy[k][i] = 1.00/getR(photonics_thermal_conductance[k], (unit_height / 2.00), (unit_width  * thickness[k]));
+                    gz[k][i] = 1.00/getR(photonics_thermal_conductance[k], (thickness[k] / 2.00), unit_area);
+                }
             }
             // air layer
             gx[n_layers-1][i] = 0;
@@ -275,7 +303,8 @@ namespace Thermal
 
         vector<double>& a               = _rc_model_holder->a;
         vector<double>& thickness       = _rc_model_holder->layer.thickness;
-        vector<double>& specific_heat   = _rc_model_holder->layer.specific_heat;
+        vector<double>& electronics_specific_heat   = _rc_model_holder->layer.electronics_specific_heat;
+        vector<double>& photonics_specific_heat     = _rc_model_holder->layer.photonics_specific_heat;
     
         if (!_rc_model_holder->r_ready)
             LibUtil::Log::printFatalLine(std::cerr, "\nR model not ready\n");
@@ -286,9 +315,18 @@ namespace Thermal
         {
             unit_area = (_floorplan_holder->_flp_units[i]._height * _floorplan_holder->_flp_units[i]._width);
             
-            // at every layer excluding air layer
-            for (k=0; k<(n_layers-1); ++k)
-                a[k*n_units + i] = getCap(specific_heat[k], thickness[k], unit_area);
+            if(!_floorplan_holder->_flp_units[i]._photonics) // electronics
+            {
+                // at every layer excluding air layer
+                for (k=0; k<(n_layers-1); ++k)
+                    a[k*n_units + i] = getCap(electronics_specific_heat[k], thickness[k], unit_area);
+            }
+            else // photonics
+            {
+                // at every layer excluding air layer
+                for (k=0; k<(n_layers-1); ++k)
+                    a[k*n_units + i] = getCap(photonics_specific_heat[k], thickness[k], unit_area);
+            }
             // at air layer
             a[(n_layers-1)*n_units + i] = c_convec * (unit_area/chip_area);
         }

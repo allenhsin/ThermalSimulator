@@ -31,6 +31,9 @@
 .classpath
 gui/bin/*
 
+# results
+results/*
+
 # library, include and executable files
 include/boost/*
 config_test

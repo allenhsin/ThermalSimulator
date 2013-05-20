@@ -4,7 +4,7 @@
 # This file defines the layer properties of the chip
 # The format is
 #
-#   LAYER_THICKNESS  LAYER_THERMAL_CONDUCTIVITY  LAYER_SPECIFIC_HEAT
+#   LAYER_THICKNESS  LAYER_ELECTRONICS_THERMAL_CONDUCTIVITY  LAYER_ELECTRONICS_SPECIFIC_HEAT LAYER_PHOTONICS_THERMAL_CONDUCTIVITY LAYER_PHOTONICS_SPECIFIC_HEAT
 #
 # units:    thickness - [m] 
 #           thermal conductivity - [W/(m-K)]
@@ -15,21 +15,22 @@
 #   silicon:                149.0                   1.65e6
 #   silicon dioxide:        1.38                    2.27e6
 #   silicon carbide (6H):   490                     2.25e6
+#   air (conductive):       0.0271                  1189.8
 #
 # Note: The first layer has to be the device layer, and the following
 #       layers should be in order.
 
 # device layer (transistors and optical devices) - comb. of silicon and silicon dioxide
-100e-9 149.0 1.65e6
+100e-9 149.0 1.65e6 149.0 1.65e6
 
 # SOI buried oxide layer (BOX) - silicon dioxide
-150e-9 1.38 2.27e6
+150e-9 1.38 2.27e6 1.38 2.27e6
 
 # substrate layer - silicon
-0.5e-6 1.38 2.27e6
-2e-6 1.38 2.27e6
-8e-6 1.38 2.27e6
-32e-6 1.38 2.27e6
-128e-6 1.38 2.27e6
-128e-6 1.38 2.27e6
+0.5e-6  1.38 2.27e6 1.38 2.27e6
+2e-6    1.38 2.27e6 1.38 2.27e6
+8e-6    1.38 2.27e6 1.38 2.27e6
+32e-6   1.38 2.27e6 1.38 2.27e6
+128e-6  1.38 2.27e6 1.38 2.27e6
+128e-6  1.38 2.27e6 1.38 2.27e6
 

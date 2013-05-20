@@ -8,7 +8,7 @@
 
 // number time step sizes
 #define N_TIME_STEPS    3
-#define MAX_TIME_STEP   2.0e-6
+#define MAX_TIME_STEP   2.5e-3
 
 // ------------------------------------------------------------------------------------------------
 

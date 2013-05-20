@@ -25,9 +25,9 @@
     
     # lossless coupling is assumed
     # in-to-thru self-coupling coefficient [dB]
-    t1                          = 0.962
+    t1                          = 0.995
     # add-to-drop self-coupling coefficient [dB]
-    t2                          = 0.950
+    t2                          = 0.995
 
     # waveguide ---------------------------------------------------------------
     # [dB/m]

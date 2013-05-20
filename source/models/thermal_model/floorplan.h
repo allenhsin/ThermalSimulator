@@ -22,6 +22,7 @@ namespace Thermal
         double      _height;
         double      _leftx;
         double      _bottomy;
+        bool        _photonics;
         bool        _filler;
     };
 

@@ -17,12 +17,12 @@ floorplan TileE
     # The format to create a new atomic block in the floorplan
     # starts with the keyword "atomic" and is as follows:
     #
-    #       atomic BLOCK_NAME WIDTH HEIGHT X_COORDINATE Y_COORDINATE
+    #       atomic BLOCK_NAME WIDTH HEIGHT X_COORDINATE Y_COORDINATE IS_PHOTONICS
     #
     # All units are in meters
-    atomic block_1 0.0001 0.0001 0.0000 0.0000
-    atomic block_2 0.0002 0.0001 0.0001 0.0000
-    atomic block_3 0.0001 0.0001 0.0003 0.0000
+    atomic block_1 0.0001 0.0001 0.0000 0.0000 0
+    atomic block_2 0.0002 0.0001 0.0001 0.0000 0
+    atomic block_3 0.0001 0.0001 0.0003 0.0000 0
 # end of definition of a sub-floorplan subject 
 # with keyword "endfloorplan"
 endfloorplan 
@@ -30,8 +30,8 @@ endfloorplan
 # Add another sub-floorplan
 floorplan TileD
 
-    atomic block_1 0.0003 0.0001 0.0000 0.0000
-    atomic block_2 0.0003 0.0001 0.0007 0.0000
+    atomic block_1 0.0003 0.0001 0.0000 0.0000 1
+    atomic block_2 0.0003 0.0001 0.0007 0.0000 1
     
     # Instantiate another sub-floorplan object within the 
     # sub-floorplan. The format is
@@ -50,14 +50,14 @@ endfloorplan
 # the top level floorplan name
 floorplan TheChip
     
-    atomic tile_6   0.0010 0.0001 0.0000 0.0011
+    atomic tile_6   0.0010 0.0001 0.0000 0.0011 0
     
     # Filler blocks are empty blocks, just to avoid gaps between 
     # floorplan blocks since gaps block the heat transfer. The
     # syntax is the same as atomic blocks but changes "atomic"
     # to "filler". Filler blocks cannot have power consumption,
     # and thus cannot be in the power trace.
-    filler fill_1   0.0010 0.0001 0.0000 0.0010
+    filler fill_1   0.0010 0.0001 0.0000 0.0010 0
 
     TileA tile_1    0.0000 0.0000
     TileA tile_2    0.0005 0.0000
