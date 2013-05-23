@@ -1,7 +1,10 @@
 
 language        := verilog
 
-DIRS_TO_SOURCE  := .
+DIRS_TO_SOURCE  := . \
+                   elaborated \
+                   expressions \
+                   raw
 
 YACC            = bison
 LEX             = flex

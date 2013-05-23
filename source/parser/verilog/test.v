@@ -13,6 +13,7 @@ module INV_X1M_A12TR(A, Y);
     parameter CadenceSucks = 23;
     parameter HolyShit = CadenceSucks;
     parameter Wow = HolyShit-1;
+    parameter Crap = "this is a string";
     
     input A;
     output Y;
@@ -38,7 +39,7 @@ endmodule
     parameter bad_param1 = 0;
     parameter bad_param2 = 32'd7734;
  
-    input A;
+    input [bad_param2] A;
     output Y; 
 
     wire [bad_param2-1:0] n1, n2, n3, n4, n5;

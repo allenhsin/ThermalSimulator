@@ -172,7 +172,7 @@ namespace VerilogParser
         for (VerilogConns::const_iterator it = conns->begin(); it != conns->end(); ++it)
         {
             // Port name
-            (*it)->first = hier_ + c->m_module_name_ + hier_sep_ + (*it)->first;
+            (*it)->first = c->getIdentifier() + hier_sep_ + (*it)->first;
             // Rebase the expression as well
             (*it)->second.useHierName(hier_);
         }
@@ -180,7 +180,7 @@ namespace VerilogParser
         for (VerilogConns::const_iterator it = params->begin(); it != params->end(); ++it)
         {
             // Parameter name
-            (*it)->first = hier_ + c->m_module_name_ + hier_sep_ + (*it)->first;
+            (*it)->first = c->getIdentifier() + hier_sep_ + (*it)->first;
             // Rebase the expression as well
             (*it)->second.useHierName(hier_);
         }

@@ -15,21 +15,6 @@ namespace VerilogParser
 
     class VerilogScope;
 
-    enum VerilogPortType
-    {
-        PORT_INPUT,
-        PORT_OUTPUT,
-        PORT_INOUT,
-        PORT_NONE
-    };
-    
-    // We don't support anything besides regular wires, but we will leave this in for
-    // generality
-    enum VerilogNetType
-    {
-        NET_WIRE
-    };
-
     class VerilogNet : public VerilogItem
     {
         public:

@@ -13,7 +13,7 @@ namespace VerilogParser
         public:
             // Private constructor, use the static elaborate function instead
             VerilogElabNet(const std::string& identifier_, VerilogPortType port_type_,
-                VerilogNetType net_type_, const VerilogElabRange& range_);
+                VerilogNetType net_type_, VerilogElabRange range_);
             virtual ~VerilogElabNet();
             
         public:

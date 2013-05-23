@@ -11,13 +11,6 @@ namespace VerilogParser
 {
     class VerilogScope;
 
-    enum VerilogItemType
-    {
-        ITEM_PARAMETER,
-        ITEM_NET,
-        ITEM_INSTANCE
-    };
-
     class VerilogItem
     {
         public:

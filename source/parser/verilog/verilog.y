@@ -21,9 +21,9 @@
 %{
 #include <cstdio>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
-#include "../../../include/libutil/LibUtil.h"
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
 
@@ -38,11 +38,12 @@
 
 #include "VerilogScope.h"
 
+#include "expressions/StringExpression.h"
+
 #include <cstdlib>
 
 using namespace std;
 using namespace VerilogParser;
-using namespace LibUtil;
 
 #define yyin verilogin
 
@@ -116,6 +117,7 @@ void yyerror(VerilogFileReader* file_, const char *s);
 %token  <fval>          FLOAT
 %token  <sval>          IDENTIFIER
 %token  <num>           NUMBER
+%token  <sval>          STRING
 
 // Define non-terminal symbol data types
 // %type   <bop>           binary_operator
@@ -330,6 +332,7 @@ description:
 expression:
     '(' expression ')'                      { $$ = $2; }
     | NUMBER                                { $$ = new VerilogExpression(*$1); delete $1; }
+    | STRING                                { $$ = NULL; cout << (new StringExpression($1))->toString() << endl; }
     | IDENTIFIER                            { $$ = new VerilogExpression($1); }
     | IDENTIFIER range                      { $$ = new VerilogExpression($1, *$2); delete $2; }
     | concatenation                         { $$ = new VerilogExpression(*$1); delete $1; }
@@ -411,7 +414,7 @@ namespace VerilogParser
     VerilogFileReader::~VerilogFileReader()
     {
         delete m_scope_;
-        LibUtil::deletePtrVector<VerilogModule>(m_modules_);
+        deletePtrVector<VerilogModule>(m_modules_);
         
         m_modules_ = NULL;
         m_scope_ = NULL;
@@ -461,6 +464,8 @@ namespace VerilogParser
     {
         VerilogItems* items = new VerilogItems();
         addFlattenedItems(items, hier_sep_, m_scope_->getElabModule(top_module_name), "");
+        
+        VerilogEquivNetMap* net_map = mapEquivNets(items);        
         return items;
     }
     
@@ -486,6 +491,101 @@ namespace VerilogParser
             }
         }
     }
+    
+    VerilogEquivNetMap* VerilogFileReader::mapEquivNets(const VerilogItems* items_)
+    {
+        cout << "==================" << endl;
+        VerilogEquivNetMap* equiv_map = new VerilogEquivNetMap();        
+        for (VerilogItems::const_iterator it = items_->begin(); it != items_->end(); ++it)
+        {
+            // Add all nets to the map
+            VerilogItem* item = *it;
+            if (item->getType() == ITEM_NET)
+            {
+                const VerilogNet* net = (const VerilogNet*) item;
+                for (unsigned int i = net->getRange().second.getNumber().getUInt();
+                    i <= net->getRange().first.getNumber().getUInt(); ++i)
+                {
+                    ostringstream name;
+                    name << net->getIdentifier() << "[" << i << "]";
+                    (*equiv_map)[name.str()] = "";  
+                    cout << name.str() << endl;
+                }
+            }
+            // Right now, instance port connections are the only things that can
+            // connect nets together to be equivalent
+            else if (item->getType() == ITEM_INSTANCE)
+            {
+                const VerilogInstance* inst = (const VerilogInstance*) item;
+                addEquivNets(equiv_map, inst);
+            }        
+        }
+        
+        // Too lazy to write something efficient for this, this will have n^2 performance in the
+        // worst case, which is really really bad...
+        bool change = false;        
+        do
+        {
+            change = false;
+            for (VerilogEquivNetMap::const_iterator it = equiv_map->begin(); it != equiv_map->end(); ++it)
+            {
+                string cur_name = it->second;
+                while (!(*equiv_map)[cur_name].empty())
+                {
+                    change = true;
+                    cur_name = (*equiv_map)[cur_name];
+                    
+                    (*equiv_map)[it->first] = cur_name;
+                    
+                    cout << it->first << " = " << cur_name << " " << (*equiv_map)[cur_name] << endl;
+                }
+            }
+            
+        } while (change);
+        
+        cout << "==================" << endl;
+        return equiv_map;
+    }
+    
+    // Looks at an instance and adds the equivalent nets
+    void VerilogFileReader::addEquivNets(VerilogEquivNetMap* equiv_map_, const VerilogInstance* inst_)
+    {
+        // For all the connections in the instance
+        for (VerilogConns::const_iterator c_it = inst_->getConns()->begin();
+            c_it != inst_->getConns()->end(); ++c_it)
+        {
+            const VerilogExpression& net = (*c_it)->second;
+            const string& port = (*c_it)->first;
+            
+            // This is ridiculously unclean way of doing this, really need to rethink the data structure
+            const string port_i = port.substr(port.find_last_of('.') + 1);            
+            const VerilogRange& port_range = ((const VerilogNet*) inst_->getModule()->getItem(port_i))->getRange();            
+            
+            // TODO: For now make sure the net has the IDENTIFIER_RANGE format
+            if (!net.getType() == VerilogExpression::IDENTIFIER_RANGE)
+                throw VerilogException("Bad port connect");            
+
+            unsigned int high = net.getRange().first.getNumber().getUInt();
+            unsigned int low = net.getRange().second.getNumber().getUInt();
+            // For every bit of the connection            
+            unsigned int port_idx = port_range.second.getNumber().getUInt();            
+            for (unsigned int i = low; i <= high; ++i)
+            {
+                // Get the full name of the current bit of the net
+                ostringstream net_name;
+                net_name << net.getIdentifier() << "[" << i << "]";
+                
+                ostringstream port_name;
+                port_name << port << "[" << port_idx << "]";
+                (*equiv_map_)[port_name.str()] = net_name.str();
+                
+                cout << port_name.str() << " = " << net_name.str() << endl;
+                
+                port_idx++;                
+            }
+        }
+    }
+    
 }
 
 // Arguments must match those to yyparse

@@ -10,14 +10,6 @@
 namespace VerilogParser
 {
     class Number;
-    class Expression;
-    class LHExpression;
-    class RHExpression;
-        
-    // Typedefs for expressions
-    typedef std::vector<Expression*> Expressions;
-    typedef std::vector<LHExpression*> LHExpressions;
-    typedef std::vector<RHExpression*> RHExpressions;
 
     class Expression
     {
@@ -66,7 +58,7 @@ namespace VerilogParser
             inline virtual const Expression* accOpExpr1() const { return NULL; }
             inline virtual const BinOperator* accBinOp() const { return NULL; }
             
-        private:
+        protected:
             // Copy constructor
             Expression(const Expression& expr_);
             
@@ -84,7 +76,7 @@ namespace VerilogParser
             // Clone function
             virtual RHExpression* clone() const = 0;
 
-        private:
+        protected:
             // Copy constructor
             RHExpression(const RHExpression& expr_);
         };
@@ -98,7 +90,7 @@ namespace VerilogParser
             // Clone function
             virtual LHExpression* clone() const = 0;
 
-        private:
+        protected:
             // Copy constructor
             LHExpression(const LHExpression& expr_);
     };

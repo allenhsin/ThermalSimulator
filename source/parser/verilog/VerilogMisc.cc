@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "../../../include/libutil/LibUtil.h"
+#include "expressions/Expression.h"
 #include "VerilogMisc.h"
 
 namespace VerilogParser
@@ -17,16 +18,38 @@ namespace VerilogParser
     VerilogException::~VerilogException() throw()
     {}
     
-    // VerilogElaborate::VerilogElaborate(const string& error_msg_)
-        // : m_elaborated_(false)
-    // {}
+    VerilogElabRange::VerilogElabRange(int high_, int low_)
+        : high(high_), low(low_)
+    {}
     
-    // VerilogElaborate::~VerilogElaborate()
-    // {}
+    VerilogElabRange::~VerilogElabRange()
+    {}
     
-    // void VerilogElaborate::elaborate(VerilogScope* scope_)
-    // {        
-        // elaborateItem(scope_);
-    // }
+    //=========================================================================    
+    BitRange::BitRange(const Expression& high_, const Expression& low_)
+        : high(high_.clone()), low(low_.clone())
+    {}
+    
+    BitRange::BitRange(const BitRange& range_)
+        : high(range_.high->clone()), low(range_.high->clone())
+    {}
+    
+    BitRange::~BitRange()
+    {
+        delete high;
+        delete low;
+    }
+    
+    std::string BitRange::toString() const
+    {
+        return "[" + high->toString() + ":" + low->toString() + "]";
+    }
+    
+    SetValue::SetValue(const std::string& identifier_, const Expression* value_)
+        : identifier(identifier_), value(value_)
+    {}
+    
+    SetValue::~SetValue()
+    {}
     
 } // namespace VerilogParser

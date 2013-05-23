@@ -32,13 +32,18 @@ namespace VerilogParser
             // Get a vector of flattened verilog items for a top module, will only return
             // a list of verilog items containing nets and instantiation of primitives
             VerilogItems* getFlattenedItems(const std::string& top_module_name_,
-                const std::string& hier_sep_) const;
+                const std::string& hier_sep_) const;            
+            
+            // Maps the equivalent nets of a list of verilog items
+            static VerilogEquivNetMap* mapEquivNets(const VerilogItems* items_);
             
         private:
             // Helper for get flattened items, adds all items in a module to a list using a hierarchical name
             static void addFlattenedItems(VerilogItems* items_, const std::string& hier_sep_,
-                const VerilogModule* module_, const std::string& hier_name_);
-
+                const VerilogModule* module_, const std::string& hier_name_);            
+            // Helper for adding equivalenet nets due to instance port connects
+            static void addEquivNets(VerilogEquivNetMap* equiv_map_, const VerilogInstance* inst_);
+            
         private:
             // List of parsed modules
             VerilogModules* m_modules_;

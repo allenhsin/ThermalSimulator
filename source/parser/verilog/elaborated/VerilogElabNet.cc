@@ -12,7 +12,7 @@ namespace VerilogParser
                 const std::string& identifier_, 
                 VerilogPortType port_type_,
                 VerilogNetType net_type_,
-                VerilogElabRange range_,
+                VerilogElabRange range_
             )
         : VerilogElabItem(ITEM_NET, identifier_),
         m_port_type_(port_type_),
@@ -37,7 +37,7 @@ namespace VerilogParser
         : VerilogElabItem(net_), 
         m_port_type_(net_.m_port_type_), 
         m_net_type_(net_.m_net_type_),
-        m_range_(net_.range_)
+        m_range_(net_.m_range_)
     {}
 
     

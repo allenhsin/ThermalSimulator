@@ -26,6 +26,8 @@
 
 #include "VerilogScope.h"
 
+#include "expressions/StringExpression.h"
+
 #include "yacc.verilog.hh"
 
 using namespace std;
@@ -95,6 +97,7 @@ void yyerror(VerilogFileReader* file_, const char *s);
 
     /* identifiers */
 [a-zA-Z_][a-zA-Z_0-9]*                  { yylval.sval = strdup(yytext); return IDENTIFIER; }
+"\"".*"\""                              { yylval.sval = strdup(yytext); return STRING; }
 
     /* ignore white spaces */
 [ \t]           { ; }
