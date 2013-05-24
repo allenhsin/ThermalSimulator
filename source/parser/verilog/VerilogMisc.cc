@@ -10,20 +10,13 @@ namespace VerilogParser
 {
     using namespace std;
     using namespace LibUtil;
-
-    // VerilogElabRange::VerilogElabRange(int high_, int low_)
-        // : high(high_), low(low_)
-    // {}
-    
-    // VerilogElabRange::~VerilogElabRange()
-    // {}
     
     BitRange::BitRange(const Expression& high_, const Expression& low_)
         : high(high_.clone()), low(low_.clone())
     {}
     
     BitRange::BitRange(const BitRange& range_)
-        : high(range_.high->clone()), low(range_.high->clone())
+        : high(range_.high->clone()), low(range_.low->clone())
     {}
     
     BitRange::~BitRange()

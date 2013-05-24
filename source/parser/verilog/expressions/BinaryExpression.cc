@@ -2,6 +2,7 @@
 #include <cassert>
 #include <stdio.h>
 #include <cstdlib>
+#include <iostream>
 
 #include "BinaryExpression.h"
 #include "NumberExpression.h"
@@ -27,7 +28,7 @@ namespace VerilogParser
     
     string BinaryExpression::toString() const
     {
-        return m_op_expr0_->toString() + m_bin_op_ + m_op_expr1_->toString();
+        return "(" + m_op_expr0_->toString() + m_bin_op_ + m_op_expr1_->toString() + ")";
     }    
     
 } // namespace VerilogParser

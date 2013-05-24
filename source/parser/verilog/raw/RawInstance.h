@@ -23,6 +23,9 @@ namespace VerilogParser
             // Set parameter values
             void setParameterValues(const SetValues& conns_);
             
+            // Create elaborated items
+            ElabItems* elaborate(VerilogScope* scope_) const;
+            // Get printable string
             std::string toString() const;            
             // Clone the item
             RawInstance* clone() const;

@@ -1,6 +1,6 @@
 
-#ifndef __THERMAL_PARSER_H__
-#define __THERMAL_PARSER_H__
+#ifndef __VERILOG_PARSER_H__
+#define __VERILOG_PARSER_H__
 
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"

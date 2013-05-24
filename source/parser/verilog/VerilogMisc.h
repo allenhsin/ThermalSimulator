@@ -18,22 +18,12 @@ namespace VerilogParser
     class RawParameter;
     class RawModule;
     
-    // Port type
-    enum PortType
-    {
-        PORT_INPUT,
-        PORT_OUTPUT,
-        PORT_INOUT,
-        PORT_NONE
-    };
+    class ElabItem;
+    class ElabNet;
+    class ElabInstance;
+    class ElabParameter;
+    class ElabModule;
     
-    // We don't support anything besides regular wires, but we will leave this in for
-    // generality
-    enum NetType
-    {
-        NET_WIRE
-    };
-
     // Bit range class
     class BitRange
     {
@@ -62,26 +52,6 @@ namespace VerilogParser
             const std::string identifier;
             const Expression* value;
     };
-    
-    typedef char* BinOperator;
-
-    typedef std::vector<std::string> Identifiers;
-    typedef std::vector<SetValue*> SetValues;
-
-    // Typedefs for expressions
-    typedef std::vector<Expression*> Expressions;
-    typedef std::vector<LHExpression*> LHExpressions;
-    typedef std::vector<RHExpression*> RHExpressions;
-    
-    // Typdefs for items
-    typedef std::vector<RawItem*> RawItems;
-    typedef std::vector<RawNet*> RawNets;
-    typedef std::vector<RawInstance*> RawInstances;
-    typedef std::vector<RawParameter*> RawParameters;
-    
-    // Typedefs for raw modules
-    typedef std::vector<RawModule*> RawModules;
-    typedef std::map<std::string, RawModule*> RawModuleMap;
     
     class VerilogException : public std::exception
     {
@@ -114,5 +84,66 @@ namespace VerilogParser
         return;
     }
     
+    // Port type
+    enum PortType
+    {
+        PORT_INPUT,
+        PORT_OUTPUT,
+        PORT_INOUT,
+        PORT_NONE
+    };
+    
+    // We don't support anything besides regular wires, but we will leave this in for
+    // generality
+    enum NetType
+    {
+        NET_WIRE
+    };
+    
+    // Type of items inside raw modules
+    enum RawItemType
+    {
+        RAW_ITEM_PARAM,
+        RAW_ITEM_NET,
+        RAW_ITEM_INST
+    };
+    
+    // Type of items inside elaborated modules
+    enum ElabItemType
+    {
+        ELAB_ITEM_PARAM,
+        ELAB_ITEM_NET,
+        ELAB_ITEM_INST
+    };
+    
+    typedef std::string BinOperator;
+
+    typedef std::vector<std::string> Identifiers;
+    typedef std::vector<SetValue*> SetValues;
+
+    // Typedefs for expressions
+    typedef std::vector<Expression*> Expressions;
+    typedef std::vector<LHExpression*> LHExpressions;
+    typedef std::vector<RHExpression*> RHExpressions;
+    
+    // Typdefs for raw items
+    typedef std::vector<RawItem*> RawItems;
+    typedef std::vector<RawNet*> RawNets;
+    typedef std::vector<RawInstance*> RawInstances;
+    typedef std::vector<RawParameter*> RawParameters;
+    
+    // Typedefs for raw modules
+    typedef std::vector<RawModule*> RawModules;
+    typedef std::map<std::string, RawModule*> RawModuleMap;
+    
+    // Typedefs for elaborated items
+    typedef std::vector<ElabItem*> ElabItems;
+    typedef std::map<std::string, ElabItem*> ElabItemMap;
+    typedef std::map<std::string, ElabItems*> ElabItemsMap;
+    typedef std::vector<ElabNet*> ElabNets;
+    
+    // Typedef for elaborated modules
+    typedef std::vector<ElabModule*> ElabModules;
+
 }
 #endif

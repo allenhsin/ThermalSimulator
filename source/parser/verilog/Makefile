@@ -3,6 +3,7 @@ language        := verilog
 
 DIRS_TO_SOURCE  := . \
                    expressions \
+                   elaborated \
                    raw
 
 YACC            = bison

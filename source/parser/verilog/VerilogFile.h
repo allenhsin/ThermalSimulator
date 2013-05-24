@@ -1,5 +1,5 @@
-#ifndef THERMAL_PARSER_VERILOG_FILE_H
-#define THERMAL_PARSER_VERILOG_FILE_H
+#ifndef VERILOG_PARSER_VERILOG_FILE_H
+#define VERILOG_PARSER_VERILOG_FILE_H
 
 #include <string>
 #include <vector>

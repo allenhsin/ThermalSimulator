@@ -13,6 +13,13 @@ namespace VerilogParser
 
     RawParameter::~RawParameter()
     {}
+    
+    ElabItems* RawParameter::elaborate(VerilogScope* scope_) const
+    {
+        ElabItems* elab_nets = new ElabItems();
+        //TODO
+        return elab_nets;
+    }
 
     std::string RawParameter::toString() const
     {

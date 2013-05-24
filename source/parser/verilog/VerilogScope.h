@@ -6,7 +6,7 @@
 #include <map>
 #include "VerilogMisc.h"
 
-// Simple class containing the current elaboration scope
+// Class responsible for taking care of module elaboration
 namespace VerilogParser
 {
     class VerilogScope
@@ -15,25 +15,29 @@ namespace VerilogParser
             VerilogScope();
             virtual ~VerilogScope();
             
-            // bool hasRawModule(const std::string& name_) const;
-            // void addRawModule(RawModule* module_);                        
-            // RawModule* getRawModule(const std::string& name_);
+            bool hasRawModule(const std::string& name_) const;
+            void addRawModule(RawModule* module_);                        
+            RawModule* getRawModule(const std::string& name_);
 
             // bool hasElabModule(const std::string& name_) const;
             // void addElabModule(RawModule* module_);                        
             // RawModule* getElabModule(const std::string& name_);
             // inline const RawModuleMap& getElabModules() const { return m_elab_module_map_; }
             
-            inline void setModuleScope(RawModule* module_) { m_module_scope_ = module_; }
-            inline RawModule* getModuleScope() { return m_module_scope_; }
+            inline void setModuleScope(ElabModule* module_) { m_module_scope_ = module_; }
+            inline ElabModule* getModuleScope() { return m_module_scope_; }
 
+            
+            
         private:
+            // Global symbol lookup map
+            ElabItemsMap m_symbol_map_;            
             // Map of all raw modules
             RawModuleMap m_raw_module_map_;
-            // Map of all elaborated modules
-            RawModuleMap m_elab_module_map_;
             // Current module
-            RawModule* m_module_scope_;
+            ElabModule* m_module_scope_;            
+            // Vector of all elaborated moduels
+            ElabModules m_elab_modules_;
     };
 }
 #endif

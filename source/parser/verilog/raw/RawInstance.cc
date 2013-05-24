@@ -31,9 +31,16 @@ namespace VerilogParser
             );
     }
     
+    ElabItems* RawInstance::elaborate(VerilogScope* scope_) const
+    {
+        ElabItems* elab_nets = new ElabItems();
+        //TODO
+        return elab_nets;
+    }
+    
     std::string RawInstance::toString() const
     {
-        return RawItem::toString() + " (" + m_module_name_ + ")";
+        return RawItem::toString() + "(" + m_module_name_ + ")";
     }
     
     RawInstance* RawInstance::clone() const

@@ -66,7 +66,6 @@ void yyerror(VerilogFileReader* file_, const char *s);
 	char *sval;
     char cval;
     
-    VerilogParser::BinOperator bop;
     VerilogParser::Number* num;    
 
     VerilogParser::Expression* expr;
@@ -115,12 +114,6 @@ void yyerror(VerilogFileReader* file_, const char *s);
 %token  OUTPUT          "output"
 %token  PARAMETER       "parameter"
 %token  WIRE            "wire"
-
-%token  <sval>          '+'
-%token  <sval>          '-'
-%token  <sval>          '*'
-%token  <sval>          '/'
-%token  <sval>          '%'
 
 // define some terminal symbol data types
 %token  <fval>          FLOAT
@@ -346,11 +339,11 @@ expression_rh:
     | STRING                                { $$ = new StringExpression($1); }
     | IDENTIFIER                            { $$ = new IdentifierExpression($1); }
     | IDENTIFIER range                      { $$ = new IdentifierExpression($1, *$2); delete $2; }
-    | expression_rh '+' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
-    | expression_rh '-' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
-    | expression_rh '*' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
-    | expression_rh '/' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
-    | expression_rh '%' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
+    | expression_rh '+' expression_rh       { $$ = new BinaryExpression(*$1, "+", *$3); delete $1; delete $3; }
+    | expression_rh '-' expression_rh       { $$ = new BinaryExpression(*$1, "-", *$3); delete $1; delete $3; }
+    | expression_rh '*' expression_rh       { $$ = new BinaryExpression(*$1, "*", *$3); delete $1; delete $3; }
+    | expression_rh '/' expression_rh       { $$ = new BinaryExpression(*$1, "/", *$3); delete $1; delete $3; }
+    | expression_rh '%' expression_rh       { $$ = new BinaryExpression(*$1, "%", *$3); delete $1; delete $3; }
     | '{' list_of_expressions_rh '}'        { $$ = new ConcatRHExpression(*$2); delete $2; }
     ;
     
@@ -383,8 +376,20 @@ module_item:
     // ;
     
 // assignment:
-    // IDENTIFIER '=' constant_expression    
+    // lh_expression '=' rh_expression    
         
+// expression_lh:
+    // '(' expression_lh ')'                   { $$ = $2; }
+    // | IDENTIFIER                            { $$ = new IdentifierExpression($1); }
+    // | IDENTIFIER range                      { $$ = new IdentifierExpression($1, *$2); delete $2; }
+    // | '{' list_of_expressions_lh '}'        { $$ = new ConcatLHExpression(*$2); delete $2; }
+    // ;        
+        
+// list_of_expressions_lh:
+    // expression_lh                               { $$ = new LHExpressions(1, $1); }
+    // | list_of_expressions_lh ',' expression_lh  { $$ = $1; $$->push_back($3); }
+    // ;
+    
 // port:
     // port_expression
     // | '.' IDENTIFIER '(' port_expression ')'

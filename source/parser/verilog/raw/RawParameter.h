@@ -20,8 +20,11 @@ namespace VerilogParser
         public:
             // Get the value
             const Expression& getValue() const { return *m_value_; }            
-            std::string toString() const;
             
+            // Create elaborated items
+            ElabItems* elaborate(VerilogScope* scope_) const;
+            // Get printable string
+            std::string toString() const;
             // Clone
             RawItem* clone() const;
         

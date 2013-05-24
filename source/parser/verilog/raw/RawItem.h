@@ -4,11 +4,13 @@
 #include <string>
 #include <vector>
 
-#include "RawTypes.h"
+#include "../VerilogMisc.h"
 
 // A class representing a verilog module
 namespace VerilogParser
 {
+    class VerilogScope;
+
     class RawItem
     {
         public:
@@ -19,10 +21,12 @@ namespace VerilogParser
             inline const std::string& getIdentifier() const { return m_identifier_; }            
             inline RawItemType getType() const { return m_type_; }
 
+            // Elaborate and return the elaborated items
+            virtual ElabItems* elaborate(VerilogScope* scope_) const = 0;
             // Get a string representation of the RawItem
             virtual std::string toString() const;
             // Clone a verilog RawItem
-            virtual RawItem* clone() const = 0;
+            virtual RawItem* clone() const = 0;            
             
         // Protected copy constructor, use clone instead    
         protected:
