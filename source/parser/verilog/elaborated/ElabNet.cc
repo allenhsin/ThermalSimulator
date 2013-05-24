@@ -8,16 +8,10 @@ namespace VerilogParser
 {
     using namespace std;
 
-    ElabNet::ElabNet(
-                const std::string& identifier_, 
-                PortType port_type_,
-                NetType net_type_,
-                BitRange range_
-            )
+    ElabNet::ElabNet(const std::string& identifier_, PortType port_type_, NetType net_type_)
         : ElabItem(ELAB_ITEM_NET, identifier_),
         m_port_type_(port_type_),
-        m_net_type_(net_type_),
-        m_range_(range_)
+        m_net_type_(net_type_)
     {}
 
     ElabNet::~ElabNet()
@@ -34,10 +28,7 @@ namespace VerilogParser
     }
     
     ElabNet::ElabNet(const ElabNet& net_)
-        : ElabItem(net_), 
-        m_port_type_(net_.m_port_type_), 
-        m_net_type_(net_.m_net_type_),
-        m_range_(net_.m_range_)
+        : ElabItem(net_), m_port_type_(net_.m_port_type_), m_net_type_(net_.m_net_type_)
     {}
 
     

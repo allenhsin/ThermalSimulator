@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "RawNet.h"
+#include "../elaborated/ElabItem.h"
 
 namespace VerilogParser
 {
@@ -37,9 +38,9 @@ namespace VerilogParser
         return new_nets;
     }
     
-    ElabItems* RawNet::elaborate(VerilogScope* scope_) const
+    IndexedElabItems* RawNet::elaborate(VerilogScope* scope_) const
     {
-        ElabItems* elab_nets = new ElabItems();
+        IndexedElabItems* elab_nets = new IndexedElabItems(0);
         //TODO
         return elab_nets;
     }

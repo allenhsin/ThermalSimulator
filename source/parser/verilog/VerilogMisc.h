@@ -19,6 +19,7 @@ namespace VerilogParser
     class RawModule;
     
     class ElabItem;
+    class IndexedElabItems;
     class ElabNet;
     class ElabInstance;
     class ElabParameter;
@@ -113,7 +114,8 @@ namespace VerilogParser
     {
         ELAB_ITEM_PARAM,
         ELAB_ITEM_NET,
-        ELAB_ITEM_INST
+        ELAB_ITEM_INST,
+        ELAB_ITEM_ASSIGN
     };
     
     typedef std::string BinOperator;
@@ -139,7 +141,7 @@ namespace VerilogParser
     // Typedefs for elaborated items
     typedef std::vector<ElabItem*> ElabItems;
     typedef std::map<std::string, ElabItem*> ElabItemMap;
-    typedef std::map<std::string, ElabItems*> ElabItemsMap;
+    typedef std::map<std::string, IndexedElabItems*> IndexedElabItemsMap;
     typedef std::vector<ElabNet*> ElabNets;
     
     // Typedef for elaborated modules

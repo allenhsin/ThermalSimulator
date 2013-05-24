@@ -9,30 +9,30 @@
 
 namespace VerilogParser
 {
-    // // An elaborated verilog parameter
-    // class ElabParam : public ElabItem
-    // {
-        // public:
-            // // Private constructor, use the static elaborate function instead
-            // ElabParam(const std::string& identifier_, const RHExpression& value_);
-            // virtual ~ElabParam();
+    // An elaborated verilog parameter
+    class ElabParam : public ElabItem
+    {
+        public:
+            // Private constructor, use the static elaborate function instead
+            ElabParam(const std::string& identifier_);
+            virtual ~ElabParam();
             
-        // public:
-            // // Accessor functions
-            // inline const RHExpression& getValue() const { return m_value_; }
+        public:
+            // Accessor functions
+            //inline const RHExpression& getValue() const { return m_value_; }
             
-            // // Clone
-            // ElabItem* clone() const;            
-            // // Get string representation            
-            // std::string toString() const;
+            // Clone
+            ElabItem* clone() const;            
+            // Get string representation            
+            std::string toString() const;
             
-        // protected:
-            // // Protected copy constructor, use clone instead
-            // ElabParam(const ElabParam& param_);
+        protected:
+            // Protected copy constructor, use clone instead
+            ElabParam(const ElabParam& param_);
             
-        // private:
-            // // Value of the elaborated parameter
-            // const RHExpression m_value_;
-    // };
+        private:
+            // Value of the elaborated parameter
+            //const RHExpression m_value_;
+    };
 }
 #endif

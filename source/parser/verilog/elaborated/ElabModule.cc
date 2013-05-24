@@ -48,7 +48,8 @@ namespace VerilogParser
         for (it = items_->begin(); it != items_->end(); ++it)
             addItem(*it);
     }
-        const ElabItem* ElabModule::getItem(const string& identifier_) const
+    
+    const ElabItem* ElabModule::getItem(const string& identifier_) const
     {
         if (!hasItem(identifier_))
             throw VerilogException("Item does not exist in module: " + identifier_);

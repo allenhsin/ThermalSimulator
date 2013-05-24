@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "RawParameter.h"
+#include "../elaborated/ElabItem.h"
 
 namespace VerilogParser
 {
@@ -14,9 +15,9 @@ namespace VerilogParser
     RawParameter::~RawParameter()
     {}
     
-    ElabItems* RawParameter::elaborate(VerilogScope* scope_) const
+    IndexedElabItems* RawParameter::elaborate(VerilogScope* scope_) const
     {
-        ElabItems* elab_nets = new ElabItems();
+        IndexedElabItems* elab_nets = new IndexedElabItems(0);
         //TODO
         return elab_nets;
     }

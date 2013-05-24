@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "RawInstance.h"
+#include "../elaborated/ElabItem.h"
 
 namespace VerilogParser
 {
@@ -31,9 +32,9 @@ namespace VerilogParser
             );
     }
     
-    ElabItems* RawInstance::elaborate(VerilogScope* scope_) const
+    IndexedElabItems* RawInstance::elaborate(VerilogScope* scope_) const
     {
-        ElabItems* elab_nets = new ElabItems();
+        IndexedElabItems* elab_nets = new IndexedElabItems(0);
         //TODO
         return elab_nets;
     }

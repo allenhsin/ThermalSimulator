@@ -33,7 +33,7 @@ namespace VerilogParser
             inline NetType getNetType() const { return m_net_type_; }
             
             // Create elaborated items
-            ElabItems* elaborate(VerilogScope* scope_) const;
+            IndexedElabItems* elaborate(VerilogScope* scope_) const;
             // return as string
             std::string toString() const;            
             // Clone

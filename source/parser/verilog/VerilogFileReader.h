@@ -21,8 +21,8 @@ namespace VerilogParser
 
             // Parse a file
             bool parse(VerilogFile* file_);
-            // Elaborate parsed files
-            void elaborate();            
+            // Elaborate a top-level module
+            void elaborate(const std::string& top_name_);            
             // Get the currently pased file
             inline VerilogFile* getCurFile() { return m_cur_file_; }
 
@@ -31,12 +31,10 @@ namespace VerilogParser
             // Get the verilog scope
             inline const VerilogScope* getVerilogScope() const { return m_scope_; }
             
-            // Dump modules
-            void dumpModules(std::ostream& ostr_) const;
+            // Dump raw modules
+            void dumpRawModules(std::ostream& ostr_) const;
 
         private:
-            // List of parsed modules
-            RawModules* m_modules_;
             // Currently parsed file
             VerilogFile* m_cur_file_;
             // Verilog scope

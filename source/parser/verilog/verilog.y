@@ -419,36 +419,23 @@ namespace VerilogParser
 {
     VerilogFileReader::VerilogFileReader()
     {
-        m_modules_ = new vector<RawModule*>();
         m_scope_ = new VerilogScope();        
     }
     
     VerilogFileReader::~VerilogFileReader()
     {
         delete m_scope_;
-        deletePtrVector<RawModule>(m_modules_);
-        
-        m_modules_ = NULL;
         m_scope_ = NULL;
     }
 
-    void VerilogFileReader::elaborate()
+    void VerilogFileReader::elaborate(const string& top_name_)
     {
-        // Elaborate all potential top-level modules
-        // RawModules::const_iterator it;
-        // for (it = m_modules_->begin(); it != m_modules_->end(); ++it)
-        // {
-            // // Put the module in the scope's raw modules
-            // m_scope_->addRawModule(*it);
-            // // (*it)->elaborate(m_scope_);
-            // // Make a copy of the module, with no parameter overrides and elaborate
-            // (new RawModule(*it))->elaborate(m_scope_);
-        // }
+        m_scope_->elaborate(top_name_);
     }    
     
     void VerilogFileReader::addModule(RawModule* module_)
     {
-        m_modules_->push_back(module_);
+        m_scope_->addRawModule(module_);
     }    
     
     bool VerilogFileReader::parse(VerilogFile* file_)
@@ -470,10 +457,11 @@ namespace VerilogParser
         return yyparse( this ) == 0;
     }
     
-    void VerilogFileReader::dumpModules(ostream& ostr_) const
+    void VerilogFileReader::dumpRawModules(ostream& ostr_) const
     {
-        for (RawModules::const_iterator it = m_modules_->begin(); it != m_modules_->end(); ++it)
-            ostr_ << (*it)->toString();
+        RawModuleMap::const_iterator it;
+        for (it = m_scope_->getRawModuleMap().begin(); it != m_scope_->getRawModuleMap().end(); ++it)
+            ostr_ << it->second->toString();
     }
     
 }

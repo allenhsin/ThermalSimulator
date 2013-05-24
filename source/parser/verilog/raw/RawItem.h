@@ -10,6 +10,7 @@
 namespace VerilogParser
 {
     class VerilogScope;
+    class IndexedElabItems;
 
     class RawItem
     {
@@ -22,7 +23,7 @@ namespace VerilogParser
             inline RawItemType getType() const { return m_type_; }
 
             // Elaborate and return the elaborated items
-            virtual ElabItems* elaborate(VerilogScope* scope_) const = 0;
+            virtual IndexedElabItems* elaborate(VerilogScope* scope_) const = 0;
             // Get a string representation of the RawItem
             virtual std::string toString() const;
             // Clone a verilog RawItem

@@ -6,7 +6,8 @@
 #include <map>
 #include "VerilogMisc.h"
 
-// Class responsible for taking care of module elaboration
+// Class responsible for taking care of scoping and symbol lookup during
+// module elaboration
 namespace VerilogParser
 {
     class VerilogScope
@@ -18,25 +19,24 @@ namespace VerilogParser
             bool hasRawModule(const std::string& name_) const;
             void addRawModule(RawModule* module_);                        
             RawModule* getRawModule(const std::string& name_);
-
-            // bool hasElabModule(const std::string& name_) const;
-            // void addElabModule(RawModule* module_);                        
-            // RawModule* getElabModule(const std::string& name_);
-            // inline const RawModuleMap& getElabModules() const { return m_elab_module_map_; }
+            const RawModuleMap& getRawModuleMap() const { return m_raw_module_map_; }
             
             inline void setModuleScope(ElabModule* module_) { m_module_scope_ = module_; }
             inline ElabModule* getModuleScope() { return m_module_scope_; }
-
             
+            // Elaborate the verilog for some top-level module name
+            void elaborate(const std::string& top_name_);
             
         private:
             // Global symbol lookup map
-            ElabItemsMap m_symbol_map_;            
+            IndexedElabItemsMap m_symbol_map_;            
+
             // Map of all raw modules
             RawModuleMap m_raw_module_map_;
+            
             // Current module
             ElabModule* m_module_scope_;            
-            // Vector of all elaborated moduels
+            // Vector of all elaborated modules
             ElabModules m_elab_modules_;
     };
 }

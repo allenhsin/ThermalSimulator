@@ -5,6 +5,7 @@
 #include "VerilogScope.h"
 #include "raw/RawModule.h"
 #include "elaborated/ElabModule.h"
+#include "elaborated/ElabItem.h"
 
 namespace VerilogParser
 {
@@ -16,12 +17,14 @@ namespace VerilogParser
 
     VerilogScope::~VerilogScope()
     {
-        // Delete all containers holding elaborated items
-        for (ElabItemsMap::const_iterator it = m_symbol_map_.begin(); it != m_symbol_map_.end(); ++it)
-            delete it->second;        
         // Delete all raw modules
         for (RawModuleMap::const_iterator it = m_raw_module_map_.begin(); it != m_raw_module_map_.end(); ++it)
-            delete it->second;
+            delete it->second;        
+            
+        // Delete all containers holding elaborated items
+        for (IndexedElabItemsMap::const_iterator it = m_symbol_map_.begin(); it != m_symbol_map_.end(); ++it)
+            delete it->second;        
+
         // Delete all elaborated modules
         clearPtrVector<ElabModule>(&m_elab_modules_);
     }
@@ -46,25 +49,10 @@ namespace VerilogParser
         return m_raw_module_map_[name_];
     }
 
-    
-    // bool VerilogScope::hasElabModule(const string& name_) const
-    // {
-        // return (m_elab_module_map_.count(name_) != 0);
-    // }
-    
-    // void VerilogScope::addElabModule(RawModule* module_)
-    // {
-        // const string& name = module_->getName();
-        // if (hasElabModule(name))
-            // throw VerilogException("Duplicate elaborated module: " + name);
-        // m_elab_module_map_[name] = module_;
-    // }
-    
-    // RawModule* VerilogScope::getElabModule(const string& name_)
-    // {
-        // if(!hasElabModule(name_))
-            // throw VerilogException("Undefined elaborated module: " + name_);
-        // return m_elab_module_map_[name_];
-    // }
+    void VerilogScope::elaborate(const string& top_name_)
+    {
+        // Elaborate all potential top-level modules
+        getRawModule(top_name_);
+    }
 
 } // namespace VerilogParser
