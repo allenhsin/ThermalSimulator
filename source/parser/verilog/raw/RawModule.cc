@@ -1,7 +1,4 @@
 
-#include <cassert>
-#include <stdio.h>
-
 #include "RawModule.h"
 #include "RawItem.h"
 
@@ -16,11 +13,6 @@ namespace VerilogParser
             m_items_.push_back((*it)->clone()); 
     }
 
-    RawModule::~RawModule()
-    {
-        clearPtrVector<RawItem>(&m_items_);
-    }
-
     RawModule::RawModule(const RawModule& module_)
         : m_name_(module_.m_name_), m_items_()
     {
@@ -28,4 +20,19 @@ namespace VerilogParser
             m_items_.push_back((*it)->clone()); 
     }
     
+    RawModule::~RawModule()
+    {
+        clearPtrVector<RawItem>(&m_items_);
+    }
+    
+    string RawModule::toString() const
+    {
+        string out = "Module: " + m_name_ + "\n";
+        for (RawItems::const_iterator it = m_items_.begin(); it != m_items_.end(); ++it)
+        {
+            out += "    " + (*it)->toString() + "\n";
+        }
+        return out;
+    }
+
 } // namespace VerilogParser

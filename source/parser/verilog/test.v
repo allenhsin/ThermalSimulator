@@ -14,6 +14,7 @@ module INV_X1M_A12TR(A, Y);
     parameter HolyShit = CadenceSucks;
     parameter Wow = HolyShit-1;
     parameter Crap = "this is a string";
+    parameter ConcatTest = { 1'd0, 2'd1, 3'd4 };
     
     input A;
     output Y;

@@ -9,28 +9,17 @@
 // Various other data structures for verilog parsing
 namespace VerilogParser
 {
-    class VerilogElabItem;
-    class VerilogElabModule;
-
-    class VerilogModule;
-    class VerilogItem;
-
-    class VerilogExpression;
-    class VerilogParameter;
-    class VerilogNet;
-    class VerilogInstance;
-    class VerilogScope;
-    
-    // Type of items inside modules
-    enum VerilogItemType
-    {
-        ITEM_PARAMETER,
-        ITEM_NET,
-        ITEM_INSTANCE
-    };
+    class Expression;
+    class LHExpression;
+    class RHExpression;
+    class RawItem;
+    class RawNet;
+    class RawInstance;
+    class RawParameter;
+    class RawModule;
     
     // Port type
-    enum VerilogPortType
+    enum PortType
     {
         PORT_INPUT,
         PORT_OUTPUT,
@@ -40,82 +29,9 @@ namespace VerilogParser
     
     // We don't support anything besides regular wires, but we will leave this in for
     // generality
-    enum VerilogNetType
-    {
-        NET_WIRE
-    };
-
-    typedef std::pair<VerilogExpression, VerilogExpression> VerilogRange;
-    typedef std::vector<std::string> VerilogVariables;
-    
-    typedef std::pair<std::string, VerilogExpression> VerilogConn;
-    
-    typedef std::vector<VerilogModule*> VerilogModules;
-    typedef std::vector<VerilogItem*> VerilogItems;
-    typedef std::vector<VerilogConn*> VerilogConns;
-    typedef std::vector<VerilogExpression*> VerilogExpressions;
-    
-    typedef std::vector<VerilogParameter*> VerilogParameters;
-    typedef std::vector<VerilogNet*> VerilogNets;
-    typedef std::vector<VerilogInstance*> VerilogInstances;
-        
-    typedef std::map<std::string, VerilogModule*> VerilogModuleMap;
-    typedef std::map<std::string, VerilogItem*> VerilogItemMap;
-    
-    typedef std::map<std::string, std::string> VerilogEquivNetMap;
-    
-    class VerilogException : public std::exception
-    {
-        public:
-            VerilogException(const std::string& message_);
-            virtual ~VerilogException() throw();
-            
-            inline virtual const char* what() const throw() { return m_message_.c_str(); }
-        
-        private:
-            // String containing the exception
-            std::string m_message_;
-    };
-    
-    typedef std::pair<std::string, std::string> VerilogElabConn;
-    typedef std::vector<VerilogElabConn*> VerilogElabConns;
-    typedef std::vector<VerilogElabItem*> VerilogElabItems;
-    
-    typedef std::map<std::string, VerilogElabItem*> VerilogElabItemMap;
-    typedef std::map<std::string, VerilogElabModule*> VerilogElabModuleMap;
-    
-    class VerilogElabRange
-    {
-        public:
-            VerilogElabRange(int high_, int low_);
-            ~VerilogElabRange();
-
-        public:
-            int high;
-            int low;
-    };
-    
-    //=========================================================================
-    
-    class Expression;
-    class LHExpression;
-    class RHExpression;
-    class RawItem;        
-    
-    // Port type
-    enum PortType
-    {
-        HAHA_PORT_INPUT,
-        HAHA_PORT_OUTPUT,
-        HAHA_PORT_INOUT,
-        HAHA_PORT_NONE
-    };
-    
-    // We don't support anything besides regular wires, but we will leave this in for
-    // generality
     enum NetType
     {
-        HAHA_NET_WIRE
+        NET_WIRE
     };
 
     // Bit range class
@@ -137,7 +53,7 @@ namespace VerilogParser
     class SetValue
     {
         public:
-            SetValue(const std::string& identifier_, const Expression* value_);
+            SetValue(const std::string& identifier_, const Expression& value_);
             ~SetValue();
             
             std::string toString() const;
@@ -147,6 +63,39 @@ namespace VerilogParser
             const Expression* value;
     };
     
+    typedef char* BinOperator;
+
+    typedef std::vector<std::string> Identifiers;
+    typedef std::vector<SetValue*> SetValues;
+
+    // Typedefs for expressions
+    typedef std::vector<Expression*> Expressions;
+    typedef std::vector<LHExpression*> LHExpressions;
+    typedef std::vector<RHExpression*> RHExpressions;
+    
+    // Typdefs for items
+    typedef std::vector<RawItem*> RawItems;
+    typedef std::vector<RawNet*> RawNets;
+    typedef std::vector<RawInstance*> RawInstances;
+    typedef std::vector<RawParameter*> RawParameters;
+    
+    // Typedefs for raw modules
+    typedef std::vector<RawModule*> RawModules;
+    typedef std::map<std::string, RawModule*> RawModuleMap;
+    
+    class VerilogException : public std::exception
+    {
+        public:
+            VerilogException(const std::string& message_);
+            virtual ~VerilogException() throw();
+            
+            inline virtual const char* what() const throw() { return m_message_.c_str(); }
+        
+        private:
+            // String containing the exception
+            std::string m_message_;
+    };
+
     template<class T> void clearPtrVector(std::vector<T*>* vec_)
     {
         for(typename std::vector<T*>::iterator it = vec_->begin(); it != vec_->end(); ++it)
@@ -164,19 +113,6 @@ namespace VerilogParser
         delete vec_;
         return;
     }
-    
-    typedef std::string BinOperator;
-
-    typedef std::vector<std::string> Identifiers;
-    typedef std::vector<SetValue*> SetValues;
-
-    // Typedefs for expressions
-    typedef std::vector<Expression*> Expressions;
-    typedef std::vector<LHExpression*> LHExpressions;
-    typedef std::vector<RHExpression*> RHExpressions;
-    
-    // Typdef for items
-    typedef std::vector<RawItem*> RawItems;
     
 }
 #endif

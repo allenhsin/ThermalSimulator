@@ -19,6 +19,9 @@ namespace VerilogParser
             // Get the name of the module
             inline const std::string& getName() const { return m_name_; }
 		
+            // Get string of the module
+            std::string toString() const;
+        
             // Clone a module
             inline RawModule* clone() const { return new RawModule(*this); }
 

@@ -2,7 +2,6 @@
 language        := verilog
 
 DIRS_TO_SOURCE  := . \
-                   elaborated \
                    expressions \
                    raw
 

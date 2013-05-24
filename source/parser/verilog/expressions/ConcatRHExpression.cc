@@ -22,7 +22,7 @@ namespace VerilogParser
     }
     
     ConcatRHExpression::ConcatRHExpression(const ConcatRHExpression& expr_)
-        : Expression(expr_), RHExpression(expr_), m_exprs_()
+        : Expression(RHCONCAT), RHExpression(RHCONCAT), m_exprs_()
     {
         for(RHExpressions::const_iterator it = expr_.m_exprs_.begin(); it != expr_.m_exprs_.end(); ++it)
             m_exprs_.push_back((*it)->clone()); 

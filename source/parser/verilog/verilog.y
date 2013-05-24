@@ -27,18 +27,19 @@
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
 
-#include "VerilogModule.h"
-#include "VerilogItem.h"
-#include "VerilogMisc.h"
-
-#include "VerilogNumber.h"
-#include "VerilogParameter.h"
-#include "VerilogNet.h"
-#include "VerilogInstance.h"
-
-#include "VerilogScope.h"
+#include "raw/RawModule.h"
+#include "raw/RawNet.h"
+#include "raw/RawInstance.h"
+#include "raw/RawParameter.h"
 
 #include "expressions/StringExpression.h"
+#include "expressions/IdentifierExpression.h"
+#include "expressions/NumberExpression.h"
+#include "expressions/ConcatLHExpression.h"
+#include "expressions/ConcatRHExpression.h"
+#include "expressions/BinaryExpression.h"
+
+#include "VerilogScope.h"
 
 #include <cstdlib>
 
@@ -65,31 +66,39 @@ void yyerror(VerilogFileReader* file_, const char *s);
 	char *sval;
     char cval;
     
-    VerilogParser::VerilogBinOp bop;
-    VerilogParser::VerilogNumber* num;    
-    VerilogParser::VerilogExpression* expr;
-    VerilogParser::VerilogRange* range;
-    VerilogParser::VerilogVariables* variables;
-    VerilogParser::VerilogConn* conn;
-    
-    VerilogParser::VerilogPortType port_type;
-    VerilogParser::VerilogNetType net_type;
-    
-    VerilogParser::VerilogExpressions* exprs;
-    VerilogParser::VerilogConns* conns;
-    
-    VerilogParser::VerilogModule* module;
-    VerilogParser::VerilogModules* modules;
+    VerilogParser::BinOperator bop;
+    VerilogParser::Number* num;    
 
-    VerilogParser::VerilogItem* item;
-    VerilogParser::VerilogItems* items;
+    VerilogParser::Expression* expr;
+    VerilogParser::RHExpression* expr_rh;
+    VerilogParser::LHExpression* expr_lh;
+    
+    VerilogParser::BitRange* range;
+    VerilogParser::Identifiers* identifiers;
+    VerilogParser::SetValue* conn;
+    
+    VerilogParser::PortType port_type;
+    VerilogParser::NetType net_type;
+    
+    VerilogParser::Expressions* exprs;
+    VerilogParser::RHExpressions* exprs_rh;
+    VerilogParser::LHExpressions* exprs_lh;
 
-    VerilogParser::VerilogNet* net;
-    VerilogParser::VerilogNets* nets;
-    VerilogParser::VerilogInstance* instance;
-    VerilogParser::VerilogInstances* instances;
-    VerilogParser::VerilogParameter* parameter;
-    VerilogParser::VerilogParameters* parameters;
+
+    VerilogParser::SetValues* conns;
+    
+    VerilogParser::RawModule* module;
+    VerilogParser::RawModules* modules;
+
+    VerilogParser::RawItem* item;
+    VerilogParser::RawItems* items;
+
+    VerilogParser::RawNet* net;
+    // VerilogParser::RawNets* nets;
+    VerilogParser::RawInstance* instance;
+    VerilogParser::RawInstances* instances;
+    VerilogParser::RawParameter* parameter;
+    // VerilogParser::RawParameters* parameters;
     
 }
 
@@ -120,14 +129,18 @@ void yyerror(VerilogFileReader* file_, const char *s);
 %token  <sval>          STRING
 
 // Define non-terminal symbol data types
-// %type   <bop>           binary_operator
-%type   <expr>          expression
-%type   <expr>          constant_expression
-%type   <exprs>         concatenation
-%type   <exprs>         list_of_expressions
-%type   <variables>     list_of_variables
+%type   <expr_rh>       constant_expression
 
-%type   <variables>     list_of_ports
+%type   <expr_rh>       expression_rh
+// %type   <expr_lh>       expression_lh
+
+// %type   <exprs>         list_of_expressions
+// %type   <exprs_lh>      list_of_expressions_lh
+%type   <exprs_rh>      list_of_expressions_rh
+
+%type   <identifiers>   list_of_identifiers
+
+%type   <identifiers>   list_of_ports
 
 %type   <port_type>     port_dir
 %type   <net_type>      net_type
@@ -171,34 +184,34 @@ source_text:
 
 module_declaration:
     MODULE IDENTIFIER '(' list_of_ports ')' ';' module_item_list ENDMODULE
-        { $$ = new VerilogModule($2, *$7); delete $7; }
+        { $$ = new RawModule($2, *$7); delete $7; }
     ;
         
 // The list of ports is online used to describe the port ordering if this module is instantiated
 // using ordered (unnamed) port connections
 list_of_ports:
-    /* empty */                                     { $$ = new VerilogVariables(); }
-    | IDENTIFIER                                    { $$ = new VerilogVariables(1, $1); }
+    /* empty */                                     { $$ = new Identifiers(); }
+    | IDENTIFIER                                    { $$ = new Identifiers(1, $1); }
     | list_of_ports ',' IDENTIFIER                  { $$ = $1; $1->push_back($3); }
     ;
     
 module_item_list:
-    /* empty */                                     { $$ = new VerilogItems(); }
+    /* empty */                                     { $$ = new RawItems(); }
     | module_item_list module_item                  { $$ = $1; $$->insert($$->end(), $2->begin(), $2->end()); delete $2; }
     ;
 
 net_declaration:
-    net_type list_of_variables ';'                  { $$ = VerilogNet::createVerilogNets(*$2, PORT_NONE, $1); delete $2; }
-    | net_type range list_of_variables ';'          { $$ = VerilogNet::createVerilogNets(*$3, PORT_NONE, $1, *$2); delete $2; delete $3; }
-    | port_dir list_of_variables ';'                { $$ = VerilogNet::createVerilogNets(*$2, $1, NET_WIRE); delete $2; }
-    | port_dir range list_of_variables ';'          { $$ = VerilogNet::createVerilogNets(*$3, $1, NET_WIRE, *$2); delete $2; delete $3; }
-    | port_dir net_type list_of_variables ';'       { $$ = VerilogNet::createVerilogNets(*$3, $1, $2); delete $3; }
-    | port_dir net_type range list_of_variables ';' { $$ = VerilogNet::createVerilogNets(*$4, $1, $2, *$3); delete $3; delete $4; }
+    net_type list_of_identifiers ';'                    { $$ = RawNet::createRawNets(*$2, PORT_NONE, $1); delete $2; }
+    | net_type range list_of_identifiers ';'            { $$ = RawNet::createRawNets(*$3, PORT_NONE, $1, *$2); delete $2; delete $3; }
+    | port_dir list_of_identifiers ';'                  { $$ = RawNet::createRawNets(*$2, $1, NET_WIRE); delete $2; }
+    | port_dir range list_of_identifiers ';'            { $$ = RawNet::createRawNets(*$3, $1, NET_WIRE, *$2); delete $2; delete $3; }
+    | port_dir net_type list_of_identifiers ';'         { $$ = RawNet::createRawNets(*$3, $1, $2); delete $3; }
+    | port_dir net_type range list_of_identifiers ';'   { $$ = RawNet::createRawNets(*$4, $1, $2, *$3); delete $3; delete $4; }
     ;    
     
 range:
-    '[' constant_expression ']'                             { $$ = new VerilogRange(*$2, *$2); delete $2; }
-    | '[' constant_expression ':' constant_expression ']'   { $$ = new VerilogRange(*$2, *$4); delete $2; delete $4; }
+    '[' constant_expression ']'                             { $$ = new BitRange(*$2, *$2); delete $2; }
+    | '[' constant_expression ':' constant_expression ']'   { $$ = new BitRange(*$2, *$4); delete $2; delete $4; }
     ;
 
 port_dir:
@@ -215,13 +228,13 @@ parameter_declaration:
     ;
 
 list_of_param_assignments:
-    /* empty */                                         { $$ = new VerilogItems(); }
-    | param_assignment                                  { $$ = new VerilogItems(1, $1); }
+    /* empty */                                         { $$ = new RawItems(); }
+    | param_assignment                                  { $$ = new RawItems(1, $1); }
     | list_of_param_assignments ',' param_assignment    { $$ = $1; $$->push_back($3); }
     ;
         
 param_assignment:
-    IDENTIFIER '=' constant_expression                  { $$ = new VerilogParameter($1, *$3); delete $3; }
+    IDENTIFIER '=' constant_expression                  { $$ = new RawParameter($1, *$3); delete $3; }
     ;
 
 module_instantiation:
@@ -229,14 +242,14 @@ module_instantiation:
         { 
             // I don't like how this is written, probably should rewrite the data
             // structure a bit to minimize the chance of accidental memory leaks
-            VerilogInstances::const_iterator it;
+            RawInstances::const_iterator it;
             for (it = $3->begin(); it != $3->end(); ++it)
             {
                 // Make a deep copy of $2 for every instance            
-                VerilogConns* new_conns = new VerilogConns();
-                VerilogConns::const_iterator c_it;
+                SetValues* new_conns = new SetValues();
+                SetValues::const_iterator c_it;
                 for (c_it = $2->begin(); c_it != $2->end(); ++c_it)
-                    new_conns->push_back(new VerilogConn(*(*c_it)));
+                    new_conns->push_back(new SetValue(*(*c_it)));
                 
                 (*it)->setModuleName($1);
                 (*it)->setParameterValues(*new_conns);
@@ -244,18 +257,18 @@ module_instantiation:
                 delete new_conns;
             }
 
-            $$ = new VerilogItems($3->begin(), $3->end());
+            $$ = new RawItems($3->begin(), $3->end());
             
-            deletePtrVector<VerilogConn>($2);
+            deletePtrVector<SetValue>($2);
             delete $3;
         }
     | IDENTIFIER list_of_module_instances ';' 
         { 
-            VerilogInstances::const_iterator it;
+            RawInstances::const_iterator it;
             for (it = $2->begin(); it != $2->end(); ++it)
                 (*it)->setModuleName($1);
 
-            $$ = new VerilogItems($2->begin(), $2->end());
+            $$ = new RawItems($2->begin(), $2->end());
             delete $2;
         }
     ;
@@ -264,39 +277,39 @@ parameter_value_assignment:
     '#' '(' list_of_named_parameter_value_assignment ')'    { $$ = $3; }
     
 list_of_named_parameter_value_assignment:
-    /* empty */                                             { $$ = new VerilogConns(); }
+    /* empty */                                             { $$ = new SetValues(); }
     | list_of_named_connections                             { $$ = $1; }
     ;
     
 // A list of named connections following the .IDENTIFIER(EXPRESSION) format
 // Used for both port connections and parameter assignments
 list_of_named_connections:
-    named_connection                                        { $$ = new VerilogConns(); $$->push_back($1); }
+    named_connection                                        { $$ = new SetValues(); $$->push_back($1); }
     | list_of_named_connections ',' named_connection        { $$ = $1; $$->push_back($3); }
     ;
     
 list_of_module_instances:
-    IDENTIFIER '(' list_of_module_connections ')'                                 { $$ = new VerilogInstances(1, new VerilogInstance($1, *$3)); delete $3; }
-    | list_of_module_instances IDENTIFIER '(' list_of_module_connections ')'      { $$ = $1; $$->push_back(new VerilogInstance($2, *$4)); delete $4; }
+    IDENTIFIER '(' list_of_module_connections ')'                                 { $$ = new RawInstances(1, new RawInstance($1, *$3)); delete $3; }
+    | list_of_module_instances IDENTIFIER '(' list_of_module_connections ')'      { $$ = $1; $$->push_back(new RawInstance($2, *$4)); delete $4; }
     ;
     
 // Must used named ports for the whole thing or implicit ports, cannot mix between the two
 list_of_module_connections:
-    /* empty */                                             { $$ = new VerilogConns(); }
+    /* empty */                                             { $$ = new SetValues(); }
     | list_of_module_port_connections                       { $$ = $1; }
     | list_of_named_port_connections                        { $$ = $1; }
     ;
     
 list_of_module_port_connections:
-    list_of_expressions
+    list_of_expressions_rh
         { 
             // Convert a list of expressions to port connections
-            $$ = new VerilogConns();
+            $$ = new SetValues();
             // Just insert empty string as the port name and the verilog module should understand
-            VerilogExpressions::const_iterator it;
+            RHExpressions::const_iterator it;
             for (it = $1->begin(); it != $1->end(); ++it)
             {
-                $$->push_back(new VerilogConn("", *(*it)));
+                $$->push_back(new SetValue("", *(*it)));
                 delete *it;
             }
             delete $1;
@@ -308,7 +321,7 @@ list_of_named_port_connections:
     ;
     
 named_connection:
-    '.' IDENTIFIER '(' expression ')'       { $$ = new VerilogConn($2, *$4); delete $4; }
+    '.' IDENTIFIER '(' expression_rh ')'       { $$ = new SetValue($2, *$4); delete $4; }
     ;
     
 // TODO stack
@@ -327,45 +340,39 @@ description:
     // | '%'                                   { $$ = BOP_MOD; }
     // ;
     
-// Support very simple form of expressions, no unary/binary/conditional operations are
-// supported. Thus, this is merged with "primary". STRINGS are also disallowed
-expression:
-    '(' expression ')'                      { $$ = $2; }
-    | NUMBER                                { $$ = new VerilogExpression(*$1); delete $1; }
-    | STRING                                { $$ = NULL; cout << (new StringExpression($1))->toString() << endl; }
-    | IDENTIFIER                            { $$ = new VerilogExpression($1); }
-    | IDENTIFIER range                      { $$ = new VerilogExpression($1, *$2); delete $2; }
-    | concatenation                         { $$ = new VerilogExpression(*$1); delete $1; }
-    | expression '+' expression             { $$ = new VerilogExpression(*$1, BOP_PLUS, *$3); delete $1; delete $3; }
-    | expression '-' expression             { $$ = new VerilogExpression(*$1, BOP_MINUS, *$3); delete $1; delete $3; }
-    | expression '*' expression             { $$ = new VerilogExpression(*$1, BOP_TIMES, *$3); delete $1; delete $3; }
-    | expression '/' expression             { $$ = new VerilogExpression(*$1, BOP_DIV, *$3); delete $1; delete $3; }
-    | expression '%' expression             { $$ = new VerilogExpression(*$1, BOP_MOD, *$3); delete $1; delete $3; }
+expression_rh:
+    '(' expression_rh ')'                   { $$ = $2; }
+    | NUMBER                                { $$ = new NumberExpression(*$1); delete $1; }
+    | STRING                                { $$ = new StringExpression($1); }
+    | IDENTIFIER                            { $$ = new IdentifierExpression($1); }
+    | IDENTIFIER range                      { $$ = new IdentifierExpression($1, *$2); delete $2; }
+    | expression_rh '+' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
+    | expression_rh '-' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
+    | expression_rh '*' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
+    | expression_rh '/' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
+    | expression_rh '%' expression_rh       { $$ = new BinaryExpression(*$1, $2, *$3); delete $1; delete $3; }
+    | '{' list_of_expressions_rh '}'        { $$ = new ConcatRHExpression(*$2); delete $2; }
     ;
     
 constant_expression:
-    expression                              { $$ = $1; }
+    expression_rh                           { $$ = $1; }
     ;
 
-list_of_expressions:
-    expression                              { $$ = new VerilogExpressions(1, $1); }
-    | list_of_expressions ',' expression    { $$ = $1; $$->push_back($3); }
+list_of_expressions_rh:
+    expression_rh                               { $$ = new RHExpressions(1, $1); }
+    | list_of_expressions_rh ',' expression_rh  { $$ = $1; $$->push_back($3); }
     ;
     
-list_of_variables:
-    /* empty */                             { $$ = new VerilogVariables(); }
-    | IDENTIFIER                            { $$ = new VerilogVariables(1, $1); }
-    | list_of_variables ',' IDENTIFIER      { $$ = $1; $$->push_back($3); }
+list_of_identifiers:
+    /* empty */                             { $$ = new Identifiers(); }
+    | IDENTIFIER                            { $$ = new Identifiers(1, $1); }
+    | list_of_identifiers ',' IDENTIFIER    { $$ = $1; $$->push_back($3); }
     ;
 
 module_item:
     net_declaration
     | parameter_declaration
     | module_instantiation
-    ;
-    
-concatenation:
-    '{' list_of_expressions '}'             { $$ = $2; }
     ;
     
 // continuous_assign:
@@ -407,14 +414,14 @@ namespace VerilogParser
 {
     VerilogFileReader::VerilogFileReader()
     {
-        m_modules_ = new vector<VerilogModule*>();
+        m_modules_ = new vector<RawModule*>();
         m_scope_ = new VerilogScope();        
     }
     
     VerilogFileReader::~VerilogFileReader()
     {
         delete m_scope_;
-        deletePtrVector<VerilogModule>(m_modules_);
+        deletePtrVector<RawModule>(m_modules_);
         
         m_modules_ = NULL;
         m_scope_ = NULL;
@@ -423,22 +430,21 @@ namespace VerilogParser
     void VerilogFileReader::elaborate()
     {
         // Elaborate all potential top-level modules
-        VerilogModules::const_iterator it;
-        for (it = m_modules_->begin(); it != m_modules_->end(); ++it)
-        {
-            // Put the module in the scope's raw modules
-            m_scope_->addRawModule(*it);
-            // (*it)->elaborate(m_scope_);
-            // Make a copy of the module, with no parameter overrides and elaborate
-            (new VerilogModule(*it))->elaborate(m_scope_);
-        }
+        // RawModules::const_iterator it;
+        // for (it = m_modules_->begin(); it != m_modules_->end(); ++it)
+        // {
+            // // Put the module in the scope's raw modules
+            // m_scope_->addRawModule(*it);
+            // // (*it)->elaborate(m_scope_);
+            // // Make a copy of the module, with no parameter overrides and elaborate
+            // (new RawModule(*it))->elaborate(m_scope_);
+        // }
     }    
     
-    void VerilogFileReader::addModule(VerilogModule* module_)
+    void VerilogFileReader::addModule(RawModule* module_)
     {
         m_modules_->push_back(module_);
-    }
-    
+    }    
     
     bool VerilogFileReader::parse(VerilogFile* file_)
     {
@@ -459,131 +465,10 @@ namespace VerilogParser
         return yyparse( this ) == 0;
     }
     
-    VerilogItems* VerilogFileReader::getFlattenedItems(const string& top_module_name, 
-        const std::string& hier_sep_) const
+    void VerilogFileReader::dumpModules(ostream& ostr_) const
     {
-        VerilogItems* items = new VerilogItems();
-        addFlattenedItems(items, hier_sep_, m_scope_->getElabModule(top_module_name), "");
-        
-        VerilogEquivNetMap* net_map = mapEquivNets(items);        
-        return items;
-    }
-    
-    void VerilogFileReader::addFlattenedItems(VerilogItems* items_, const std::string& hier_sep_, 
-        const VerilogModule* module_, const std::string& hier_name_)
-    {
-        // Get all things in the module
-        VerilogItems::const_iterator it;
-        for (it = module_->getItems()->begin(); it != module_->getItems()->end(); ++it)
-        {
-            VerilogItem* item = *it;
-            if (item->getType() == ITEM_NET)
-                items_->push_back(item->getFlattenedClone(hier_name_, hier_sep_));
-            else if (item->getType() == ITEM_PARAMETER)
-                items_->push_back(item->getFlattenedClone(hier_name_, hier_sep_));
-            else if (item->getType() == ITEM_INSTANCE)
-            {
-                const VerilogInstance* inst = (const VerilogInstance*) item;                
-                addFlattenedItems(items_, hier_sep_, inst->getModule(),
-                    hier_name_ + inst->getIdentifier() + hier_sep_);         
-                    
-                items_->push_back(inst->getFlattenedClone(hier_name_, hier_sep_));
-            }
-        }
-    }
-    
-    VerilogEquivNetMap* VerilogFileReader::mapEquivNets(const VerilogItems* items_)
-    {
-        cout << "==================" << endl;
-        VerilogEquivNetMap* equiv_map = new VerilogEquivNetMap();        
-        for (VerilogItems::const_iterator it = items_->begin(); it != items_->end(); ++it)
-        {
-            // Add all nets to the map
-            VerilogItem* item = *it;
-            if (item->getType() == ITEM_NET)
-            {
-                const VerilogNet* net = (const VerilogNet*) item;
-                for (unsigned int i = net->getRange().second.getNumber().getUInt();
-                    i <= net->getRange().first.getNumber().getUInt(); ++i)
-                {
-                    ostringstream name;
-                    name << net->getIdentifier() << "[" << i << "]";
-                    (*equiv_map)[name.str()] = "";  
-                    cout << name.str() << endl;
-                }
-            }
-            // Right now, instance port connections are the only things that can
-            // connect nets together to be equivalent
-            else if (item->getType() == ITEM_INSTANCE)
-            {
-                const VerilogInstance* inst = (const VerilogInstance*) item;
-                addEquivNets(equiv_map, inst);
-            }        
-        }
-        
-        // Too lazy to write something efficient for this, this will have n^2 performance in the
-        // worst case, which is really really bad...
-        bool change = false;        
-        do
-        {
-            change = false;
-            for (VerilogEquivNetMap::const_iterator it = equiv_map->begin(); it != equiv_map->end(); ++it)
-            {
-                string cur_name = it->second;
-                while (!(*equiv_map)[cur_name].empty())
-                {
-                    change = true;
-                    cur_name = (*equiv_map)[cur_name];
-                    
-                    (*equiv_map)[it->first] = cur_name;
-                    
-                    cout << it->first << " = " << cur_name << " " << (*equiv_map)[cur_name] << endl;
-                }
-            }
-            
-        } while (change);
-        
-        cout << "==================" << endl;
-        return equiv_map;
-    }
-    
-    // Looks at an instance and adds the equivalent nets
-    void VerilogFileReader::addEquivNets(VerilogEquivNetMap* equiv_map_, const VerilogInstance* inst_)
-    {
-        // For all the connections in the instance
-        for (VerilogConns::const_iterator c_it = inst_->getConns()->begin();
-            c_it != inst_->getConns()->end(); ++c_it)
-        {
-            const VerilogExpression& net = (*c_it)->second;
-            const string& port = (*c_it)->first;
-            
-            // This is ridiculously unclean way of doing this, really need to rethink the data structure
-            const string port_i = port.substr(port.find_last_of('.') + 1);            
-            const VerilogRange& port_range = ((const VerilogNet*) inst_->getModule()->getItem(port_i))->getRange();            
-            
-            // TODO: For now make sure the net has the IDENTIFIER_RANGE format
-            if (!net.getType() == VerilogExpression::IDENTIFIER_RANGE)
-                throw VerilogException("Bad port connect");            
-
-            unsigned int high = net.getRange().first.getNumber().getUInt();
-            unsigned int low = net.getRange().second.getNumber().getUInt();
-            // For every bit of the connection            
-            unsigned int port_idx = port_range.second.getNumber().getUInt();            
-            for (unsigned int i = low; i <= high; ++i)
-            {
-                // Get the full name of the current bit of the net
-                ostringstream net_name;
-                net_name << net.getIdentifier() << "[" << i << "]";
-                
-                ostringstream port_name;
-                port_name << port << "[" << port_idx << "]";
-                (*equiv_map_)[port_name.str()] = net_name.str();
-                
-                cout << port_name.str() << " = " << net_name.str() << endl;
-                
-                port_idx++;                
-            }
-        }
+        for (RawModules::const_iterator it = m_modules_->begin(); it != m_modules_->end(); ++it)
+            ostr_ << (*it)->toString();
     }
     
 }

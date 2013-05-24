@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <limits>
 #include <sstream>
+#include <iostream>
 
 #include "Number.h"
 
@@ -35,7 +36,7 @@ namespace VerilogParser
         if ((m_width_ > 0) && (m_width_ <= MAX_WIDTH))
         {
             // Set a mask based on the width
-            bitset<MAX_WIDTH> mask = 0x1u << (m_width_ - 1);
+            bitset<MAX_WIDTH> mask = (m_width_ == MAX_WIDTH) ? ~0 : (0x1ul << m_width_) - 1ul;
         
             switch(base)
             {

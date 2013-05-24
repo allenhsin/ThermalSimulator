@@ -14,12 +14,12 @@ namespace VerilogParser
     class RawParameter : public RawItem
     {
         public:
-            RawParameter(const std::string& identifier_, const Expression& value_);
+            RawParameter(const std::string& identifier_, const RHExpression& value_);
             virtual ~RawParameter();
 
         public:
             // Get the value
-            const Expression& getValue() const { return m_value_; }            
+            const Expression& getValue() const { return *m_value_; }            
             std::string toString() const;
             
             // Clone
@@ -30,7 +30,7 @@ namespace VerilogParser
             RawParameter(const RawParameter& param_);
             
         private:
-            const Expression& m_value_;
+            const RHExpression* m_value_;
     };
 }
 #endif

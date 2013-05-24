@@ -11,22 +11,22 @@
 %{
 #include <iostream>
 
-#include "../../../include/libutil/LibUtil.h"
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
 
-#include "VerilogModule.h"
-#include "VerilogItem.h"
-#include "VerilogMisc.h"
-
-#include "VerilogNumber.h"
-#include "VerilogParameter.h"
-#include "VerilogNet.h"
-#include "VerilogInstance.h"
-
-#include "VerilogScope.h"
+#include "raw/RawModule.h"
+#include "raw/RawNet.h"
+#include "raw/RawInstance.h"
+#include "raw/RawParameter.h"
 
 #include "expressions/StringExpression.h"
+#include "expressions/IdentifierExpression.h"
+#include "expressions/NumberExpression.h"
+#include "expressions/ConcatLHExpression.h"
+#include "expressions/ConcatRHExpression.h"
+#include "expressions/BinaryExpression.h"
+
+#include "VerilogScope.h"
 
 #include "yacc.verilog.hh"
 
@@ -71,6 +71,8 @@ void yyerror(VerilogFileReader* file_, const char *s);
 "&"             { return yytext[0];     }
 "("             { return yytext[0];     }
 ")"             { return yytext[0];     }
+"{"             { return yytext[0];     }
+"}"             { return yytext[0];     }
 "*"             { return yytext[0];     }
 "+"             { return yytext[0];     }
 ","             { return yytext[0];     }
@@ -92,8 +94,8 @@ void yyerror(VerilogFileReader* file_, const char *s);
 "'"             { return yytext[0];     }
 
     /* verilog numbers */
-[_0-9]+                                 { yylval.num = new VerilogNumber(yytext); return NUMBER; }
-[_0-9]+"'"[bodh][ \t\n]*[a-fA-F_0-9]+   { yylval.num = new VerilogNumber(yytext); return NUMBER; }
+[_0-9]+                                 { yylval.num = new Number(yytext); return NUMBER; }
+[_0-9]+"'"[bodh][ \t\n]*[a-fA-F_0-9]+   { yylval.num = new Number(yytext); return NUMBER; }
 
     /* identifiers */
 [a-zA-Z_][a-zA-Z_0-9]*                  { yylval.sval = strdup(yytext); return IDENTIFIER; }

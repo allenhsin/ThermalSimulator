@@ -1,5 +1,5 @@
-#ifndef THERMAL_PARSER_VERILOG_SCOPE_H
-#define THERMAL_PARSER_VERILOG_SCOPE_H
+#ifndef VERILOG_PARSER_VERILOG_SCOPE_H
+#define VERILOG_PARSER_VERILOG_SCOPE_H
 
 #include <string>
 #include <vector>
@@ -15,29 +15,25 @@ namespace VerilogParser
             VerilogScope();
             virtual ~VerilogScope();
             
-            bool hasRawModule(const std::string& name_) const;
-            void addRawModule(VerilogModule* module_);                        
-            VerilogModule* getRawModule(const std::string& name_);
+            // bool hasRawModule(const std::string& name_) const;
+            // void addRawModule(RawModule* module_);                        
+            // RawModule* getRawModule(const std::string& name_);
 
-            bool hasElabModule(const std::string& name_) const;
-            void addElabModule(VerilogModule* module_);                        
-            VerilogModule* getElabModule(const std::string& name_);
-            inline const VerilogModuleMap& getElabModules() const { return m_elab_module_map_; }
+            // bool hasElabModule(const std::string& name_) const;
+            // void addElabModule(RawModule* module_);                        
+            // RawModule* getElabModule(const std::string& name_);
+            // inline const RawModuleMap& getElabModules() const { return m_elab_module_map_; }
             
-            inline void setModuleScope(VerilogModule* module_) { m_module_scope_ = module_; }
-            inline VerilogModule* getModuleScope() { return m_module_scope_; }
-            
-        private:
-            // Initialize the instance connections
-            void initializeConns(const VerilogConns& conns_);
+            inline void setModuleScope(RawModule* module_) { m_module_scope_ = module_; }
+            inline RawModule* getModuleScope() { return m_module_scope_; }
 
         private:
             // Map of all raw modules
-            VerilogModuleMap m_raw_module_map_;
+            RawModuleMap m_raw_module_map_;
             // Map of all elaborated modules
-            VerilogModuleMap m_elab_module_map_;
+            RawModuleMap m_elab_module_map_;
             // Current module
-            VerilogModule* m_module_scope_;
+            RawModule* m_module_scope_;
     };
 }
 #endif

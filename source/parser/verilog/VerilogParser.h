@@ -4,11 +4,11 @@
 
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
-#include "VerilogModule.h"
-#include "VerilogItem.h"
-#include "VerilogNet.h"
-#include "VerilogParameter.h"
-#include "VerilogInstance.h"
-#include "VerilogScope.h"
+// #include "VerilogModule.h"
+// #include "VerilogItem.h"
+// #include "VerilogNet.h"
+// #include "VerilogParameter.h"
+// #include "VerilogInstance.h"
+// #include "VerilogScope.h"
 
 #endif
