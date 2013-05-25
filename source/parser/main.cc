@@ -4,12 +4,10 @@
 #include <string>
 #include <cstdlib>
 
-#include "../../include/libutil/LibUtil.h"
 #include "verilog/VerilogParser.h"
 
 using namespace std;
 using namespace VerilogParser;
-using namespace LibUtil;
 
 extern string snazzle_awesome;
 extern int snazzleparse();
@@ -30,26 +28,28 @@ int main(int argc, char** argv)
             delete file;
         }
         
-        file_reader->elaborate();
-        cout << "Elaboration successful" << endl;
-        cout << "Printing post-elaboration contents:" << endl;
-        const VerilogModuleMap& modules = file_reader->getVerilogScope()->getElabModules();
-        for(VerilogModuleMap::const_iterator m_it = modules.begin(); m_it != modules.end(); ++m_it)
-        {
-            const VerilogModule* module = m_it->second;
-            const VerilogItemMap* items = module->getItemMap();
-            cout << "    " << module->getName() << endl;            
-            for(VerilogItemMap::const_iterator i_it = items->begin(); i_it != items->end(); ++i_it)
-                cout << "        " << (*i_it).second->toString() << endl;
-        }
+        file_reader->elaborate("AND_X1M_A12TR");
+        file_reader->dumpRawModules(cout);
         
-        VerilogItems* items = file_reader->getFlattenedItems("AND_X1M_A12TR", ".");
-        for(VerilogItems::const_iterator it = items->begin(); it != items->end(); ++it)
-        {
-            VerilogItem* item = (*it);
-            cout << item->toString() << endl;
-        }
-        LibUtil::deletePtrVector<VerilogItem>(items);
+        // cout << "Elaboration successful" << endl;
+        // cout << "Printing post-elaboration contents:" << endl;
+        // const VerilogModuleMap& modules = file_reader->getVerilogScope()->getElabModules();
+        // for(VerilogModuleMap::const_iterator m_it = modules.begin(); m_it != modules.end(); ++m_it)
+        // {
+            // const VerilogModule* module = m_it->second;
+            // const VerilogItemMap* items = module->getItemMap();
+            // cout << "    " << module->getName() << endl;            
+            // for(VerilogItemMap::const_iterator i_it = items->begin(); i_it != items->end(); ++i_it)
+                // cout << "        " << (*i_it).second->toString() << endl;
+        // }
+        
+        // VerilogItems* items = file_reader->getFlattenedItems("AND_X1M_A12TR", ".");
+        // for(VerilogItems::const_iterator it = items->begin(); it != items->end(); ++it)
+        // {
+            // VerilogItem* item = (*it);
+            // cout << item->toString() << endl;
+        // }
+        // deletePtrVector<VerilogItem>(items);
         
         
         delete file_reader;            
