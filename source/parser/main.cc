@@ -30,6 +30,7 @@ int main(int argc, char** argv)
         
         file_reader->elaborate("AND_X1M_A12TR");
         file_reader->dumpRawModules(cout);
+        file_reader->dumpElabModules(cout);
         
         // cout << "Elaboration successful" << endl;
         // cout << "Printing post-elaboration contents:" << endl;
