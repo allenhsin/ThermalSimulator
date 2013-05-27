@@ -61,11 +61,16 @@ namespace VerilogParser
             SetValue(const SetValue& val_);
             ~SetValue();
             
+            // Accessors
+            inline const std::string& getIdentifier() const { return m_identifier_; }
+            inline const Expression* getValue() const { return m_value_; }
+            
+            // To string
             std::string toString() const;
             
-        public:
-            const std::string identifier;
-            const Expression* value;
+        private:
+            const std::string m_identifier_;
+            const Expression* m_value_;
     };
     
     class VerilogException : public std::exception
@@ -168,8 +173,8 @@ namespace VerilogParser
     typedef std::vector<const ElabModule*> ElabModules;
     
     // Scope variables
-    typedef std::list<const ElabInstance*> ElabStack;
+    typedef std::list<const RawInstance*> ScopeStack;
     typedef std::map<std::string, const BitVector*> SymbolMap;
-
+    
 }
 #endif

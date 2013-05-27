@@ -31,9 +31,14 @@ namespace VerilogParser
     {
         // Create new elaborated module
         ElabModule* new_mod = new ElabModule(m_name_);
+
+        // Set the module as the current elaborating module
+        scope_->setElabModule(new_mod);
+
         // Elaborate each raw item
         for(RawItems::const_iterator it = m_items_.begin(); it != m_items_.end(); ++it)
             (*it)->elaborate(new_mod, scope_);
+
         // Add the new elaborated module
         scope_->addElabModule(new_mod);
     }

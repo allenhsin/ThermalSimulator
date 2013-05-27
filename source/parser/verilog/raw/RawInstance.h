@@ -41,7 +41,7 @@ namespace VerilogParser
             // Instance connections
             SetValues* m_conns_;
             // Instance parameter values
-            SetValues* m_parameter_values_;
+            SetValues* m_params_;
             // Instance module name
             std::string m_module_name_;
     };

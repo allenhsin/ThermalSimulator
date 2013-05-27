@@ -33,6 +33,8 @@ namespace VerilogParser
             
             // Dump raw modules
             void dumpRawModules(std::ostream& ostr_) const;
+            // Dump elaborated modules
+            void dumpElabModules(std::ostream& ostr_) const;
 
         private:
             // Currently parsed file

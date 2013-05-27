@@ -11,6 +11,8 @@
 // module elaboration
 namespace VerilogParser
 {
+    class ElabModule;
+
     class VerilogScope
     {
         public:
@@ -25,6 +27,11 @@ namespace VerilogParser
             
             // Managing elaborated modules
             inline void addElabModule(const ElabModule* module_) { m_elab_modules_.push_back(module_); }
+
+            // Get and set current elaborating module
+            inline void setElabModule(ElabModule* module_) { m_elab_module_ = module_; }
+            inline ElabModule* getElabModule() { return m_elab_module_; }
+            inline const ElabModules& getElabModules() const { return m_elab_modules_; }
             
             // Get the value of the symbol in the current stack
             bool has(const std::string& symbol_) const;
@@ -32,8 +39,8 @@ namespace VerilogParser
             const BitVector* get(const std::string& symbol_);
 
             // Push/pop the elaboration stack
-            inline void push(const ElabInstance* item_) { m_stack_.push_back(item_); }
-            inline void pop() { return m_stack_.pop_back(); }            
+            inline void push(const RawInstance* item_) { m_stack_.push_back(item_); }
+            inline void pop() { return m_stack_.pop_back(); }
             
             // Elaborate the verilog for some top-level module name
             void elaborate(const std::string& top_name_);
@@ -44,7 +51,9 @@ namespace VerilogParser
             
         private:
             // Elaboration hierarchy stack
-            ElabStack m_stack_;            
+            ScopeStack m_stack_;
+            // Current module being elaborated
+            ElabModule* m_elab_module_;
             // Global symbol lookup map
             SymbolMap m_symbol_map_;            
 

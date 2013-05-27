@@ -20,7 +20,7 @@ namespace VerilogParser
     
     std::string ElabNet::toString() const
     {        
-        return ElabItem::getIdentifier();
+        return ElabItem::toString() + "[" + makeString(m_idx_) + "]";
     }
     
     ElabItem* ElabNet::clone() const

@@ -5,7 +5,7 @@ namespace VerilogParser
 {
     using std::string;
 
-    ElabItem::ElabItem(ElabItemType type_, const std::string& identifier_)
+    ElabItem::ElabItem(ElabItemType type_, const string& identifier_)
         : m_type_(type_), m_identifier_(identifier_)
     {}
     

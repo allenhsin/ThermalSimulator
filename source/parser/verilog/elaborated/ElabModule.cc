@@ -7,7 +7,7 @@
 
 namespace VerilogParser
 {
-    using namespace std;
+    using std::string;
 
     ElabModule::ElabModule(const string& name_)
         : m_name_(name_), m_items_()
@@ -27,6 +27,16 @@ namespace VerilogParser
         ElabItems::const_iterator it;
         for (it = m_items_.begin(); it != m_items_.end(); ++it)
             delete *it;
+    }
+    
+    string ElabModule::toString() const
+    {
+        string out = "Module: " + m_name_ + "\n";
+        for (ElabItems::const_iterator it = m_items_.begin(); it != m_items_.end(); ++it)
+        {
+            out += "    " + (*it)->toString() + "\n";
+        }
+        return out;
     }
     
     // bool ElabModule::hasItem(const string& identifier_) const

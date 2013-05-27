@@ -417,27 +417,6 @@ module_item:
 
 namespace VerilogParser
 {
-    VerilogFileReader::VerilogFileReader()
-    {
-        m_scope_ = new VerilogScope();        
-    }
-    
-    VerilogFileReader::~VerilogFileReader()
-    {
-        delete m_scope_;
-        m_scope_ = NULL;
-    }
-
-    void VerilogFileReader::elaborate(const string& top_name_)
-    {
-        m_scope_->elaborate(top_name_);
-    }    
-    
-    void VerilogFileReader::addModule(RawModule* module_)
-    {
-        m_scope_->addRawModule(module_);
-    }    
-    
     bool VerilogFileReader::parse(VerilogFile* file_)
     {
         m_cur_file_ = file_;
@@ -456,14 +435,6 @@ namespace VerilogParser
         }
         return yyparse( this ) == 0;
     }
-    
-    void VerilogFileReader::dumpRawModules(ostream& ostr_) const
-    {
-        RawModuleMap::const_iterator it;
-        for (it = m_scope_->getRawModuleMap().begin(); it != m_scope_->getRawModuleMap().end(); ++it)
-            ostr_ << it->second->toString();
-    }
-    
 }
 
 // Arguments must match those to yyparse

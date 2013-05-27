@@ -5,9 +5,9 @@
 #include "VerilogScope.h"
 #include "BitVector.h"
 #include "raw/RawModule.h"
+#include "raw/RawInstance.h"
 #include "elaborated/ElabModule.h"
 #include "elaborated/ElabItem.h"
-#include "elaborated/ElabInstance.h"
 
 namespace VerilogParser
 {
@@ -55,7 +55,7 @@ namespace VerilogParser
     {
         // Create the lookup string based on the current elaboration stack
         std::string lookup = "";
-        for (ElabStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
+        for (ScopeStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
             lookup += (*it)->getIdentifier() + ".";
         lookup += symbol_;
         
@@ -66,20 +66,20 @@ namespace VerilogParser
     {
         // Create the lookup string based on the current elaboration stack
         std::string lookup = "";
-        for (ElabStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
+        for (ScopeStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
             lookup += (*it)->getIdentifier() + ".";
         lookup += symbol_;
         
         if (hasSymbol(lookup))
             throw VerilogException("Duplicate symbol: " + symbol_);
-        m_symbol_map_[symbol_] = stuff_;
+        m_symbol_map_[lookup] = stuff_;
     }    
     
     const BitVector* VerilogScope::get(const string& symbol_)
     {
         // Create the lookup string based on the current elaboration stack
         std::string lookup = "";
-        for (ElabStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
+        for (ScopeStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
             lookup += (*it)->getIdentifier() + ".";
         lookup += symbol_;
         

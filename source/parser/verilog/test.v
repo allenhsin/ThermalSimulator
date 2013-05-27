@@ -54,7 +54,7 @@ endmodule
 module AND_X1M_A12TR (A, B, Y);
 
     parameter CadenceSucks = 32'hFFF_F_FFFF;
-    parameter YesIt_Does = 4'b01010;
+    parameter YesIt_Does = 4'b11010;
     parameter TestParam = YesIt_Does;
     parameter AwesomeConcat = { YesIt_Does, YesIt_Does };
     

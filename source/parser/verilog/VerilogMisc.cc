@@ -51,16 +51,21 @@ namespace VerilogParser
     }
     
     SetValue::SetValue(const std::string& identifier_, const Expression& value_)
-        : identifier(identifier_), value(value_.clone())
+        : m_identifier_(identifier_), m_value_(value_.clone())
     {}
     
     SetValue::SetValue(const SetValue& val_)
-        : identifier(val_.identifier), value(val_.value->clone())
+        : m_identifier_(val_.m_identifier_), m_value_(val_.m_value_->clone())
     {}
     
     SetValue::~SetValue()
     {
-        delete value;
+        delete m_value_;
+    }
+    
+    string SetValue::toString() const
+    {
+        return m_identifier_ + "=" + m_value_->toString();
     }
     
     VerilogException::VerilogException(const std::string& message_)

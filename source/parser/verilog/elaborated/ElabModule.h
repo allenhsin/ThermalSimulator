@@ -29,6 +29,8 @@ namespace VerilogParser
             
             // Clone the elaborated module
             inline virtual ElabModule* clone() const { return new ElabModule(*this); }
+            // Get string of the module
+            std::string toString() const;     
             
         // Protected copy constructor, use clone instead
         protected:

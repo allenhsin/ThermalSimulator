@@ -63,7 +63,7 @@ namespace VerilogParser
         if (!isConst())
             throw VerilogException("Expected constant target, got non-constant");        
         if (m_bits_.size() > MAX_WIDTH)
-            throw VerilogException("Numerical max-width exceeded");
+            throw VerilogException("Numerical max-width exceeded: " + makeString(m_bits_.size()));
         
         bitset<MAX_WIDTH> bits;
         for (unsigned int i = 0; i < m_bits_.size(); ++i)
