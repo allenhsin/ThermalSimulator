@@ -32,8 +32,8 @@ namespace VerilogParser
             inline PortType getPortType() const { return m_port_type_; }
             inline NetType getNetType() const { return m_net_type_; }
             
-            // Create elaborated items
-            IndexedElabItems* elaborate(VerilogScope* scope_) const;
+            // Elaborate the item in the given verilog scope for the given module
+            void elaborate(ElabModule* module_, VerilogScope* scope_) const;
             // return as string
             std::string toString() const;            
             // Clone

@@ -5,6 +5,7 @@
 
 #include "StringExpression.h"
 #include "../Number.h"
+#include "../BitVector.h"
 
 namespace VerilogParser
 {
@@ -20,6 +21,13 @@ namespace VerilogParser
     
     StringExpression::~StringExpression()
     {}
+    
+    BitVector* StringExpression::elaborate(VerilogScope* /* scope_ */) const
+    {
+        // Return the string as a bit vector. Remember to prune the "" from the
+        // two ends
+        return BitVector::makeBitVector(m_str_.substr(1, m_str_.size() - 2));
+    }
     
     string StringExpression::toString() const
     {

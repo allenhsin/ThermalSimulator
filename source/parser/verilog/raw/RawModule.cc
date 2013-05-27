@@ -1,6 +1,8 @@
 
 #include "RawModule.h"
 #include "RawItem.h"
+#include "../VerilogScope.h"
+#include "../elaborated/ElabModule.h"
 
 namespace VerilogParser
 {
@@ -23,6 +25,17 @@ namespace VerilogParser
     RawModule::~RawModule()
     {
         clearPtrVector<RawItem>(&m_items_);
+    }
+    
+    void RawModule::elaborate(VerilogScope* scope_) const
+    {
+        // Create new elaborated module
+        ElabModule* new_mod = new ElabModule(m_name_);
+        // Elaborate each raw item
+        for(RawItems::const_iterator it = m_items_.begin(); it != m_items_.end(); ++it)
+            (*it)->elaborate(new_mod, scope_);
+        // Add the new elaborated module
+        scope_->addElabModule(new_mod);
     }
     
     string RawModule::toString() const

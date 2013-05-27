@@ -12,7 +12,7 @@ namespace VerilogParser
     {
         public:
             // Private constructor, use the static elaborate function instead
-            ElabNet(const std::string& identifier_, PortType port_type_,
+            ElabNet(const std::string& identifier_, int idx_, PortType port_type_,
                 NetType net_type_);
             virtual ~ElabNet();
             
@@ -31,6 +31,8 @@ namespace VerilogParser
             std::string toString() const;
             
         private:
+            // Index number
+            const int m_idx_;
             // Port type
             const PortType m_port_type_;
             // Net type

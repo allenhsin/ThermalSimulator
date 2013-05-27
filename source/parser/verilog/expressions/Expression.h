@@ -10,6 +10,8 @@
 namespace VerilogParser
 {
     class Number;
+    class BitVector;
+    class VerilogScope;
 
     class Expression
     {
@@ -29,6 +31,8 @@ namespace VerilogParser
             Expression(Type m_type_);
             virtual ~Expression();
             
+            // Return the expression as usable bit targets
+            virtual BitVector* elaborate(VerilogScope* scope_) const = 0;
             // Returns the expression as a printable string
             virtual std::string toString() const = 0;
             // Clone function

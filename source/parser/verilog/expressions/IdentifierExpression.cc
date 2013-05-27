@@ -1,11 +1,11 @@
 
-#include <cassert>
-#include <stdio.h>
-#include <cstdlib>
+#include <iostream>
 
 #include "IdentifierExpression.h"
 #include "NumberExpression.h"
-#include "../Number.h"
+#include "../VerilogScope.h"
+#include "../BitVector.h"
+#include "../Bit.h"
 
 namespace VerilogParser
 {
@@ -28,6 +28,26 @@ namespace VerilogParser
             
     IdentifierExpression::~IdentifierExpression()
     {}
+    
+    BitVector* IdentifierExpression::elaborate(VerilogScope* scope_) const
+    {    
+        const BitVector* symbol_bits = scope_->get(m_identifier_);
+        BitVector* out = new BitVector();
+        // If no range is declared, use the full range given by the symbol
+        int low = symbol_bits->low();
+        int high = symbol_bits->high();
+        // If range is given, use the given range
+        if (m_has_range_)
+        {
+            low = m_range_.low(scope_);
+            high = m_range_.high(scope_);            
+        }
+        
+        // Clone every bit
+        for (int i = low; i <= high; ++i)
+            out->addBack((*symbol_bits)[i]->clone());
+        return out;
+    }
     
     string IdentifierExpression::toString() const
     {

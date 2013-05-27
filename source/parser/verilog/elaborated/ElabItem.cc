@@ -34,12 +34,5 @@ namespace VerilogParser
             default: return "ELAB:BADTYPE>" + m_identifier_;
         }
     }
-        
-    IndexedElabItems::IndexedElabItems(int idx_offset_)
-        : m_idx_offset_(idx_offset_), m_items_()
-    {}
-    
-    IndexedElabItems::~IndexedElabItems()
-    {}
     
 } // namespace VerilogParser

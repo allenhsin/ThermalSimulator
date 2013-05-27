@@ -18,14 +18,16 @@ namespace VerilogParser
             StringExpression(const std::string& str_);
             virtual ~StringExpression();
             
+            // Return the expression as usable bit targets
+            BitVector* elaborate(VerilogScope* scope_) const;
             // Returns the expression as a printable string
             std::string toString() const;
+            // Clone function
+            inline StringExpression* clone() const { return new StringExpression(*this); }
             
         protected:
             // Accessors
             inline virtual const std::string* accString() const { return &m_str_; }
-            // Clone function
-            inline StringExpression* clone() const { return new StringExpression(*this); }
             
         private:
             // Copy constructor

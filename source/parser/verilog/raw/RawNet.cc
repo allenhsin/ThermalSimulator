@@ -1,9 +1,12 @@
 
-#include <cassert>
-#include <stdio.h>
+#include <iostream>
 
 #include "RawNet.h"
-#include "../elaborated/ElabItem.h"
+#include "../VerilogScope.h"
+#include "../Bit.h"
+#include "../BitVector.h"
+#include "../elaborated/ElabNet.h"
+#include "../elaborated/ElabModule.h"
 
 namespace VerilogParser
 {
@@ -38,12 +41,27 @@ namespace VerilogParser
         return new_nets;
     }
     
-    IndexedElabItems* RawNet::elaborate(VerilogScope* scope_) const
+    void RawNet::elaborate(ElabModule* module_, VerilogScope* scope_) const
     {
-        IndexedElabItems* elab_nets = new IndexedElabItems(0);
-        //TODO
-        return elab_nets;
+        // Get the low and high bit ranges
+        int low = m_range_.low(scope_);
+        int high = m_range_.high(scope_);
+
+        // Create elaborated nets
+        // Create the bit vector that links to the symbol
+        BitVector* symb = new BitVector(low);
+        
+        // Create bits in the symbol that link to the new elaborated net
+        for (int i = low; i <= high; ++i)
+        {
+            ElabNet* net = new ElabNet(getIdentifier(), i, m_port_type_, m_net_type_);
+            module_->addItem(net);
+            symb->addBack(new NetBit(net));
+        }        
+        // Add the symbol to the current scope
+        scope_->add(getIdentifier(), symb);
     }
+    
     string RawNet::toString() const
     {
         return RawItem::toString() + m_range_.toString();

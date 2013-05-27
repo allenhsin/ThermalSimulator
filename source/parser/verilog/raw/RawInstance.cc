@@ -32,23 +32,16 @@ namespace VerilogParser
             );
     }
     
-    IndexedElabItems* RawInstance::elaborate(VerilogScope* scope_) const
+    void RawInstance::elaborate(ElabModule* module_, VerilogScope* scope_) const
     {
-        IndexedElabItems* elab_nets = new IndexedElabItems(0);
         //TODO
-        return elab_nets;
     }
     
     std::string RawInstance::toString() const
     {
         return RawItem::toString() + "(" + m_module_name_ + ")";
     }
-    
-    RawInstance* RawInstance::clone() const
-    {
-        return new RawInstance(*this);
-    }
-    
+
     RawInstance::RawInstance(const RawInstance& instance_) 
         : RawItem(instance_), m_module_name_(instance_.m_module_name_)
     {

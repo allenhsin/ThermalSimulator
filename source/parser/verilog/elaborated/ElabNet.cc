@@ -8,8 +8,9 @@ namespace VerilogParser
 {
     using namespace std;
 
-    ElabNet::ElabNet(const std::string& identifier_, PortType port_type_, NetType net_type_)
+    ElabNet::ElabNet(const string& identifier_, int idx_, PortType port_type_, NetType net_type_)
         : ElabItem(ELAB_ITEM_NET, identifier_),
+        m_idx_(idx_),
         m_port_type_(port_type_),
         m_net_type_(net_type_)
     {}
@@ -18,8 +19,8 @@ namespace VerilogParser
     {}
     
     std::string ElabNet::toString() const
-    {
-        return "Net -> " + getIdentifier();
+    {        
+        return ElabItem::getIdentifier();
     }
     
     ElabItem* ElabNet::clone() const
@@ -28,7 +29,7 @@ namespace VerilogParser
     }
     
     ElabNet::ElabNet(const ElabNet& net_)
-        : ElabItem(net_), m_port_type_(net_.m_port_type_), m_net_type_(net_.m_net_type_)
+        : ElabItem(net_), m_idx_(net_.m_idx_), m_port_type_(net_.m_port_type_), m_net_type_(net_.m_net_type_)
     {}
 
     

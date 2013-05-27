@@ -18,6 +18,8 @@ namespace VerilogParser
             ConcatLHExpression(const LHExpressions& exprs_);
             virtual ~ConcatLHExpression();
             
+            // Return the expression as usable bit targets
+            BitVector* elaborate(VerilogScope* scope_) const;
             // Returns the expression as a printable string
             std::string toString() const;
             

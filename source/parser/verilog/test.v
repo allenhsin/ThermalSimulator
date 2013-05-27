@@ -55,10 +55,11 @@ module AND_X1M_A12TR (A, B, Y);
 
     parameter CadenceSucks = 32'hFFF_F_FFFF;
     parameter YesIt_Does = 4'b01010;
-    //parameter UnsupportedConcat = { CadenceSucks, CadenceSucks };
+    parameter TestParam = YesIt_Does;
+    parameter AwesomeConcat = { YesIt_Does, YesIt_Does };
     
     input [6:0] A, B;
-    output Y;
+    output [AwesomeConcat-1:0] Y;
 
     INV_X1M_A12TR   #   (   .CadenceSucks(2), 
                             .Wow(3))

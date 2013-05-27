@@ -21,11 +21,11 @@ namespace VerilogParser
             inline const std::string& getName() const { return m_name_; }		
 
             // Item map accessors
-            bool hasItem(const std::string& identifier_) const;
-            void addItem(ElabItem* item_);
-            void addItems(ElabItems* items_);            
-            const ElabItem* getItem(const std::string& identifier_) const;
-            const ElabItemMap& getItemMap() const { return m_item_map_; }
+            // bool hasItem(const std::string& identifier_) const;
+            inline void addItem(const ElabItem* item_) { m_items_.push_back(item_); }
+            // void addItems(ElabItems* items_);            
+            // const ElabItem* getItem(const std::string& identifier_) const;
+            // const ElabItemMap& getItemMap() const { return m_item_map_; }
             
             // Clone the elaborated module
             inline virtual ElabModule* clone() const { return new ElabModule(*this); }
@@ -38,7 +38,7 @@ namespace VerilogParser
             // Module name
             const std::string m_name_;
             // Elaborated items map (mapped by the identifier);
-            ElabItemMap m_item_map_;
+            ElabItems m_items_;
     };
 }
 #endif

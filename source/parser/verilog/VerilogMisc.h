@@ -3,12 +3,18 @@
 
 #include <exception>
 #include <string>
+#include <sstream>
 #include <vector>
+#include <list>
 #include <map>
+#include <limits>
 
 // Various other data structures for verilog parsing
 namespace VerilogParser
 {
+    class VerilogScope;
+
+    class BitVector;
     class Expression;
     class LHExpression;
     class RHExpression;
@@ -19,11 +25,13 @@ namespace VerilogParser
     class RawModule;
     
     class ElabItem;
-    class IndexedElabItems;
     class ElabNet;
     class ElabInstance;
     class ElabParameter;
     class ElabModule;
+    
+    // Global constants
+    static const unsigned long MAX_WIDTH = std::numeric_limits<unsigned long>::digits;;
     
     // Bit range class
     class BitRange
@@ -33,11 +41,16 @@ namespace VerilogParser
             BitRange(const BitRange& range_);
             ~BitRange();
             
+            // Get high and low as numbers
+            int high(VerilogScope* scope_) const;
+            int low(VerilogScope* scope_) const;
+            
+            // To string
             std::string toString() const;
         
-        public:
-            const Expression* high;
-            const Expression* low;
+        private:
+            const Expression* m_high_;
+            const Expression* m_low_;
     };
     
     // Value set class
@@ -45,6 +58,7 @@ namespace VerilogParser
     {
         public:
             SetValue(const std::string& identifier_, const Expression& value_);
+            SetValue(const SetValue& val_);
             ~SetValue();
             
             std::string toString() const;
@@ -66,6 +80,13 @@ namespace VerilogParser
             // String containing the exception
             std::string m_message_;
     };
+    
+    template<class T> std::string makeString(const T& value_)
+    {
+        std::ostringstream ost;
+        ost << value_;
+        return ost.str();
+    }
 
     template<class T> void clearPtrVector(std::vector<T*>* vec_)
     {
@@ -135,17 +156,20 @@ namespace VerilogParser
     typedef std::vector<RawParameter*> RawParameters;
     
     // Typedefs for raw modules
-    typedef std::vector<RawModule*> RawModules;
-    typedef std::map<std::string, RawModule*> RawModuleMap;
+    typedef std::vector<const RawModule*> RawModules;
+    typedef std::map<std::string, const RawModule*> RawModuleMap;
     
     // Typedefs for elaborated items
-    typedef std::vector<ElabItem*> ElabItems;
-    typedef std::map<std::string, ElabItem*> ElabItemMap;
-    typedef std::map<std::string, IndexedElabItems*> IndexedElabItemsMap;
+    typedef std::vector<const ElabItem*> ElabItems;
+    typedef std::map<std::string, const ElabItem*> ElabItemMap;
     typedef std::vector<ElabNet*> ElabNets;
     
     // Typedef for elaborated modules
-    typedef std::vector<ElabModule*> ElabModules;
+    typedef std::vector<const ElabModule*> ElabModules;
+    
+    // Scope variables
+    typedef std::list<const ElabInstance*> ElabStack;
+    typedef std::map<std::string, const BitVector*> SymbolMap;
 
 }
 #endif

@@ -18,16 +18,18 @@ namespace VerilogParser
             BinaryExpression(const RHExpression& op_expr0_, const BinOperator& bin_op_, const RHExpression& op_expr1_);
             virtual ~BinaryExpression();
             
+            // Return the expression as usable bit targets
+            BitVector* elaborate(VerilogScope* scope_) const;
             // Returns the expression as a printable string
             std::string toString() const;
+            // Clone function
+            inline BinaryExpression* clone() const { return new BinaryExpression(*this); }
             
         protected:
             // Accessors
             inline virtual const RHExpression* accOpExpr0() const { return m_op_expr0_; }
             inline virtual const RHExpression* accOpExpr1() const { return m_op_expr0_; }
             inline virtual const BinOperator* accBinOp() const { return &m_bin_op_; }
-            // Clone function
-            inline BinaryExpression* clone() const { return new BinaryExpression(*this); }
             
         private:
             // Copy constructor

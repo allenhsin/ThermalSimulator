@@ -20,15 +20,17 @@ namespace VerilogParser
             IdentifierExpression(const std::string& identifier_);
             virtual ~IdentifierExpression();
             
+            // Return the expression as usable bit targets
+            BitVector* elaborate(VerilogScope* scope_) const;
             // Returns the expression as a printable string
             std::string toString() const;
+            // Clone function
+            inline IdentifierExpression* clone() const { return new IdentifierExpression(*this); }
             
         protected:
             // Accessors
             inline virtual const std::string* accIdentifier() const { return &m_identifier_; }
             inline virtual const BitRange* accRange() const { return &m_range_; }
-            // Clone function
-            inline IdentifierExpression* clone() const { return new IdentifierExpression(*this); }
             
         private:
             // Copy constructor

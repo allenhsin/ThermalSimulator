@@ -5,6 +5,7 @@
 
 #include "NumberExpression.h"
 #include "../Number.h"
+#include "../BitVector.h"
 
 namespace VerilogParser
 {
@@ -24,6 +25,11 @@ namespace VerilogParser
     
     NumberExpression::~NumberExpression()
     {}
+    
+    BitVector* NumberExpression::elaborate(VerilogScope* /* scope_ */) const
+    {        
+        return BitVector::makeBitVector(m_number_.toULong(), m_number_.getWidth());
+    }
     
     string NumberExpression::toString() const
     {

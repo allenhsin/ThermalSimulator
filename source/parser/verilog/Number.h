@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <bitset>
-#include <limits>
 
 #include "VerilogMisc.h"
 
@@ -16,7 +15,6 @@ namespace VerilogParser
     {
         public:
             static const char DEFAULT_BASE = 'd';
-            static const unsigned long MAX_WIDTH = std::numeric_limits<unsigned long>::digits;;
             static const unsigned long DEFAULT_WIDTH = MAX_WIDTH;
     
         public:
@@ -28,7 +26,8 @@ namespace VerilogParser
             // Copy constructor
             Number(const Number& num_);
             
-        public:            
+        public:
+            inline unsigned long getWidth() const { return m_width_; }
             unsigned long toULong() const;            
             std::string toString() const;            
             

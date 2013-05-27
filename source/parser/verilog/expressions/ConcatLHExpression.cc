@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include "ConcatLHExpression.h"
+#include "../BitVector.h"
 
 namespace VerilogParser
 {
@@ -26,6 +27,20 @@ namespace VerilogParser
     {
         for(LHExpressions::const_iterator it = expr_.m_exprs_.begin(); it != expr_.m_exprs_.end(); ++it)
             m_exprs_.push_back((*it)->clone()); 
+    }
+    
+    BitVector* ConcatLHExpression::elaborate(VerilogScope* scope_) const
+    {
+        BitVector* bt_out = new BitVector();
+        // Remember to start from the back
+        LHExpressions::const_reverse_iterator it;
+        for (it = m_exprs_.rbegin(); it != m_exprs_.rend(); ++it)
+        {
+            BitVector* bt_cur = (*it)->elaborate(scope_);
+            bt_out->append(*bt_cur);
+            delete bt_cur;
+        }
+        return bt_out;
     }
     
     string ConcatLHExpression::toString() const

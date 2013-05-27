@@ -35,24 +35,5 @@ namespace VerilogParser
             // The identifier for this item
             std::string m_identifier_;
     };
-    
-    // An ElabItems vector with indexed items that have an offset in them
-    class IndexedElabItems
-    {
-        public:
-            IndexedElabItems(int idx_offset_);
-            ~IndexedElabItems();
-            
-        public:
-            // Add an item to the back
-            inline void addBack(ElabItem* item_) { m_items_.push_back(item_); }
-            // Bit index accessors
-            inline ElabItem*& operator[](int idx_) { return m_items_[idx_ + m_idx_offset_]; }
-            inline const ElabItem* operator[](int idx_) const { return m_items_[idx_ + m_idx_offset_]; }
-            
-        private:
-            const int m_idx_offset_;
-            ElabItems m_items_;
-    };
 }
 #endif

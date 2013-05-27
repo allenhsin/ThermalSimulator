@@ -9,8 +9,11 @@
 // A class representing a verilog module
 namespace VerilogParser
 {
+    class ElabModule;
+    
     class RawInstance : public RawItem
     {
+    
         public:
             RawInstance(const std::string& identifier_, const SetValues& conns_);
             virtual ~RawInstance();
@@ -23,12 +26,12 @@ namespace VerilogParser
             // Set parameter values
             void setParameterValues(const SetValues& conns_);
             
-            // Create elaborated items
-            IndexedElabItems* elaborate(VerilogScope* scope_) const;
+            // Elaborate the item in the given verilog scope for the given module
+            void elaborate(ElabModule* module_, VerilogScope* scope_) const;
             // Get printable string
             std::string toString() const;            
             // Clone the item
-            RawInstance* clone() const;
+            inline RawInstance* clone() const { return new RawInstance(*this); }
             
         protected:
             // Protected copy constructor, use clone instead

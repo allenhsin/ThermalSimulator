@@ -21,14 +21,16 @@ namespace VerilogParser
             NumberExpression(const Number& num_);
             virtual ~NumberExpression();
             
+            // Return the expression as usable bit targets
+            BitVector* elaborate(VerilogScope* scope_) const;
             // Returns the expression as a printable string
             std::string toString() const;
+            // Clone function
+            inline NumberExpression* clone() const { return new NumberExpression(*this); }
             
         protected:
             // Accessors
             inline virtual const Number* accNumber() const { return &m_number_; }
-            // Clone function
-            inline NumberExpression* clone() const { return new NumberExpression(*this); }
             
         private:
             // Copy constructor

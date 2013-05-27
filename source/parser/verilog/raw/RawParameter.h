@@ -21,8 +21,8 @@ namespace VerilogParser
             // Get the value
             const Expression& getValue() const { return *m_value_; }            
             
-            // Create elaborated items
-            IndexedElabItems* elaborate(VerilogScope* scope_) const;
+            // Elaborate the item in the given verilog scope for the given module
+            void elaborate(ElabModule* module_, VerilogScope* scope_) const;
             // Get printable string
             std::string toString() const;
             // Clone
