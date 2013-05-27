@@ -41,9 +41,15 @@ namespace VerilogParser
             // Push/pop the elaboration stack
             inline void push(const RawInstance* item_) { m_stack_.push_back(item_); }
             inline void pop() { return m_stack_.pop_back(); }
+            // Get current hierarchy string
+            std::string getHierString() const;
             
             // Elaborate the verilog for some top-level module name
             void elaborate(const std::string& top_name_);
+            // Get the top post elaboration verilog module, can just return
+            // the current module being elaborated as the top module is the
+            // last module to finish elaboration
+            const ElabModule* getTopModule() const { return m_elab_module_; }
             
         private:
             // Helper function for looking up a symbol

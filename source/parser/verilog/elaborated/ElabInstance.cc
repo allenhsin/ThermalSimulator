@@ -6,16 +6,14 @@ namespace VerilogParser
 {
     using std::string;
 
-    ElabInstance::ElabInstance(const string& identifier_, const ElabModule* module_, const SymbolMap& params_) 
-        : ElabItem(ELAB_ITEM_INST, identifier_),
-        m_module_(module_),
-        m_params_(params_)
+    ElabInstance::ElabInstance(const string& identifier_, const VerilogScope* scope_, const ElabModule* module_) 
+        : ElabItem(ELAB_ITEM_INST, identifier_, scope_),
+        m_module_(module_)
     {}
     
     ElabInstance::ElabInstance(const ElabInstance& instance_) 
         : ElabItem(instance_),
-        m_module_(instance_.m_module_),
-        m_params_(instance_.m_params_)
+        m_module_(instance_.m_module_)
     {}
 
     ElabInstance::~ElabInstance()

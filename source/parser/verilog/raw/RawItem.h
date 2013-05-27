@@ -10,7 +10,6 @@
 namespace VerilogParser
 {
     class VerilogScope;
-    class ElabModule;
 
     class RawItem
     {
@@ -23,7 +22,7 @@ namespace VerilogParser
             inline RawItemType getType() const { return m_type_; }
 
             // Elaborate the item in the given verilog scope for the given module
-            virtual void elaborate(ElabModule* module_, VerilogScope* scope_) const = 0;
+            virtual void elaborate(VerilogScope* scope_) const = 0;
             // Get a string representation of the RawItem
             virtual std::string toString() const;
             // Clone a verilog RawItem

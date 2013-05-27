@@ -8,13 +8,13 @@
 namespace VerilogParser
 {
     using std::string;
-
-    ElabModule::ElabModule(const string& name_)
-        : m_name_(name_), m_items_()
+    
+    ElabModule::ElabModule(const string& name_, const SymbolMap& params_)
+        : m_name_(name_), m_params_(params_), m_items_()
     {}
     
     ElabModule::ElabModule(const ElabModule& module_)
-        : m_name_(module_.m_name_), m_items_()
+        : m_name_(module_.m_name_), m_params_(module_.m_params_), m_items_()
     {
         // Deep copy of all items
         ElabItems::const_iterator it;

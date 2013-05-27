@@ -13,7 +13,7 @@ namespace VerilogParser
     {
         public:
             // Private constructor, use the static elaborate function instead
-            ElabAssign(const BitVector& left_, const BitVector& right_);
+            ElabAssign(const VerilogScope* scope_, const BitVector& left_, const BitVector& right_);
             virtual ~ElabAssign();
             
         protected:

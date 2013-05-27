@@ -27,17 +27,17 @@ namespace VerilogParser
         clearPtrVector<RawItem>(&m_items_);
     }
     
-    void RawModule::elaborate(VerilogScope* scope_) const
+    void RawModule::elaborate(VerilogScope* scope_, const SymbolMap& params_) const
     {
         // Create new elaborated module
-        ElabModule* new_mod = new ElabModule(m_name_);
+        ElabModule* new_mod = new ElabModule(m_name_, params_);
 
         // Set the module as the current elaborating module
         scope_->setElabModule(new_mod);
 
         // Elaborate each raw item
         for(RawItems::const_iterator it = m_items_.begin(); it != m_items_.end(); ++it)
-            (*it)->elaborate(new_mod, scope_);
+            (*it)->elaborate(scope_);
 
         // Add the new elaborated module
         scope_->addElabModule(new_mod);

@@ -9,17 +9,19 @@
 
 namespace VerilogParser
 {
+    class VerilogScope;
+
     // An elaborated verilog parameter
     class ElabParam : public ElabItem
     {
         public:
             // Private constructor, use the static elaborate function instead
-            ElabParam(const std::string& identifier_);
+            ElabParam(const std::string& identifier_, const VerilogScope* scope_, const BitVector* value_);
             virtual ~ElabParam();
             
         public:
             // Accessor functions
-            //inline const RHExpression& getValue() const { return m_value_; }
+            inline const BitVector* getValue() const { return m_value_; }
             
             // Clone
             ElabItem* clone() const;            
@@ -32,7 +34,7 @@ namespace VerilogParser
             
         private:
             // Value of the elaborated parameter
-            //const RHExpression m_value_;
+            const BitVector* m_value_;
     };
 }
 #endif

@@ -4,11 +4,13 @@
 
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
-// #include "VerilogModule.h"
-// #include "VerilogItem.h"
-// #include "VerilogNet.h"
-// #include "VerilogParameter.h"
-// #include "VerilogInstance.h"
-// #include "VerilogScope.h"
+#include "Bit.h"
+#include "BitVector.h"
+#include "VerilogMisc.h"
+#include "elaborated/ElabModule.h"
+#include "elaborated/ElabInstance.h"
+#include "elaborated/ElabNet.h"
+#include "elaborated/ElabParam.h"
+#include "elaborated/ElabAssign.h"
 
 #endif

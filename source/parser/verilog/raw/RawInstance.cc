@@ -38,33 +38,40 @@ namespace VerilogParser
             );
     }
     
-    void RawInstance::elaborate(ElabModule* module_, VerilogScope* scope_) const
+    void RawInstance::elaborate(VerilogScope* scope_) const
     {
+        // Get the current elab module
+        ElabModule* module = scope_->getElabModule();
+        
         SymbolMap param_map;
-        // First, set parameters through symbol table
-        SetValues::const_iterator it;
-        for(it = m_params_->begin(); it != m_params_->end(); ++it)
-        {
-            const BitVector* bits = (*it)->getValue()->elaborate(scope_);
-            scope_->add(getIdentifier() + "." + (*it)->getIdentifier(), bits);
-            param_map[(*it)->getIdentifier()] = bits;
-        }
+        // First, set parameters through symbol table, since the values of the
+        // parameters need to be evaluated in the current scope
+        for(SetValues::const_iterator it = m_params_->begin(); it != m_params_->end(); ++it)
+            param_map[(*it)->getIdentifier()] = (*it)->getValue()->elaborate(scope_);
         
         // Push the current instance into the scoping stack
-        scope_->push(this);        
+        scope_->push(this);
+        
         // Elaborate the module and create new elaborated instance
-        scope_->getRawModule(m_module_name_)->elaborate(scope_);
-        // Add the instance to the module
-        module_->addItem(new ElabInstance(getIdentifier(), scope_->getElabModule(), param_map));                
+        scope_->getRawModule(m_module_name_)->elaborate(scope_, param_map);
+        // Remember what the new module is
+        // I don't really like this...have to set this manually
+        ElabModule* new_module = scope_->getElabModule();
+        // Set the module back to the old module
+        scope_->setElabModule(module);        
         // Pop the current instance from the scoping stack
         scope_->pop();
         
-        // Finally, make all connections using assigns
-        for(it = m_conns_->begin(); it != m_conns_->end(); ++it)
+        // Add the instance to the current module
+        module->addItem(new ElabInstance(getIdentifier(), scope_, new_module));
+        
+        // Finally, make all connections using assigns, since the nets the connections
+        // connect to need to be evaluatated in the current scope
+        for(SetValues::const_iterator it = m_conns_->begin(); it != m_conns_->end(); ++it)
         {
             const BitVector* port_expr = scope_->get(getIdentifier() + "." + (*it)->getIdentifier());
             const BitVector* conn_expr = (*it)->getValue()->elaborate(scope_);
-            module_->addItem(new ElabAssign(*port_expr, *conn_expr));
+            module->addItem(new ElabAssign(scope_, *port_expr, *conn_expr));
             delete conn_expr;
         }
     }

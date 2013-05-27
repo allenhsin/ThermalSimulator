@@ -3,6 +3,7 @@
 #include <cassert>
 #include <queue>
 
+#include "source/models/physical_model/verilog_to_thermal.h"
 #include "source/models/physical_model/device_manager.h"
 #include "source/system/event_scheduler.h"
 #include "source/misc/misc.h"
@@ -116,6 +117,11 @@ namespace Thermal
         _device_floorplan_map->loadFloorplanMap( _config->getString("device_manager/flpmap_file") );
 
         // load device netlist
+        vector<string> files;
+        files.push_back("configs/physical_model/device_primitives.v");
+        files.push_back("tests/test.v");
+        VerilogToThermal::dumpDevicesFromVerilog(this, _config, _device_floorplan_map, files, "TestTop");
+
         //FIXME: hardcode device now just for test ------------------------------------------------
 
         // waveguide x 3, laser, modulator, modulator driver, thermal tuner, receiver ring.

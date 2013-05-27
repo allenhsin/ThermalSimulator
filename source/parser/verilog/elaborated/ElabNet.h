@@ -7,12 +7,14 @@
 
 namespace VerilogParser
 {
+    class VerilogScope;
+
     // An elaborated verilog net
     class ElabNet : public ElabItem
     {
         public:
             // Private constructor, use the static elaborate function instead
-            ElabNet(const std::string& identifier_, int idx_, PortType port_type_,
+            ElabNet(const std::string& identifier_, const VerilogScope* scope_, int idx_, PortType port_type_,
                 NetType net_type_);
             virtual ~ElabNet();
             

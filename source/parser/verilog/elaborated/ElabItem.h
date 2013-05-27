@@ -6,16 +6,19 @@
 
 namespace VerilogParser
 {
+    class VerilogScope;
+
     // A base class for elaborated verilog items
     class ElabItem
     {
         public:
-            ElabItem(ElabItemType type_, const std::string& identifier_);
+            ElabItem(ElabItemType type_, const std::string& identifier_, const VerilogScope* scope_);
             virtual ~ElabItem();
             
         public:
             // Accessor functions
             inline const std::string& getIdentifier() const { return m_identifier_; }            
+            inline const std::string& getPath() const { return m_path_; }
             inline ElabItemType getType() const { return m_type_; }
 
             // Get a clone where all the identifiers have been flattened
@@ -34,6 +37,8 @@ namespace VerilogParser
             const ElabItemType m_type_;
             // The identifier for this item
             std::string m_identifier_;
+            // The full path for this item
+            const std::string m_path_;
     };
 }
 #endif

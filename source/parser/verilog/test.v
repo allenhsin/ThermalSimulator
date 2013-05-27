@@ -39,8 +39,9 @@ endmodule
  
     parameter bad_param1 = 0;
     parameter bad_param2 = 32'd7734;
+    parameter whoa = 1;
  
-    input [bad_param2] A;
+    input [bad_param2-1:0] A;
     output Y; 
 
     wire [bad_param2-1:0] n1, n2, n3, n4, n5;
@@ -56,6 +57,7 @@ module AND_X1M_A12TR (A, B, Y);
     parameter CadenceSucks = 32'hFFF_F_FFFF;
     parameter YesIt_Does = 4'b11010;
     parameter TestParam = YesIt_Does;
+    parameter String_thing = "Awesome giant big string parameter that is very long";
     parameter AwesomeConcat = { YesIt_Does, YesIt_Does };
     
     input [6:0] A, B;
@@ -72,8 +74,9 @@ module AND_X1M_A12TR (A, B, Y);
                             .Y(B[6]));
 
     INV_X2M_A12TR   #   (   .bad_param1(CadenceSucks / (2*123)), 
-                            .bad_param2(YesIt_Does * 2)) 
-                blah1   (   .A(A[0]), .Y(B[1]))
+                            .bad_param2(YesIt_Does * 2),
+                            .whoa(String_thing)) 
+                blah1   (   .A(A), .Y(B[1]))
                 blah2   (   .A(Y), .Y(B[3:3]));
     
 endmodule

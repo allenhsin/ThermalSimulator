@@ -53,22 +53,13 @@ namespace VerilogParser
     
     bool VerilogScope::has(const string& symbol_) const
     {
-        // Create the lookup string based on the current elaboration stack
-        std::string lookup = "";
-        for (ScopeStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
-            lookup += (*it)->getIdentifier() + ".";
-        lookup += symbol_;
-        
-        return hasSymbol(lookup);
+        return hasSymbol(getHierString() + symbol_);
     }
     
     void VerilogScope::add(const string& symbol_, const BitVector* stuff_)
     {
         // Create the lookup string based on the current elaboration stack
-        std::string lookup = "";
-        for (ScopeStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
-            lookup += (*it)->getIdentifier() + ".";
-        lookup += symbol_;
+        std::string lookup = getHierString() + symbol_;
         
         if (hasSymbol(lookup))
             throw VerilogException("Duplicate symbol: " + symbol_);
@@ -78,10 +69,7 @@ namespace VerilogParser
     const BitVector* VerilogScope::get(const string& symbol_)
     {
         // Create the lookup string based on the current elaboration stack
-        std::string lookup = "";
-        for (ScopeStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
-            lookup += (*it)->getIdentifier() + ".";
-        lookup += symbol_;
+        std::string lookup = getHierString() + symbol_;
         
         if (!hasSymbol(lookup))
             throw VerilogException("Symbol does not exist: " + symbol_);
@@ -95,8 +83,20 @@ namespace VerilogParser
             delete it->second; 
         m_symbol_map_.clear();
 
+        // Delete all elaborated modules
+        clearPtrVector<const ElabModule>(&m_elab_modules_);
+        
         // Elaborate the top-level module
-        getRawModule(top_name_)->elaborate(this);
+        getRawModule(top_name_)->elaborate(this, SymbolMap());
+    }
+    
+    string VerilogScope::getHierString() const
+    {
+        // Create the lookup string based on the current elaboration stack
+        std::string lookup = "";
+        for (ScopeStack::const_iterator it = m_stack_.begin(); it != m_stack_.end(); ++it)
+            lookup += (*it)->getIdentifier() + ".";
+        return lookup;
     }
     
     bool VerilogScope::hasSymbol(const string& full_symbol_) const

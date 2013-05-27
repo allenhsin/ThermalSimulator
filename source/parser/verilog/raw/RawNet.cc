@@ -41,7 +41,7 @@ namespace VerilogParser
         return new_nets;
     }
     
-    void RawNet::elaborate(ElabModule* module_, VerilogScope* scope_) const
+    void RawNet::elaborate(VerilogScope* scope_) const
     {
         // Get the low and high bit ranges
         int low = m_range_.low(scope_);
@@ -54,8 +54,8 @@ namespace VerilogParser
         // Create bits in the symbol that link to the new elaborated net
         for (int i = low; i <= high; ++i)
         {
-            ElabNet* net = new ElabNet(getIdentifier(), i, m_port_type_, m_net_type_);
-            module_->addItem(net);
+            ElabNet* net = new ElabNet(getIdentifier(), scope_, i, m_port_type_, m_net_type_);
+            scope_->getElabModule()->addItem(net);
             symb->addBack(new NetBit(net));
         }        
         // Add the symbol to the current scope

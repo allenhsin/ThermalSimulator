@@ -8,8 +8,8 @@ namespace VerilogParser
 {
     using namespace std;
 
-    ElabNet::ElabNet(const string& identifier_, int idx_, PortType port_type_, NetType net_type_)
-        : ElabItem(ELAB_ITEM_NET, identifier_),
+    ElabNet::ElabNet(const string& identifier_, const VerilogScope* scope_, int idx_, PortType port_type_, NetType net_type_)
+        : ElabItem(ELAB_ITEM_NET, identifier_, scope_),
         m_idx_(idx_),
         m_port_type_(port_type_),
         m_net_type_(net_type_)

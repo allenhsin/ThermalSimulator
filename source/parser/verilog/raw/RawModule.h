@@ -20,7 +20,7 @@ namespace VerilogParser
             inline const std::string& getName() const { return m_name_; }
 		
             // Elaborate the module in the current scope
-            void elaborate(VerilogScope* scope_) const;
+            void elaborate(VerilogScope* scope_, const SymbolMap& params_) const;
             // Get string of the module
             std::string toString() const;        
             // Clone a module

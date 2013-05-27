@@ -3,13 +3,14 @@
 #include <stdio.h>
 
 #include "ElabAssign.h"
+#include "../VerilogScope.h"
 
 namespace VerilogParser
 {
     using namespace std;
 
-    ElabAssign::ElabAssign(const BitVector& left_, const BitVector& right_)
-        : ElabItem(ELAB_ITEM_ASSIGN, left_.toString() + "=" + right_.toString()),
+    ElabAssign::ElabAssign(const VerilogScope* scope_, const BitVector& left_, const BitVector& right_)
+        : ElabItem(ELAB_ITEM_ASSIGN, left_.toString() + "=" + right_.toString(), scope_),
         m_left_(left_),
         m_right_(right_)
     {}

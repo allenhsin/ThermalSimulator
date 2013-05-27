@@ -25,6 +25,14 @@ namespace VerilogParser
         delete m_scope_;
         m_scope_ = NULL;
     }
+    
+    bool VerilogFileReader::parse(const string& path_to_file_)
+    {
+        VerilogFile* file = new VerilogFile(path_to_file_);
+        bool success = parse(file);
+        delete file;
+        return success;
+    }
 
     void VerilogFileReader::elaborate(const string& top_name_)
     {

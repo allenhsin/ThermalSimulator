@@ -54,7 +54,7 @@ int yylex();
 extern int line_num;
 
 extern FILE* yyin;
-void yyerror(VerilogFileReader* file_, const char *s);
+void yyerror(VerilogFileReader* reader_, const char *s);
 %}
 
 // Bison fundamentally works by asking flex to get the next token, which it
@@ -419,6 +419,7 @@ namespace VerilogParser
 {
     bool VerilogFileReader::parse(VerilogFile* file_)
     {
+        line_num = 1;
         m_cur_file_ = file_;
         if(file_ != NULL)
         {

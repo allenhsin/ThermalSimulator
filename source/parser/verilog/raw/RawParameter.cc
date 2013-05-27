@@ -4,6 +4,8 @@
 #include "RawParameter.h"
 #include "../BitVector.h"
 #include "../VerilogScope.h"
+#include "../elaborated/ElabModule.h"
+#include "../elaborated/ElabParam.h"
 
 namespace VerilogParser
 {
@@ -18,22 +20,28 @@ namespace VerilogParser
         delete m_value_;
     }
     
-    void RawParameter::elaborate(ElabModule* /* module_ */, VerilogScope* scope_) const
+    void RawParameter::elaborate(VerilogScope* scope_) const
     {
-        // Only need to do stuff if the parameter has not already been overwritten
-        if(!scope_->has(getIdentifier()))
-        {
-            // Create the bit vector that links to the symbol
-            BitVector* symb = m_value_->elaborate(scope_);
-
-            // Check to see if the bit vector did not evaluate to a constant
-            if(!symb->isConst())
-                throw VerilogException("Parameter '" + getIdentifier() + "' did " +
-                    "not evaluate to a constant: " + m_value_->toString());
+        const string& id = getIdentifier();        
+        const BitVector* symb = NULL;
+        ElabModule* module = scope_->getElabModule();
+        // Check if the parameter value has been set in the instantiation
+        // If it has not been set, set it
+        if (module->getParams().count(id) == 0)
+            symb = m_value_->elaborate(scope_);            
+        // If it has already been set, just get its value
+        else
+            symb = (module->getParams()).at(id);
             
-            // Put its vlaue in the scope
-            scope_->add(getIdentifier(), symb);
-        }
+        // Check to see if the bit vector did not evaluate to a constant
+        if(!symb->isConst())
+            throw VerilogException("Parameter '" + getIdentifier() + "' did " +
+                "not evaluate to a constant: " + m_value_->toString());
+        
+        // Add the parameter to the module
+        module->addItem(new ElabParam(id, scope_, symb));
+        // Put its vlaue in the scope
+        scope_->add(getIdentifier(), symb);                    
     }
 
     std::string RawParameter::toString() const

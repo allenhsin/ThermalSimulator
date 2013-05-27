@@ -33,7 +33,7 @@ namespace VerilogParser
             inline NetType getNetType() const { return m_net_type_; }
             
             // Elaborate the item in the given verilog scope for the given module
-            void elaborate(ElabModule* module_, VerilogScope* scope_) const;
+            void elaborate(VerilogScope* scope_) const;
             // return as string
             std::string toString() const;            
             // Clone

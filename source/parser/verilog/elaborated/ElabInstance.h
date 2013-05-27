@@ -9,15 +9,15 @@
 namespace VerilogParser
 {    
     class ElabModule;
+    class VerilogScope;
     
     class ElabInstance : public ElabItem
     {
         public:
-            ElabInstance(const std::string& identifier_, const ElabModule* module_, const SymbolMap& params_);
+            ElabInstance(const std::string& identifier_, const VerilogScope* scope_, const ElabModule* module_);
             virtual ~ElabInstance();
             
             inline const ElabModule* getModule() const { return m_module_; }
-            inline const SymbolMap& getParams() const { return m_params_; }
             
             // Get a clone with flattened identifiers
             ElabItem* getFlattenedClone(const std::string& hier_, const std::string& hier_sep_) const;
@@ -33,8 +33,6 @@ namespace VerilogParser
         private:
             // The elaborated module that the instance points to
             const ElabModule* m_module_;
-            // Parameters
-            const SymbolMap m_params_;
             
     };
 }
