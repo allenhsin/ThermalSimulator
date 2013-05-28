@@ -123,7 +123,8 @@ namespace Thermal
         // Get the actual netlist to run
         files.push_back(_config->getString("device_manager/netlist_file"));
         // Dump devices from the netlist
-        VerilogToThermal::dumpDevicesFromVerilog(_device_instances, _config, _device_floorplan_map, files, "cell_chip");
+        VerilogToThermal::dumpDevicesFromVerilog(_device_instances, _config, _device_floorplan_map, files,
+            _config->getString("device_manager/top_module"));
     // ------------------------------------------------------------------------
 
     // Build the Device Traverse Sequence (Breath-First) ----------------------
