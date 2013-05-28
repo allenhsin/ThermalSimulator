@@ -8,9 +8,11 @@ namespace VerilogParser
 {
     using std::string;
 
-    RawModule::RawModule(const string& name_, const RawItems& items_)
-        : m_name_(name_), m_items_()
-    {        
+    RawModule::RawModule(const string& name_, const Identifiers& port_list_, const RawItems& items_)
+        : m_name_(name_), m_port_list_(), m_items_()
+    {
+        for(Identifiers::const_iterator it = port_list_.begin(); it != port_list_.end(); ++it)
+            m_port_list_.push_back(*it);
         for(RawItems::const_iterator it = items_.begin(); it != items_.end(); ++it)
             m_items_.push_back((*it)->clone()); 
     }
@@ -18,6 +20,8 @@ namespace VerilogParser
     RawModule::RawModule(const RawModule& module_)
         : m_name_(module_.m_name_), m_items_()
     {
+        for(Identifiers::const_iterator it = module_.m_port_list_.begin(); it != module_.m_port_list_.end(); ++it)
+            m_port_list_.push_back(*it);
         for(RawItems::const_iterator it = module_.m_items_.begin(); it != module_.m_items_.end(); ++it)
             m_items_.push_back((*it)->clone()); 
     }

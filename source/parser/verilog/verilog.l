@@ -13,6 +13,7 @@
 
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
+#include "VerilogMisc.h"
 
 #include "raw/RawModule.h"
 #include "raw/RawNet.h"

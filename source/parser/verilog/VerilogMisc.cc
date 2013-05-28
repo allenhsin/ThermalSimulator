@@ -50,12 +50,16 @@ namespace VerilogParser
         return "[" + m_high_->toString() + ":" + m_low_->toString() + "]";
     }
     
+    SetValue::SetValue(const Expression& value_)
+        : m_implicit_(true), m_identifier_(), m_value_(value_.clone())
+    {}
+
     SetValue::SetValue(const std::string& identifier_, const Expression& value_)
-        : m_identifier_(identifier_), m_value_(value_.clone())
+        : m_implicit_(false), m_identifier_(identifier_), m_value_(value_.clone())
     {}
     
     SetValue::SetValue(const SetValue& val_)
-        : m_identifier_(val_.m_identifier_), m_value_(val_.m_value_->clone())
+        : m_implicit_(val_.m_implicit_), m_identifier_(val_.m_identifier_), m_value_(val_.m_value_->clone())
     {}
     
     SetValue::~SetValue()

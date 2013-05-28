@@ -26,12 +26,14 @@
 
 #include "VerilogFileReader.h"
 #include "VerilogFile.h"
+#include "VerilogMisc.h"
 
 #include "raw/RawModule.h"
 #include "raw/RawNet.h"
 #include "raw/RawInstance.h"
 #include "raw/RawParameter.h"
 
+#include "expressions/EmptyExpression.h"
 #include "expressions/StringExpression.h"
 #include "expressions/IdentifierExpression.h"
 #include "expressions/NumberExpression.h"
@@ -177,7 +179,7 @@ source_text:
 
 module_declaration:
     MODULE IDENTIFIER '(' list_of_ports ')' ';' module_item_list ENDMODULE
-        { $$ = new RawModule($2, *$7); delete $7; }
+        { $$ = new RawModule($2, *$4, *$7); delete $4; deletePtrVector<RawItem>($7); }
     ;
         
 // The list of ports is online used to describe the port ordering if this module is instantiated
@@ -298,11 +300,11 @@ list_of_module_port_connections:
         { 
             // Convert a list of expressions to port connections
             $$ = new SetValues();
-            // Just insert empty string as the port name and the verilog module should understand
+            // Create set values with implicit identifier
             RHExpressions::const_iterator it;
             for (it = $1->begin(); it != $1->end(); ++it)
             {
-                $$->push_back(new SetValue("", *(*it)));
+                $$->push_back(new SetValue(*(*it)));
                 delete *it;
             }
             delete $1;
@@ -314,7 +316,8 @@ list_of_named_port_connections:
     ;
     
 named_connection:
-    '.' IDENTIFIER '(' expression_rh ')'       { $$ = new SetValue($2, *$4); delete $4; }
+    '.' IDENTIFIER '(' ')'                  { $$ = new SetValue($2, EmptyExpression()); }
+    | '.' IDENTIFIER '(' expression_rh ')'  { $$ = new SetValue($2, *$4); delete $4; }
     ;
     
 // TODO stack
@@ -324,14 +327,6 @@ named_connection:
 description:
     module_declaration
     ;
-
-// binary_operator:
-    // '+'                                     { $$ = BOP_PLUS; }
-    // | '-'                                   { $$ = BOP_MINUS; }
-    // | '*'                                   { $$ = BOP_TIMES; }
-    // | '/'                                   { $$ = BOP_DIV; }
-    // | '%'                                   { $$ = BOP_MOD; }
-    // ;
     
 expression_rh:
     '(' expression_rh ')'                   { $$ = $2; }

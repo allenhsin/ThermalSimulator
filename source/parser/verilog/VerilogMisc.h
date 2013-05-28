@@ -57,11 +57,16 @@ namespace VerilogParser
     class SetValue
     {
         public:
+            // Set value where both the identifier (variable being set) and its value are defined
             SetValue(const std::string& identifier_, const Expression& value_);
+            // Set value where only the value is defined, the identifier is implicit with some ordering
+            SetValue(const Expression& value_);
+            // Copy constructor
             SetValue(const SetValue& val_);
             ~SetValue();
             
             // Accessors
+            inline bool hasImplicitID() const { return m_implicit_; }
             inline const std::string& getIdentifier() const { return m_identifier_; }
             inline const Expression* getValue() const { return m_value_; }
             
@@ -69,6 +74,7 @@ namespace VerilogParser
             std::string toString() const;
             
         private:
+            const bool m_implicit_;
             const std::string m_identifier_;
             const Expression* m_value_;
     };

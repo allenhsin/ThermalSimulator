@@ -18,7 +18,7 @@ namespace VerilogParser
         public:
             enum Type
             {
-                INVALID,
+                EMPTY,
                 NUMBER,     //RH
                 STRING,     //RH
                 IDENTIFIER, //LH, RH

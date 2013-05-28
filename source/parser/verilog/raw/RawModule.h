@@ -11,9 +11,11 @@ namespace VerilogParser
     class RawModule
     {
         public:
-            RawModule(const std::string& name_, const RawItems& items_);
+            RawModule(const std::string& name_, const Identifiers& port_list_, const RawItems& items_);
             virtual ~RawModule();
 
+            // Get the port list
+            inline const Identifiers& getPortList() const { return m_port_list_; }
             // Get the item list
             inline const RawItems& getItems() const { return m_items_; }
             // Get the name of the module
@@ -34,6 +36,8 @@ namespace VerilogParser
         private:
             // Module name
             const std::string m_name_;
+            // Port list
+            Identifiers m_port_list_;
             // Module items
             RawItems m_items_;
     };

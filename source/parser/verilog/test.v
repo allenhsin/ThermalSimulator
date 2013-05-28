@@ -65,12 +65,12 @@ module AND_X1M_A12TR (A, B, Y);
 
     INV_X1M_A12TR   #   (   .CadenceSucks(2), 
                             .Wow(3))
-                blah0   (   .A(A[5]), 
-                            .Y(B[6]));
+                blah0   (   A[5], 
+                            B[6]);
                             
 
     INV_X1M_A12TR   wow   
-                        (   .A(A[5]), 
+                        (   .A(), 
                             .Y(B[6]));
 
     INV_X2M_A12TR   #   (   .bad_param1(CadenceSucks / (2*123)), 

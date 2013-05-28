@@ -53,7 +53,8 @@ namespace VerilogParser
         scope_->push(this);
         
         // Elaborate the module and create new elaborated instance
-        scope_->getRawModule(m_module_name_)->elaborate(scope_, param_map);
+        const RawModule* raw_module = scope_->getRawModule(m_module_name_);
+        raw_module->elaborate(scope_, param_map);
         // Remember what the new module is
         // I don't really like this...have to set this manually
         ElabModule* new_module = scope_->getElabModule();
@@ -67,12 +68,34 @@ namespace VerilogParser
         
         // Finally, make all connections using assigns, since the nets the connections
         // connect to need to be evaluatated in the current scope
+        
+        // Check the number of connections with the number of ports
+        const Identifiers& port_list = raw_module->getPortList();
+        unsigned int n_conns = m_conns_->size();
+        unsigned int n_ports = port_list.size();
+        if(n_conns > n_ports)
+            throw VerilogException("Number of connections (" + makeString(n_conns) + ") " +
+                "> number of module ports (" + makeString(n_ports) + ")");
+        else if (n_conns != n_ports)
+        {
+            // TODO: I want to flag a warning if the number of specified connections is
+            // different as well
+        }
+        
+        unsigned int port_idx = 0;         
         for(SetValues::const_iterator it = m_conns_->begin(); it != m_conns_->end(); ++it)
         {
-            const BitVector* port_expr = scope_->get(getIdentifier() + "." + (*it)->getIdentifier());
+            const BitVector* port_expr = NULL;
             const BitVector* conn_expr = (*it)->getValue()->elaborate(scope_);
+            // If the set value has an implicit ID, then we need to look up the port name we 
+            // need to connect to from the module port list
+            if ((*it)->hasImplicitID()) port_expr = scope_->get(getIdentifier() + "." + port_list[port_idx]);
+            else port_expr = scope_->get(getIdentifier() + "." + (*it)->getIdentifier());
+
             module->addItem(new ElabAssign(scope_, *port_expr, *conn_expr));
             delete conn_expr;
+
+            ++port_idx;
         }
     }
     
