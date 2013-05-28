@@ -116,77 +116,14 @@ namespace Thermal
         // load floorplan map file
         _device_floorplan_map->loadFloorplanMap( _config->getString("device_manager/flpmap_file") );
 
-        // load device netlist
+        // Verilog files to read
         vector<string> files;
-        files.push_back("configs/physical_model/device_primitives.v");
-        files.push_back("tests/test.v");
-        VerilogToThermal::dumpDevicesFromVerilog(_device_instances, _config, _device_floorplan_map, files, "TestTop");
-
-        //FIXME: hardcode device now just for test ------------------------------------------------
-
-        // waveguide x 3, laser, modulator, modulator driver, thermal tuner, receiver ring.
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LOSSY_OPTICAL_NET, _config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING, _config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( RESONANT_RING_DEPLETION_MODULATOR, _config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( LASER_SOURCE_OFF_CHIP, _config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( MODULATOR_DRIVER, _config, _device_floorplan_map) );
-        _device_instances.push_back( DeviceModel::createDevice( THERMAL_TUNER, _config, _device_floorplan_map) );
-        
-        _device_instances[0]->setDeviceName("waveguide_0");
-        _device_instances[1]->setDeviceName("waveguide_1");
-        _device_instances[2]->setDeviceName("waveguide_2");
-        _device_instances[3]->setDeviceName("receiver_ring");
-        _device_instances[4]->setDeviceName("modulator");
-        _device_instances[5]->setDeviceName("laser_source");
-        _device_instances[6]->setDeviceName("modulator_driver");
-        _device_instances[7]->setDeviceName("thermal_tuner");
-        
-        // laser -> waveguide_0
-        _device_instances[5]->setTargetPortName("out");
-        _device_instances[5]->setTargetPortConnectedPort( _device_instances[0]->getPort("in") );
-        _device_instances[0]->setTargetPortName("in");
-        _device_instances[0]->setTargetPortConnectedPort( _device_instances[5]->getPort("out") );
-
-        // modulator driver -> modulator
-        _device_instances[6]->setTargetPortName("out");
-        _device_instances[6]->setTargetPortConnectedPort( _device_instances[4]->getPort("mod_driver") );
-        _device_instances[4]->setTargetPortName("mod_driver");
-        _device_instances[4]->setTargetPortConnectedPort( _device_instances[6]->getPort("out") );
-
-        // thermal_tuner -> modulator
-        _device_instances[7]->setTargetPortName("heater");
-        _device_instances[7]->setTargetPortConnectedPort( _device_instances[4]->getPort("heater") );
-        _device_instances[4]->setTargetPortName("heater");
-        _device_instances[4]->setTargetPortConnectedPort( _device_instances[7]->getPort("heater") );
-
-        // waveguide_0 -> modulator
-        _device_instances[0]->setTargetPortName("out");
-        _device_instances[0]->setTargetPortConnectedPort( _device_instances[4]->getPort("in") );
-        _device_instances[4]->setTargetPortName("in");
-        _device_instances[4]->setTargetPortConnectedPort( _device_instances[0]->getPort("out") );
-        
-        // modulator -> waveguide_1
-        _device_instances[4]->setTargetPortName("thru");
-        _device_instances[4]->setTargetPortConnectedPort( _device_instances[1]->getPort("in") );
-        _device_instances[1]->setTargetPortName("in");
-        _device_instances[1]->setTargetPortConnectedPort( _device_instances[4]->getPort("thru") );
-        
-        // waveguide_1 -> receiver ring
-        _device_instances[1]->setTargetPortName("out");
-        _device_instances[1]->setTargetPortConnectedPort( _device_instances[3]->getPort("in") );
-        _device_instances[3]->setTargetPortName("in");
-        _device_instances[3]->setTargetPortConnectedPort( _device_instances[1]->getPort("out") );
-        
-        // receiver_ring -> waveguide_2
-        _device_instances[3]->setTargetPortName("thru");
-        _device_instances[3]->setTargetPortConnectedPort( _device_instances[2]->getPort("in") );
-        _device_instances[2]->setTargetPortName("in");
-        _device_instances[2]->setTargetPortConnectedPort( _device_instances[3]->getPort("thru") );
-
-        //END FIXME -------------------------------------------------------------------------------
-
+        // Get the primitives defintion
+        files.push_back(_config->getString("device_manager/primitives_file"));
+        // Get the actual netlist to run
+        files.push_back(_config->getString("device_manager/netlist_file"));
+        // Dump devices from the netlist
+        VerilogToThermal::dumpDevicesFromVerilog(_device_instances, _config, _device_floorplan_map, files, "cell_chip");
     // ------------------------------------------------------------------------
 
     // Build the Device Traverse Sequence (Breath-First) ----------------------

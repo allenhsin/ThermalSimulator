@@ -14,6 +14,17 @@ namespace Thermal
     const string VerilogToThermal::HIER_SEPARATOR = ".";
     const std::map<std::string, DeviceType> VerilogToThermal::NAME_MAP = initNameMap();
 
+    map<string, DeviceType> VerilogToThermal::initNameMap()
+    {
+        map<string, DeviceType> out;
+        out["LaserSourceOffChip"]               = LASER_SOURCE_OFF_CHIP;
+        out["LossyOpticalNet"]                  = LOSSY_OPTICAL_NET;
+        out["ResonantRing"]                     = RESONANT_RING;
+        out["ResonantRingDepletionModulator"]   = RESONANT_RING_DEPLETION_MODULATOR;
+        out["ModulatorDriver"]                  = MODULATOR_DRIVER;
+        out["ThermalTuner"]                     = THERMAL_TUNER;
+        return out;
+    }
 
     VerilogToThermal::Net::Net(const ElabNet* net, DeviceModel* inst)
         : _net(net), _inst(inst)
@@ -284,14 +295,5 @@ namespace Thermal
         return out;
     }
             
-    map<string, DeviceType> VerilogToThermal::initNameMap()
-    {
-        map<string, DeviceType> out;
-        out["LaserSourceOffChip"]   = LASER_SOURCE_OFF_CHIP;
-        out["LossyOpticalNet"]      = LOSSY_OPTICAL_NET;
-        out["ResonantRing"]         = RESONANT_RING;
-        return out;
-    }
-
 } // namespace Thermal
 
