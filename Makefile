@@ -26,17 +26,19 @@ OPT_FLAGS     = -O2 -fPIC
 WARN_FLAGS    = -Wall -W # -pedantic
 CXXFLAGS      = $(DEBUG_FLAGS) $(OPT_FLAGS) $(WARN_FLAGS) $(INCLUDE_FLAGS)
 
-LD_LIBS  += -lboost_filesystem -lboost_system
-LD_FLAGS += -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
-#LD_LIBS  += -lboost_filesystem -lboost_system -lverilog
-#LD_FLAGS += -L$(CURDIR)/source/parser/verilog -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
+# LD_LIBS  += -lboost_filesystem -lboost_system
+# LD_FLAGS += -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
+LD_LIBS  += -lboost_filesystem -lboost_system -lverilog
+LD_FLAGS += -L$(CURDIR)/source/parser/verilog -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
+
+LIB_VERILOG = source/parser/verilog/libverilog.a
 
 TARGET      = $(CURDIR)/thermal_sim
 
 all: $(TARGET)
 
 $(LIB_VERILOG):
-	make -c source/parser/verilog
+	make -C source/parser/verilog
 
 $(TARGET): $(OBJS) $(LIB_VERILOG)
 	$(CXX) $(CXXFLAGS) $(LD_FLAGS) $(OBJS) -o $(TARGET) $(LD_LIBS) 

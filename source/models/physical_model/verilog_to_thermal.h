@@ -31,16 +31,16 @@ namespace Thermal
             class Net
             {
                 public:
-                    Net(const VerilogParser::ElabNet* net, const DeviceModel* inst);
+                    Net(const VerilogParser::ElabNet* net, DeviceModel* inst);
                     ~Net();
                     
                     inline bool isLeaf() const { return _inst != NULL; }
                     inline const VerilogParser::ElabNet* getNet() const { return _net; }
-                    inline const DeviceModel* getInst() const { return _inst; }
+                    inline DeviceModel* getInst() const { return _inst; }
                     
                 private:
                     const VerilogParser::ElabNet* _net;
-                    const DeviceModel* _inst;                    
+                    DeviceModel* _inst;                    
             };
     
             typedef std::vector<Net*> Nets;
@@ -53,16 +53,16 @@ namespace Thermal
         // from a verilog file
         private:
             VerilogToThermal(
-                    DeviceManager* device_manager,
+                    std::vector<DeviceModel*>& devices,
                     config::Config* physical_config,    
                     DeviceFloorplanMap* device_floorplan_map
                 );
 
         public:
-            // Call this function to dump the verilog instances and connectivity in the given
-            // verilog files to the provided device manager
+            // Call this function to dump the verilog instances and connectivity in the specified
+            // verilog files to the provided vector of devices
             static void dumpDevicesFromVerilog(
-                    DeviceManager* device_manager,
+                    std::vector<DeviceModel*>& devices,
                     config::Config* physical_config,
                     DeviceFloorplanMap* device_floorplan_map,
                     const std::vector<string>& verilog_files,
@@ -79,21 +79,13 @@ namespace Thermal
             // equivalent nets and connects all DeviceModel* instances correctly
             void dumpDevices();            
             // Module-level helper for dumpDevices
-            void dumpDevicesFromModule(const VerilogParser::ElabModule* module, const DeviceModel* device);
-            
+            void dumpDevicesFromModule(const VerilogParser::ElabModule* module, DeviceModel* device);            
             // Case-specific helpers for dump devices
-            void dumpItemNet(const DeviceModel* device, const VerilogParser::ElabNet* net);
+            void dumpItemNet(DeviceModel* device, const VerilogParser::ElabNet* net);
             void dumpItemInst(const VerilogParser::ElabInstance* inst);
-            void dumpItemAssign(const VerilogParser::ElabModule* module, const DeviceModel* device,
-                const VerilogParser::ElabAssign* assign);
-        
-            // Dumps the verilog and connectivity from an elaborated verilog module
-            // static void VerilogToThermal::dumpDeviceFromModule(
-                    // DeviceManager* device_manager, 
-                    // config::Config* physical_config,
-                    // DeviceFloorplanMap* device_floorplan_map, 
-                    // const ElabModule* module
-            // )
+            void dumpItemAssign(const VerilogParser::ElabAssign* assign);
+            // Helper that connects devices
+            void connectDevices();        
         
             // Identifies whether an elaborated module is a primitive
             bool isPrimitive(const VerilogParser::ElabModule* module);
@@ -107,15 +99,14 @@ namespace Thermal
             
                 
         private:        
-            // The device manager to dump devics to
-            DeviceManager* _device_manager;
+            // Vector of dumped device models from verilog
+            std::vector<DeviceModel*>& _devices;
             // Pointers needed to create primitives
             config::Config* _physical_config;
             DeviceFloorplanMap* _device_floorplan_map;
             // Verilog file reader
             VerilogParser::VerilogFileReader _reader;            
             // Maps used to help out with getting rid of nets
-            NetsMap _equiv_nets;
             NetsMap _leaf_nets;
             NetsMap _int_nets;  
         

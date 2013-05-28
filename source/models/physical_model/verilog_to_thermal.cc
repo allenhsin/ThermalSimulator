@@ -15,7 +15,7 @@ namespace Thermal
     const std::map<std::string, DeviceType> VerilogToThermal::NAME_MAP = initNameMap();
 
 
-    VerilogToThermal::Net::Net(const ElabNet* net, const DeviceModel* inst)
+    VerilogToThermal::Net::Net(const ElabNet* net, DeviceModel* inst)
         : _net(net), _inst(inst)
     {}
     
@@ -23,15 +23,14 @@ namespace Thermal
     {}
     
     VerilogToThermal::VerilogToThermal(
-            DeviceManager* device_manager,
+            vector<DeviceModel*>& devices,
             config::Config* physical_config,    
             DeviceFloorplanMap* device_floorplan_map
         )
-        : _device_manager(device_manager),
+        : _devices(devices),
         _physical_config(physical_config),
         _device_floorplan_map(device_floorplan_map),
         _reader(),
-        _equiv_nets(),
         _leaf_nets(),
         _int_nets() 
     {}
@@ -40,7 +39,7 @@ namespace Thermal
     {}
     
     void VerilogToThermal::dumpDevicesFromVerilog(
-            DeviceManager* device_manager, 
+            vector<DeviceModel*>& devices, 
             config::Config* physical_config,
             DeviceFloorplanMap* device_floorplan_map, 
             const vector<string>& verilog_files,
@@ -48,9 +47,10 @@ namespace Thermal
         )
     {
     
-        VerilogToThermal v_to_t(device_manager, physical_config, device_floorplan_map);    
+        VerilogToThermal v_to_t(devices, physical_config, device_floorplan_map);    
         v_to_t.readVerilog(verilog_files, top_module);
         v_to_t.dumpDevices();
+        v_to_t.connectDevices();
     }
 
     // Finalize connections between device instances
@@ -63,29 +63,88 @@ namespace Thermal
     {
         // Read all verilog files
         for (vector<string>::const_iterator it = verilog_files.begin(); it != verilog_files.end(); ++it)
-            _reader.parse(*it);            
+        {
+            LibUtil::Log::printLine("Reading verilog file: " + *it);
+            _reader.parse(*it);
+        }
         // Elaborate the verilog files
+        LibUtil::Log::printLine("Elaborating top module: " + top_module);
         _reader.elaborate(top_module);        
     }
     
     void VerilogToThermal::dumpDevices()
     {   
         const ElabModule* top_module = _reader.getVerilogScope()->getTopModule();
-        
-        // _reader.dumpRawModules(cout);
-        // _reader.dumpElabModules(cout);
-
-        dumpDevicesFromModule(top_module, NULL);
-        
-        // Delete and clear everything
-        for(NetsMap::const_iterator it = _equiv_nets.begin(); it != _equiv_nets.end(); ++it)
-            LibUtil::clearPtrVector<Net>(it->second);
-        _leaf_nets.clear();
-        _int_nets.clear();
+        dumpDevicesFromModule(top_module, NULL);        
     }
     
-    void VerilogToThermal::dumpDevicesFromModule(const ElabModule* module, const DeviceModel* device)
+    void VerilogToThermal::connectDevices()
     {
+        LibUtil::Log::printLine("Connecting devices...");
+        // Iterate through the net map and connect together all the equivalent nets
+        for(NetsMap::iterator it = _int_nets.begin(); it != _int_nets.end(); it = _int_nets.begin())
+        {
+            // Find the driver and sink nets
+            Net* driver = NULL;
+            Net* sink = NULL;            
+            Nets* equiv_nets = it->second;
+            for(Nets::const_iterator n_it = equiv_nets->begin(); n_it != equiv_nets->end(); ++n_it)
+            {
+                // Get the net
+                Net* net = *n_it;
+                // Check if the net is a leaf net
+                if (net->isLeaf())
+                {
+                    // Set the net to be the driver if it is a output port
+                    if (net->getNet()->getPortType() == PORT_OUTPUT)
+                    {
+                        if (driver != NULL)
+                        {
+                            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Net has multiple drivers: (" +
+                                driver->getNet()->toString() + ", " + net->getNet()->toString() + ")");
+                        }
+                        driver = net;
+                    }
+                    // Set the net to be the sink if it is an input port
+                    else if (net->getNet()->getPortType() == PORT_INPUT)
+                    {
+                        if (sink != NULL)
+                        {
+                            LibUtil::Log::printFatalLine(std::cerr, "ERROR: Net has multiple sinks: (" +
+                                sink->getNet()->toString() + ", " + net->getNet()->toString() + ")");
+                        }
+                        sink = net;
+                    }                    
+                }                
+                // Delete the entry in the net map                
+                 _int_nets.erase(net->getNet());
+            }
+            // If the net has a driver and a sink, make the connection!
+            if (driver && sink)
+            {
+                LibUtil::Log::printLine("Connection (driver=" + driver->getNet()->toString() + ", "
+                    "sink=" + sink->getNet()->toString()+")");
+                    
+                DeviceModel* driver_model = driver->getInst();
+                DeviceModel* sink_model = sink->getInst();
+                const string& driver_port = driver->getNet()->getIdentifier();
+                const string& sink_port = sink->getNet()->getIdentifier();
+                
+                driver_model->setTargetPortName(driver_port);
+                driver_model->setTargetPortConnectedPort(sink_model->getPort(sink_port));
+                sink_model->setTargetPortName(sink_port);
+                sink_model->setTargetPortConnectedPort(driver_model->getPort(driver_port));
+            }
+            // Delete the current set of equivalent nets
+            LibUtil::deletePtrVector<Net>(equiv_nets);            
+        }
+    }
+    
+    void VerilogToThermal::dumpDevicesFromModule(const ElabModule* module, DeviceModel* device)
+    {
+        if (device == NULL) 
+            LibUtil::Log::printLine("Reading non-primitive module: " + module->getName());
+        
         const ElabItems& items = module->getItems();
         for (ElabItems::const_iterator it = items.begin(); it != items.end(); ++it)
         {
@@ -109,42 +168,85 @@ namespace Thermal
                 }
                 case ELAB_ITEM_ASSIGN:
                 {
-                    dumpItemAssign(module, device, (ElabAssign*) item);
+                    dumpItemAssign((ElabAssign*) item);
                     break;
                 }                
             }
         }
     }
     
-    void VerilogToThermal::dumpItemNet(const DeviceModel* device, const ElabNet* net)
+    void VerilogToThermal::dumpItemNet(DeviceModel* device, const ElabNet* net)
     {
-        // Check to see if this is a non-leaf net
+        // Create a new Net data structure
+        Net* net_ds = new Net(net, device);
         // Create a new vector of nets representing equivalent nets
-        if (device == NULL)
-            _int_nets[net] = new Nets(1, new Net(net, device));
-        else
-            _leaf_nets[net] = new Nets(1, new Net(net, device));
-        
-        if (device != NULL)
-            std::cout << net->toString() << std::endl;            
+        _int_nets[net] = new Nets(1, net_ds);
     }
     void VerilogToThermal::dumpItemInst(const ElabInstance* inst)
     {
         // If it is a primitive, create the primitive
         if(isPrimitive(inst->getModule()))
         {
+            LibUtil::Log::printLine("Device (" + inst->toString() + ")");
+            // Get the device and add it to the device model
             DeviceModel* device = getPrimitive(inst);            
-            // TODO: Add to device manager
-            // Dump nets from the module it instantiates
+            _devices.push_back(device);
+            // Dump devices from the module it instantiates
             dumpDevicesFromModule(inst->getModule(), device);            
         }
-        else
-            dumpDevicesFromModule(inst->getModule(), NULL);
+        else dumpDevicesFromModule(inst->getModule(), NULL);
         
     }
-    void VerilogToThermal::dumpItemAssign(const ElabModule* module, const DeviceModel* device, const ElabAssign* assign)
+    void VerilogToThermal::dumpItemAssign(const ElabAssign* assign)
     {
-    
+        const BitVector& lh = assign->getLeft();
+        const BitVector& rh = assign->getRight();
+        // Total bits in the assignment
+        unsigned int width = std::min(lh.width(), rh.width());
+        for (unsigned int i = 0; i < width; ++i)
+        {
+            int li = lh.low() + i;
+            int ri = rh.low() + i;
+            
+            // Get the assignment as directly between an assignment
+            // between two elaborated nets. The thermal simulator does not care
+            // about assignments to/from constant numbers
+            const ElabNet* lnet = NULL;
+            const ElabNet* rnet = NULL;            
+            if (!lh[li]->isConstant()) lnet = ((const NetBit*) lh[li])->getNet();
+            if (!rh[ri]->isConstant()) rnet = ((const NetBit*) rh[ri])->getNet();
+            if (lnet != NULL && rnet != NULL)
+            {   
+                // Check to see if either of them are a leaf
+                // bool l_is_leaf = (*_int_nets[lnet])[0]->isLeaf();
+                bool r_is_leaf = (*_int_nets[rnet])[0]->isLeaf();
+                
+                // If there is something that is a leaf, merge with it, otherwise
+                // be merged with something that is a leaf
+                Nets* keep_equivs = NULL;
+                Nets* merge_equivs = NULL;
+                if (r_is_leaf)
+                {
+                    keep_equivs = _int_nets[rnet];
+                    merge_equivs = _int_nets[lnet];
+                }
+                else
+                {
+                    keep_equivs = _int_nets[lnet];
+                    merge_equivs = _int_nets[rnet];
+                }    
+                // Remap every single equivalent net and also copy over anything that is a leaf
+                for (Nets::const_iterator it = merge_equivs->begin(); it != merge_equivs->end(); ++it)
+                {
+                    // Remap a net equivalent to rnet to the nets equivalent lnet;
+                    _int_nets[(*it)->getNet()] = keep_equivs;
+                    // add it to the list of nets equivalent to the lnet
+                    keep_equivs->push_back(*it);
+                }
+                // Delete rnet
+                delete merge_equivs;
+            }
+        }
     }
     
     
@@ -190,106 +292,6 @@ namespace Thermal
         out["ResonantRing"]         = RESONANT_RING;
         return out;
     }
-    
-    // bool VerilogToThermal::startupManager()
-    // {
-        // assert(_config);
-
-    // // check if manager is enabled --------------------------------------------
-        // if(!_config->getBool("device_manager/enable"))
-        // {
-            // LibUtil::Log::printLine( "    Device Manager not enabled" );
-            // return false;
-        // }
-    // // ------------------------------------------------------------------------
-
-    // // set device manager constants -------------------------------------------
-        // // sampling interval
-        // _sub_bit_sampling_intvl = _config->getFloat("device_manager/sub_bit_sampling_intvl");
-    // // ------------------------------------------------------------------------
-
-    // // Load Files and Initialize Devices --------------------------------------
-        // // load floorplan map file
-        // _device_floorplan_map->loadFloorplanMap( _config->getString("device_manager/flpmap_file") );
-
-        // // load device netlist
-        // //FIXME: hardcode device now just for test ------------------------------------------------
-
-        // // laser -> waveguide_0
-        // _device_instances[11]->setTargetPortName("out");
-        // _device_instances[11]->setTargetPortConnectedPort( _device_instances[0]->getPort("in") );
-        // _device_instances[0]->setTargetPortName("in");
-        // _device_instances[0]->setTargetPortConnectedPort( _device_instances[11]->getPort("out") );
-
-        // // modulator driver -> modulator
-        // _device_instances[12]->setTargetPortName("out");
-        // _device_instances[12]->setTargetPortConnectedPort( _device_instances[10]->getPort("mod_driver") );
-        // _device_instances[10]->setTargetPortName("mod_driver");
-        // _device_instances[10]->setTargetPortConnectedPort( _device_instances[12]->getPort("out") );
-
-        // // waveguide_0 -> waveguide_1
-        // _device_instances[0]->setTargetPortName("out");
-        // _device_instances[0]->setTargetPortConnectedPort( _device_instances[1]->getPort("in") );
-        // _device_instances[1]->setTargetPortName("in");
-        // _device_instances[1]->setTargetPortConnectedPort( _device_instances[0]->getPort("out") );
-        
-        // // waveguide_1 -> modulator
-        // _device_instances[1]->setTargetPortName("out");
-        // _device_instances[1]->setTargetPortConnectedPort( _device_instances[10]->getPort("in") );
-        // _device_instances[10]->setTargetPortName("in");
-        // _device_instances[10]->setTargetPortConnectedPort( _device_instances[1]->getPort("out") );
-        
-        // // modulator -> waveguide_2
-        // _device_instances[10]->setTargetPortName("thru");
-        // _device_instances[10]->setTargetPortConnectedPort( _device_instances[2]->getPort("in") );
-        // _device_instances[2]->setTargetPortName("in");
-        // _device_instances[2]->setTargetPortConnectedPort( _device_instances[10]->getPort("thru") );
-        
-        // // waveguide_2 -> waveguide_3
-        // _device_instances[2]->setTargetPortName("out");
-        // _device_instances[2]->setTargetPortConnectedPort( _device_instances[3]->getPort("in") );
-        // _device_instances[3]->setTargetPortName("in");
-        // _device_instances[3]->setTargetPortConnectedPort( _device_instances[2]->getPort("out") );
-
-        // // waveguide_3 -> waveguide_4
-        // _device_instances[3]->setTargetPortName("out");
-        // _device_instances[3]->setTargetPortConnectedPort( _device_instances[4]->getPort("in") );
-        // _device_instances[4]->setTargetPortName("in");
-        // _device_instances[4]->setTargetPortConnectedPort( _device_instances[3]->getPort("out") );
-        
-        // // waveguide_4 -> waveguide_5
-        // _device_instances[4]->setTargetPortName("out");
-        // _device_instances[4]->setTargetPortConnectedPort( _device_instances[5]->getPort("in") );
-        // _device_instances[5]->setTargetPortName("in");
-        // _device_instances[5]->setTargetPortConnectedPort( _device_instances[4]->getPort("out") );
-        
-        // // waveguide_5 -> waveguide_6
-        // _device_instances[5]->setTargetPortName("out");
-        // _device_instances[5]->setTargetPortConnectedPort( _device_instances[6]->getPort("in") );
-        // _device_instances[6]->setTargetPortName("in");
-        // _device_instances[6]->setTargetPortConnectedPort( _device_instances[5]->getPort("out") );
-        
-        // // waveguide_6 -> receiver ring
-        // _device_instances[6]->setTargetPortName("out");
-        // _device_instances[6]->setTargetPortConnectedPort( _device_instances[9]->getPort("in") );
-        // _device_instances[9]->setTargetPortName("in");
-        // _device_instances[9]->setTargetPortConnectedPort( _device_instances[6]->getPort("out") );
-        
-        // // receiver_ring -> waveguide_7
-        // _device_instances[9]->setTargetPortName("thru");
-        // _device_instances[9]->setTargetPortConnectedPort( _device_instances[7]->getPort("in") );
-        // _device_instances[7]->setTargetPortName("in");
-        // _device_instances[7]->setTargetPortConnectedPort( _device_instances[9]->getPort("thru") );
-
-        // // waveguide_7 -> waveguide_8
-        // _device_instances[7]->setTargetPortName("out");
-        // _device_instances[7]->setTargetPortConnectedPort( _device_instances[8]->getPort("in") );
-        // _device_instances[8]->setTargetPortName("in");
-        // _device_instances[8]->setTargetPortConnectedPort( _device_instances[7]->getPort("out") );
-        
-        // //END FIXME -------------------------------------------------------------------------------
-        
-    // } // startup
 
 } // namespace Thermal
 

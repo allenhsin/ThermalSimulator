@@ -120,7 +120,7 @@ namespace Thermal
         vector<string> files;
         files.push_back("configs/physical_model/device_primitives.v");
         files.push_back("tests/test.v");
-        VerilogToThermal::dumpDevicesFromVerilog(this, _config, _device_floorplan_map, files, "TestTop");
+        VerilogToThermal::dumpDevicesFromVerilog(_device_instances, _config, _device_floorplan_map, files, "TestTop");
 
         //FIXME: hardcode device now just for test ------------------------------------------------
 

@@ -28,7 +28,7 @@ namespace VerilogParser
             // Get the high and low indices
             inline int low() const { return m_offset_; }
             inline int high() const { return m_offset_ + m_bits_.size() - 1; }
-            inline int width() const { return m_bits_.size(); }
+            inline unsigned int width() const { return m_bits_.size(); }
 
             // Is the bit target a constant number/string
             bool isConst() const;
