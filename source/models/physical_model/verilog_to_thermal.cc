@@ -42,8 +42,7 @@ namespace Thermal
         _physical_config(physical_config),
         _device_floorplan_map(device_floorplan_map),
         _reader(),
-        _leaf_nets(),
-        _int_nets() 
+        _nets() 
     {}
 
     VerilogToThermal::~VerilogToThermal()
@@ -93,7 +92,7 @@ namespace Thermal
     {
         LibUtil::Log::printLine("Connecting devices...");
         // Iterate through the net map and connect together all the equivalent nets
-        for(NetsMap::iterator it = _int_nets.begin(); it != _int_nets.end(); it = _int_nets.begin())
+        for(NetsMap::iterator it = _nets.begin(); it != _nets.end(); it = _nets.begin())
         {
             // Find the driver and sink nets
             Net* driver = NULL;
@@ -128,7 +127,7 @@ namespace Thermal
                     }                    
                 }                
                 // Delete the entry in the net map                
-                 _int_nets.erase(net->getNet());
+                 _nets.erase(net->getNet());
             }
             // If the net has a driver and a sink, make the connection!
             if (driver && sink)
@@ -191,7 +190,7 @@ namespace Thermal
         // Create a new Net data structure
         Net* net_ds = new Net(net, device);
         // Create a new vector of nets representing equivalent nets
-        _int_nets[net] = new Nets(1, net_ds);
+        _nets[net] = new Nets(1, net_ds);
     }
     void VerilogToThermal::dumpItemInst(const ElabInstance* inst)
     {
@@ -229,28 +228,45 @@ namespace Thermal
             if (lnet != NULL && rnet != NULL)
             {   
                 // Check to see if either of them are a leaf
-                // bool l_is_leaf = (*_int_nets[lnet])[0]->isLeaf();
-                bool r_is_leaf = (*_int_nets[rnet])[0]->isLeaf();
+                bool l_is_leaf = (*_nets[lnet])[0]->isLeaf();
+                bool r_is_leaf = (*_nets[rnet])[0]->isLeaf();
                 
-                // If there is something that is a leaf, merge with it, otherwise
-                // be merged with something that is a leaf
                 Nets* keep_equivs = NULL;
                 Nets* merge_equivs = NULL;
-                if (r_is_leaf)
+
+                // If neither is a leaf or they are both leaves, merge the one with fewer
+                // equivalent nets into the one with more equivalent nets
+                if (r_is_leaf == l_is_leaf)
                 {
-                    keep_equivs = _int_nets[rnet];
-                    merge_equivs = _int_nets[lnet];
+                    if(_nets[lnet]->size() <= _nets[rnet]->size())
+                    {
+                        keep_equivs = _nets[rnet];
+                        merge_equivs = _nets[lnet];
+                    }
+                    else
+                    {
+                        keep_equivs = _nets[lnet];
+                        merge_equivs = _nets[rnet];                    
+                    }
+                }
+                // If there is only one thing that is a leaf, merge with it, otherwise
+                // be merged with something that is a leaf
+                else if (r_is_leaf)
+                {
+                    keep_equivs = _nets[rnet];
+                    merge_equivs = _nets[lnet];
                 }
                 else
                 {
-                    keep_equivs = _int_nets[lnet];
-                    merge_equivs = _int_nets[rnet];
-                }    
+                    keep_equivs = _nets[lnet];
+                    merge_equivs = _nets[rnet];
+                }
+                
                 // Remap every single equivalent net and also copy over anything that is a leaf
                 for (Nets::const_iterator it = merge_equivs->begin(); it != merge_equivs->end(); ++it)
                 {
                     // Remap a net equivalent to rnet to the nets equivalent lnet;
-                    _int_nets[(*it)->getNet()] = keep_equivs;
+                    _nets[(*it)->getNet()] = keep_equivs;
                     // add it to the list of nets equivalent to the lnet
                     keep_equivs->push_back(*it);
                 }

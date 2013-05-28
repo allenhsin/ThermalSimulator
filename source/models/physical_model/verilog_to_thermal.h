@@ -106,9 +106,8 @@ namespace Thermal
             DeviceFloorplanMap* _device_floorplan_map;
             // Verilog file reader
             VerilogParser::VerilogFileReader _reader;            
-            // Maps used to help out with getting rid of nets
-            NetsMap _leaf_nets;
-            NetsMap _int_nets;  
+            // Map used to help out with getting rid of nets
+            NetsMap _nets;  
         
                 
     }; // class VerilogToThermal
