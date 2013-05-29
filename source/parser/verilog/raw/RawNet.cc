@@ -30,6 +30,17 @@ namespace VerilogParser
     RawItems* RawNet::createRawNets(
             const Identifiers& identifiers_,
             PortType port_type_,
+            NetType net_type_
+        )
+    {
+        return createRawNets(identifiers_, port_type_, net_type_,
+            BitRange(NumberExpression(0), NumberExpression(0)));
+    }
+
+    
+    RawItems* RawNet::createRawNets(
+            const Identifiers& identifiers_,
+            PortType port_type_,
             NetType net_type_, 
             const BitRange& range_
         )

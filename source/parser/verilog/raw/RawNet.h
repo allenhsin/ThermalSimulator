@@ -24,8 +24,9 @@ namespace VerilogParser
 
         public:
             static RawItems* createRawNets(const Identifiers& identifiers_, PortType port_type_,
-                NetType net_type_, const BitRange& range_ = BitRange(
-                        NumberExpression(0), NumberExpression(0)));
+                NetType net_type_);
+            static RawItems* createRawNets(const Identifiers& identifiers_, PortType port_type_,
+                NetType net_type_, const BitRange& range_);
             
         public:
             inline const BitRange& getRange() const { return m_range_; }
