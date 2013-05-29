@@ -97,10 +97,11 @@ void yyerror(VerilogFileReader* reader_, const char *s);
     /* verilog numbers */
 [_0-9]+                                 { yylval.num = new Number(yytext); return NUMBER; }
 [_0-9]+"'"[bodh][ \t\n]*[a-fA-F_0-9]+   { yylval.num = new Number(yytext); return NUMBER; }
+"\"".*"\""                              { yylval.sval = strdup(yytext); return STRING; }
 
     /* identifiers */
 [a-zA-Z_][a-zA-Z_0-9]*                  { yylval.sval = strdup(yytext); return IDENTIFIER; }
-"\"".*"\""                              { yylval.sval = strdup(yytext); return STRING; }
+"\\"[^ \t\n]+                           { yylval.sval = strdup(yytext); return IDENTIFIER; }
 
     /* ignore white spaces */
 [ \t]           { ; }

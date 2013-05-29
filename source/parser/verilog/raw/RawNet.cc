@@ -33,8 +33,9 @@ namespace VerilogParser
             NetType net_type_
         )
     {
-        return createRawNets(identifiers_, port_type_, net_type_,
-            BitRange(NumberExpression(0), NumberExpression(0)));
+        const NumberExpression& zero = NumberExpression(0);
+        const BitRange& range = BitRange(zero, zero);
+        return createRawNets(identifiers_, port_type_, net_type_, range);
     }
 
     
