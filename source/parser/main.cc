@@ -16,11 +16,13 @@ extern FILE* snazzlein;
 // File used to test the parser
 int main(int argc, char** argv) 
 {
-    if (argc >= 2)
+    if (argc >= 3)
     {
         VerilogFileReader* file_reader = new VerilogFileReader();
     
-        for (int i = 1; i < argc; ++i)
+        std::string top_name = argv[1];
+    
+        for (int i = 2; i < argc; ++i)
         {
             VerilogFile* file = new VerilogFile(argv[i]);
             file_reader->parse(file);
@@ -28,7 +30,7 @@ int main(int argc, char** argv)
             delete file;
         }
         
-        file_reader->elaborate("AND_X1M_A12TR");
+        file_reader->elaborate(top_name);
         file_reader->dumpRawModules(cout);
         file_reader->dumpElabModules(cout);
         
@@ -58,7 +60,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        cout << "USAGE: test verilog_file" << endl;
+        cout << "USAGE: test TOP_LEVEL_MODULE VERILOG_FILES" << endl;
         exit(-1);
     }
 }

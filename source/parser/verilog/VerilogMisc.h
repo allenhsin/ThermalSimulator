@@ -138,7 +138,8 @@ namespace VerilogParser
     {
         RAW_ITEM_PARAM,
         RAW_ITEM_NET,
-        RAW_ITEM_INST
+        RAW_ITEM_INST,
+        RAW_ITEM_ASSIGN
     };
     
     // Type of items inside elaborated modules

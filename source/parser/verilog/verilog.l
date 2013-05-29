@@ -19,6 +19,7 @@
 #include "raw/RawNet.h"
 #include "raw/RawInstance.h"
 #include "raw/RawParameter.h"
+#include "raw/RawAssign.h"
 
 #include "expressions/StringExpression.h"
 #include "expressions/IdentifierExpression.h"
@@ -104,7 +105,7 @@ void yyerror(VerilogFileReader* reader_, const char *s);
 "\\"[^ \t\n]+                           { yylval.sval = strdup(yytext); return IDENTIFIER; }
 
     /* ignore white spaces */
-[ \t]           { ; }
+[ \t\r]         { ; }
 
     /* Recognize comments  */
 "//"[^\n]*      { ; }

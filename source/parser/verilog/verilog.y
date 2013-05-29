@@ -32,6 +32,7 @@
 #include "raw/RawNet.h"
 #include "raw/RawInstance.h"
 #include "raw/RawParameter.h"
+#include "raw/RawAssign.h"
 
 #include "expressions/EmptyExpression.h"
 #include "expressions/StringExpression.h"
@@ -85,7 +86,6 @@ void yyerror(VerilogFileReader* reader_, const char *s);
     VerilogParser::RHExpressions* exprs_rh;
     VerilogParser::LHExpressions* exprs_lh;
 
-
     VerilogParser::SetValues* conns;
     
     VerilogParser::RawModule* module;
@@ -99,6 +99,7 @@ void yyerror(VerilogFileReader* reader_, const char *s);
     VerilogParser::RawInstance* instance;
     VerilogParser::RawInstances* instances;
     VerilogParser::RawParameter* parameter;
+    VerilogParser::RawAssign* assign;
     // VerilogParser::RawParameters* parameters;
     
 }
@@ -127,10 +128,10 @@ void yyerror(VerilogFileReader* reader_, const char *s);
 %type   <expr_rh>       constant_expression
 
 %type   <expr_rh>       expression_rh
-// %type   <expr_lh>       expression_lh
+%type   <expr_lh>       expression_lh
 
 // %type   <exprs>         list_of_expressions
-// %type   <exprs_lh>      list_of_expressions_lh
+%type   <exprs_lh>      list_of_expressions_lh
 %type   <exprs_rh>      list_of_expressions_rh
 
 %type   <identifiers>   list_of_identifiers
@@ -149,6 +150,9 @@ void yyerror(VerilogFileReader* reader_, const char *s);
 %type   <items>         module_item_list
 
 %type   <items>         net_declaration
+%type   <assign>        net_assignment
+%type   <items>         list_of_net_assignments
+%type   <items>         continuous_assign
 
 %type   <parameter>     param_assignment
 %type   <items>         list_of_param_assignments
@@ -342,6 +346,13 @@ expression_rh:
     | '{' list_of_expressions_rh '}'        { $$ = new ConcatRHExpression(*$2); delete $2; }
     ;
     
+expression_lh:
+    '(' expression_lh ')'                   { $$ = $2; }
+    | IDENTIFIER                            { $$ = new IdentifierExpression($1); }
+    | IDENTIFIER range                      { $$ = new IdentifierExpression($1, *$2); delete $2; }
+    | '{' list_of_expressions_lh '}'        { $$ = new ConcatLHExpression(*$2); delete $2; }
+    ;            
+    
 constant_expression:
     expression_rh                           { $$ = $1; }
     ;
@@ -350,10 +361,14 @@ list_of_expressions_rh:
     expression_rh                               { $$ = new RHExpressions(1, $1); }
     | list_of_expressions_rh ',' expression_rh  { $$ = $1; $$->push_back($3); }
     ;
+
+list_of_expressions_lh:
+    expression_lh                               { $$ = new LHExpressions(1, $1); }
+    | list_of_expressions_lh ',' expression_lh  { $$ = $1; $$->push_back($3); }
+    ;
     
 list_of_identifiers:
-    /* empty */                             { $$ = new Identifiers(); }
-    | IDENTIFIER                            { $$ = new Identifiers(1, $1); }
+    IDENTIFIER                              { $$ = new Identifiers(1, $1); }
     | list_of_identifiers ',' IDENTIFIER    { $$ = $1; $$->push_back($3); }
     ;
 
@@ -361,29 +376,20 @@ module_item:
     net_declaration
     | parameter_declaration
     | module_instantiation
+    | continuous_assign
     ;
     
-// continuous_assign:
-    // ASSIGN list_of_assignments ';'
+continuous_assign:
+    ASSIGN list_of_net_assignments ';'              { $$ = $2; }
 
-// list_of_assignments:
-    // assignment
-    // ;
+list_of_net_assignments:
+    net_assignment                                  { $$ = new RawItems(1, $1); }
+    | list_of_net_assignments ',' net_assignment    { $$ = $1; $$->push_back($3); }
+    ;
     
-// assignment:
-    // lh_expression '=' rh_expression    
-        
-// expression_lh:
-    // '(' expression_lh ')'                   { $$ = $2; }
-    // | IDENTIFIER                            { $$ = new IdentifierExpression($1); }
-    // | IDENTIFIER range                      { $$ = new IdentifierExpression($1, *$2); delete $2; }
-    // | '{' list_of_expressions_lh '}'        { $$ = new ConcatLHExpression(*$2); delete $2; }
-    // ;        
-        
-// list_of_expressions_lh:
-    // expression_lh                               { $$ = new LHExpressions(1, $1); }
-    // | list_of_expressions_lh ',' expression_lh  { $$ = $1; $$->push_back($3); }
-    // ;
+net_assignment:
+    expression_lh '=' expression_rh                 { $$ = new RawAssign(*$1, *$3); delete $1; delete $3; }
+    ;
     
 // port:
     // port_expression
@@ -405,8 +411,6 @@ module_item:
     // | port_reference_list ',' port_reference
     // ;
         
-    
-// | module_instantiation
     
 %%
 
