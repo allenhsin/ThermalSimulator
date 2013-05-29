@@ -23,7 +23,7 @@ module INV_X1M_A12TR(A, Y);
     wire [1:0]      n2;
     wire [CadenceSucks*(2-1-1)*5:0] n3;
     wire [CadenceSucks-1:0] n4;
-    wire \1.5425@$%escaped_identifier3 ;
+    wire ["0":0] \1.5425@$%escaped_identifier3 ;
 
     // parameter Wow2 = n2;
 

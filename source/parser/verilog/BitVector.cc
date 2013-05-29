@@ -76,22 +76,24 @@ namespace VerilogParser
         if (!isConst())
             throw VerilogException("Expected constant target, got non-constant");        
 
+        // Use a string of 1s and 0s to make conversion easier
         string bit_str = "";
-        for (unsigned int i = 0; i < m_bits_.size(); ++i)
+        // Pad the string with 0s until the bit string is a multiple of 8
+        while ((bit_str.size() + m_bits_.size()) % 8 != 0)
+            bit_str.push_back('0');
+
+        for (vector<Bit*>::const_reverse_iterator it = m_bits_.rbegin(); it != m_bits_.rend(); ++it)
         {
-            ConBit* bit = (ConBit*) m_bits_[i];
+            const ConBit* bit = (const ConBit*) (*it);
             if (bit->getBit()) bit_str.push_back('1');
             else bit_str.push_back('0');
         }
-        // Pad the string until it is a nice multiple of 8
-        while (bit_str.size() % 8 != 0)
-            bit_str.push_back('0');
-            
+                
         string out = "";
         for (unsigned int i = 0; i < bit_str.size(); i+=8)
         {
             bitset<8> c_bits(bit_str.substr(i, i+8));
-            out = (char) c_bits.to_ulong() + out;
+            out += (char) c_bits.to_ulong();
         }
         return out;
     }
@@ -129,7 +131,7 @@ namespace VerilogParser
             for (unsigned int i = 0; i < 8; ++i)
                 out->m_bits_.push_back(new ConBit(bits[i]));
         }
-        
+                
         return out;
     }
     
