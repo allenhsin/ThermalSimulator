@@ -151,16 +151,18 @@ namespace Thermal
         // build device sequence and stroe sequence in _device_sequence
         buildDeviceSequence();
         
+        cout << endl << endl;
         cout << _device_sequence.size() << " " << _device_instances.size() << endl;
         
         for (unsigned int i = 0; i < _device_sequence.size(); ++i)
             cout << _device_sequence[i]->getDeviceTypeName() << ":" << _device_sequence[i]->getInstanceName() << endl;
 
-        cout << "BLAH" << endl;
+        cout << endl << endl;
             
         for (unsigned int i = 0; i < _device_instances.size(); ++i)
             cout << _device_instances[i]->getDeviceTypeName() << ":" << _device_instances[i]->getInstanceName() << endl;
         
+        cout << endl << endl;
         assert(_device_sequence.size()==_device_instances.size());
     // ------------------------------------------------------------------------
 

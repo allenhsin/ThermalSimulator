@@ -23,8 +23,8 @@ namespace Thermal
 
     Port::Port( const Port& cloned_port)
         : _port_type        (cloned_port._port_type)
-        , _device           (cloned_port._device)
-        , _connected_port   (cloned_port._connected_port)
+        , _device           (NULL)
+        , _connected_port   (NULL)
     {
         _port_properties.clear();
         if(_port_type == INPUT_PORT)
@@ -40,6 +40,14 @@ namespace Thermal
         if(_port_type == OUTPUT_PORT)
             for (map< string, vector<double>* >::iterator it = _port_properties.begin(); it != _port_properties.end(); ++it)
             { if(it->second) delete it->second; }
+    }
+
+    Port* Port::clone(DeviceModel* device) const
+    { 
+        Port* port = new Port(*this); 
+        port->_device = device;
+
+        return port;
     }
     
     void Port::setConnectedPort(const Port* connected_port)

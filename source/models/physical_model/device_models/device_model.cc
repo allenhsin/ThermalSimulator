@@ -71,7 +71,7 @@ namespace Thermal
     {
         _device_ports.clear();
         for ( map<string, Port*>::const_iterator it=cloned_device._device_ports.begin(); it!=cloned_device._device_ports.end(); ++it )
-            _device_ports[it->first] = new Port(*(it->second));
+            _device_ports[it->first] = it->second->clone(this);
 
         _monitored_device_ports.clear();
     }

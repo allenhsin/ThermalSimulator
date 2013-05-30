@@ -21,7 +21,6 @@ namespace Thermal
     {
     public:
         Port(DeviceModel* device, PortType port_type);
-        Port( const Port& cloned_port);
         ~Port();
 
         PortType getPortType() const
@@ -29,6 +28,8 @@ namespace Thermal
 
         DeviceModel* getDevice() const
         { return _device; }
+
+        Port* clone(DeviceModel* device) const;
 
         // also hook up the port properties of the two ports
         void setConnectedPort(const Port* connected_port);
@@ -50,8 +51,10 @@ namespace Thermal
         void linkPortPropertyPointer(std::string property_name, std::vector<double>* property_pointer);
 
     private:
+        Port( const Port& cloned_port);
+
         const PortType      _port_type;
-        DeviceModel* const  _device;
+        DeviceModel*        _device;
         const Port*         _connected_port;
 
         std::map< std::string, std::vector<double>* > _port_properties;
