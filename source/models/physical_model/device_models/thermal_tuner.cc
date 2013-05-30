@@ -5,7 +5,6 @@
 #include <math.h>
 
 #include "source/models/physical_model/device_models/thermal_tuner.h"
-#include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 #include "libutil/LibUtil.h"
 
@@ -14,7 +13,7 @@ using std::string;
 namespace Thermal
 {
     ThermalTuner::ThermalTuner(DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
-        : DeviceModel( THERMAL_TUNER, device_floorplan_map, device_definition_file)
+        : DeviceModel(device_floorplan_map, device_definition_file)
         , _heater_power                         (0)
         , _clock_period                         (0)
         , _current_clock_period_elapsed_time    (0)

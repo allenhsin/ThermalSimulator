@@ -6,7 +6,6 @@
 
 #include "source/data/data.h"
 #include "source/models/physical_model/device_models/modulator_driver.h"
-#include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 #include "libutil/LibUtil.h"
 
@@ -16,7 +15,7 @@ using std::string;
 namespace Thermal
 {
     ModulatorDriver::ModulatorDriver(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
-        : DeviceModel( MODULATOR_DRIVER, device_floorplan_map, device_definition_file)
+        : DeviceModel(device_floorplan_map, device_definition_file)
         , _bit_period               (0)
         , _bit_one_time_const       (0)
         , _bit_zero_time_const      (0)

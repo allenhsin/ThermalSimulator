@@ -35,10 +35,11 @@ namespace Thermal
 
         Time                        _sub_bit_sampling_intvl;
 
-        // map of primitive devices for device instance
+        // set of primitive devices for device instance
         // initialization. This is to avoid to read the
         // device definition file for multiple times.
-        std::map<DeviceType, DeviceModel*> _primitive_devices;
+        // string: the device type name
+        std::map<std::string, DeviceModel*> _primitive_devices;
 
         // _device_instances are data placeholders 
         // resposible for device instance construction 

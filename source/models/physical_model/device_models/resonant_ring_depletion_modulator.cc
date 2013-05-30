@@ -6,7 +6,6 @@
 
 #include "source/data/data.h"
 #include "source/models/physical_model/device_models/resonant_ring_depletion_modulator.h"
-#include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/physical_constants.h"
 #include "libutil/LibUtil.h"
 
@@ -17,7 +16,7 @@ using std::distance;
 namespace Thermal
 {
     ResonantRingDepletionModulator::ResonantRingDepletionModulator(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
-        : DeviceModel   ( RESONANT_RING_DEPLETION_MODULATOR, device_floorplan_map, device_definition_file)
+        : DeviceModel   (device_floorplan_map, device_definition_file)
         , _number_wavelength(0)
         , _v_bi_partial     (0)
         , _w_dep_partial    (0)

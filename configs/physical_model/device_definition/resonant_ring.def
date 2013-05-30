@@ -2,6 +2,12 @@
 # This is a comment line
 # In-line comment is not allowed
 
+# The name of the device type. This is the same name which is used
+# for the module name in the device verilog netlist
+
+[name]
+    ResonantRing
+
 # List the ports of the device and the port's corresponding properties.
 #
 # Format: <PortName, PortType, Property1, Property2, Property3, ...>

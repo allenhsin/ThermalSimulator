@@ -6,7 +6,6 @@
 
 #include "source/data/data.h"
 #include "source/models/physical_model/device_models/resonant_ring.h"
-#include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/physical_constants.h"
 #include "libutil/LibUtil.h"
 
@@ -17,7 +16,7 @@ using std::distance;
 namespace Thermal
 {
     ResonantRing::ResonantRing(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
-        : DeviceModel   ( RESONANT_RING, device_floorplan_map, device_definition_file)
+        : DeviceModel   (device_floorplan_map, device_definition_file)
         , _number_wavelength(0)
         , _theta_partial    (0)
         , _alpha            (0)

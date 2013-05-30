@@ -16,10 +16,12 @@ using LibUtil::String;
 
 namespace Thermal
 {
-    DeviceDefinitionParser::DeviceDefinitionParser(DeviceModel* device_model, port_name_map& device_ports, param_name_map& device_parameters)
-        : _device_model     (device_model)
-        , _device_ports     (device_ports)
-        , _device_parameters (device_parameters)
+    DeviceDefinitionParser::DeviceDefinitionParser( DeviceModel* device_model, port_name_map& device_ports, 
+                                                    param_name_map& device_parameters, string& device_type_name)
+        : _device_model         (device_model)
+        , _device_ports         (device_ports)
+        , _device_parameters    (device_parameters)
+        , _device_type_name     (device_type_name)
     {}
     
     void DeviceDefinitionParser::loadDeviceDefinitionFile(string device_definition_file)
@@ -33,18 +35,19 @@ namespace Thermal
         int     line_number = 0;
 
         char        name[STR_SIZE];
+        char        device_type_name[STR_SIZE];
         PortType    port_type = NULL_PORT;
         double      value;
 
         enum DefType
         {
+            TYPE_NAME,
             TYPE_PORT,
             TYPE_PARAMETER,
             TYPE_NULL
         };
         
         DefType def_type = TYPE_NULL;
-
 
         FILE* def_file = fopen(device_definition_file.c_str(), "r");
         if (!def_file)
@@ -64,6 +67,11 @@ namespace Thermal
             // ignore comments and empty lines
             if      (!line_token || line_token[0] == '#')
                 continue;
+            else if (!strcmp(line_token, "[name]"))
+            {   
+                def_type = TYPE_NAME;
+                Misc::isEndOfLine(0);
+            }
             else if (!strcmp(line_token, "[port]"))
             {   
                 def_type = TYPE_PORT;
@@ -78,6 +86,15 @@ namespace Thermal
             {
                 switch(def_type)
                 {
+                case TYPE_NAME:
+                    if(line_token)
+                        strcpy(device_type_name, line_token);
+                    else
+                        LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Cannot read device type name in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
+                    _device_type_name = (string) device_type_name;
+                    Misc::isEndOfLine(0);
+                    break;
+                
                 case TYPE_PORT:
                     // check if the beginning is '<'
                     if(line_token[0]!='<')
@@ -136,7 +153,7 @@ namespace Thermal
                         LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid def file parameter syntax in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
                     Misc::isEndOfLineWithEqual(1);
                     break;
-                
+
                 default: // TYPE_NULL
                     LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Invalid def file syntax in file: " + device_definition_file + " at line " + (String) line_number + ".\n");
                     break;

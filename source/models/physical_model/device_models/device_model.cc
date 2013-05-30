@@ -25,9 +25,8 @@ using LibUtil::String;
 
 namespace Thermal
 {
-    DeviceModel::DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
-        : _device_type              (device_type)
-        , _device_definition_file   (device_definition_file)
+    DeviceModel::DeviceModel(DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
+        : _device_definition_file   (device_definition_file)
         , _device_floorplan_map     (device_floorplan_map)
         , _mapped_on_floorplan      (false)
         , _traversed_in_bfs         (false)
@@ -42,8 +41,8 @@ namespace Thermal
         _device_parameters.clear();
         _monitored_device_ports.clear();
         
-        // initilize the device's ports/parameters/properties
-        DeviceDefinitionParser device_def_parser(this, _device_ports, _device_parameters);
+        // initilize the device's name/ports/parameters
+        DeviceDefinitionParser device_def_parser(this, _device_ports, _device_parameters, _device_type_name);
         device_def_parser.loadDeviceDefinitionFile(_device_definition_file);
 
         // check if the device if a root device, i.e. no inputs
@@ -60,7 +59,7 @@ namespace Thermal
         , _floorplan_unit_name      (cloned_device._floorplan_unit_name)
         , _device_power             (cloned_device._device_power)
         , _device_parameters        (cloned_device._device_parameters)
-        , _device_type              (cloned_device._device_type)
+        , _device_type_name         (cloned_device._device_type_name)
         , _device_definition_file   (cloned_device._device_definition_file)
         , _device_floorplan_map     (cloned_device._device_floorplan_map)
         , _is_root                  (cloned_device._is_root)
@@ -262,40 +261,8 @@ namespace Thermal
     // Debug ------------------------------------------------------------------
     void DeviceModel::printDefinition(FILE* device_list_file)
     {
-        string device_type;
-
-        switch(_device_type)
-        {
-        case RESONANT_RING:
-            device_type = "Resonant Ring";
-            break;
-        case RESONANT_RING_DEPLETION_MODULATOR:
-            device_type = "Resonant Ring Depletion Modulator";
-            break;
-        case MODULATOR_DRIVER:
-            device_type = "Modulator Driver";
-            break;
-        case LOSSY_OPTICAL_NET:
-            device_type = "Lossy Optical Net";
-            break;
-        case LASER_SOURCE_OFF_CHIP:
-            device_type = "Off-Chip Laser Source";
-            break;
-        //case PHOTODETECTOR:
-        //    device_type = "Photodetector";
-        //    break;
-        //case RECEIVER:
-        //    device_type = "Receiver";
-        //    break;
-        case THERMAL_TUNER:
-            device_type = "Thermal Tuner";
-            break;
-        default:
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized Device Type: " + (String) _device_type + ".\n");
-        }
-
         fprintf(device_list_file, "\n");
-        fprintf(device_list_file, "Device Type: %s\n", device_type.c_str());
+        fprintf(device_list_file, "Device Type: %s\n", _device_type_name.c_str());
         fprintf(device_list_file, "    Instance Name: %s\n", _instance_name.c_str());
         fprintf(device_list_file, "    Floorplan Unit Name: %s\n", _floorplan_unit_name.c_str());
         fprintf(device_list_file, "    [parameter]\n");

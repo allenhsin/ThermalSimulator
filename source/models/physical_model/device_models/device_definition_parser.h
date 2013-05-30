@@ -16,7 +16,8 @@ namespace Thermal
     class DeviceDefinitionParser
     {
     public:
-        DeviceDefinitionParser(DeviceModel* device_model, port_name_map& device_ports, param_name_map& device_parameters);
+        DeviceDefinitionParser( DeviceModel* device_model, port_name_map& device_ports, 
+                                param_name_map& device_parameters, std::string& device_type_name);
         ~DeviceDefinitionParser(){}
 
         void loadDeviceDefinitionFile(string device_difinition_file);
@@ -27,7 +28,8 @@ namespace Thermal
         port_name_map&  _device_ports;
         // parameter_name -> parameter_value
         param_name_map& _device_parameters;
-
+        // name of device type
+        std::string&    _device_type_name;
 
     }; // class DeviceDefinitionParser
 

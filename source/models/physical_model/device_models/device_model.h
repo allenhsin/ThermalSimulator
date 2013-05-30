@@ -75,8 +75,8 @@ namespace Thermal
         std::string getInstanceName() { return _instance_name; }
         std::string getFloorplanUnitName() { return _floorplan_unit_name; }
         
-        DeviceType getDeviceType() const
-        { return _device_type; }
+        std::string getDeviceTypeName() const
+        { return _device_type_name; }
 
         bool isRootDevice() const
         { return _is_root; }
@@ -95,7 +95,7 @@ namespace Thermal
         
     protected:
         // derived child classes must call this constructor
-        DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+        DeviceModel(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
 
         // copy constructor
         DeviceModel( const DeviceModel& cloned_device );
@@ -124,7 +124,7 @@ namespace Thermal
         std::map<std::string, FILE*>    _monitored_device_ports;
 
     private:
-        DeviceType          _device_type;
+        std::string         _device_type_name;
         std::string         _device_definition_file;
         DeviceFloorplanMap* _device_floorplan_map;
 

@@ -12,6 +12,7 @@
 using std::vector;
 using std::map;
 using std::queue;
+using std::string;
 
 namespace Thermal
 {
@@ -36,7 +37,7 @@ namespace Thermal
         { if(*it) { delete (*it); } }
 
         // delete primitive devices
-        for (map<DeviceType, DeviceModel*>::iterator it_prim = _primitive_devices.begin(); it_prim != _primitive_devices.end(); ++it_prim)
+        for (map<string, DeviceModel*>::iterator it_prim = _primitive_devices.begin(); it_prim != _primitive_devices.end(); ++it_prim)
         { if(it_prim->second) { delete (it_prim->second); } }
     }
 
@@ -124,9 +125,13 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Load primitive devices -------------------------------------------------
+        DeviceModel* temp_model = NULL;
         assert(_primitive_devices.size() == 0);
         for (int i = 0; i < NUM_DEVICE_TYPES; ++i)
-            _primitive_devices[(DeviceType) i] = DeviceModel::createDevice((DeviceType) i, _config, _device_floorplan_map);
+        {
+            temp_model = DeviceModel::createDevice((DeviceType) i, _config, _device_floorplan_map);
+            _primitive_devices[temp_model->getDeviceTypeName()] = temp_model;
+        }
     // ------------------------------------------------------------------------
 
     // Load Netlist File and Initialize Devices -------------------------------
