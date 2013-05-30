@@ -12,6 +12,7 @@ namespace Thermal
     {
     public:
         ThermalTuner(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+        ThermalTuner( const ThermalTuner& cloned_device);
         ~ThermalTuner();
 
         // initialize device
@@ -24,6 +25,8 @@ namespace Thermal
 
         virtual void initializeMonitoring();
         virtual void printMonitoredResult();
+        
+        virtual ThermalTuner* clone() const;
 
     protected:
         // check the validity of device parameters

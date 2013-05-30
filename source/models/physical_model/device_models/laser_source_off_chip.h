@@ -12,6 +12,7 @@ namespace Thermal
     {
     public:
         LaserSourceOffChip(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+        LaserSourceOffChip( const LaserSourceOffChip& cloned_device);
         ~LaserSourceOffChip();
 
         // initialize device
@@ -27,6 +28,8 @@ namespace Thermal
 
         virtual void initializeMonitoring();
         virtual void printMonitoredResult();
+
+        virtual LaserSourceOffChip* clone() const;
 
     protected:
         // check the validity of device parameters

@@ -11,10 +11,20 @@ namespace Thermal
     LossyOpticalNet::LossyOpticalNet(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
         : DeviceModel( LOSSY_OPTICAL_NET, device_floorplan_map, device_definition_file)
         , _power_ratio (0)
+        , _number_wavelength (0)
+    {}
+
+    LossyOpticalNet::LossyOpticalNet( const LossyOpticalNet& cloned_device)
+        : DeviceModel           (cloned_device)
+        , _power_ratio          (cloned_device._power_ratio)
+        , _number_wavelength    (cloned_device._number_wavelength)
     {}
 
     LossyOpticalNet::~LossyOpticalNet()
     {}
+    
+    LossyOpticalNet* LossyOpticalNet::clone() const
+    { return new LossyOpticalNet(*this); }
 
     void LossyOpticalNet::deviceParameterCheck()
     {   

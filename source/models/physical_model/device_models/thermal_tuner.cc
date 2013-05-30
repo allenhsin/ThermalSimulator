@@ -24,8 +24,22 @@ namespace Thermal
         , _pdm_output                           (false)
     {}
 
+    ThermalTuner::ThermalTuner( const ThermalTuner& cloned_device)
+        : DeviceModel(cloned_device)
+        , _heater_power                         (cloned_device._heater_power)
+        , _clock_period                         (cloned_device._clock_period)
+        , _current_clock_period_elapsed_time    (cloned_device._current_clock_period_elapsed_time)
+        , _pdm_threshold                        (cloned_device._pdm_threshold)
+        , _pdm_input                            (cloned_device._pdm_input)
+        , _pdm_error                            (cloned_device._pdm_error)
+        , _pdm_output                           (cloned_device._pdm_output)
+    {}
+
     ThermalTuner::~ThermalTuner()
     {}
+
+    ThermalTuner* ThermalTuner::clone() const
+    { return new ThermalTuner(*this); }
     
     void ThermalTuner::deviceParameterCheck()
     {

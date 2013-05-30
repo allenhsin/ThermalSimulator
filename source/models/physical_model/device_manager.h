@@ -4,9 +4,11 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "source/models/physical_model/physical_model.h"
 #include "source/models/physical_model/device_models/device_model.h"
+#include "source/models/physical_model/device_models/device_type.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 #include "source/models/physical_model/device_monitor.h"
 #include "source/misc/common_types.h"
@@ -32,6 +34,11 @@ namespace Thermal
         DeviceMonitor*              _device_monitor;
 
         Time                        _sub_bit_sampling_intvl;
+
+        // map of primitive devices for device instance
+        // initialization. This is to avoid to read the
+        // device definition file for multiple times.
+        std::map<DeviceType, DeviceModel*> _primitive_devices;
 
         // _device_instances are data placeholders 
         // resposible for device instance construction 

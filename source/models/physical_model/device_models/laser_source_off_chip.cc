@@ -12,9 +12,16 @@ namespace Thermal
         : DeviceModel( LASER_SOURCE_OFF_CHIP, device_floorplan_map, device_definition_file)
     {}
 
+    LaserSourceOffChip::LaserSourceOffChip( const LaserSourceOffChip& cloned_device)
+        : DeviceModel(cloned_device)
+    {}
+
     LaserSourceOffChip::~LaserSourceOffChip()
     {}
     
+    LaserSourceOffChip* LaserSourceOffChip::clone() const
+    { return new LaserSourceOffChip(*this); }
+
     void LaserSourceOffChip::deviceParameterCheck()
     {   
         int number_wavelength = (int) getParameter("number_wavelength");

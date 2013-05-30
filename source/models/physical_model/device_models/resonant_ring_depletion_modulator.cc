@@ -37,8 +37,32 @@ namespace Thermal
         , _n_eff            (0)
     {}
 
+    ResonantRingDepletionModulator::ResonantRingDepletionModulator( const ResonantRingDepletionModulator& cloned_device)
+        : DeviceModel(cloned_device)
+        , _number_wavelength            (cloned_device._number_wavelength)
+        , _v_bi_partial                 (cloned_device._v_bi_partial)
+        , _w_dep_partial                (cloned_device._w_dep_partial)
+        , _c_j0_partial                 (cloned_device._c_j0_partial)
+        , _delta_N_partial              (cloned_device._delta_N_partial)
+        , _theta_partial                (cloned_device._theta_partial)
+        , _alpha                        (cloned_device._alpha)
+        , _t2_sq_alpha_sq_plus_t1_sq    (cloned_device._t2_sq_alpha_sq_plus_t1_sq)
+        , _t1_sq_alpha_sq_plus_t2_sq    (cloned_device._t1_sq_alpha_sq_plus_t2_sq)
+        , _two_t1_t2_alpha              (cloned_device._two_t1_t2_alpha)
+        , _one_plus_sq_of_t1_t2_alpha   (cloned_device._one_plus_sq_of_t1_t2_alpha)
+        , _one_t1_t2_alpha              (cloned_device._one_t1_t2_alpha)
+        , _last_temperature             (cloned_device._last_temperature)
+        , _last_voltage                 (cloned_device._last_voltage)
+        , _v_bi                         (cloned_device._v_bi)
+        , _c_j0                         (cloned_device._c_j0)
+        , _n_eff                        (cloned_device._n_eff)
+    {}
+
     ResonantRingDepletionModulator::~ResonantRingDepletionModulator()
     {}
+
+    ResonantRingDepletionModulator* ResonantRingDepletionModulator::clone() const
+    { return new ResonantRingDepletionModulator(*this); }
     
     void ResonantRingDepletionModulator::deviceParameterCheck()
     {

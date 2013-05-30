@@ -21,10 +21,24 @@ namespace Thermal
         _port_properties.clear();
     }
 
+    Port::Port( const Port& cloned_port)
+        : _port_type        (cloned_port._port_type)
+        , _device           (cloned_port._device)
+        , _connected_port   (cloned_port._connected_port)
+    {
+        _port_properties.clear();
+        if(_port_type == INPUT_PORT)
+            for (map< string, vector<double>* >::const_iterator it = cloned_port._port_properties.begin(); it != cloned_port._port_properties.end(); ++it)
+                _port_properties[it->first] = NULL;
+        else // OUTPUT_PORT
+            for (map< string, vector<double>* >::const_iterator it = cloned_port._port_properties.begin(); it != cloned_port._port_properties.end(); ++it)
+                _port_properties[it->first] = new vector<double>();
+    }
+
     Port::~Port()
     {
         if(_port_type == OUTPUT_PORT)
-            for (map< std::string, std::vector<double>* >::iterator it = _port_properties.begin(); it != _port_properties.end(); ++it)
+            for (map< string, vector<double>* >::iterator it = _port_properties.begin(); it != _port_properties.end(); ++it)
             { if(it->second) delete it->second; }
     }
     
@@ -37,7 +51,7 @@ namespace Thermal
         if(_port_type == OUTPUT_PORT)
             return;
 
-        for (map< std::string, std::vector<double>* >::iterator it = _port_properties.begin(); it != _port_properties.end(); ++it)
+        for (map< string, vector<double>* >::iterator it = _port_properties.begin(); it != _port_properties.end(); ++it)
             linkPortPropertyPointer(it->first, _connected_port->getPortPropertyPointer(it->first));
     }
     

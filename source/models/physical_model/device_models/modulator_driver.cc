@@ -28,8 +28,24 @@ namespace Thermal
         , _current_bit_elapsed_time (0)
     {}
 
+    ModulatorDriver::ModulatorDriver( const ModulatorDriver& cloned_device)
+        : DeviceModel(cloned_device)
+        , _bit_period               (cloned_device._bit_period)
+        , _bit_one_time_const       (cloned_device._bit_one_time_const)
+        , _bit_zero_time_const      (cloned_device._bit_zero_time_const)
+        , _current_bit              (cloned_device._current_bit)
+        , _current_out_voltage      (cloned_device._current_out_voltage)
+        , _current_delta_voltage    (cloned_device._current_delta_voltage)
+        , _current_target_voltage   (cloned_device._current_target_voltage)
+        , _current_time_const       (cloned_device._current_time_const)
+        , _current_bit_elapsed_time (cloned_device._current_bit_elapsed_time)
+    {}
+
     ModulatorDriver::~ModulatorDriver()
     {}
+
+    ModulatorDriver* ModulatorDriver::clone() const
+    { return new ModulatorDriver(*this); }
 
     void ModulatorDriver::deviceParameterCheck()
     {

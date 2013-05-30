@@ -14,6 +14,7 @@ namespace Thermal
     {
     public:
         ResonantRingDepletionModulator(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+        ResonantRingDepletionModulator( const ResonantRingDepletionModulator& cloned_device);
         ~ResonantRingDepletionModulator();
 
         // initialize device
@@ -26,6 +27,8 @@ namespace Thermal
 
         virtual void initializeMonitoring();
         virtual void printMonitoredResult();
+
+        virtual ResonantRingDepletionModulator* clone() const;
 
     protected:
         // check the validity of device parameters

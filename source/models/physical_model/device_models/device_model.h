@@ -42,8 +42,11 @@ namespace Thermal
         // get the monitoring results at the time instant
         virtual void printMonitoredResult() = 0;
 
-    // ------------------------------------------------------------------------
+        // clone this device
+        virtual DeviceModel* clone() const = 0;
 
+    // ------------------------------------------------------------------------
+        
         bool hasParameter(std::string parameter_name);
         // setTargetParameterName is to tell the device which loaded
         // parameter is going to change its value. Have to separate
@@ -93,6 +96,9 @@ namespace Thermal
     protected:
         // derived child classes must call this constructor
         DeviceModel(DeviceType device_type, DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+
+        // copy constructor
+        DeviceModel( const DeviceModel& cloned_device );
 
     // ------------------------------------------------------------------------
     // derived classes must implement these functions

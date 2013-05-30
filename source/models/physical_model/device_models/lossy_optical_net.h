@@ -12,6 +12,7 @@ namespace Thermal
     {
     public:
         LossyOpticalNet(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+        LossyOpticalNet( const LossyOpticalNet& cloned_device);
         ~LossyOpticalNet();
 
         // initialize device
@@ -24,6 +25,8 @@ namespace Thermal
 
         virtual void initializeMonitoring();
         virtual void printMonitoredResult();
+
+        virtual LossyOpticalNet* clone() const;
 
     protected:
         // check the validity of device parameters

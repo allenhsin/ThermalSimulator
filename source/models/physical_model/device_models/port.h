@@ -21,6 +21,7 @@ namespace Thermal
     {
     public:
         Port(DeviceModel* device, PortType port_type);
+        Port( const Port& cloned_port);
         ~Port();
 
         PortType getPortType() const

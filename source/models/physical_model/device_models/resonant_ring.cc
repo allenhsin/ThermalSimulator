@@ -30,8 +30,25 @@ namespace Thermal
         , _n_eff            (0)
     {}
 
+    ResonantRing::ResonantRing( const ResonantRing& cloned_device)
+        : DeviceModel(cloned_device)
+        , _number_wavelength            (cloned_device._number_wavelength)
+        , _theta_partial                (cloned_device._theta_partial)
+        , _alpha                        (cloned_device._alpha)
+        , _t2_sq_alpha_sq_plus_t1_sq    (cloned_device._t2_sq_alpha_sq_plus_t1_sq)
+        , _t1_sq_alpha_sq_plus_t2_sq    (cloned_device._t1_sq_alpha_sq_plus_t2_sq)
+        , _two_t1_t2_alpha              (cloned_device._two_t1_t2_alpha)
+        , _one_plus_sq_of_t1_t2_alpha   (cloned_device._one_plus_sq_of_t1_t2_alpha)
+        , _one_t1_t2_alpha              (cloned_device._one_t1_t2_alpha)
+        , _last_temperature             (cloned_device._last_temperature)
+        , _n_eff                        (cloned_device._n_eff)
+    {}
+
     ResonantRing::~ResonantRing()
     {}
+
+    ResonantRing* ResonantRing::clone() const
+    { return new ResonantRing(*this); }
     
     void ResonantRing::deviceParameterCheck()
     {

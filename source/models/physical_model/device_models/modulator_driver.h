@@ -12,6 +12,7 @@ namespace Thermal
     {
     public:
         ModulatorDriver(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file);
+        ModulatorDriver( const ModulatorDriver& cloned_device);
         ~ModulatorDriver();
 
         // initialize device
@@ -24,6 +25,8 @@ namespace Thermal
 
         virtual void initializeMonitoring();
         virtual void printMonitoredResult();
+
+        virtual ModulatorDriver* clone() const;
 
     protected:
         // check the validity of device parameters

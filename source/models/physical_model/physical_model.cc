@@ -89,6 +89,7 @@ namespace Thermal
             return;
         
         // duplicated execution event at the same time (not at time 0)
+        // won't execute, so return.
         if( Misc::eqTime(scheduled_time,_last_execute_time) && (_last_execute_time!=0) )
             return;
 
@@ -104,6 +105,8 @@ namespace Thermal
         // power to its current values
         bool manager_executed = executeManager(scheduled_time);
         
+        // if only the energy is updated, e.g. when thermal model
+        // calls the physical model, the manager is not executed
         if(manager_executed)
             _last_execute_time = scheduled_time;
     } // execute

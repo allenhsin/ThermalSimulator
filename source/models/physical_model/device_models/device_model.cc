@@ -55,6 +55,29 @@ namespace Thermal
         }
     }
 
+    DeviceModel::DeviceModel( const DeviceModel& cloned_device )
+        : _instance_name            (cloned_device._instance_name)
+        , _floorplan_unit_name      (cloned_device._floorplan_unit_name)
+        , _device_power             (cloned_device._device_power)
+        , _device_parameters        (cloned_device._device_parameters)
+        , _device_type              (cloned_device._device_type)
+        , _device_definition_file   (cloned_device._device_definition_file)
+        , _device_floorplan_map     (cloned_device._device_floorplan_map)
+        , _is_root                  (cloned_device._is_root)
+        , _mapped_on_floorplan      (cloned_device._mapped_on_floorplan)
+        , _traversed_in_bfs         (cloned_device._traversed_in_bfs)
+        , _target_parameter_name    (cloned_device._target_parameter_name)
+        , _target_port_name         (cloned_device._target_port_name)
+
+    {
+        _device_ports.clear();
+        for ( map<string, Port*>::const_iterator it=cloned_device._device_ports.begin(); it!=cloned_device._device_ports.end(); ++it )
+            _device_ports[it->first] = new Port(*(it->second));
+
+        _monitored_device_ports.clear();
+    }
+
+
     DeviceModel::~DeviceModel()
     {
         for(map<string, Port*>::iterator it=_device_ports.begin(); it!=_device_ports.end(); ++it)
@@ -95,17 +118,13 @@ namespace Thermal
             device_model = new ThermalTuner( device_floorplan_map, physical_config->getString("device/thermal_tuner/def_file") );
             break;
 
-        case LASER_SOURCE_ON_CHIP:
-            //device_model = new LaserSourceOnChip( device_floorplan_map, physical_config->getString("device/laser_source_on_chip/def_file") );
-            break;
-
-        case PHOTODETECTOR:
+        //case PHOTODETECTOR:
             //device_model = new Photodetector( device_floorplan_map, physical_config->getString("device/photodetector/def_file") );
-            break;
+        //    break;
 
-        case RECEIVER:
+        //case RECEIVER:
             //device_model = new Receiver( device_floorplan_map, physical_config->getString("device/receiver/def_file") );
-            break;
+        //    break;
 
         default:
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized Device Type: " + (String) device_type + ".\n");
@@ -262,15 +281,12 @@ namespace Thermal
         case LASER_SOURCE_OFF_CHIP:
             device_type = "Off-Chip Laser Source";
             break;
-        case LASER_SOURCE_ON_CHIP:
-            device_type = "On-Chip Laser Source";
-            break;
-        case PHOTODETECTOR:
-            device_type = "Photodetector";
-            break;
-        case RECEIVER:
-            device_type = "Receiver";
-            break;
+        //case PHOTODETECTOR:
+        //    device_type = "Photodetector";
+        //    break;
+        //case RECEIVER:
+        //    device_type = "Receiver";
+        //    break;
         case THERMAL_TUNER:
             device_type = "Thermal Tuner";
             break;

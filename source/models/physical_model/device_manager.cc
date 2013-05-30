@@ -10,6 +10,7 @@
 #include "libutil/LibUtil.h"
 
 using std::vector;
+using std::map;
 using std::queue;
 
 namespace Thermal
@@ -20,6 +21,7 @@ namespace Thermal
         , _device_monitor           ( new DeviceMonitor() )
         , _sub_bit_sampling_intvl   (0)
     {
+        _primitive_devices.clear();
         _device_instances.clear();
         _device_sequence.clear();
     }
@@ -32,6 +34,10 @@ namespace Thermal
         // delete device instance
         for (vector<DeviceModel*>::iterator it = _device_instances.begin() ; it != _device_instances.end(); ++it)
         { if(*it) { delete (*it); } }
+
+        // delete primitive devices
+        for (map<DeviceType, DeviceModel*>::iterator it_prim = _primitive_devices.begin(); it_prim != _primitive_devices.end(); ++it_prim)
+        { if(it_prim->second) { delete (it_prim->second); } }
     }
 
     void DeviceManager::buildDeviceSequence()
@@ -99,7 +105,7 @@ namespace Thermal
     {
         assert(_config);
 
-    // check if manager is enabled --------------------------------------------
+    // Check if manager is enabled --------------------------------------------
         if(!_config->getBool("device_manager/enable"))
         {
             LibUtil::Log::printLine( "    Device Manager not enabled" );
@@ -107,15 +113,23 @@ namespace Thermal
         }
     // ------------------------------------------------------------------------
 
-    // set device manager constants -------------------------------------------
+    // Set device manager constants -------------------------------------------
         // sampling interval
         _sub_bit_sampling_intvl = _config->getFloat("device_manager/sub_bit_sampling_intvl");
     // ------------------------------------------------------------------------
-
-    // Load Files and Initialize Devices --------------------------------------
+    
+    // Load floorplan map file ------------------------------------------------
         // load floorplan map file
         _device_floorplan_map->loadFloorplanMap( _config->getString("device_manager/flpmap_file") );
+    // ------------------------------------------------------------------------
 
+    // Load primitive devices -------------------------------------------------
+        assert(_primitive_devices.size() == 0);
+        for (int i = 0; i < NUM_DEVICE_TYPES; ++i)
+            _primitive_devices[(DeviceType) i] = DeviceModel::createDevice((DeviceType) i, _config, _device_floorplan_map);
+    // ------------------------------------------------------------------------
+
+    // Load Netlist File and Initialize Devices -------------------------------
         // Verilog files to read
         vector<string> files;
         // Get the primitives defintion
