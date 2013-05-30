@@ -160,8 +160,8 @@ namespace Thermal
             thru_to_in_power_ratio   = (_t2_sq_alpha_sq_plus_t1_sq - two_t1_t2_alpha_cos) / power_ratio_denominator;
             drop_to_in_power_ratio   = _one_t1_t2_alpha / power_ratio_denominator;
         
-            assert(thru_to_in_power_ratio < 1);
-            assert(drop_to_in_power_ratio < 1);
+            assert(thru_to_in_power_ratio <= 1);
+            assert(drop_to_in_power_ratio <= 1);
 
             // compute thru and drop power
             thru_power = (in_power * thru_to_in_power_ratio);
@@ -194,8 +194,8 @@ namespace Thermal
             drop_to_add_power_ratio  = (_t1_sq_alpha_sq_plus_t2_sq - two_t1_t2_alpha_cos) / power_ratio_denominator;
             thru_to_add_power_ratio  = _one_t1_t2_alpha / power_ratio_denominator;
         
-            assert(drop_to_add_power_ratio < 1);
-            assert(thru_to_add_power_ratio < 1);
+            assert(drop_to_add_power_ratio <= 1);
+            assert(thru_to_add_power_ratio <= 1);
             
             // compute thru and drop power
             thru_power = (add_power * thru_to_add_power_ratio);

@@ -15,6 +15,8 @@ module cell_chip();
 
     // Optical path elements
     LaserSourceOffChip
+                          # (   .wavelength_begin("1263.76e-9"),
+                                .wavelength_end("1263.76e-9"))
         laser_source        (   .out        (laser_out));
     
     LossyOpticalNet
