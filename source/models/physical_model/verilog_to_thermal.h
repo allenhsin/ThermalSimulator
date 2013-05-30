@@ -22,9 +22,9 @@ namespace Thermal
     {
         public:
             // Hierarchy separator
-            static const string HIER_SEPARATOR; 
+            // static const string HIER_SEPARATOR; 
             // Mapping of verilog primitive module names to DeviceType
-            static const std::map<std::string, DeviceType> NAME_MAP;
+            // static const std::map<std::string, DeviceType> NAME_MAP;
     
         private:
             // Data-structure containing the information that describes what a net is connected to
@@ -54,8 +54,7 @@ namespace Thermal
         private:
             VerilogToThermal(
                     std::vector<DeviceModel*>& devices,
-                    config::Config* physical_config,    
-                    DeviceFloorplanMap* device_floorplan_map
+                    const std::map<std::string, DeviceModel*>& primitive_devices
                 );
 
         public:
@@ -63,8 +62,7 @@ namespace Thermal
             // verilog files to the provided vector of devices
             static void dumpDevicesFromVerilog(
                     std::vector<DeviceModel*>& devices,
-                    config::Config* physical_config,
-                    DeviceFloorplanMap* device_floorplan_map,
+                    const std::map<std::string, DeviceModel*>& primitive_devices,
                     const std::vector<string>& verilog_files,
                     const std::string& top_module
                 );                
@@ -89,21 +87,18 @@ namespace Thermal
         
             // Identifies whether an elaborated module is a primitive
             bool isPrimitive(const VerilogParser::ElabModule* module);
-            // Get a primitive instance from an elaborated instance
-            DeviceType getPrimitiveType(const VerilogParser::ElabModule* module);            
             // Get a primitive type from an elaborated module
             DeviceModel* getPrimitive(const VerilogParser::ElabInstance* inst);            
         
             // Initializes the name map
-            static std::map<std::string, DeviceType> initNameMap();
+            // static std::map<std::string, DeviceType> initNameMap();
             
                 
         private:        
             // Vector of dumped device models from verilog
             std::vector<DeviceModel*>& _devices;
-            // Pointers needed to create primitives
-            config::Config* _physical_config;
-            DeviceFloorplanMap* _device_floorplan_map;
+            // Reference to map of primitive devices
+            const std::map<std::string, DeviceModel*>& _primitive_devices;
             // Verilog file reader
             VerilogParser::VerilogFileReader _reader;            
             // Map used to help out with getting rid of nets

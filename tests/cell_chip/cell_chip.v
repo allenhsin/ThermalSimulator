@@ -3,7 +3,7 @@
 
 module cell_chip();
 
-    wire laser_out;
+    wire [3:0] laser_out;
     wire waveguide_0_out;
     wire modulator_out;
     wire waveguide_1_out;
@@ -12,15 +12,17 @@ module cell_chip();
 
     wire driver_out;
     wire heater_out;
+    
+    assign laser_out[3:1] = laser_out[2:0];
 
     // Optical path elements
     LaserSourceOffChip
                           # (   .wavelength_begin("1263.76e-9"),
                                 .wavelength_end("1263.76e-9"))
-        laser_source        (   .out        (laser_out));
+        laser_source        (   .out        (laser_out[0]));
     
     LossyOpticalNet
-        waveguide_0         (   .in         (laser_out), 
+        waveguide_0         (   .in         (laser_out[3]), 
                                 .out        (waveguide_0_out));
                             
     ResonantRingDepletionModulator  

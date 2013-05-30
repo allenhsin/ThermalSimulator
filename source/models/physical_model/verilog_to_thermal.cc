@@ -9,22 +9,23 @@ namespace Thermal
 {
     using std::string;
     using std::map;
+    using std::vector;
     using namespace VerilogParser;
 
-    const string VerilogToThermal::HIER_SEPARATOR = ".";
-    const std::map<std::string, DeviceType> VerilogToThermal::NAME_MAP = initNameMap();
+    // const string VerilogToThermal::HIER_SEPARATOR = ".";
+    // const std::map<std::string, DeviceType> VerilogToThermal::NAME_MAP = initNameMap();
 
-    map<string, DeviceType> VerilogToThermal::initNameMap()
-    {
-        map<string, DeviceType> out;
-        out["LaserSourceOffChip"]               = LASER_SOURCE_OFF_CHIP;
-        out["LossyOpticalNet"]                  = LOSSY_OPTICAL_NET;
-        out["ResonantRing"]                     = RESONANT_RING;
-        out["ResonantRingDepletionModulator"]   = RESONANT_RING_DEPLETION_MODULATOR;
-        out["ModulatorDriver"]                  = MODULATOR_DRIVER;
-        out["ThermalTuner"]                     = THERMAL_TUNER;
-        return out;
-    }
+    // map<string, DeviceType> VerilogToThermal::initNameMap()
+    // {
+        // map<string, DeviceType> out;
+        // out["LaserSourceOffChip"]               = LASER_SOURCE_OFF_CHIP;
+        // out["LossyOpticalNet"]                  = LOSSY_OPTICAL_NET;
+        // out["ResonantRing"]                     = RESONANT_RING;
+        // out["ResonantRingDepletionModulator"]   = RESONANT_RING_DEPLETION_MODULATOR;
+        // out["ModulatorDriver"]                  = MODULATOR_DRIVER;
+        // out["ThermalTuner"]                     = THERMAL_TUNER;
+        // return out;
+    // }
 
     VerilogToThermal::Net::Net(const ElabNet* net, DeviceModel* inst)
         : _net(net), _inst(inst)
@@ -35,12 +36,10 @@ namespace Thermal
     
     VerilogToThermal::VerilogToThermal(
             vector<DeviceModel*>& devices,
-            config::Config* physical_config,    
-            DeviceFloorplanMap* device_floorplan_map
+            const map<string, DeviceModel*>& primitive_devices
         )
         : _devices(devices),
-        _physical_config(physical_config),
-        _device_floorplan_map(device_floorplan_map),
+        _primitive_devices(primitive_devices),
         _reader(),
         _nets() 
     {}
@@ -50,14 +49,12 @@ namespace Thermal
     
     void VerilogToThermal::dumpDevicesFromVerilog(
             vector<DeviceModel*>& devices, 
-            config::Config* physical_config,
-            DeviceFloorplanMap* device_floorplan_map, 
+            const map<string, DeviceModel*>& primitive_devices,
             const vector<string>& verilog_files,
             const string& top_module
         )
-    {
-    
-        VerilogToThermal v_to_t(devices, physical_config, device_floorplan_map);    
+    {    
+        VerilogToThermal v_to_t(devices, primitive_devices);
         v_to_t.readVerilog(verilog_files, top_module);
         v_to_t.dumpDevices();
         v_to_t.connectDevices();
@@ -148,6 +145,8 @@ namespace Thermal
             // Delete the current set of equivalent nets
             LibUtil::deletePtrVector<Net>(equiv_nets);            
         }
+
+        LibUtil::Log::printLine("Done connecting devices");
     }
     
     void VerilogToThermal::dumpDevicesFromModule(const ElabModule* module, DeviceModel* device)
@@ -228,41 +227,46 @@ namespace Thermal
             if (lnet != NULL && rnet != NULL)
             {   
                 // Check to see if either of them are a leaf
-                bool l_is_leaf = (*_nets[lnet])[0]->isLeaf();
-                bool r_is_leaf = (*_nets[rnet])[0]->isLeaf();
+                // bool l_is_leaf = (*_nets[lnet])[0]->isLeaf();
+                // bool r_is_leaf = (*_nets[rnet])[0]->isLeaf();
                 
-                Nets* keep_equivs = NULL;
-                Nets* merge_equivs = NULL;
+                Nets* keep_equivs = _nets[lnet];
+                Nets* merge_equivs = _nets[rnet];
+                
+                // Simple optimization, always merge the smaller of the nets
+                if(keep_equivs->size() < merge_equivs->size())
+                    std::swap<Nets*>(keep_equivs, merge_equivs);
 
-                // If neither is a leaf or they are both leaves, merge the one with fewer
-                // equivalent nets into the one with more equivalent nets
-                if (r_is_leaf == l_is_leaf)
-                {
-                    if(_nets[lnet]->size() <= _nets[rnet]->size())
-                    {
-                        keep_equivs = _nets[rnet];
-                        merge_equivs = _nets[lnet];
-                    }
-                    else
-                    {
-                        keep_equivs = _nets[lnet];
-                        merge_equivs = _nets[rnet];                    
-                    }
-                }
-                // If there is only one thing that is a leaf, merge with it, otherwise
-                // be merged with something that is a leaf
-                else if (r_is_leaf)
-                {
-                    keep_equivs = _nets[rnet];
-                    merge_equivs = _nets[lnet];
-                }
-                else
-                {
-                    keep_equivs = _nets[lnet];
-                    merge_equivs = _nets[rnet];
-                }
+                // // If neither is a leaf or they are both leaves, merge the one with fewer
+                // // equivalent nets into the one with more equivalent nets
+                // if (r_is_leaf == l_is_leaf)
+                // {
+                    // if(_nets[lnet]->size() <= _nets[rnet]->size())
+                    // {
+                        // keep_equivs = _nets[rnet];
+                        // merge_equivs = _nets[lnet];
+                    // }
+                    // else
+                    // {
+                        // keep_equivs = _nets[lnet];
+                        // merge_equivs = _nets[rnet];                    
+                    // }
+                // }
+                // // If there is only one thing that is a leaf, merge with it, otherwise
+                // // be merged with something that is a leaf
+                // else if (r_is_leaf)
+                // {
+                    // keep_equivs = _nets[rnet];
+                    // merge_equivs = _nets[lnet];
+                // }
+                // else
+                // {
+                    // keep_equivs = _nets[lnet];
+                    // merge_equivs = _nets[rnet];
+                // }
                 
-                // Remap every single equivalent net and also copy over anything that is a leaf
+                // Remap every single equivalent net and also copy over the equivalent nets in the
+                // merge nets to the keep nets
                 for (Nets::const_iterator it = merge_equivs->begin(); it != merge_equivs->end(); ++it)
                 {
                     // Remap a net equivalent to rnet to the nets equivalent lnet;
@@ -270,34 +274,28 @@ namespace Thermal
                     // add it to the list of nets equivalent to the lnet
                     keep_equivs->push_back(*it);
                 }
-                // Delete rnet
+                // Delete the container holding the merged nets
                 delete merge_equivs;
             }
         }
     }
     
-    
     bool VerilogToThermal::isPrimitive(const ElabModule* module)
     {
-        return (NAME_MAP.count(module->getName()) != 0);
+        return (_primitive_devices.count(module->getName()) != 0);
     }
     
-    DeviceType VerilogToThermal::getPrimitiveType(const ElabModule* module)
+    DeviceModel* VerilogToThermal::getPrimitive(const ElabInstance* inst)
     {
+        const ElabModule* module = inst->getModule();        
+
+        // Check to make sure the module exists
         if (!isPrimitive(module))
             LibUtil::Log::printFatalLine(std::cerr, "ERROR: Not a primitive module: " + 
                 module->getName());
-       return NAME_MAP.at(module->getName());
-    }
-            
-    DeviceModel* VerilogToThermal::getPrimitive(const ElabInstance* inst)
-    {
+
         // Create the device
-        DeviceModel* out = DeviceModel::createDevice(
-                getPrimitiveType(inst->getModule()),
-                _physical_config, 
-                _device_floorplan_map);
-                
+        DeviceModel* out = _primitive_devices.at(module->getName())->clone();                        
         // Set its instance name
         out->setDeviceName(inst->getPath());
         // Get the device's overwritten parameters
