@@ -69,10 +69,11 @@ namespace Thermal
                 
         // Helpers
         private:        
+            // Initializes primitives
+            void initPrimitives();        
             // Reads verilog files and elaborates
             void readVerilog(const std::vector<string>& verilog_files, 
                 const std::string& top_module);
-
             // Creates all DeviceModel* instances, maps all
             // equivalent nets and connects all DeviceModel* instances correctly
             void dumpDevices();            

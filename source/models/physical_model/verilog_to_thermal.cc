@@ -55,6 +55,7 @@ namespace Thermal
         )
     {    
         VerilogToThermal v_to_t(devices, primitive_devices);
+        v_to_t.initPrimitives();
         v_to_t.readVerilog(verilog_files, top_module);
         v_to_t.dumpDevices();
         v_to_t.connectDevices();
@@ -65,6 +66,56 @@ namespace Thermal
     // {
     
     // }
+    
+    void VerilogToThermal::initPrimitives()
+    {
+        LibUtil::Log::printLine("Initializing verilog primitives...");
+        // Go through all primitives and create raw verilog modules for them
+        for (map<string, DeviceModel*>::const_iterator it = _primitive_devices.begin();
+            it != _primitive_devices.end(); ++it)
+        {
+            const DeviceModel* device = it->second;
+            // Create vector of raw items
+            RawItems raw_items;
+            // Create a port list
+            Identifiers port_list;            
+            
+            // Go through all the parameters
+            for (map<string, double>::const_iterator param_it = device->getParameters().begin();
+                param_it != device->getParameters().end(); ++param_it)
+            {
+                // Add parameter to the raw items vector
+                const StringExpression str_expr("\"" + makeString(param_it->second) + "\"");                
+                raw_items.push_back(new RawParameter(param_it->first, str_expr));
+            }
+            
+            // Go through all the ports
+            for (map<string, Port*>::const_iterator port_it = device->getPorts().begin();
+                port_it != device->getPorts().end(); ++port_it)
+            {
+                const std::string& port_name = port_it->first;
+                const PortType port_type = port_it->second->getPortType();                
+                const RawItems* raw_nets = NULL;              
+                // Add to port list
+                port_list.push_back(port_name);
+                // Create verilog nets, depending on whether it is an input or output port                                
+                if (port_type == INPUT_PORT) raw_nets = RawNet::createRawNets(Identifiers(1, port_name), PORT_INPUT, NET_WIRE);
+                else if (port_type == OUTPUT_PORT) raw_nets = RawNet::createRawNets(Identifiers(1, port_name), PORT_OUTPUT, NET_WIRE);
+                else LibUtil::Log::printFatalLine("Unknown port type: " + port_type);
+                // Add raw nets to the list of raw items
+                raw_items.insert(raw_items.end(), raw_nets->begin(), raw_nets->end());
+                // Delete raw nets
+                delete raw_nets;
+            }            
+            // Create the raw module and add it to the list of modules the reader knows about
+            _reader.addModule(new RawModule(device->getDeviceTypeName(), port_list, raw_items));            
+            // Clear contents of raw items vector
+            clearPtrVector<RawItem>(&raw_items);
+            // Log the creation of the primitive
+            LibUtil::Log::printLine("Module (" + device->getDeviceTypeName() + ")");
+        }        
+        LibUtil::Log::printLine("Done initializing verilog primitives");
+    }
     
     void VerilogToThermal::readVerilog(const vector<string>& verilog_files, const string& top_module)
     {
@@ -152,7 +203,7 @@ namespace Thermal
     void VerilogToThermal::dumpDevicesFromModule(const ElabModule* module, DeviceModel* device)
     {
         if (device == NULL) 
-            LibUtil::Log::printLine("Reading non-primitive module: " + module->getName());
+            LibUtil::Log::printLine("Translating non-primitive module: " + module->getName());
         
         const ElabItems& items = module->getItems();
         for (ElabItems::const_iterator it = items.begin(); it != items.end(); ++it)

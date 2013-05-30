@@ -137,9 +137,7 @@ namespace Thermal
     // Load Netlist File and Initialize Devices -------------------------------
         // Verilog files to read
         vector<string> files;
-        // Get the primitives defintion
-        files.push_back(_config->getString("device_manager/primitives_file"));
-        // Get the actual netlist to run
+        // Verilog netlist that defines the connectivity
         files.push_back(_config->getString("device_manager/netlist_file"));
         // Dump devices from the netlist
         VerilogToThermal::dumpDevicesFromVerilog(_device_instances, _primitive_devices,
@@ -149,20 +147,7 @@ namespace Thermal
     // Build the Device Traverse Sequence (Breath-First) ----------------------
         assert(_device_sequence.size()==0);
         // build device sequence and stroe sequence in _device_sequence
-        buildDeviceSequence();
-        
-        cout << endl << endl;
-        cout << _device_sequence.size() << " " << _device_instances.size() << endl;
-        
-        for (unsigned int i = 0; i < _device_sequence.size(); ++i)
-            cout << _device_sequence[i]->getDeviceTypeName() << ":" << _device_sequence[i]->getInstanceName() << endl;
-
-        cout << endl << endl;
-            
-        for (unsigned int i = 0; i < _device_instances.size(); ++i)
-            cout << _device_instances[i]->getDeviceTypeName() << ":" << _device_instances[i]->getInstanceName() << endl;
-        
-        cout << endl << endl;
+        buildDeviceSequence();        
         assert(_device_sequence.size()==_device_instances.size());
     // ------------------------------------------------------------------------
 

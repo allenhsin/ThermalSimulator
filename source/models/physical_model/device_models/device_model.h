@@ -64,6 +64,10 @@ namespace Thermal
         void setTargetPortName(std::string port_name);
         void setTargetPortConnectedPort(const Port* port);
         const Port* getPort(std::string port_name);
+        
+        // Get map of ports and parameters
+        const std::map<std::string, Port*>& getPorts() const { return _device_ports; }
+        const std::map<std::string, double>& getParameters() const { return _device_parameters; }
 
         void addMonitoredPort(std::string port_name, std::string output_dir);
         void printSeparation();
