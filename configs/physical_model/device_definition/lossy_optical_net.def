@@ -27,7 +27,7 @@
     # from "length" and "loss_per_meter"
     
     # [dB]
-    loss                            = 0.0001
+    loss                            = 0.01
 
     # only calculate loss from parameters below
     # when parameter "loss" is zero 
