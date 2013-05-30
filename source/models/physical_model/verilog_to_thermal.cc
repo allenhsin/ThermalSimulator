@@ -101,7 +101,7 @@ namespace Thermal
                 // Create verilog nets, depending on whether it is an input or output port                                
                 if (port_type == INPUT_PORT) raw_nets = RawNet::createRawNets(Identifiers(1, port_name), PORT_INPUT, NET_WIRE);
                 else if (port_type == OUTPUT_PORT) raw_nets = RawNet::createRawNets(Identifiers(1, port_name), PORT_OUTPUT, NET_WIRE);
-                else LibUtil::Log::printFatalLine("Unknown port type: " + port_type);
+                else LibUtil::Log::printFatalLine("Unknown port type: " + makeString(port_type));
                 // Add raw nets to the list of raw items
                 raw_items.insert(raw_items.end(), raw_nets->begin(), raw_nets->end());
                 // Delete raw nets
