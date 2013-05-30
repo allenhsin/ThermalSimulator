@@ -39,8 +39,8 @@ namespace VerilogParser
             const BitVector* get(const std::string& symbol_);
 
             // Push/pop the elaboration stack
-            inline void push(const RawInstance* item_) { m_stack_.push_back(item_); }
-            inline void pop() { return m_stack_.pop_back(); }
+            inline void push(const RawItem* item_) { m_stack_.push_back(item_); }
+            inline void pop() { m_stack_.pop_back(); }
             // Get current hierarchy string
             std::string getHierString() const;
             

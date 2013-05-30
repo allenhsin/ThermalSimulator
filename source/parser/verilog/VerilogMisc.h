@@ -180,7 +180,7 @@ namespace VerilogParser
     typedef std::vector<const ElabModule*> ElabModules;
     
     // Scope variables
-    typedef std::list<const RawInstance*> ScopeStack;
+    typedef std::list<const RawItem*> ScopeStack;
     typedef std::map<std::string, const BitVector*> SymbolMap;
     
 }
