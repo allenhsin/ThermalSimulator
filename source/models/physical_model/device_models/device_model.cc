@@ -17,6 +17,7 @@
 #include "source/models/physical_model/device_models/lossy_optical_net.h"
 #include "source/models/physical_model/device_models/modulator_driver.h"
 #include "source/models/physical_model/device_models/thermal_tuner.h"
+#include "source/models/physical_model/device_models/photodetector.h"
 
 using std::string;
 using std::map;
@@ -117,9 +118,9 @@ namespace Thermal
             device_model = new ThermalTuner( device_floorplan_map, physical_config->getString("device/thermal_tuner/def_file") );
             break;
 
-        //case PHOTODETECTOR:
-            //device_model = new Photodetector( device_floorplan_map, physical_config->getString("device/photodetector/def_file") );
-        //    break;
+        case PHOTODETECTOR:
+            device_model = new Photodetector( device_floorplan_map, physical_config->getString("device/photodetector/def_file") );
+            break;
 
         //case RECEIVER:
             //device_model = new Receiver( device_floorplan_map, physical_config->getString("device/receiver/def_file") );

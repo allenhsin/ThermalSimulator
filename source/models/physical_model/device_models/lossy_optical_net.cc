@@ -73,6 +73,7 @@ namespace Thermal
         // calculate and update output power for each wavelength
         double in_power;
         double out_power;
+        double dissipated_power;
         _device_power = 0;
         for(unsigned int i=0; i<_number_wavelength; ++i)
         {
@@ -80,7 +81,9 @@ namespace Thermal
             out_power        = in_power * _power_ratio;
             getPortForModification("out")->setPortPropertyValueByIndex("power", i, out_power);
 
-            _device_power += out_power - in_power;
+            dissipated_power = in_power - out_power;
+            assert(dissipated_power>=0);
+            _device_power += dissipated_power;
         }
     }
 

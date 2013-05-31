@@ -16,18 +16,16 @@
 # Port Types: INPUT, OUTPUT
 
 [port]
-    <in, INPUT, power, wavelength>
-    <out, OUTPUT, current>
+    <optical_in, INPUT, power, wavelength>
+    <electrical_out, OUTPUT, current>
 
 # Parameters are editable through the netlist
 # and also have default values as defined below.
 [parameter]
-    #(A/W)
+    # [A/W] - for all wavelengths
     responsivity                    = 1.1       
-    # dB
-    loss                            = 1.00      
-    # dB
-    min_extinction_ratio            = 3         
-    # avalanche gain
+    # [dB] - for all wavelengths
+    optical_power_loss              = 1.00      
+    # avalanche gain [dB] (OBSOLETE)
     avalanche_gain                  = 1         
 
