@@ -1,7 +1,7 @@
 
 /** Test verilog file */
 
-module cell_chip();
+module Cell();
 
     wire [3:0] laser_out;
     wire waveguide_0_out;
@@ -17,9 +17,9 @@ module cell_chip();
 
     // Optical path elements
     LaserSourceOffChip
-                        #   (   .wavelength_begin("1264.08e-9"),
-                                .wavelength_end("1264.08e-9"),
-                                .laser_output_power_per_wavelength("-10.00"))
+                        #   (   .wavelength_begin("1264.00e-9"),
+                                .wavelength_end("1264.00e-9"),
+                                .laser_output_power_per_wavelength("10.00"))
         laser_source        (   .out        (laser_out[0]));
     
     LossyOpticalNet
@@ -28,8 +28,12 @@ module cell_chip();
                                 .out        (waveguide_0_out));
                             
     ResonantRingDepletionModulator  
-                        #   (   .t1("0.995"),
-                                .t2("0.995"))
+                        #   (   .t1("0.985"),
+                                .t2("0.96"),
+                                .waveguide_loss("4000"),
+                                .ring_radius("5.00e-6"),
+                                .ring_width("1.8e-6"),
+                                .ring_height("200e-9"))
         modulator           (   .in         (waveguide_0_out), 
                                 .thru       (modulator_out),
                                 .mod_driver (driver_out),
@@ -41,8 +45,12 @@ module cell_chip();
                                 .out        (waveguide_1_out));
                             
     ResonantRing
-                        #   (   .t1("0.995"),
-                                .t2("0.995"))
+                        #   (   .t1("0.985"),
+                                .t2("0.96"),
+                                .waveguide_loss("4000"),
+                                .ring_radius("5.00e-6"),
+                                .ring_width("1.8e-6"),
+                                .ring_height("200e-9"))
         receiver_ring       (   .in         (waveguide_1_out),
                                 .thru       (receiver_out));                            
                             
@@ -53,7 +61,9 @@ module cell_chip();
 
     // Electrical path elements
     ModulatorDriver
-                        #   (   .bit_period("1e-9"),
+                        #   (   .bit_period("250e-9"),
+                                .bit_zero_voltage("0.60"),
+                                .bit_one_voltage("-4.00"),
                                 .bit_one_transition_time("200e-12"),
                                 .bit_zero_transition_time("200e-12"))
         modulator_driver    (   .out        (driver_out));
@@ -61,10 +71,11 @@ module cell_chip();
     ThermalTuner
                         #   (   .heater_power("3e-3"),
                                 .bit_width("8"),
-                                .clock_period("25e-9"),
-                                .pdm_pattern("128"),
-                                .heater_init("1"))
+                                .clock_period("250e-9"),
+                                .pdm_pattern("0"),
+                                .heater_init("0"))
         thermal_tuner       (   .heater     (heater_out));
 
 
 endmodule
+

@@ -25,8 +25,8 @@ floorplan CellTop
     atomic sub_13 2.25E-5 2.0E-5 1.125E-4 0.0 0
 endfloorplan
 
-# Floorplan CellChip_fill, 148 instances
-floorplan CellChip_fill
+# Floorplan Cell_fill, 148 instances
+floorplan Cell_fill
     filler Fill_16 1.0E-5 1.5E-5 1.7E-4 3.35E-4 1
     filler Fill_17 1.25E-5 1.1E-5 1.9E-4 3.0E-4 1
     filler Fill_19 1.0E-5 1.1E-5 1.8E-4 3.0E-4 1
@@ -235,8 +235,8 @@ floorplan CellBtm
     atomic sub_13 2.25E-5 2.0E-5 1.125E-4 2.8E-4 0
 endfloorplan
 
-# Floorplan CellChip, 16 instances
-floorplan CellChip
+# Floorplan Cell, 16 instances
+floorplan Cell
     atomic modulator 2.0E-5 2.0E-5 1.7E-4 3.15E-4 1
     atomic receiver_ring 2.0E-5 2.0E-5 6.2E-4 3.15E-4 1
     CellBtm cell_btm_0 0.0 0.0
@@ -252,6 +252,6 @@ floorplan CellChip
     CellTop cell_top_4 5.4E-4 3.5E-4
     CellTop cell_top_5 6.75E-4 3.5E-4
     Waveguide waveguide 0.0 3.11E-4
-    CellChip_fill Filler 0.0 0.0
+    Cell_fill Filler 0.0 0.0
 endfloorplan
 
