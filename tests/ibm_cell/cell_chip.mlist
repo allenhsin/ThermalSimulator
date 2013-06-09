@@ -1,0 +1,8 @@
+[device_list]
+<modulator_driver,  out, ref>
+<modulator,         in, thru, heater>
+<receiver_ring,     in, thru>
+
+[time]
+0-1
+
