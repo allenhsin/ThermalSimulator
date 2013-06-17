@@ -1,0 +1,87 @@
+
+# This is a comment line
+# In-line comment is not allowed
+
+# The name of the device type. This is the same name which is used
+# for the module name in the device verilog netlist
+
+# This model references the circuit in "A Monolithically-Integrated
+# Optical Receiver in Standard 45-nm SOI" by M. Georgas, JSSCC 2012
+[name]
+    CurrentIntegratingReceiver
+
+# List the ports of the device and the port's corresponding properties.
+#
+# Format: <PortName, PortType, Property1, Property2, Property3, ...>
+#
+# Number of properties is arbitrary.
+# Port Types: INPUT, OUTPUT
+
+[port]
+    <optical_in, INPUT, power, wavelength>
+    <sense_amp_threshold, INPUT, code>
+    <out, OUTPUT, bit>
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+
+    # photodiode --------------------------------------------------------------
+    # photodiode responsivity (for all wavelengths) - [A/W]
+    photodiode_responsivity                 = 0.1
+    # photodiode dark current [A]
+    photodiode_dark_current                 = 10e-6
+    # photodiode capacitance [C]
+    photodiode_cap                          = 10e-15
+    # -------------------------------------------------------------------------
+
+    # sense amp ---------------------------------------------------------------
+    # Vdd [V]
+    sense_amp_vdd                           = 1.1
+    # input-referred parasitic cap (wiring cap + gate cap) [C]
+    sense_amp_input_parasitic_cap           = 10e-15
+    
+    # sampling period (data rate) [s]
+    sense_amp_sampling_period               = 1e-9
+    # duty cycle - clock low: pre-charge, clock high: integration & evaluation
+    sense_amp_duty_cycle                    = 0.5
+
+    # highest input voltage (both branches, fraction of Vdd) that the cross-coupled
+    # inverters will start the regeneration process. 
+    # It is equal to (Vdd - Vdrop)/Vdd, where Vdrop is defined in the JSSCC paper
+    sense_amp_input_regeneration_ratio      = 0.09
+    # common mode current of the footer transistor during the integration phase [A]
+    sense_amp_footer_transistor_current     = 300e-6
+    # differential input to differential output proportionality constant
+    sense_amp_proportionality_const         = 4.0
+    # cross-coupled inverter regeneration time constant [s] (T10% -> T90%)*0.219
+    sense_amp_regeneration_time_const       = 22e-12
+    # sense amp required output level (as a fraction of Vdd) to change current output bit
+    sense_amp_required_output_level         = 0.9
+
+    # circuit thermal current noise std dev [A]
+    sense_amp_circuit_current_noise_sigma   = 1e-6
+
+    # offset mismatch std dev (as a fraction of Vdd)
+    sense_amp_offset_sigma_ratio            = 0.04
+    # number of bits of the capacitor deck used for fine-tuning offset compensation
+    # the range of available settings will then be -(2^N - 1) - (2^N - 1), where N
+    # is the number of bits
+    sense_amp_offset_compensation_bits      = 5
+    # preset sense amp threshold code
+    sense_amp_preset_threshold_code         = 0
+    # offset compensation capacitor deck total size [C]
+    sense_amp_comp_cap_deck_total_size      = 6e-15
+
+    # common-mode rejection ratio
+    sense_amp_cmrr                          = 5
+    # random supply noise std dev (as a fraction of Vdd)
+    sense_amp_sup_noise_random_sigma_ratio  = 0.01      
+    # deterministic supply noise std dev (as a fraction of Vdd)
+    sense_amp_sup_noise_determ_sigma_ratio  = 0.05      
+
+    # extra noise margin (as a fraction of Vdd)
+    sense_amp_noise_margin_ratio            = 0.00
+    # -------------------------------------------------------------------------
+
+

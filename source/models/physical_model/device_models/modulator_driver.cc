@@ -92,7 +92,7 @@ namespace Thermal
         // update current bit elapsed time
         _current_bit_elapsed_time += time_elapsed_since_last_update;
 
-        // if reaches another bit period, get the next bit from bit sequence
+        // if reaching another bit period, get the next bit from bit sequence
         if(_current_bit_elapsed_time >= _bit_period)
         {
             // the output voltage supposed to be reached at the end of last period

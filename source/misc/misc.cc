@@ -2,6 +2,7 @@
 #include <cassert>
 #include <vector>
 #include <math.h>
+#include <stdlib.h>
 
 #include "source/misc/args_parser.h"
 #include "source/misc/misc.h"
@@ -13,6 +14,15 @@ using std::string;
 
 namespace Thermal
 {
+    double Misc::genGaussianRandomNumber(double mean, double std_dev)
+    {   
+        // Box-Muller transform
+        double rand_r = (double)(rand())/(RAND_MAX);
+        double rand_u = (double)(rand())/(RAND_MAX);
+
+        return ( mean + std_dev*sqrt(-log(rand_u))* cos(2*PI*rand_r) );
+    }
+
     void Misc::setConfig(string config_file, config::Config*& cfg_ref, int argc, char** argv)
     {
         // string vector to store parsed command line config arguments

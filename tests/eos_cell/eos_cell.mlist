@@ -1,7 +1,8 @@
 [device_list]
 <modulator_driver,  out, ref>
 <modulator,         in, thru, heater>
-<receiver_ring,     in, thru>
+<receiver_ring,     in, thru, drop>
+<curr_int_receiver, optical_in, out>
 
 [time]
 0-1

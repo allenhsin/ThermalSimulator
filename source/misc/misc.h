@@ -7,6 +7,7 @@
 
 #include "config.hpp"
 #include "source/misc/common_types.h"
+#include "source/misc/common_constants.h"
 
 #define DELTA           1e-9
 #define TIME_DELTA      1e-12
@@ -34,6 +35,8 @@ namespace Thermal
 
         static void isEndOfLine(int remaining_token_to_read);
         static void isEndOfLineWithEqual(int remaining_token_to_read);
+
+        static double genGaussianRandomNumber(double mean, double std_dev);
     }; // class Misc
 
 } // namespace Thermal

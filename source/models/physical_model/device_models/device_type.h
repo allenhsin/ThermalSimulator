@@ -14,7 +14,7 @@ namespace Thermal
         LOSSY_OPTICAL_NET,
         LASER_SOURCE_OFF_CHIP,
         PHOTODETECTOR,
-        //RECEIVER,
+        CURRENT_INTEGRATING_RECEIVER,
         THERMAL_TUNER,
         NUM_DEVICE_TYPES
     };

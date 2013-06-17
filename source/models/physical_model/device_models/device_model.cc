@@ -11,6 +11,7 @@
 #include "libutil/LibUtil.h"
 
 // device models
+#include "source/models/physical_model/device_models/current_integrating_receiver.h"
 #include "source/models/physical_model/device_models/resonant_ring_depletion_modulator.h"
 #include "source/models/physical_model/device_models/resonant_ring.h"
 #include "source/models/physical_model/device_models/laser_source_off_chip.h"
@@ -122,9 +123,9 @@ namespace Thermal
             device_model = new Photodetector( device_floorplan_map, physical_config->getString("device/photodetector/def_file") );
             break;
 
-        //case RECEIVER:
-            //device_model = new Receiver( device_floorplan_map, physical_config->getString("device/receiver/def_file") );
-        //    break;
+        case CURRENT_INTEGRATING_RECEIVER:
+            device_model = new CurrentIntegratingReceiver( device_floorplan_map, physical_config->getString("device/current_integrating_receiver/def_file") );
+            break;
 
         default:
             LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Unrecognized Device Type: " + (String) device_type + ".\n");

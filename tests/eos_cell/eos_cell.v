@@ -7,8 +7,11 @@ module Cell();
     wire waveguide_0_out;
     wire modulator_out;
     wire waveguide_1_out;
-    wire receiver_out;
+    wire rec_ring_out;
+    wire rec_ring_drop;
     wire waveguide_2_out;
+    wire threshold_code;
+    wire receiver_out;
 
     wire driver_out;
     wire heater_out;
@@ -17,9 +20,9 @@ module Cell();
 
     // Optical path elements
     LaserSourceOffChip
-                        #   (   .wavelength_begin("1264.08e-9"),
-                                .wavelength_end("1264.08e-9"),
-                                .laser_output_power_per_wavelength("-10.00"))
+                        #   (   .wavelength_begin("1263.76e-9"),
+                                .wavelength_end("1263.76e-9"),
+                                .laser_output_power_per_wavelength("0.00"))
         laser_source        (   .out        (laser_out[0]));
     
     LossyOpticalNet
@@ -44,27 +47,36 @@ module Cell();
                         #   (   .t1("0.995"),
                                 .t2("0.995"))
         receiver_ring       (   .in         (waveguide_1_out),
-                                .thru       (receiver_out));                            
+                                .thru       (rec_ring_out),
+                                .drop       (rec_ring_drop));
                             
     LossyOpticalNet
                         #   (   .loss("0.1")) // 270um
-        waveguide_2         (   .in         (receiver_out),
+        waveguide_2         (   .in         (rec_ring_out),
                                 .out        (waveguide_2_out));
 
     // Electrical path elements
     ModulatorDriver
                         #   (   .bit_period("1e-9"),
-                                .bit_one_transition_time("200e-12"),
-                                .bit_zero_transition_time("200e-12"))
+                                .bit_one_transition_time("100e-12"),
+                                .bit_zero_transition_time("100e-12"))
         modulator_driver    (   .out        (driver_out));
         
     ThermalTuner
                         #   (   .heater_power("3e-3"),
                                 .bit_width("8"),
                                 .clock_period("25e-9"),
-                                .pdm_pattern("128"),
-                                .heater_init("1"))
+                                .pdm_pattern("0"),
+                                .heater_init("0"))
         thermal_tuner       (   .heater     (heater_out));
 
-
+    CurrentIntegratingReceiver
+                        #   (   .sense_amp_preset_threshold_code("7"))
+        curr_int_receiver   (   .optical_in(rec_ring_drop),
+                                .sense_amp_threshold(threshold_code),
+                                .out(receiver_out));
+    
 endmodule
+
+
+

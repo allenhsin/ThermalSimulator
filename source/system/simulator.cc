@@ -6,6 +6,8 @@
 #include <stddef.h>
 #include <cassert>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 namespace Thermal
 {
@@ -63,6 +65,10 @@ namespace Thermal
 
     void Simulator::run(int argc_, char** argv_)
     {
+    // Seed rand --------------------------------------------------------------
+        srand( time(NULL) );
+    // ------------------------------------------------------------------------
+
     // Configure Simulator ----------------------------------------------------
         
         // default config file if not overridden by command line arguments
