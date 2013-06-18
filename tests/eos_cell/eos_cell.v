@@ -22,7 +22,7 @@ module Cell();
     LaserSourceOffChip
                         #   (   .wavelength_begin("1263.76e-9"),
                                 .wavelength_end("1263.76e-9"),
-                                .laser_output_power_per_wavelength("0.00"))
+                                .laser_output_power_per_wavelength("-3.00"))
         laser_source        (   .out        (laser_out[0]));
     
     LossyOpticalNet
@@ -57,7 +57,7 @@ module Cell();
 
     // Electrical path elements
     ModulatorDriver
-                        #   (   .bit_period("1e-9"),
+                        #   (   .bit_period("400e-12"),
                                 .bit_one_transition_time("100e-12"),
                                 .bit_zero_transition_time("100e-12"))
         modulator_driver    (   .out        (driver_out));
@@ -71,7 +71,8 @@ module Cell();
         thermal_tuner       (   .heater     (heater_out));
 
     CurrentIntegratingReceiver
-                        #   (   .sense_amp_preset_threshold_code("7"))
+                        #   (   .sense_amp_sampling_period("400e-12"),
+                                .sense_amp_preset_threshold_code("5"))
         curr_int_receiver   (   .optical_in(rec_ring_drop),
                                 .sense_amp_threshold(threshold_code),
                                 .out(receiver_out));

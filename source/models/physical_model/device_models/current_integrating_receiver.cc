@@ -12,66 +12,80 @@ namespace Thermal
 {
     CurrentIntegratingReceiver::CurrentIntegratingReceiver(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
         : DeviceModel(device_floorplan_map, device_definition_file)
-        ,  _number_wavelength (0)
-        ,  _pd_responsivity (0)
-        ,  _sa_total_min_input_cap (0)
-        ,  _sa_number_cap_deck_steps (0)
-        ,  _sa_preset_threshold_code (0)
-        ,  _sa_input_cap_deck_step_size (0)
-        ,  _sa_bit_period (0)
-        ,  _sa_sense_period (0)
-        ,  _sa_regen_start_delta_input_voltage (0)
-        ,  _sa_proportionality_const (0)
-        ,  _sa_regen_time_const (0)
-        ,  _sa_required_output (0)
-        ,  _sa_total_common_mode_current (0)
-        ,  _sa_circuit_current_noise_sigma (0)
-        ,  _sa_offset_mismatch_volt (0)
-        ,  _sa_supply_noise_random_sigma (0)
-        ,  _sa_supply_noise_determ (0)
-        ,  _sa_extra_noise_margin (0)
-        ,  _sa_current_pd_branch_input_cap (0)
-        ,  _sa_current_ref_branch_input_cap (0)
-        ,  _sa_current_threshold_code (0)
-        ,  _sa_current_bit_elapsed_time (0)
-        ,  _sa_state (STATE_INTEGRATION)
-        ,  _sa_current_bit_last_integration_time (0)
-        ,  _sa_current_bit_eval_start_time (0)
-        ,  _sa_current_bit (0)
-        ,  _sa_current_bit_regen_start_diff_output_volt (0)
-        ,  _sa_current_bit_pd_accumulated_input_charge (0)
+
+        , _number_wavelength                                (0)
+        
+        , _pd_responsivity                                  (0)
+
+        , _sa_total_min_input_cap                           (0)
+        , _sa_number_cap_deck_steps                         (0)
+        , _sa_preset_threshold_code                         (0)
+        , _sa_input_cap_deck_step_size                      (0)
+        
+        , _sa_bit_period                                    (0)
+        , _sa_sense_period                                  (0)
+        , _sa_regen_start_delta_input_voltage               (0)
+        , _sa_proportionality_const                         (0)
+        , _sa_regen_time_const                              (0)
+        , _sa_required_output                               (0)
+        , _sa_total_common_mode_current                     (0)
+
+        , _sa_circuit_current_noise_sigma                   (0)
+        , _sa_supply_noise_random_sigma                     (0)
+        , _sa_determ_volt_noise                             (0)
+        
+        , _sa_current_pd_branch_input_cap                   (0)
+        , _sa_current_ref_branch_input_cap                  (0)
+        , _sa_current_threshold_code                        (0)
+
+        , _sa_current_bit_elapsed_time                      (0)
+        , _sa_current_bit_state                             (STATE_INTEGRATION)
+        , _sa_current_bit_last_integration_time             (0)
+        , _sa_current_bit_eval_start_time                   (0)
+        , _sa_current_bit                                   (0)
+        , _sa_current_bit_regen_start_diff_output_volt      (0)
+        , _sa_current_bit_pd_accumulated_input_charge       (0)
+        , _sa_current_bit_current_noise                     (0)
+        , _sa_current_bit_pd_regen_start_delta_input_volt   (0)
     {}
     
     CurrentIntegratingReceiver::CurrentIntegratingReceiver( const CurrentIntegratingReceiver& cloned_device)
-        : DeviceModel           (cloned_device)
-        ,  _number_wavelength                   (cloned_device._number_wavelength)
-        ,  _pd_responsivity                     (cloned_device._pd_responsivity)
-        ,  _sa_total_min_input_cap              (cloned_device._sa_total_min_input_cap)
-        ,  _sa_number_cap_deck_steps            (cloned_device._sa_number_cap_deck_steps)
-        ,  _sa_preset_threshold_code            (cloned_device._sa_preset_threshold_code)
-        ,  _sa_input_cap_deck_step_size         (cloned_device._sa_input_cap_deck_step_size)
-        ,  _sa_bit_period                       (cloned_device._sa_bit_period)
-        ,  _sa_sense_period                     (cloned_device._sa_sense_period)
-        ,  _sa_regen_start_delta_input_voltage  (cloned_device._sa_regen_start_delta_input_voltage)
-        ,  _sa_proportionality_const            (cloned_device._sa_proportionality_const)
-        ,  _sa_regen_time_const                 (cloned_device._sa_regen_time_const)
-        ,  _sa_required_output                  (cloned_device._sa_required_output)
-        ,  _sa_total_common_mode_current        (cloned_device._sa_total_common_mode_current)
-        ,  _sa_circuit_current_noise_sigma      (cloned_device._sa_circuit_current_noise_sigma)
-        ,  _sa_offset_mismatch_volt             (cloned_device._sa_offset_mismatch_volt)
-        ,  _sa_supply_noise_random_sigma        (cloned_device._sa_supply_noise_random_sigma)
-        ,  _sa_supply_noise_determ              (cloned_device._sa_supply_noise_determ)
-        ,  _sa_extra_noise_margin               (cloned_device._sa_extra_noise_margin)
-        ,  _sa_current_pd_branch_input_cap      (cloned_device._sa_current_pd_branch_input_cap)
-        ,  _sa_current_ref_branch_input_cap     (cloned_device._sa_current_ref_branch_input_cap)
-        ,  _sa_current_threshold_code           (cloned_device._sa_current_threshold_code)
-        ,  _sa_current_bit_elapsed_time         (cloned_device._sa_current_bit_elapsed_time)
-        ,  _sa_state                            (cloned_device._sa_state)
-        ,  _sa_current_bit_last_integration_time(cloned_device._sa_current_bit_last_integration_time)
-        ,  _sa_current_bit_eval_start_time      (cloned_device._sa_current_bit_eval_start_time)
-        ,  _sa_current_bit                      (cloned_device._sa_current_bit)
-        ,  _sa_current_bit_regen_start_diff_output_volt (cloned_device._sa_current_bit_regen_start_diff_output_volt)
-        ,  _sa_current_bit_pd_accumulated_input_charge  (cloned_device._sa_current_bit_pd_accumulated_input_charge)
+        : DeviceModel                                       (cloned_device)
+
+        , _number_wavelength                                (cloned_device._number_wavelength)
+
+        , _pd_responsivity                                  (cloned_device._pd_responsivity)
+        
+        , _sa_total_min_input_cap                           (cloned_device._sa_total_min_input_cap)
+        , _sa_number_cap_deck_steps                         (cloned_device._sa_number_cap_deck_steps)
+        , _sa_preset_threshold_code                         (cloned_device._sa_preset_threshold_code)
+        , _sa_input_cap_deck_step_size                      (cloned_device._sa_input_cap_deck_step_size)
+       
+        , _sa_bit_period                                    (cloned_device._sa_bit_period)
+        , _sa_sense_period                                  (cloned_device._sa_sense_period)
+        , _sa_regen_start_delta_input_voltage               (cloned_device._sa_regen_start_delta_input_voltage)
+        , _sa_proportionality_const                         (cloned_device._sa_proportionality_const)
+        , _sa_regen_time_const                              (cloned_device._sa_regen_time_const)
+        , _sa_required_output                               (cloned_device._sa_required_output)
+        , _sa_total_common_mode_current                     (cloned_device._sa_total_common_mode_current)
+        
+        , _sa_circuit_current_noise_sigma                   (cloned_device._sa_circuit_current_noise_sigma)
+        , _sa_supply_noise_random_sigma                     (cloned_device._sa_supply_noise_random_sigma)
+        , _sa_determ_volt_noise                             (cloned_device._sa_determ_volt_noise)
+        
+        , _sa_current_pd_branch_input_cap                   (cloned_device._sa_current_pd_branch_input_cap)
+        , _sa_current_ref_branch_input_cap                  (cloned_device._sa_current_ref_branch_input_cap)
+        , _sa_current_threshold_code                        (cloned_device._sa_current_threshold_code)
+        
+        , _sa_current_bit_elapsed_time                      (cloned_device._sa_current_bit_elapsed_time)
+        , _sa_current_bit_state                             (cloned_device._sa_current_bit_state)
+        , _sa_current_bit_last_integration_time             (cloned_device._sa_current_bit_last_integration_time)
+        , _sa_current_bit_eval_start_time                   (cloned_device._sa_current_bit_eval_start_time)
+        , _sa_current_bit                                   (cloned_device._sa_current_bit)
+        , _sa_current_bit_regen_start_diff_output_volt      (cloned_device._sa_current_bit_regen_start_diff_output_volt)
+        , _sa_current_bit_pd_accumulated_input_charge       (cloned_device._sa_current_bit_pd_accumulated_input_charge)
+        , _sa_current_bit_current_noise                     (cloned_device._sa_current_bit_current_noise)
+        , _sa_current_bit_pd_regen_start_delta_input_volt   (cloned_device._sa_current_bit_pd_regen_start_delta_input_volt)
     {}
 
     CurrentIntegratingReceiver::~CurrentIntegratingReceiver()
@@ -172,10 +186,11 @@ namespace Thermal
         _sa_total_common_mode_current = getParameter("sense_amp_footer_transistor_current") + getParameter("photodiode_dark_current");
 
         _sa_circuit_current_noise_sigma = getParameter("sense_amp_circuit_current_noise_sigma");
-        _sa_offset_mismatch_volt = Misc::genGaussianRandomNumber(0, getParameter("sense_amp_offset_sigma_ratio")*getParameter("sense_amp_vdd"))/(double)_sa_number_cap_deck_steps;
         _sa_supply_noise_random_sigma = getParameter("sense_amp_sup_noise_random_sigma_ratio")*getParameter("sense_amp_vdd");
-        _sa_supply_noise_determ = Misc::genGaussianRandomNumber(0, getParameter("sense_amp_sup_noise_determ_sigma_ratio")*getParameter("sense_amp_vdd"));
-        _sa_extra_noise_margin = getParameter("sense_amp_noise_margin_ratio")*getParameter("sense_amp_vdd");
+        double sa_offset_mismatch_volt = Misc::genGaussianRandomNumber(0, getParameter("sense_amp_offset_sigma_ratio")*getParameter("sense_amp_vdd"))/(double)_sa_number_cap_deck_steps;
+        double sa_supply_noise_determ = Misc::genGaussianRandomNumber(0, getParameter("sense_amp_sup_noise_determ_sigma_ratio")*getParameter("sense_amp_vdd"));
+        double sa_extra_noise_margin = getParameter("sense_amp_noise_margin_ratio")*getParameter("sense_amp_vdd");
+        _sa_determ_volt_noise = sa_offset_mismatch_volt + sa_supply_noise_determ + sa_extra_noise_margin;
 
         // initializations
         // update input cap size according to preset threshold code settings
@@ -186,15 +201,18 @@ namespace Thermal
         _sa_current_ref_branch_input_cap                =   (_sa_preset_threshold_code<0) ? 
                                                             (_sa_total_min_input_cap+(abs(_sa_preset_threshold_code)*_sa_input_cap_deck_step_size)) : 
                                                             _sa_total_min_input_cap ;
-        _sa_current_threshold_code                      = _sa_preset_threshold_code;
+        _sa_current_threshold_code                      =  _sa_preset_threshold_code;
 
         _sa_current_bit_elapsed_time                    = 0;
-        _sa_state                                       = STATE_INTEGRATION;
+        _sa_current_bit_state                           = STATE_INTEGRATION;
         _sa_current_bit_last_integration_time           = 0;
         _sa_current_bit_eval_start_time                 = 0;
         _sa_current_bit                                 = false;
         _sa_current_bit_regen_start_diff_output_volt    = 0;
         _sa_current_bit_pd_accumulated_input_charge     = 0;
+        _sa_current_bit_current_noise                   = Misc::genGaussianRandomNumber(0, _sa_circuit_current_noise_sigma);
+        _sa_current_bit_pd_regen_start_delta_input_volt =   _sa_regen_start_delta_input_voltage + _sa_determ_volt_noise +
+                                                            Misc::genGaussianRandomNumber(0, _sa_supply_noise_random_sigma);
 
         // set output
         getPortForModification("out")->setPortPropertySize("bit", 1);
@@ -212,12 +230,15 @@ namespace Thermal
         // if reaching another bit period, reset the current bit settings
         if(_sa_current_bit_elapsed_time >= _sa_bit_period)
         {
-            _sa_state                                   = STATE_INTEGRATION;
-            _sa_current_bit_last_integration_time       = 0;
-            _sa_current_bit_eval_start_time             = 0;
-            _sa_current_bit_regen_start_diff_output_volt= 0;
-            _sa_current_bit_pd_accumulated_input_charge = 0;
-            _sa_current_bit_elapsed_time               -= _sa_bit_period;
+            _sa_current_bit_state                           = STATE_INTEGRATION;
+            _sa_current_bit_last_integration_time           = 0;
+            _sa_current_bit_eval_start_time                 = 0;
+            _sa_current_bit_regen_start_diff_output_volt    = 0;
+            _sa_current_bit_pd_accumulated_input_charge     = 0;
+            _sa_current_bit_current_noise                   = Misc::genGaussianRandomNumber(0, _sa_circuit_current_noise_sigma);
+            _sa_current_bit_pd_regen_start_delta_input_volt =   _sa_regen_start_delta_input_voltage + _sa_determ_volt_noise +
+                                                                Misc::genGaussianRandomNumber(0, _sa_supply_noise_random_sigma);
+            _sa_current_bit_elapsed_time                   -= _sa_bit_period;
         }
 
         // if not within the sensing period, do nothing
@@ -254,7 +275,7 @@ namespace Thermal
         double avg_pd_current = 0;
         Time t_pd_integration = 0;
         Time t_ref_integration = 0;
-        switch (_sa_state)
+        switch (_sa_current_bit_state)
         {
         case STATE_INTEGRATION: 
             // calculate instant pd current
@@ -268,8 +289,9 @@ namespace Thermal
             avg_pd_current = _sa_current_bit_pd_accumulated_input_charge/_sa_current_bit_elapsed_time;
             
             // calculate corresponding integrating duration
-            t_pd_integration   =   _sa_current_pd_branch_input_cap * _sa_regen_start_delta_input_voltage / 
-                                   (_sa_total_common_mode_current + avg_pd_current);
+            // noise is added to the pd branch
+            t_pd_integration   =   _sa_current_pd_branch_input_cap * _sa_current_bit_pd_regen_start_delta_input_volt / 
+                                   (_sa_total_common_mode_current + avg_pd_current + _sa_current_bit_current_noise);
             t_ref_integration  =   _sa_current_ref_branch_input_cap* _sa_regen_start_delta_input_voltage / 
                                    _sa_total_common_mode_current;
 
@@ -293,13 +315,13 @@ namespace Thermal
                 // check if the output voltage reached the required output
                 if (fabs(regenerated_output_volt) >= _sa_required_output)
                 {
-                    _sa_state = STATE_EVALUATED;
+                    _sa_current_bit_state = STATE_EVALUATED;
                     _sa_current_bit = (regenerated_output_volt>0)?true:false;
                     
                     getPortForModification("out")->setPortPropertyValueByIndex("bit", 0, (_sa_current_bit? 1:0) );
                 }
                 else
-                    _sa_state = STATE_EVALUATION;
+                    _sa_current_bit_state = STATE_EVALUATION;
 
             }
             // else: stay at integration state
@@ -315,13 +337,13 @@ namespace Thermal
             // check if the output voltage reached the required output
             if (fabs(regenerated_output_volt) >= _sa_required_output)
             {
-                _sa_state = STATE_EVALUATED;
+                _sa_current_bit_state = STATE_EVALUATED;
                 _sa_current_bit = (regenerated_output_volt>0)?true:false;
 
                 getPortForModification("out")->setPortPropertyValueByIndex("bit", 0, (_sa_current_bit? 1:0) );
             }
             else
-                _sa_state = STATE_EVALUATION;
+                _sa_current_bit_state = STATE_EVALUATION;
 
             break;
         default:
