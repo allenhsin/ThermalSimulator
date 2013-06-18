@@ -6,6 +6,7 @@
 #include "source/models/physical_model/verilog_to_thermal.h"
 #include "source/models/physical_model/device_manager.h"
 #include "source/system/event_scheduler.h"
+#include "source/system/simulator.h"
 #include "source/misc/misc.h"
 #include "libutil/LibUtil.h"
 
@@ -163,13 +164,17 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Start device monitoring ------------------------------------------------
-        _device_monitor->startup( _config->getString("device_monitor/device_monitor_list"), _device_instances, _config->getString("device_monitor/results_dir") );
+        _device_monitor->startup(   _config->getString("device_monitor/device_monitor_list"), _device_instances, 
+                                    Simulator::getSingleton()->getConfig()->getString("general/result_dir") +
+                                    "/" + _config->getString("device_monitor/monitor_results_subdir") );
     // ------------------------------------------------------------------------
 
     // Print Device list if debug enabled -------------------------------------
+        string debug_print_device_file =    Simulator::getSingleton()->getConfig()->getString("general/result_dir") +
+                                            "/" + _config->getString("device_manager/debug_print_device_file");
         if( _config->getBool("device_manager/debug_print_enable") )
         {
-            FILE* device_list_file = fopen(_config->getString("device_manager/debug_print_device_file").c_str(), "w");
+            FILE* device_list_file = fopen(debug_print_device_file.c_str(), "w");
             
             for (vector<DeviceModel*>::iterator it=_device_sequence.begin(); it!=_device_sequence.end(); ++it)
                 (*it)->printDefinition(device_list_file);

@@ -5,13 +5,12 @@
 #include <string>
 #include <map>
 
+#include "source/system/simulator.h"
 #include "source/system/event_scheduler.h"
 #include "source/models/model_type.h"
 #include "source/models/thermal_model/thermal_model.h"
 #include "source/models/thermal_model/thermal_constants.h"
 #include "source/misc/misc.h"
-#include "source/system/simulator.h"
-#include "source/system/event_scheduler.h"
 #include "source/data/data.h"
 #include "libutil/LibUtil.h"
 
@@ -68,7 +67,8 @@ namespace Thermal
 
         // print parsed floorplan to file for debug if specified
         if( _config->getBool("debug/debug_print_enable") )
-            _floorplan->printParsedFloorplan( _config->getString("debug/debug_flp_file") );
+            _floorplan->printParsedFloorplan(   Simulator::getSingleton()->getConfig()->getString("general/result_dir") +
+                                                "/" + _config->getString("debug/debug_flp_file") );
 
         // setup floorplan unit names in temperature data
         _floorplan->setFloorplanUnitNamesInTemperatureData();
@@ -89,7 +89,8 @@ namespace Thermal
 
         // print rc model to file for debug if specified
         if( _config->getBool("debug/debug_print_enable") )
-            _rc_model->printRCModelToFile( _config->getString("debug/debug_model_file") );
+            _rc_model->printRCModelToFile(  Simulator::getSingleton()->getConfig()->getString("general/result_dir") +
+                                            "/" + _config->getString("debug/debug_model_file") );
     // ------------------------------------------------------------------------
 
     // Setup initial temperature ----------------------------------------------
@@ -97,7 +98,8 @@ namespace Thermal
         _temperature->setFloorplanHolder(_floorplan->getFloorplanHolder());
         _temperature->setRCModelHolder(_rc_model->getRCModelHolder());
         _temperature->setSamplingInterval( _sampling_intvl );
-        _temperature->setTtraceFileName( _config->getString("env_setup/ttrace_file") );
+        _temperature->setTtraceFileName(    Simulator::getSingleton()->getConfig()->getString("general/result_dir") + 
+                                            "/" + _config->getString("env_setup/ttrace_file") );
 
         // set initial temperature and initialize temperature model
         _temperature->initialize( _config->getFloat("chip/init_temp"), _config->getFloat("chip/ambient_temp") );

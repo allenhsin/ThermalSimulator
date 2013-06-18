@@ -1,6 +1,12 @@
 # parameters
 
-CONFIG_FILE ?= configs/thermal_sim.cfg
+SIM_ROOT                ?= $(CURDIR)
+OUTPUT_DIR              ?= $(shell date +%Y-%m-%d_%H-%M-%S)
+CONFIG_FILE_DIR         ?= $(SIM_ROOT)/configs
+CONFIG_FILE_NAME        ?= thermal_sim.cfg
+CONFIG_FILE_ABS_PATH    := $(CONFIG_FILE_DIR)/$(CONFIG_FILE_NAME)
+OUTPUT_DIR_ABS_PATH     := $(SIM_ROOT)/results/$(OUTPUT_DIR)
+
 
 # Define the directories that will be compiled
 DIRS_TO_SOURCE  := source \
@@ -20,20 +26,21 @@ SRCS = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cc)) \
        $(wildcard $(CURDIR)/$(DIRS_TO_CONFIG)/*.cpp)
 OBJS = $(patsubst %.cpp,%.opp,$(patsubst %.cc,%.o,$(SRCS)))
 
-INCLUDE_FLAGS = -I$(CURDIR) -I$(CURDIR)/include -I$(CURDIR)/$(DIRS_TO_CONFIG)
-DEBUG_FLAGS   = -g
-OPT_FLAGS     = -O2 -fPIC
-WARN_FLAGS    = -Wall -W # -pedantic
-CXXFLAGS      = $(DEBUG_FLAGS) $(OPT_FLAGS) $(WARN_FLAGS) $(INCLUDE_FLAGS)
+INCLUDE_FLAGS   = -I$(CURDIR) -I$(CURDIR)/include -I$(CURDIR)/$(DIRS_TO_CONFIG)
+DEBUG_FLAGS     = -g
+OPT_FLAGS       = -O2 -fPIC
+WARN_FLAGS      = -Wall -W # -pedantic
+CXXFLAGS        = $(DEBUG_FLAGS) $(OPT_FLAGS) $(WARN_FLAGS) $(INCLUDE_FLAGS)
 
-# LD_LIBS  += -lboost_filesystem -lboost_system
-# LD_FLAGS += -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
-LD_LIBS  += -lboost_filesystem -lboost_system -lverilog
-LD_FLAGS += -L$(CURDIR)/source/parser/verilog -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
+# LD_LIBS       += -lboost_filesystem -lboost_system
+# LD_FLAGS      += -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
+LD_LIBS         += -lboost_filesystem -lboost_system -lverilog
+LD_FLAGS        += -L$(CURDIR)/source/parser/verilog -L$(CURDIR)/lib -Wl,-rpath,$(CURDIR)/lib
 
-LIB_VERILOG = source/parser/verilog/libverilog.a
+LIB_VERILOG     = source/parser/verilog/libverilog.a
 
-TARGET      = $(CURDIR)/thermal_sim
+TARGET          = $(CURDIR)/thermal_sim
+COMMAND         := $(TARGET) --config=$(CONFIG_FILE_ABS_PATH) --general/result_dir=$(OUTPUT_DIR_ABS_PATH)
 
 all: $(TARGET)
 
@@ -57,11 +64,16 @@ $(TARGET): $(OBJS) $(LIB_VERILOG)
 	mkdir -p $(dir $@)
 	touch $@
 
-.phony: clean clean_results run
+.phony: clean clean_results run create_output_dir
 
-run:
-	make clean_results
-	$(TARGET) -c $(CONFIG_FILE)
+run: create_output_dir
+	$(COMMAND)
+
+create_output_dir:
+	mkdir -p $(OUTPUT_DIR_ABS_PATH)
+	echo "$(COMMAND)" > $(OUTPUT_DIR_ABS_PATH)/command
+	rm -f $(SIM_ROOT)/results/latest
+	ln -s $(OUTPUT_DIR_ABS_PATH) $(SIM_ROOT)/results/latest
 
 clean:
 	make clean_results
@@ -69,5 +81,6 @@ clean:
 	$(RM) -rf $(OBJS) $(TARGET)
 
 clean_results:
-	$(RM) -rf results/*.out results/*.log results/*.dbg
+	rm -f $(SIM_ROOT)/results/latest
+	rm -rf $(SIM_ROOT)/results/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-[0-9][0-9]
 

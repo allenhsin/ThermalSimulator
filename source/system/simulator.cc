@@ -80,7 +80,7 @@ namespace Thermal
     // ------------------------------------------------------------------------
 
     // Create Log System ------------------------------------------------------
-        LibUtil::Log::allocate( _config->getString("log/log_file"),
+        LibUtil::Log::allocate( _config->getString("general/result_dir") + "/" + _config->getString("log/log_file"),
                                 _config->getBool("log/log_enabled") );
     // ------------------------------------------------------------------------
 
