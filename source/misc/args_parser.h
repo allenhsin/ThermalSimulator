@@ -2,7 +2,7 @@
 #ifndef __THERMAL_ARGS_PARSER_H__
 #define __THERMAL_ARGS_PARSER_H__
 
-#include "config_file.hpp"
+#include "source/misc/config_parser.h"
 
 #include <string>
 
@@ -20,7 +20,7 @@ namespace Thermal
         void parseArgs(string_vec &args, std::string & config_path, int argc, char **argv);
 
         // replace configs with command line input arguments
-        void handleArgs(const string_vec & args, config::ConfigFile & cfg);
+        void handleArgs(const string_vec & args, ConfigParser & cfg);
     
     protected:
         void usageError(const char* error_msg, ...);

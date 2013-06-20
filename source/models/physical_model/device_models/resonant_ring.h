@@ -36,7 +36,7 @@ namespace Thermal
 
     private:
         // the set of output wavelengths from in port and add port
-        set<double> _output_wavelengths;
+        std::set<double> _output_wavelengths;
         // number of output wavelength
         unsigned int _number_wavelength;
 

@@ -14,6 +14,7 @@ using LibUtil::String;
 using std::map;
 using std::vector;
 using std::string;
+using std::set;
 
 namespace Thermal
 {

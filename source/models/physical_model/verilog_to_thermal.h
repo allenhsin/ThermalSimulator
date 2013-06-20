@@ -8,7 +8,6 @@
 #include "source/models/physical_model/device_floorplan_map.h"
 #include "source/models/physical_model/device_models/device_type.h"
 #include "source/misc/common_types.h"
-#include "config.hpp"
 #include "source/parser/verilog/VerilogParser.h"
 
 namespace Thermal
@@ -63,7 +62,7 @@ namespace Thermal
             static void dumpDevicesFromVerilog(
                     std::vector<DeviceModel*>& devices,
                     const std::map<std::string, DeviceModel*>& primitive_devices,
-                    const std::vector<string>& verilog_files,
+                    const std::vector<std::string>& verilog_files,
                     const std::string& top_module
                 );                
                 
@@ -72,7 +71,7 @@ namespace Thermal
             // Initializes primitives
             void initPrimitives();        
             // Reads verilog files and elaborates
-            void readVerilog(const std::vector<string>& verilog_files, 
+            void readVerilog(const std::vector<std::string>& verilog_files, 
                 const std::string& top_module);
             // Creates all DeviceModel* instances, maps all
             // equivalent nets and connects all DeviceModel* instances correctly

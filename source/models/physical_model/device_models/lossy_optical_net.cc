@@ -5,9 +5,12 @@
 #include "source/models/physical_model/device_models/lossy_optical_net.h"
 #include "libutil/LibUtil.h"
 
+using std::string;
+using std::map;
+
 namespace Thermal
 {
-    LossyOpticalNet::LossyOpticalNet(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
+    LossyOpticalNet::LossyOpticalNet(DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
         : DeviceModel(device_floorplan_map, device_definition_file)
         , _power_ratio (0)
         , _number_wavelength (0)

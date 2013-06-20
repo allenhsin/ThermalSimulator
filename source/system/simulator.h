@@ -8,7 +8,7 @@
 #include "source/models/model.h"
 #include "source/models/model_type.h"
 #include "source/system/event_scheduler.h"
-#include "config.hpp"
+#include "source/misc/config_parser.h"
 
 namespace Thermal
 {
@@ -25,7 +25,7 @@ namespace Thermal
         void run(int argc_, char** argv_);
         
         // get module accesses
-        config::Config* getConfig()         { return _config; }
+        ConfigParser* getConfig()         { return _config; }
     
     protected:
         Simulator();
@@ -36,7 +36,7 @@ namespace Thermal
     private:
         static Simulator*       _simulator_singleton;
         
-        config::Config*         _config;
+        ConfigParser*         _config;
 
         Data*                   _data;
         EventScheduler*         _event_scheduler;

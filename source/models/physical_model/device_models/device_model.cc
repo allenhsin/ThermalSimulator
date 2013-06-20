@@ -89,7 +89,7 @@ namespace Thermal
     }
 
     DeviceModel*
-    DeviceModel::createDevice(DeviceType device_type, config::Config* physical_config, DeviceFloorplanMap* device_floorplan_map)
+    DeviceModel::createDevice(DeviceType device_type, ConfigParser* physical_config, DeviceFloorplanMap* device_floorplan_map)
     {
         DeviceModel* device_model = NULL;
 

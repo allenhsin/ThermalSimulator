@@ -41,7 +41,7 @@ namespace Thermal
     private:
         // store the power for floorplan units at current time
         // the units must be mapped to the floorplan
-        map<std::string, double> _floorplan_unit_power;
+        std::map<std::string, double> _floorplan_unit_power;
 
         Time _last_energy_update_time;
         

@@ -6,7 +6,6 @@
 
 #include "source/misc/args_parser.h"
 #include "source/misc/misc.h"
-#include "config_file.hpp"
 #include "libutil/LibUtil.h"
 
 using std::vector;
@@ -23,7 +22,7 @@ namespace Thermal
         return ( mean + std_dev*sqrt(-log(rand_u))* cos(2*PI*rand_r) );
     }
 
-    void Misc::setConfig(string config_file, config::Config*& cfg_ref, int argc, char** argv)
+    void Misc::setConfig(string config_file, ConfigParser*& cfg_ref, int argc, char** argv)
     {
         // string vector to store parsed command line config arguments
         string_vec  args;
@@ -31,7 +30,7 @@ namespace Thermal
         // create command line argument parser
         ArgsParser* args_parser = new ArgsParser();
         // create config instance 
-        config::ConfigFile* cfg = new config::ConfigFile();
+        ConfigParser* cfg = new ConfigParser();
 
         // parse command line arguments into args and config_file
         args_parser->parseArgs(args, config_file, argc, argv);

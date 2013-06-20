@@ -12,10 +12,13 @@
 using std::set;
 using std::vector;
 using std::distance;
+using std::string;
+using std::map;
+using std::cerr;
 
 namespace Thermal
 {
-    ResonantRingDepletionModulator::ResonantRingDepletionModulator(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
+    ResonantRingDepletionModulator::ResonantRingDepletionModulator(DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
         : DeviceModel   (device_floorplan_map, device_definition_file)
         , _number_wavelength(0)
         , _v_bi_partial     (0)
@@ -66,37 +69,37 @@ namespace Thermal
     void ResonantRingDepletionModulator::deviceParameterCheck()
     {
         if( getParameter("t1") > 1 || getParameter("t2") > 1 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Coupling coefficients cannot be larger than 1.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Coupling coefficients cannot be larger than 1.\n");
 
         if( getParameter("t1") < 0 || getParameter("t2") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Coupling coefficients cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Coupling coefficients cannot be negative.\n");
 
         if( getParameter("waveguide_loss") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Waveguide loss cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Waveguide loss cannot be negative.\n");
 
         if( getParameter("ring_radius") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring radius cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring radius cannot be negative.\n");
         
         if( getParameter("ring_height") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring height cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring height cannot be negative.\n");
         
         if( getParameter("ring_width") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring width cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring width cannot be negative.\n");
         
         if( getParameter("confinement_factor") > 1 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring confinement factor cannot be larger than 1.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring confinement factor cannot be larger than 1.\n");
         
         if( getParameter("Na") < 0 || getParameter("Nd") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring doping concentration cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring doping concentration cannot be negative.\n");
         
         if( getParameter("number_junctions") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Number of ring junctions cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Number of ring junctions cannot be negative.\n");
     }
 
     void ResonantRingDepletionModulator::initializeDevice()
     {
         if(!isMappedOnFloorplan())
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: A ring must be mapped on the floorplan.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: A ring must be mapped on the floorplan.\n");
 
         // parameter sanity check
         deviceParameterCheck();
@@ -195,7 +198,7 @@ namespace Thermal
             // check if you reach the maximum depletion width
             double max_w_dep = sqrt(_w_dep_partial * (_v_bi - current_voltage));
             if(max_w_dep*getParameter("number_junctions") > 2*PI*getParameter("ring_radius"))
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Reverse-biased voltage too high.\n");
+                LibUtil::Log::printFatalLine(cerr, "\nERROR: Reverse-biased voltage too high.\n");
 
             // change of charge in the depletion region of the p-n junction
             double delta_Q  =   2 * _v_bi * _c_j0 * (sqrt(1 + (-current_voltage/_v_bi)) - 1);

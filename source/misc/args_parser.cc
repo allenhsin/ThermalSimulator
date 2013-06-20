@@ -67,7 +67,7 @@ namespace Thermal
             usageError("Should have specified config argument.\n");
     }
 
-    void ArgsParser::handleArgs(const string_vec & args, config::ConfigFile & cfg)
+    void ArgsParser::handleArgs(const string_vec & args, ConfigParser & cfg)
     {
         char arg_name[STR_SIZE];
         char arg_value[STR_SIZE];
@@ -81,7 +81,7 @@ namespace Thermal
             string setting( arg_name+2  );
             string value(   arg_value   );
 
-            cfg.set(setting, value);
+            cfg.edit(setting, value);
         }
     }
 

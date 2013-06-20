@@ -5,9 +5,13 @@
 #include "source/models/physical_model/device_models/photodetector.h"
 #include "libutil/LibUtil.h"
 
+using std::map;
+using std::string;
+using std::cerr;
+
 namespace Thermal
 {
-    Photodetector::Photodetector(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
+    Photodetector::Photodetector(DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
         : DeviceModel(device_floorplan_map, device_definition_file)
         , _responsivity         (0)
         , _optical_power_ratio  (0)
@@ -30,10 +34,10 @@ namespace Thermal
     void Photodetector::deviceParameterCheck()
     {   
         if( getParameter("responsivity") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Photodetector responsivity cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Photodetector responsivity cannot be negative.\n");
 
         if( getParameter("optical_power_loss") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Photodetector optical power loss cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Photodetector optical power loss cannot be negative.\n");
     }
 
     void Photodetector::initializeDevice()

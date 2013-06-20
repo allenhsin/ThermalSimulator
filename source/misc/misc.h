@@ -4,10 +4,11 @@
 
 #include <string>
 #include <stdio.h>
+#include <vector>
 
-#include "config.hpp"
 #include "source/misc/common_types.h"
 #include "source/misc/common_constants.h"
+#include "source/misc/config_parser.h"
 
 #define DELTA           1e-9
 #define TIME_DELTA      1e-12
@@ -19,7 +20,7 @@ namespace Thermal
     class Misc
     {
     public:
-        static void setConfig(std::string config_file, config::Config*& cfg_ref, int argc, char** argv);
+        static void setConfig(std::string config_file, ConfigParser*& cfg_ref, int argc, char** argv);
 
         static void initDouble1DVector(std::vector<double>& vec_ref, int dim_1);
         static void initDouble2DVector(std::vector< std::vector<double> >& vec_ref, int dim_1, int dim_2);

@@ -12,10 +12,13 @@
 using std::set;
 using std::vector;
 using std::distance;
+using std::map;
+using std::cerr;
+using std::string;
 
 namespace Thermal
 {
-    ResonantRing::ResonantRing(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
+    ResonantRing::ResonantRing(DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
         : DeviceModel   (device_floorplan_map, device_definition_file)
         , _number_wavelength(0)
         , _theta_partial    (0)
@@ -52,31 +55,31 @@ namespace Thermal
     void ResonantRing::deviceParameterCheck()
     {
         if( getParameter("t1") > 1 || getParameter("t2") > 1 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Coupling coefficients cannot be larger than 1.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Coupling coefficients cannot be larger than 1.\n");
 
         if( getParameter("t1") < 0 || getParameter("t2") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Coupling coefficients cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Coupling coefficients cannot be negative.\n");
 
         if( getParameter("waveguide_loss") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Waveguide loss cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Waveguide loss cannot be negative.\n");
 
         if( getParameter("ring_radius") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring radius cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring radius cannot be negative.\n");
         
         if( getParameter("ring_height") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring height cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring height cannot be negative.\n");
         
         if( getParameter("ring_width") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring width cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring width cannot be negative.\n");
         
         if( getParameter("confinement_factor") > 1 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Ring confinement factor cannot be larger than 1.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Ring confinement factor cannot be larger than 1.\n");
     }
 
     void ResonantRing::initializeDevice()
     {
         if(!isMappedOnFloorplan())
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: A ring must be mapped on the floorplan.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: A ring must be mapped on the floorplan.\n");
 
         // parameter sanity check
         deviceParameterCheck();

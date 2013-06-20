@@ -12,7 +12,7 @@
 #include "source/models/physical_model/device_models/port.h"
 #include "source/models/physical_model/device_floorplan_map.h"
 #include "source/misc/common_types.h"
-#include "config.hpp"
+#include "source/misc/config_parser.h"
 
 namespace Thermal
 {
@@ -21,7 +21,7 @@ namespace Thermal
     public:
         virtual ~DeviceModel();
 
-        static DeviceModel* createDevice(DeviceType device_type, config::Config* physical_config, DeviceFloorplanMap* device_floorplan_map);
+        static DeviceModel* createDevice(DeviceType device_type, ConfigParser* physical_config, DeviceFloorplanMap* device_floorplan_map);
 
     // ------------------------------------------------------------------------
     // derived classes must implement these functions

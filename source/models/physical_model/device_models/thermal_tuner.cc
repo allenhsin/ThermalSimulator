@@ -9,6 +9,8 @@
 #include "libutil/LibUtil.h"
 
 using std::string;
+using std::map;
+using std::cerr;
 
 namespace Thermal
 {
@@ -43,19 +45,19 @@ namespace Thermal
     void ThermalTuner::deviceParameterCheck()
     {
         if( getParameter("heater_power") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Heater power cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Heater power cannot be negative.\n");
 
         if( getParameter("bit_width") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: PDM bit width cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: PDM bit width cannot be negative.\n");
 
         if( getParameter("clock_period") < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Clock period cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Clock period cannot be negative.\n");
 
         if( getParameter("pdm_pattern") < 0 || getParameter("pdm_pattern") >= pow(2.00, getParameter("bit_width")) )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Bit period cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Bit period cannot be negative.\n");
 
         if( ((int)getParameter("heater_init") != 0) && ((int)getParameter("heater_init") != 1) )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Heater initial state can only be 1(ON) or 0(OFF).\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Heater initial state can only be 1(ON) or 0(OFF).\n");
 
     }
 

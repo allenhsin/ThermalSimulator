@@ -19,14 +19,16 @@ DIRS_TO_SOURCE  := source \
                    source/models/physical_model \
                    source/models/physical_model/device_models \
                    include/libutil
-DIRS_TO_CONFIG  := source/misc/config
+#DIRS_TO_CONFIG  := source/misc/config
 
 DIRS = $(patsubst %,$(CURDIR)/%,$(DIRS_TO_SOURCE))
-SRCS = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cc)) \
-       $(wildcard $(CURDIR)/$(DIRS_TO_CONFIG)/*.cpp)
+SRCS = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cc))
+#SRCS = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cc)) \
+#       $(wildcard $(CURDIR)/$(DIRS_TO_CONFIG)/*.cpp)
 OBJS = $(patsubst %.cpp,%.opp,$(patsubst %.cc,%.o,$(SRCS)))
 
-INCLUDE_FLAGS   = -I$(CURDIR) -I$(CURDIR)/include -I$(CURDIR)/$(DIRS_TO_CONFIG)
+INCLUDE_FLAGS   = -I$(CURDIR) -I$(CURDIR)/include
+#INCLUDE_FLAGS   = -I$(CURDIR) -I$(CURDIR)/include -I$(CURDIR)/$(DIRS_TO_CONFIG)
 DEBUG_FLAGS     = -g
 OPT_FLAGS       = -O2 -fPIC
 WARN_FLAGS      = -Wall -W # -pedantic

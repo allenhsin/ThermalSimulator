@@ -8,6 +8,9 @@
 #include "libutil/LibUtil.h"
 #include "source/misc/misc.h"
 
+using std::string;
+using std::map;
+
 namespace Thermal
 {
     CurrentIntegratingReceiver::CurrentIntegratingReceiver(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)

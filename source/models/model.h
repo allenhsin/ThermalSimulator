@@ -3,7 +3,7 @@
 
 #include "source/models/model_type.h"
 #include "source/misc/common_types.h"
-#include "config.hpp"
+#include "source/misc/config_parser.h"
 
 namespace Thermal
 {
@@ -22,7 +22,7 @@ namespace Thermal
         // Child classes must call this constructor
         Model();
 
-        config::Config* _config;
+        ConfigParser* _config;
 
         bool            _ready_to_execute;
         Time            _last_execute_time;

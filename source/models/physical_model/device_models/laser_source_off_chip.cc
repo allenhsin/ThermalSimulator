@@ -5,9 +5,13 @@
 #include "source/models/physical_model/device_models/laser_source_off_chip.h"
 #include "libutil/LibUtil.h"
 
+using std::string;
+using std::cerr;
+using std::map;
+
 namespace Thermal
 {
-    LaserSourceOffChip::LaserSourceOffChip(DeviceFloorplanMap* device_floorplan_map, std::string device_definition_file)
+    LaserSourceOffChip::LaserSourceOffChip(DeviceFloorplanMap* device_floorplan_map, string device_definition_file)
         : DeviceModel(device_floorplan_map, device_definition_file)
     {}
 
@@ -28,23 +32,23 @@ namespace Thermal
         double wavelength_end = getParameter("wavelength_end");
 
         if( number_wavelength < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Number of wavelengths cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Number of wavelengths cannot be negative.\n");
         
         if( wavelength_begin < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wavelength cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Wavelength cannot be negative.\n");
         
         if( wavelength_end < 0 )
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wavelength cannot be negative.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Wavelength cannot be negative.\n");
         
         if(number_wavelength == 1)
         {
             if(wavelength_begin != wavelength_end)
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong wavelength range.\n");
+                LibUtil::Log::printFatalLine(cerr, "\nERROR: Wrong wavelength range.\n");
         }
         else
         {
             if( wavelength_begin <= wavelength_end )
-                LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Wrong wavelength range.\n");
+                LibUtil::Log::printFatalLine(cerr, "\nERROR: Wrong wavelength range.\n");
         }
     }
 
@@ -57,7 +61,7 @@ namespace Thermal
         // number cuz this is a off-chip laser
         // if this device is in the floorplan it's an error
         if(isMappedOnFloorplan())
-            LibUtil::Log::printFatalLine(std::cerr, "\nERROR: Off-chip laser source cannot be on the floorplan.\n");
+            LibUtil::Log::printFatalLine(cerr, "\nERROR: Off-chip laser source cannot be on the floorplan.\n");
 
         assert(getPort("out")->getPortPropertySize("wavelength")==0);
         assert(getPort("out")->getPortPropertySize("power")==0);

@@ -20,7 +20,7 @@ namespace Thermal
                                 param_name_map& device_parameters, std::string& device_type_name);
         ~DeviceDefinitionParser(){}
 
-        void loadDeviceDefinitionFile(string device_difinition_file);
+        void loadDeviceDefinitionFile(std::string device_difinition_file);
 
     private:
         DeviceModel*    _device_model;
