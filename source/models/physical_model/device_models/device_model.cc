@@ -19,6 +19,7 @@
 #include "source/models/physical_model/device_models/modulator_driver.h"
 #include "source/models/physical_model/device_models/thermal_tuner.h"
 #include "source/models/physical_model/device_models/photodetector.h"
+#include "source/models/physical_model/device_models/optical_data_generator.h"
 
 using std::string;
 using std::map;
@@ -125,6 +126,10 @@ namespace Thermal
 
         case CURRENT_INTEGRATING_RECEIVER:
             device_model = new CurrentIntegratingReceiver( device_floorplan_map, physical_config->getString("device/current_integrating_receiver/def_file") );
+            break;
+
+        case OPTICAL_DATA_GENERATOR:
+            device_model = new OpticalDataGenerator( device_floorplan_map, physical_config->getString("device/optical_data_generator/def_file") );
             break;
 
         default:

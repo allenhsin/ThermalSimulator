@@ -12,6 +12,7 @@ module Cell();
     wire waveguide_2_out;
     wire threshold_code;
     wire receiver_out;
+    wire optical_data_gen_out;
 
     wire driver_out;
     wire heater_out;
@@ -19,10 +20,19 @@ module Cell();
     assign laser_out[3:1] = laser_out[2:0];
 
     // Optical path elements
+    OpticalDataGenerator
+                        #   (   .wavelength("1263.76e-9"),
+                                .bit_period("400e-12"),
+                                .bit_zero_optical_power("-8"),
+                                .bit_one_optical_power("-5"),
+                                .bit_zero_transition_time("80e-12"),
+                                .bit_one_transition_time("80e-12"))
+        optical_data_gen    (   .out        (optical_data_gen_out));
+
     LaserSourceOffChip
                         #   (   .wavelength_begin("1263.76e-9"),
                                 .wavelength_end("1263.76e-9"),
-                                .laser_output_power_per_wavelength("-3.00"))
+                                .laser_output_power_per_wavelength("-100.00"))
         laser_source        (   .out        (laser_out[0]));
     
     LossyOpticalNet
@@ -46,7 +56,8 @@ module Cell();
     ResonantRing
                         #   (   .t1("0.995"),
                                 .t2("0.995"))
-        receiver_ring       (   .in         (waveguide_1_out),
+        //receiver_ring       (   .in         (waveguide_1_out),
+        receiver_ring       (   .in         (optical_data_gen_out),
                                 .thru       (rec_ring_out),
                                 .drop       (rec_ring_drop));
                             

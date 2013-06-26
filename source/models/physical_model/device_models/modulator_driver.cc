@@ -88,7 +88,9 @@ namespace Thermal
     } // initializeDevice
 
     void ModulatorDriver::updateDeviceProperties(Time time_elapsed_since_last_update)
-    {
+    {   
+        double output_voltage_at_end_of_last_period = 0;
+
         // update current bit elapsed time
         _current_bit_elapsed_time += time_elapsed_since_last_update;
 
@@ -96,7 +98,7 @@ namespace Thermal
         if(_current_bit_elapsed_time >= _bit_period)
         {
             // the output voltage supposed to be reached at the end of last period
-            double output_voltage_at_end_of_last_period = _current_target_voltage + _current_delta_voltage * exp(-_bit_period/_current_time_const);
+            output_voltage_at_end_of_last_period = _current_target_voltage + _current_delta_voltage * exp(-_bit_period/_current_time_const);
 
             // get the next bit from the data structure
             _current_bit = Data::getSingleton()->getBitSequenceData(_instance_name)->getNextBit();

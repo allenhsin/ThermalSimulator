@@ -1,5 +1,5 @@
 # Cell Test Modulaotr Bit Sequence Activity, sampling period = 50us
-modulator_driver
+modulator_driver optical_data_gen
 
-1.0-0.5
+1.0-0.5 1.0-0.5
 

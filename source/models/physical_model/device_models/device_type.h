@@ -16,6 +16,7 @@ namespace Thermal
         PHOTODETECTOR,
         CURRENT_INTEGRATING_RECEIVER,
         THERMAL_TUNER,
+        OPTICAL_DATA_GENERATOR,
         NUM_DEVICE_TYPES
     };
 

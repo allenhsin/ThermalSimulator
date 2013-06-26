@@ -47,7 +47,7 @@ namespace Thermal
         }
         else
         {
-            if( wavelength_begin <= wavelength_end )
+            if( wavelength_begin >= wavelength_end )
                 LibUtil::Log::printFatalLine(cerr, "\nERROR: Wrong wavelength range.\n");
         }
     }

@@ -27,10 +27,10 @@
 
     # number of WDM wavelengths
     number_wavelength                   = 1
-    # beginning of WDM wavelength
+    # beginning of WDM wavelength [m]
     wavelength_begin                    = 1263.76e-9
     #wavelength_begin                    = 1264.5e-9
-    # end of WDM wavelength
+    # end of WDM wavelength [m]
     wavelength_end                      = 1263.76e-9
 
 

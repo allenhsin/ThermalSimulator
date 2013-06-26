@@ -1,0 +1,41 @@
+
+# This is a comment line
+# In-line comment is not allowed
+
+# The name of the device type. This is the same name which is used
+# for the module name in the device verilog netlist
+
+[name]
+    OpticalDataGenerator
+
+# List the ports of the device and the port's corresponding properties.
+#
+# Format: <PortName, PortType, Property1, Property2, Property3, ...>
+#
+# Number of properties is arbitrary.
+# Port Types: INPUT, OUTPUT
+
+[port]
+    <out, OUTPUT, power, wavelength>
+    <ref, OUTPUT, bit>
+
+# Parameters are editable through the netlist
+# and also have default values as defined below.
+[parameter]
+
+    # [m]
+    wavelength                          = 1263.76e-9
+    
+    # Bit period - Data rate of the input bit sequence [s]
+    bit_period                          = 1e-9
+
+    # bit-0 optical power [dBm]
+    bit_zero_optical_power              = -10.00
+    # bit-1 optical power [dBm]
+    bit_one_optical_power               = -7.00
+
+    # bit-0 power to bit-1 power time (10% to 90%) [s]
+    bit_one_transition_time             = 30e-12
+    # bit-1 power to bit-0 power time (10% to 90%) [s]
+    bit_zero_transition_time            = 30e-12
+    

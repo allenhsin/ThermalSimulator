@@ -2,6 +2,7 @@
 <modulator_driver,  out, ref>
 <modulator,         in, thru, heater>
 <receiver_ring,     in, thru, drop>
+<optical_data_gen,  out, ref>
 <curr_int_receiver, optical_in, out>
 
 [time]
