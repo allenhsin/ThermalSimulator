@@ -157,15 +157,12 @@ namespace Thermal
 
     void OpticalDataGenerator::printMonitoredResult()
     {
-        double value = 0;
         for(map<string, FILE*>::iterator it = _monitored_device_ports.begin(); it != _monitored_device_ports.end(); ++it)
         {
             if(it->first == "out")
-                value = getPort("out")->getPortPropertyValueByIndex("power", 0);
+                fprintf(it->second, "%.9f\n", getPort("out")->getPortPropertyValueByIndex("power", 0));
             else if(it->first == "ref")
-                value = getPort("ref")->getPortPropertyValueByIndex("bit", 0);
-            
-            fprintf(it->second, "%.2f\n", value);
+                fprintf(it->second, "%.2f\n", getPort("ref")->getPortPropertyValueByIndex("bit", 0));
         }
     }
 
